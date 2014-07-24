@@ -1,0 +1,14 @@
+nSignals <- 1
+nBackgrounds <- 0
+
+BField <- 0.9467
+BFieldError <- 0.0005
+BFieldResolution <- 0.0001
+
+BCoil <- -0.00475
+BCoilCurrent <- 2.0
+BCoilError <- 0.0001
+
+fclock <- 0.0
+fclockError <- 10.0
+gCoupling <- 1.0

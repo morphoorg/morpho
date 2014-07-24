@@ -1,9 +1,0 @@
-minFreq <- 24000000000.0
-maxFreq <-26000000000.0
-FunctionAmplitude <- c(0.360, 0.392,0.581)
-FunctionAmplitudeError <- c(0.1, 0.1, 0.1)
-FunctionMean <- c(17830.,30424.,30477.2)
-FunctionMeanError <- c(2.,2.,2.)
-FunctionWidth <- c(2.83,1.84,1.4)
-SignalLevel <-0.90
-NoiseLevel <- 0.10

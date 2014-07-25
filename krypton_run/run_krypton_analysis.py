@@ -4,7 +4,7 @@ casheDirectory = './cache'
 
 # Below is an example of running the analysis on experimental data.
 
-runType = "MC"
+runType = "Data"
 
 if runType=="Data":
     theModel = './krypton_analysis.stan'
@@ -24,7 +24,8 @@ theData = pyL.stan_data_files(theDataFiles)
 fit = pyL.stan_cache(model_code= theModel, 
 		 cashe_dir= casheDirectory,
 		 data=theData,
-		 iter=2500, chains=8,
+		 algorithm = 'NUTS', 
+		 iter=2500, chains=16,
 		 sample_file=theSample)
 
 # Print results and make plots

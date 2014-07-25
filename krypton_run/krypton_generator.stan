@@ -92,6 +92,7 @@ functions{
 //  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
 
 	real vcauchy_lp(real beta_raw, real mu, real sigma) {
+	       beta_raw ~ uniform(-pi()/2. , +pi()/2.);
 	       return mu +  tan(beta_raw) * sigma;
 	}
 
@@ -180,7 +181,7 @@ transformed parameters {
 	real TrappingField;
 	real TotalField;
 	real df;
-	real sigmaB; 
+	real muB; 
 
 	real stheta;
 	real KE;
@@ -189,12 +190,12 @@ transformed parameters {
 
 // Calculate primary magnetic field
 
-   	sigmaB <- sqrt(square(BFieldError) + square(BFieldResolution));
-	MainField <- vnormal_lp(uNormal[1], BField, sigmaB);
+	muB <-  vnormal_lp(uNormal[1], BField, BFieldError);
+	MainField <- vnormal_lp(uNormal[2], muB, BFieldResolution);
 
 // Calculate trapping coil effect and total (minimum) field
 
-   	TrappingField  <- vnormal_lp(uNormal[2], BCoil* BCoilCurrent, BCoilError);
+   	TrappingField  <- vnormal_lp(uNormal[3], BCoil* BCoilCurrent, BCoilError);
 	TotalField <- MainField + TrappingField;
 
 //  Calculate maximum pitch angle from trapping coil
@@ -203,7 +204,7 @@ transformed parameters {
 
 //  Calculate the smear of the frequency due to windowing and clock error (plus clock shift).  Assume normal distribution.
 
-	df <- vcauchy_lp(uNormal[3], fclock, fclockError);
+	df <- vcauchy_lp(uCauchy, fclock, fclockError);
 
 // Calculate mean energy of each branch
 

@@ -2,8 +2,8 @@ nSignals <- 1
 nBackgrounds <- 0
 
 BField <- 0.9467
-BFieldError <- 0.0005
-BFieldResolution <- 0.0001
+BFieldError <- 0.0001
+BFieldResolution <- 0.0005
 
 BCoil <- -0.00475
 BCoilCurrent <- 2.0

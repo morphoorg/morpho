@@ -92,6 +92,7 @@ functions{
 //  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
 
 	real vcauchy_lp(real beta_raw, real mu, real sigma) {
+	       beta_raw ~ uniform(-pi()/2. , +pi()/2.);
 	       return mu +  tan(beta_raw) * sigma;
 	}
 
@@ -168,9 +169,9 @@ transformed parameters {
 	real<lower=0.,upper=1.> sthetamin;
 	real MainField;
 	real TrappingField;
-	real TotalField;
+	real<upper=MainField> TotalField;
 	real df;
-	real sigmaB; 
+	real muB; 
 
 	vector[nData] stheta;
 	vector[nData] KE;
@@ -181,12 +182,12 @@ transformed parameters {
 
 // Calculate primary magnetic field
 
-   	sigmaB <- sqrt(square(BFieldError) + square(BFieldResolution));
-	MainField <- vnormal_lp(uNormal[1], BField, sigmaB);
+	muB <-  vnormal_lp(uNormal[1], BField, BFieldError);
+	MainField <- vnormal_lp(uNormal[2], muB, BFieldResolution);
 
 // Calculate trapping coil effect and total (minimum) field
 
-   	TrappingField  <- vnormal_lp(uNormal[2], BCoil* BCoilCurrent, BCoilError);
+   	TrappingField  <- vnormal_lp(uCauchy, BCoil* BCoilCurrent, BCoilError);
 	TotalField <- MainField + TrappingField;
 
 //  Calculate maximum pitch angle from trapping coil

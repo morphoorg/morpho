@@ -5,28 +5,35 @@ import pystanLoad as pyL
 theConfigFile = sys.argv[1]
 print "Using configuration file :",theConfigFile
 
+# Load in configuration file
+
 json_file = open(theConfigFile).read()
-
 json_data = json.loads(json_file)
-config_file = json_data['stan']
+config_file = pyL.readLabel(json_data,'stan','./run.json')
 
-casheDirectory = config_file['model']['cache']
+# Set up the stan model and cache directory
 
-theModel = config_file['model']['file']
+theModel = pyL.readLabel(config_file, 'model')
+casheDirectory = pyL.readLabel(theModel, 'cache', './cache')
+theModelFile =  pyL.readLabel(theModel,'file')
      
-theDataFiles = config_file['data']
+# Set up the input, output and plotting configurations
+theDataFiles =  pyL.readLabel(config_file, 'data')
+theSample = pyL.readLabel(config_file,'sample')
+thePlots =  pyL.readLabel(config_file,'plot')
 
-theSample = config_file['sample']
-     
-thePlots = config_file['plot']
 
-theAlgorithm =  config_file['run']['algorithim']
-nIter =  config_file['run']['iter']
-nChain = config_file['run']['chain']
+# Set up running conditions
+theRunConditions =  pyL.readLabel(config_file,'run')
+theAlgorithm =  pyL.readLabel(theRunConditions,'algorithim','NUTS')
+nIter =   pyL.readLabel(theRunConditions,'iter',2000)
+nChain =  pyL.readLabel(theRunConditions,'chain',4)
 
+# Load in the data
 theData = pyL.stan_data_files(theDataFiles)
 
-theFit = pyL.stan_cache(model_code= theModel, 
+# Execute the fit
+theFit = pyL.stan_cache(model_code= theModelFile, 
 		 cashe_dir= casheDirectory,
 		 data=theData,
 		 algorithm = theAlgorithm, 

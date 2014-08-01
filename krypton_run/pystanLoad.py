@@ -17,6 +17,14 @@ from ROOT import TBranch
 
 import array
 
+# Check if flag exists or set to default
+
+def readLabel(aDict, name, default=None):
+    if not name in aDict:
+	return default
+    else :
+	return aDict[name]
+
 # Inserting data into dict
 
 def insertIntoDataStruct(name,aValue,aDict):

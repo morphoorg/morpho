@@ -11,6 +11,20 @@ import matplotlib.pyplot as plt
 import pickle
 from hashlib import md5
 
+from ROOT import TFile
+from ROOT import TTree
+from ROOT import TBranch
+
+import array
+
+# Inserting data into dict
+
+def insertIntoDataStruct(name,aValue,aDict):
+    if not name in aDict:
+        aDict[name] = [aValue]
+    else:
+        aDict[name].append(aValue)
+
 # make definition such that it is not necessary to recompile each and every time
 
 def stan_cache(model_code, model_name=None, cashe_dir='.',**kwargs):
@@ -36,7 +50,41 @@ def stan_cache(model_code, model_name=None, cashe_dir='.',**kwargs):
 def stan_data_files(theData):
     """Combine header and data files"""
     alist = {}
-    for key in theData:
-	afile = pystan.misc.read_rdump(theData[key])
-	alist = dict(alist.items() + afile.items())
+
+    for tags in theData.keys():
+	for key in theData[tags]:
+	    if tags=='files':
+		atype = key['format']
+		afile = None
+
+		if atype =='R' :
+		    afile = pystan.misc.read_rdump(key['name'])
+		    alist = dict(alist.items() + afile.items())
+
+		elif atype =='root' :		    
+
+		    afile = TFile.Open(key['name'],'read')
+		    atree = TTree()
+		    afile.GetObject(str(key['tree']), atree)
+		    
+		    ar= array.array('d',[0])
+		    nEvents = atree.GetEntries()
+		    alist['nData'] = int(nEvents)
+		    
+		    for iEntry in range(0,nEvents):
+			for lbr in key['branches']:
+			    branch = atree.GetBranch(lbr['name'])
+			    branch.SetAddress (ar)
+			    atree.GetEntry(iEntry)
+			    if 'stan_alias' in lbr.keys():
+				aname = str(lbr['stan_alias'])
+			    else:
+				aname = str(lbr['name'])
+			    insertIntoDataStruct(aname, ar[0], alist)
+		else:
+		    print atype,' format not implemented yet.'
+	    elif tags=='parameters':
+		alist = dict(alist.items() + key.items())
+
     return alist
+

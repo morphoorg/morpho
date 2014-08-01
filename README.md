@@ -26,16 +26,15 @@ Install
 
 	       	      pip install pystan
 		      	     
-			     Similarly, one can install Cython and NumPy in a similar manner
+	One can install Cython and NumPy in a similar manner
 
 
 Running
 ======
 	A sample executible is shown in the main directory:
 
-	  	  python run_krypton_analysis.py
+	  	  python run_krypton_analysis.py  <name_of_json_config_file>
 		  
-
 		  Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 
 		  1.  The script looks for cached versions of the .stan model file.  If not, it generates a new one and saves it.  The cached models exist in the cache directory

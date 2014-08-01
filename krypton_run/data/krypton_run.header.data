@@ -11,4 +11,6 @@ BCoilError <- 0.0001
 
 fclock <- 0.0
 fclockError <- 10.0
-gCoupling <- 1.0
+
+gCoupling <- 1.00
+gCouplingWidth <- 0.2

@@ -131,6 +131,7 @@ data {
 //   Allows one to alter the energy loss relationship by a constant offset
 
 	real gCoupling;
+	real gCouplingWidth;
 
 //   Simulation-specific information on krypton lines
 
@@ -172,6 +173,7 @@ parameters {
 	real<lower=-pi()/2,upper=+pi()/2> uCauchy;
 
 	simplex[nSignals] BranchRatio;
+	real gPower;
 }
 
 transformed parameters {
@@ -224,6 +226,10 @@ model{
 	real log_normalization;
 	vector[nSignals+nBackgrounds] ps;
 
+//   Calculate the power normalization factor
+
+       gPower ~ normal(gCoupling, gCouplingWidth);
+
 //  Distribute fraction of signal krypton events.  
 
 	BranchRatio ~ normal(FunctionAmplitude/sum(FunctionAmplitude), FunctionAmplitudeError/sum(FunctionAmplitude));
@@ -231,15 +237,12 @@ model{
 //   Add in krypton lines
 
 	for (k in 1:nSignals) {
-	    log_normalization <- log_diff_exp(cauchy_cdf_log(maxKE,BranchMean[k],FunctionWidth[k]),
-				   cauchy_cdf_log(minKE,BranchMean[k],FunctionWidth[k]) );
-	    ps[k] <- cauchy_log(KE,BranchMean[k],FunctionWidth[k]) - log_normalization;
-	    ps[k] <- ps[k] + log(SignalLevel) + log(BranchRatio[k]);
+	    ps[k] <-  log(SignalLevel) + log(BranchRatio[k]) + cauchy_log(KE,BranchMean[k],FunctionWidth[k]);
 	}
 
 //   Add in linear background in kinetic energy (i.e. background electrons)
 
-        for (k in nSignals:nSignals+nBackgrounds) {
+        for (k in nSignals+1:nSignals+nBackgrounds) {
 	    ps[k] <- log(NoiseLevel)  - log(maxKE-minKE);
 	}
 
@@ -261,8 +264,8 @@ generated quantities {
 //   Convert to observables for all data points.  Create for each data point.
 	
 	frequency <- get_frequency(KE, stheta, TotalField) - df;
-	power <- get_power(KE, stheta, TotalField);
-	dfdt <- gCoupling * get_frequency_loss(KE, stheta, TotalField);
+	power <- gPower * get_power(KE, stheta, TotalField);
+	dfdt <- gPower * get_frequency_loss(KE, stheta, TotalField);
 	
 	freq_data <- normal_rng(frequency, frequencyWidth);
 	dfdt_data <- normal_rng(dfdt, dfdtWidth);

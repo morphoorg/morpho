@@ -130,6 +130,7 @@ data {
 //   Allows one to alter the energy loss relationship by a constant offset
 
 	real gCoupling;
+	real gCouplingWidth;
 
 //   Observed data and errors.  Measured in Hz and Hz/s.
 
@@ -159,6 +160,8 @@ parameters {
 
 	real<lower=-pi()/2,upper=+pi()/2> uCauchy;
 
+	real gPower;
+
 	real<lower=minKE, upper=maxKE> SourceMean;
 	real<lower=0., upper = 1.e9> SourceWidth;
 
@@ -187,7 +190,7 @@ transformed parameters {
 
 // Calculate trapping coil effect and total (minimum) field
 
-   	TrappingField  <- vnormal_lp(uCauchy, BCoil* BCoilCurrent, BCoilError);
+   	TrappingField  <- vnormal_lp(uNormal[3], BCoil* BCoilCurrent, BCoilError);
 	TotalField <- MainField + TrappingField;
 
 //  Calculate maximum pitch angle from trapping coil
@@ -196,7 +199,7 @@ transformed parameters {
 
 //  Calculate the smear of the frequency due to windowing and clock error (plus clock shift).  Assume normal distribution.
 
-	df <- vcauchy_lp(uNormal[3], fclock, fclockError);
+	df <- vcauchy_lp(uCauchy, fclock, fclockError);
 
 //   Calculate sin(pitch angle) and kinetic energy assuming flat distributions
 
@@ -207,8 +210,10 @@ transformed parameters {
 	
 	for (n in 1:nData) {
 	    frequency[n] <- get_frequency(KE[n], stheta[n], TotalField) - df;
-	    power[n] <- get_power(KE[n], stheta[n], TotalField);
-	    dfdt[n] <- gCoupling * get_frequency_loss(KE[n], stheta[n], TotalField);
+	    if (gCoupling >0.) {
+	       power[n] <- gPower * get_power(KE[n], stheta[n], TotalField);
+	       dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta[n], TotalField);
+	    }
 	}
 }
 
@@ -216,6 +221,10 @@ model{
 
 //   Assume data is gaussian-distributed around the predicted frequency and power loss
 //   No correlation in the data for the moment
+
+//   Calculate the power normalization factor
+
+        gPower ~ normal(gCoupling, gCouplingWidth);
 
 	freq_data ~ normal(frequency, frequencyWidth);
 

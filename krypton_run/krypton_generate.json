@@ -1,0 +1,43 @@
+{
+  "stan": {
+
+  	 "name": "krypton_generator",
+
+	 "model":	{
+	 	"file": "./krypton_generator.stan",
+		"cache": "./cache"
+		},
+
+	 "data": {
+	 	"type": "mc",
+		"files": [
+		    {
+			"name": "./data/krypton_run.header.data", 
+			"format":"R"
+		    },
+		    {
+			"name": "./data/krypton_monte_carlo.data", 
+			"format":"R"
+		    }
+		 ]
+	},
+
+	"run": {
+	       "algorithim": "NUTS",
+	       "iter": 2500,
+	       "chain": 8},
+
+	"plot": [
+		{"variable": "TotalField"},
+		{"variable": "TrappingField"},
+		{"variable": "MainField"},
+		{"variable": "KE"},
+		{"variable": "frequency"},
+		{"variable": "stheta"}
+		],
+
+	"sample": "./results/test_generator.out"
+
+   }
+
+}

@@ -1,38 +1,43 @@
+import json
+import sys
 import pystanLoad as pyL
 
-casheDirectory = './cache'
+theConfigFile = sys.argv[1]
+print "Using configuration file :",theConfigFile
 
-# Below is an example of running the analysis on experimental data.
+json_file = open(theConfigFile).read()
 
-runType = "Data"
+json_data = json.loads(json_file)
+config_file = json_data['stan']
 
-if runType=="Data":
-    theModel = './krypton_analysis.stan'
-    theDataFiles = {'header':'./data/krypton_run.header.data', 'data':'./data/krypton_run.data'}
-    theSample= "./results/test_analysis.out"
-    thePlots = ['TotalField','TrappingField','MainField','frequency','SourceMean','SourceWidth','KE','stheta','dfdt']
-else :
-    theModel = './krypton_generator.stan'
-    theDataFiles = {'header':'./data/krypton_run.header.data', 'mc':'./data/krypton_monte_carlo.data'}
-    theSample= "./results/test_generator.out"
-    thePlots = ['TotalField','TrappingField','MainField','KE','frequency','freq_data','dfdt']
+casheDirectory = config_file['model']['cache']
 
-# Run fitter
+theModel = config_file['model']['file']
+     
+theDataFiles = config_file['data']
+
+theSample = config_file['sample']
+     
+thePlots = config_file['plot']
+
+theAlgorithm =  config_file['run']['algorithim']
+nIter =  config_file['run']['iter']
+nChain = config_file['run']['chain']
 
 theData = pyL.stan_data_files(theDataFiles)
 
-fit = pyL.stan_cache(model_code= theModel, 
+theFit = pyL.stan_cache(model_code= theModel, 
 		 cashe_dir= casheDirectory,
 		 data=theData,
-		 algorithm = 'NUTS', 
-		 iter=2500, chains=16,
+		 algorithm = theAlgorithm, 
+		 iter=nIter, chains=nChain,
 		 sample_file=theSample)
 
 # Print results and make plots
 
-print(fit)
+print(theFit)
 
 for key in thePlots:
-    fit.plot(key)
+    theFit.plot(key['variable'])
 
 pyL.plt.show()

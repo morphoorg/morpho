@@ -24,7 +24,8 @@
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 5000,
+	       "iter": 9010,
+	       "warmup": 9000,
 	       "chain": 12},
 
 	"plot": [
@@ -40,16 +41,17 @@
 
 	"output": 
 		  {
-		   "name" : "./test_output.root",
+		   "name" : "./results/test_generator.root",
 		   "format" : "root",
 		   "tree" : "procTracks",
 		   "branches" : [
 		   	   {"variable" : "stheta", "root_alias" : "stheta"},
 		   	   {"variable" : "KE", "root_alias" : "KE"},
 		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
-		   	   {"variable" : "frequency", "root_alias" : "freq_data"},
-		   	   {"variable" : "dfdt", "root_alias" : "dfdt_data"},
-		   	   {"variable" : "power", "root_alias" : "power_data"}
+		   	   {"variable" : "power", "root_alias" : "power"},
+		   	   {"variable" : "frequency", "root_alias" : "MinFrequency"},
+		   	   {"variable" : "dfdt", "root_alias" : "Slope"},
+		   	   {"variable" : "IsCut", "root_alias" : "IsCut"}
 		    	   ]
 		   }	   
 

@@ -42,17 +42,29 @@ theRunConditions =  pyL.readLabel(config_file,'run')
 theAlgorithm =  pyL.readLabel(theRunConditions,'algorithim','NUTS')
 nIter =   pyL.readLabel(theRunConditions,'iter',2000)
 nChain =  pyL.readLabel(theRunConditions,'chain',4)
+nThin  =  pyL.readLabel(theRunConditions,'thin',1)
+nWarmup = pyL.readLabel(theRunConditions,'warmup',nIter/2)
+
+parList = pyL.readLabel(theRunConditions,'pars',None)
+if parList is None:
+    nPars = None
+else :
+    nPars  =  []
+    for keys in parList:
+	nPars.append(str(keys))
 
 # Load in the data
 theData = pyL.stan_data_files(theDataFiles)
 
 # Execute the fit
 theFit = pyL.stan_cache(model_code= theModelFile, 
-		 cashe_dir= casheDirectory,
-		 data=theData,
-		 algorithm = theAlgorithm, 
-		 iter=nIter, chains=nChain,
-		 sample_file=theSample)
+			cashe_dir= casheDirectory,
+			data=theData,
+			algorithm = theAlgorithm, 
+			iter=nIter, chains=nChain, 
+			thin=nThin, warmup=nWarmup,
+			npars=nPars,
+			sample_file=theSample)
 
 # Output the data into a root file
 
@@ -87,6 +99,16 @@ if theOutput is not None:
 	    
 	atree.Write()
 	afile.Close()
+
+    elif theOutputType=='R':
+
+	theOutputVar = pyL.readLabel(theOutput,'branches', None)
+	theOutputData = {}
+	for key in theOutputVar:
+	    theOutputData.append(theFit.extract(key['variable']))
+
+	pystan.misc.stan_rdump(theOutputFile)
+
     else :
 	print 'The output format is not supported:', theOutputType
 

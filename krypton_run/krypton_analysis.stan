@@ -181,8 +181,8 @@ transformed parameters {
 	vector[nData] KE;
 
 	vector[nData] frequency; 
-	vector[nData] power;
 	vector[nData] dfdt;
+	vector[nData] power;
 
 // Calculate primary magnetic field
 
@@ -211,10 +211,8 @@ transformed parameters {
 	
 	for (n in 1:nData) {
 	    frequency[n] <- get_frequency(KE[n], stheta[n], TotalField) - df;
-	    if (gCoupling >0.) {
-	       power[n] <- gPower * get_power(KE[n], stheta[n], TotalField);
-	       dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta[n], TotalField);
-	    }
+	    power[n] <- gPower * get_power(KE[n], stheta[n], TotalField);
+	    dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta[n], TotalField);
 	}
 }
 
@@ -233,6 +231,6 @@ model{
 
 //  Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
 
-	 if (nSignals >0)  KE ~ cauchy(SourceMean, SourceWidth);
+	 if (nSignals >0)  KE ~ normal(SourceMean, SourceWidth);
 
 }

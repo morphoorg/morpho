@@ -12,7 +12,7 @@ BCoilError <- 0.0001
 fclock <- 24.200e9
 fclockError <- 10.0
 
-gCoupling <- 0.00
+gCoupling <- 1.00
 gCouplingWidth <- 0.10
 
 frequencyWidth <- 15000.

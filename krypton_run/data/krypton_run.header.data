@@ -9,8 +9,11 @@ BCoil <- -0.00475
 BCoilCurrent <- 2.0
 BCoilError <- 0.0001
 
-fclock <- 24.2e9
+fclock <- 24.200e9
 fclockError <- 10.0
 
 gCoupling <- 0.00
-gCouplingWidth <- 0.2
+gCouplingWidth <- 0.10
+
+frequencyWidth <- 15000.
+dfdtWidth <- 1.e6

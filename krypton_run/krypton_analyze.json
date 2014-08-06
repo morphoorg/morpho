@@ -10,12 +10,6 @@
 
 	 "data": {
 	 	"type": "data",
-		"parameters": [
-		      {
-			"minFreq" : 24.2e9,
-			"maxFreq" : 26.4e9
-		      }
-		    ],
 		"files": [
 		    {
 			"name": "./data/krypton_run.header.data", 
@@ -25,31 +19,35 @@
 			"name" : "./data/TestTracks_Krdatacold_520MHz_trapon2A.root", 
 			"format" : "root",
 			"tree" : "procTracks",
+			"cut_off": "Intercept > 0 && Slope > 0",
 			"branches" : [
 				   {"name" : "Intercept", "stan_alias" : "freq_data"},
-				   {"name" : "InterceptSigma", "stan_alias" : "frequencyWidth"},
-				   {"name" : "Slope", "stan_alias" : "dfdt_data"},
-				   {"name" : "SlopeSigma", "stan_alias" : "dfdtWidth"}
+				   {"name" : "Slope", "stan_alias" : "dfdt_data"}
 				   ]
 		     }
-		 ]
+		 ],
+		"parameters": [
+		      {
+			"minFreq" : 24.2e9,
+			"maxFreq" : 26.0e9,
+			"fclock" : 24.750e9
+		      }
+		    ]
 	},
 
 	"run": {
 	       "algorithim": "NUTS",
 	       "iter": 2500,
-	       "chain": 8},
+	       "chain": 1},
 
 	"plot": [
 		{"variable": "TotalField"},
 		{"variable": "TrappingField"},
 		{"variable": "MainField"},
-		{"variable": "KE"},
-		{"variable": "frequency"},
 		{"variable": "stheta"},
 		{"variable": "SourceMean"},
 		{"variable": "SourceWidth"},
-		{"variable": "gPower"}
+		{"variable": "KE"}		
 		],
 
 	"sample": "./results/test_generator.out"

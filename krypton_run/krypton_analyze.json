@@ -16,12 +16,12 @@
 			"format":"R"
 		    },
 	 	    {
-			"name" : "./data/TestTracks_Krdatacold_520MHz_trapon2A.root", 
+			"name" : "./results/test_generator.root", 
 			"format" : "root",
 			"tree" : "procTracks",
-			"cut_off": "Intercept > 0 && Slope > 0",
+			"cut": "MinFrequency > 0 && ! IsCut",
 			"branches" : [
-				   {"name" : "Intercept", "stan_alias" : "freq_data"},
+				   {"name" : "MinFrequency", "stan_alias" : "freq_data"},
 				   {"name" : "Slope", "stan_alias" : "dfdt_data"}
 				   ]
 		     }
@@ -29,8 +29,9 @@
 		"parameters": [
 		      {
 			"minFreq" : 24.2e9,
-			"maxFreq" : 26.0e9,
-			"fclock" : 24.750e9
+			"maxFreq" : 26.2e9,
+			"fclock" : 24.2000e9,
+			"gCoupling" : 0.00
 		      }
 		    ]
 	},
@@ -38,20 +39,35 @@
 	"run": {
 	       "algorithim": "NUTS",
 	       "iter": 2500,
-	       "chain": 1},
+	       "chain": 1,
+	       "pars_off": ["TotalField", "TrappingField", "MainField", "SourceMean", "SourceWidth"]
+	       },
 
-	"plot": [
+	"plot_off": [
 		{"variable": "TotalField"},
 		{"variable": "TrappingField"},
 		{"variable": "MainField"},
-		{"variable": "stheta"},
 		{"variable": "SourceMean"},
-		{"variable": "SourceWidth"},
-		{"variable": "KE"}		
+		{"variable": "SourceWidth"}
 		],
 
-	"sample": "./results/test_generator.out"
-
+	"output": 
+		  {
+		   "name" : "./results/test_analysis.root",
+		   "format" : "root",
+		   "tree" : "stanAnalysis",
+		   "branches" : [
+		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
+		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
+		   	   {"variable" : "MainField", "root_alias" : "MainField"},
+		   	   {"variable" : "gPower", "root_alias" : "gPower"},
+		   	   {"variable" : "df", "root_alias" : "df"},
+		   	   {"variable" : "muB", "root_alias" : "muB"},
+		   	   {"variable" : "uCauchy", "root_alias" : "uCauchy"},
+		   	   {"variable" : "SourceMean", "root_alias" : "SourceMean"},
+		   	   {"variable" : "SourceWidth", "root_alias" : "SourceWidth"}
+		    	   ]
+		   }	   
    }
 
 }

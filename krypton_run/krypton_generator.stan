@@ -261,6 +261,8 @@ generated quantities {
 	real freq_data;
 	real dfdt_data;
 
+	int IsCut;
+
 //   Convert to observables for all data points.  Create for each data point.
 	
 	frequency <- get_frequency(KE, stheta, TotalField) - df;
@@ -270,4 +272,5 @@ generated quantities {
 	freq_data <- normal_rng(frequency, frequencyWidth);
 	dfdt_data <- normal_rng(dfdt, dfdtWidth);
 
+	IsCut <- 0;
 }

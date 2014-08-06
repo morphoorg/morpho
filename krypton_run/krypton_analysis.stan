@@ -132,13 +132,14 @@ data {
 	real gCoupling;
 	real gCouplingWidth;
 
+  	real frequencyWidth;
+  	real dfdtWidth;
+
 //   Observed data and errors.  Measured in Hz and Hz/s.
 
 	int <lower=0> nData;
 	vector[nData] freq_data;
-  	vector[nData] frequencyWidth;
 	vector[nData] dfdt_data;
-  	vector[nData] dfdtWidth;
 
 }   
 

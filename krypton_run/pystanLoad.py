@@ -1,23 +1,13 @@
 # Definitions for loading and using pystan for analysis
 
+import ROOT as root 
+
 import pystan
-
-import numpy as np
-
-import matplotlib
-matplotlib.use('TKAgg')
-import matplotlib.pyplot as plt
 
 import pickle
 from hashlib import md5
 
-from ROOT import TFile
-from ROOT import TTree
-from ROOT import TBranch
-
 import array
-
-# Check if flag exists or set to default
 
 def readLabel(aDict, name, default=None):
     if not name in aDict:
@@ -71,26 +61,37 @@ def stan_data_files(theData):
 
 		elif atype =='root' :		    
 
-		    afile = TFile.Open(key['name'],'read')
-		    atree = TTree()
+		    afile = root.TFile.Open(key['name'],'read')
+		    atree = root.TTree()
 		    afile.GetObject(str(key['tree']), atree)
 		    
-		    ar= array.array('d',[0])
+		    aCut = readLabel(key,'cut',None)
+
+		    if aCut is not None:
+			atree = atree.CopyTree(aCut)
+
 		    nEvents = atree.GetEntries()
+		    ar = array.array('d',[0])
 		    alist['nData'] = int(nEvents)
 		    
-		    for iEntry in range(0,nEvents):
-			for lbr in key['branches']:
-			    branch = atree.GetBranch(lbr['name'])
-			    branch.SetAddress (ar)
+		    for lbr in key['branches']:
+			branch = atree.GetBranch(lbr['name'])
+			branch.SetAddress (ar)
+
+			for iEntry in range(0,nEvents):
+
 			    atree.GetEntry(iEntry)
+
 			    if 'stan_alias' in lbr.keys():
 				aname = str(lbr['stan_alias'])
 			    else:
 				aname = str(lbr['name'])
 			    insertIntoDataStruct(aname, ar[0], alist)
+
+		    afile.Close()
+
 		else:
-		    print atype,' format not implemented yet.'
+		    print atype,' format not yet implemented.'
 	    elif tags=='parameters':
 		alist = dict(alist.items() + key.items())
 

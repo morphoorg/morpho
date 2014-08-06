@@ -4,19 +4,19 @@
   	 "name": "krypton_analysis",
 
 	 "model":	{
-	 	"file": "./krypton_analysis.stan",
-		"cache": "./cache"
+	 	"file": "./krypton_run/models/krypton_analysis.stan",
+		"cache": "./krypton_run/cache"
 		},
 
 	 "data": {
 	 	"type": "data",
 		"files": [
 		    {
-			"name": "./data/krypton_run.header.data", 
+			"name": "./krypton_run/data/krypton_run.header.data", 
 			"format":"R"
 		    },
 	 	    {
-			"name" : "./results/test_generator.root", 
+			"name" : "./krypton_run/results/test_generator.root", 
 			"format" : "root",
 			"tree" : "procTracks",
 			"cut": "MinFrequency > 0 && ! IsCut",
@@ -38,8 +38,8 @@
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 2500,
-	       "chain": 1,
+	       "iter": 5,
+	       "chain": 4,
 	       "pars_off": ["TotalField", "TrappingField", "MainField", "SourceMean", "SourceWidth"]
 	       },
 
@@ -53,7 +53,7 @@
 
 	"output": 
 		  {
-		   "name" : "./results/test_analysis.root",
+		   "name" : "./krypton_run/results/test_analysis.root",
 		   "format" : "root",
 		   "tree" : "stanAnalysis",
 		   "branches" : [

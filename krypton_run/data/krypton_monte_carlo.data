@@ -1,9 +1,5 @@
 nSignals <- 1
 nBackgrounds <-0
-frequencyWidth <- 15000.
-dfdtWidth <- 1.e6
-minFreq <- 24.200e9
-maxFreq <-26.200e9
 FunctionAmplitude <- c(0.360)
 FunctionAmplitudeError <- c(0.01)
 FunctionMean <- c(17830.)

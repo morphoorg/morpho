@@ -9,6 +9,9 @@ BCoil <- -0.00475
 BCoilCurrent <- 2.0
 BCoilError <- 0.0001
 
+minFreq <- 24.200e9
+maxFreq <-26.200e9
+
 fclock <- 24.200e9
 fclockError <- 10.0
 

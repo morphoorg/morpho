@@ -129,6 +129,7 @@ data {
 
 //   Allows one to alter the energy loss relationship by a constant offset
 
+        int  usePower;
 	real gCoupling;
 	real gCouplingWidth;
 
@@ -227,10 +228,29 @@ model{
 
 	freq_data ~ normal(frequency, frequencyWidth);
 
-	if (gCoupling > 0.) dfdt_data ~ normal(dfdt, dfdtWidth);
+	if (usePower > 0) dfdt_data ~ normal(dfdt, dfdtWidth);
 
 //  Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
 
 	 if (nSignals >0)  KE ~ normal(SourceMean, SourceWidth);
+
+}
+
+generated quantities {
+
+//  Compute mean values of system
+
+    	  real avg_KE;
+    	  real avg_stheta;
+	  real SourceFrequency;
+	  real SourcePower;
+	  real SourceSlope;
+
+	  avg_stheta <- mean(stheta);
+	  avg_KE <- mean(KE);
+
+	  SourceFrequency <- get_frequency(SourceMean, avg_stheta , TotalField) - df;
+	  SourcePower <- gPower * get_power(SourceMean, avg_stheta , TotalField);
+	  SourceSlope <- gPower * get_frequency_loss(SourceMean, avg_stheta , TotalField);
 
 }

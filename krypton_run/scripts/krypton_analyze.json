@@ -16,7 +16,7 @@
 			"format":"R"
 		    },
 	 	    {
-			"name" : "./krypton_run/results/test_generator.root", 
+			"name" : "./krypton_run/data/TestTracks_Krdatacold_520MHz_trapon2A.root", 
 			"format" : "root",
 			"tree" : "procTracks",
 			"cut": "MinFrequency > 0 && ! IsCut",
@@ -28,17 +28,15 @@
 		 ],
 		"parameters": [
 		      {
-			"minFreq" : 24.2e9,
-			"maxFreq" : 26.2e9,
-			"fclock" : 24.2000e9,
-			"gCoupling" : 0.00
+		        "usePower" : 0,
+			"fclock" : 24.7200e9
 		      }
 		    ]
 	},
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 5,
+	       "iter": 5000,
 	       "chain": 4,
 	       "pars_off": ["TotalField", "TrappingField", "MainField", "SourceMean", "SourceWidth"]
 	       },
@@ -53,7 +51,7 @@
 
 	"output": 
 		  {
-		   "name" : "./krypton_run/results/test_analysis.root",
+		   "name" : "./krypton_run/results/test_analysis_Krdatacold_520MHz_trapon2A.root",
 		   "format" : "root",
 		   "tree" : "stanAnalysis",
 		   "branches" : [
@@ -65,7 +63,13 @@
 		   	   {"variable" : "muB", "root_alias" : "muB"},
 		   	   {"variable" : "uCauchy", "root_alias" : "uCauchy"},
 		   	   {"variable" : "SourceMean", "root_alias" : "SourceMean"},
-		   	   {"variable" : "SourceWidth", "root_alias" : "SourceWidth"}
+		   	   {"variable" : "SourceWidth", "root_alias" : "SourceWidth"},
+		   	   {"variable" : "SourceFrequency", "root_alias" : "SourceFrequency"},
+		   	   {"variable" : "SourcePower", "root_alias" : "SourcePower"},
+		   	   {"variable" : "SourceSlope", "root_alias" : "SourceSlope"},
+		   	   {"variable" : "avg_KE", "root_alias" : "avg_KE"},
+		   	   {"variable" : "avg_stheta", "root_alias" : "avg_stheta"},
+		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
 		    	   ]
 		   }	   
    }

@@ -24,9 +24,9 @@
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 9010,
+	       "iter": 10000,
 	       "warmup": 9000,
-	       "chain": 12},
+	       "chain": 10},
 
 	"plot": [
 		{"variable": "TotalField"},
@@ -47,11 +47,15 @@
 		   "branches" : [
 		   	   {"variable" : "stheta", "root_alias" : "stheta"},
 		   	   {"variable" : "KE", "root_alias" : "KE"},
+		   	   {"variable" : "MainField", "root_alias" : "MainField"},
+		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
 		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
+		   	   {"variable" : "gPower", "root_alias" : "gPower"},
 		   	   {"variable" : "power", "root_alias" : "power"},
 		   	   {"variable" : "frequency", "root_alias" : "MinFrequency"},
 		   	   {"variable" : "dfdt", "root_alias" : "Slope"},
-		   	   {"variable" : "IsCut", "root_alias" : "IsCut"}
+		   	   {"variable" : "IsCut", "root_alias" : "IsCut"},
+		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
 		    	   ]
 		   }	   
 

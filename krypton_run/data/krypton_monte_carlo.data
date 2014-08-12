@@ -1,8 +1,8 @@
-nSignals <- 4
+nSignals <- 1
 nBackgrounds <-1
-FunctionAmplitude <- c(0.360, 0.392, 0.581, 0.105)
-FunctionAmplitudeError <- c(0.01,0.01,0.01,0.01)
-FunctionMean <- c(17830., 30424.4, 30477.2, 31941.9)
-FunctionMeanError <- c(2., 2., 2., 2.)
-FunctionWidth <- c(2.83, 1.84, 1.4, 1.66)
-BackgroundRate <- 0.05
+FunctionAmplitude <- c(0.360)
+FunctionAmplitudeError <- c(0.01)
+FunctionMean <- c(17830.)
+FunctionMeanError <- c(2.)
+FunctionWidth <- c(2.83)
+BackgroundRate <- 0.25

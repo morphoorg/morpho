@@ -16,19 +16,24 @@
 			"format":"R"
 		    },
 	 	    {
-			"name" : "./krypton_run/data/events_combined_full.root", 
+			"name" : "./krypton_run/results/test_generator.root", 
 			"format" : "root",
-			"tree" : "combinedCandidates",
+			"tree" : "procTracks",
+			"cut" :  "! IsCut",
 			"branches" : [
-				   {"name" : "TrapCurrent", "stan_alias" : "TrapCurrent"},				   
-				   {"name" : "fSlope", "stan_alias" : "dfdt_data"},	
-				   {"name" : "StartFrequencyCal", "stan_alias" : "freq_data"},
-				   {"name" : "LivetimeWeight", "stan_alias" : "LivetimeWeight"}
+				   {"name" : "MinFrequency", "stan_alias" : "freq_data"},				   
+				   {"name" : "Slope", "stan_alias" : "dfdt_data"}	
 				   ]
 		     }
 		 ],
 		"parameters": [
 		      {
+		        "minFreq" : 24.2e9,
+		        "maxFreq" : 26.2e9,			
+		        "LOFreq" : 0,
+			"fClock"  : 0,
+			"TrapCurrent" : 2000,
+			"LivetimeWeight" : 1.0, 
 		        "usePower" : 0
 		      }
 		    ]
@@ -36,19 +41,22 @@
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 5000,
-	       "chain": 1
+	       "iter": 20000,
+	       "chain": 12
 	       },
 
-	"plot": [
-		{"variable": "TrappingField"},
-		{"variable": "MainField"},
+	"plot_off": [
 		{"variable": "muB"},
+		{"variable": "MainField"},
+		{"variable": "TrappingField"},
+		{"variable": "TotalField"},
 		{"variable": "df"},
-		{"variable": "BackgroundRate"},
 		{"variable": "SignalRate"},
-		{"variable": "SourceMean"},		
-		{"variable": "frequency"}
+		{"variable": "BackgroundRate"},
+		{"variable": "SourceMean"},
+		{"variable": "SourceWidth"},		
+		{"variable": "stheta"},
+		{"variable": "lp__"}				
 		],
 
 	"output": 
@@ -57,14 +65,17 @@
 		   "format" : "root",
 		   "tree" : "stanAnalysis",
 		   "branches" : [
-		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
-		   	   {"variable" : "MainField", "root_alias" : "MainField"},
-		   	   {"variable" : "muB", "root_alias" : "muB"},
-		   	   {"variable" : "df", "root_alias" : "df"},
 		   	   {"variable" : "gPower", "root_alias" : "gPower"},
+		   	   {"variable" : "SourceMean", "root_alias" : "SourceMean"},
+		   	   {"variable" : "SourceWidth", "root_alias" : "SourceWidth"},
 		   	   {"variable" : "SignalRate", "root_alias" : "SignalRate"},
 		   	   {"variable" : "BackgroundRate", "root_alias" : "BackgroundRate"},
-			   {"variable": "SourceMean", "root_alias" : "SourceMean"},		
+		   	   {"variable" : "MainField", "root_alias" : "MainField"},
+		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
+		   	   {"variable" : "muB", "root_alias" : "muB"},
+		   	   {"variable" : "df", "root_alias" : "df"},
+		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
+		   	   {"variable" : "stheta", "root_alias" : "stheta"},
 		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
 		    	   ]
 		   }	   

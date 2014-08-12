@@ -63,7 +63,7 @@ theFit = pyL.stan_cache(model_code= theModelFile,
 			algorithm = theAlgorithm, 
 			iter=nIter, chains=nChain, 
 			thin=nThin, warmup=nWarmup,
-			npars=nPars, 
+			npars=nPars, init = "random",
 			sample_file=theSample)
 
 # Output the data into a root file

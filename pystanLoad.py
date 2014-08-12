@@ -94,6 +94,8 @@ def stan_data_files(theData):
 			branch.GetEntry(0)>0
 			for iEntry in range(nEvents):
 			    atree.GetEntry(iEntry)
+# Take the line below out if reading from a data file/TObject???
+			    leaf = None
 			    if leaf is None:
 				ar[0] = getattr(atree, lbr['name'])
 				insertIntoDataStruct(aname,ar[0], alist)

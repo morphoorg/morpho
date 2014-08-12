@@ -116,7 +116,7 @@ data {
 
      	real BCoil;
 	real BCoilError;
-  	real BCoilCurrent;
+  	real TrapCurrent;
 
 //   Local oscillator offset and error (in Hz)
 
@@ -148,7 +148,7 @@ data {
 
 //   Signal and noise levels
 
-     	real RunLivetime;
+     	real LivetimeWeight;
      	real BackgroundRate;
 
 	int nData;
@@ -158,9 +158,12 @@ transformed data {
 	    
         real minKE;
 	real maxKE;
+	real RunLivetime;
+	real freq_shift;
 
 	minKE <- get_kinetic_energy(maxFreq, 1.0, BField);
 	maxKE <- get_kinetic_energy(minFreq, 1.0, BField);
+	RunLivetime <- 1.0 ./ LivetimeWeight;
 
 }
 
@@ -200,8 +203,8 @@ transformed parameters {
 
 // Calculate trapping coil effect and total (minimum) field
 
-   	TrappingField  <- vnormal_lp(uNormal[3], BCoil* BCoilCurrent, BCoilError);
-	TotalField <- MainField + TrappingField;
+      	TrappingField  <- vnormal_lp(uNormal[3], BCoil, BCoilError);
+	TotalField <- MainField + TrappingField * (TrapCurrent / 1000.) ;
 
 //  Calculate maximum pitch angle from trapping coil
     
@@ -243,7 +246,7 @@ model{
 //   Add in krypton lines
 
         lambda_sum <- 0.;
-	if (BCoilCurrent > 0.) {
+	if (TrapCurrent > 0.) {
 	   for (k in 1:nSignals) {
 	    	    ps[k] <-  log(SignalRate * RunLivetime) + log(BranchRatio[k]) + cauchy_log(KE,BranchMean[k],FunctionWidth[k]);
 	    	    lambda_sum <- lambda_sum + SignalRate * RunLivetime * BranchRatio[k] * (cauchy_cdf(maxKE,BranchMean[k],FunctionWidth[k]) - cauchy_cdf(minKE,BranchMean[k],FunctionWidth[k]));
@@ -256,13 +259,15 @@ model{
         for (k in nSignals+1:nSignals+nBackgrounds) {
 	    ps[k] <- log(BackgroundRate * RunLivetime) - log(maxKE - minKE);
 	    lambda_sum <- lambda_sum + BackgroundRate * RunLivetime;
-	    Background <- BackgroundRate * RunLivetime;
 	}
+	Background <- BackgroundRate * RunLivetime;
 
 //  Increment likelihood based on amplitudes
 
 	increment_log_prob(+log_sum_exp(ps));	
 	increment_log_prob(-log(lambda_sum));	
+
+//  Include extended likelihood 
 
 	nData ~ poisson(Signal + Background);
 

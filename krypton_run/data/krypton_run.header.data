@@ -1,4 +1,4 @@
-nSignals <- 2
+nSignals <- 1
 nBackgrounds <- 1
 
 BField <- 0.9467

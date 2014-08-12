@@ -19,13 +19,21 @@
 			"name": "./krypton_run/data/krypton_monte_carlo.data", 
 			"format":"R"
 		    }
-		 ]
+		 ],
+		"parameters": [
+		      {
+			"TrapCurrent" : 2000,
+			"LivetimeWeight" : 5.0e-03,
+			"nData" : 200
+		      }
+		    ]
+
 	},
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 9250,
-	       "warmup": 9000,
+	       "iter": 19025,
+	       "warmup": 19000,
 	       "chain": 8},
 
 	"plot": [

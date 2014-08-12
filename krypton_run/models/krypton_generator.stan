@@ -148,9 +148,10 @@ data {
 
 //   Signal and noise levels
 
-  	real<lower=0.> SignalLevel;
-	real<lower=0.> NoiseLevel;
+     	real RunLivetime;
+     	real BackgroundRate;
 
+	int nData;
 }   
 
 transformed data {
@@ -174,6 +175,8 @@ parameters {
 
 	simplex[nSignals] BranchRatio;
 	real gPower;
+
+	real SignalRate;
 }
 
 transformed parameters {
@@ -224,7 +227,10 @@ transformed parameters {
 model{
 
 	real log_normalization;
+        real lambda_sum;
 	vector[nSignals+nBackgrounds] ps;
+	real Signal;
+	real Background;
 
 //   Calculate the power normalization factor
 
@@ -236,19 +242,29 @@ model{
 
 //   Add in krypton lines
 
-	for (k in 1:nSignals) {
-	    ps[k] <-  log(SignalLevel) + log(BranchRatio[k]) + cauchy_log(KE,BranchMean[k],FunctionWidth[k]);
+        lambda_sum <- 0.;
+	if (BCoilCurrent > 0.) {
+	   for (k in 1:nSignals) {
+	    	    ps[k] <-  log(SignalRate * RunLivetime) + log(BranchRatio[k]) + cauchy_log(KE,BranchMean[k],FunctionWidth[k]);
+	    	    lambda_sum <- lambda_sum + SignalRate * RunLivetime * BranchRatio[k] * (cauchy_cdf(maxKE,BranchMean[k],FunctionWidth[k]) - cauchy_cdf(minKE,BranchMean[k],FunctionWidth[k]));
+	    }
+	    Signal <- SignalRate * RunLivetime;
 	}
 
 //   Add in linear background in kinetic energy (i.e. background electrons)
 
         for (k in nSignals+1:nSignals+nBackgrounds) {
-	    ps[k] <- log(NoiseLevel)  - log(maxKE-minKE);
+	    ps[k] <- log(BackgroundRate * RunLivetime) - log(maxKE - minKE);
+	    lambda_sum <- lambda_sum + BackgroundRate * RunLivetime;
+	    Background <- BackgroundRate * RunLivetime;
 	}
 
 //  Increment likelihood based on amplitudes
 
-	increment_log_prob(log_sum_exp(ps));	
+	increment_log_prob(+log_sum_exp(ps));	
+	increment_log_prob(-log(lambda_sum));	
+
+	nData ~ poisson(Signal + Background);
 
 }
 

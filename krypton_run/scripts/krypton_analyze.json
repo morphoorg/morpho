@@ -16,20 +16,20 @@
 			"format":"R"
 		    },
 	 	    {
-			"name" : "./krypton_run/data/TestTracks_Krdatacold_520MHz_trapon2A.root", 
+			"name" : "./krypton_run/data/events_combined_full.root", 
 			"format" : "root",
-			"tree" : "procTracks",
-			"cut": "MinFrequency > 0 && ! IsCut",
+			"tree" : "combinedCandidates",
 			"branches" : [
-				   {"name" : "MinFrequency", "stan_alias" : "freq_data"},
-				   {"name" : "Slope", "stan_alias" : "dfdt_data"}
+				   {"name" : "TrapCurrent", "stan_alias" : "TrapCurrent"},				   
+				   {"name" : "fSlope", "stan_alias" : "dfdt_data"},	
+				   {"name" : "StartFrequencyCal", "stan_alias" : "freq_data"},
+				   {"name" : "LivetimeWeight", "stan_alias" : "LivetimeWeight"}
 				   ]
 		     }
 		 ],
 		"parameters": [
 		      {
-		        "usePower" : 0,
-			"fclock" : 24.7200e9
+		        "usePower" : 0
 		      }
 		    ]
 	},
@@ -37,38 +37,34 @@
 	"run": {
 	       "algorithim": "NUTS",
 	       "iter": 5000,
-	       "chain": 4,
-	       "pars_off": ["TotalField", "TrappingField", "MainField", "SourceMean", "SourceWidth"]
+	       "chain": 1
 	       },
 
-	"plot_off": [
-		{"variable": "TotalField"},
+	"plot": [
 		{"variable": "TrappingField"},
 		{"variable": "MainField"},
-		{"variable": "SourceMean"},
-		{"variable": "SourceWidth"}
+		{"variable": "muB"},
+		{"variable": "df"},
+		{"variable": "BackgroundRate"},
+		{"variable": "SignalRate"},
+		{"variable": "SourceMean"},		
+		{"variable": "frequency"}
 		],
 
 	"output": 
 		  {
-		   "name" : "./krypton_run/results/test_analysis_Krdatacold_520MHz_trapon2A.root",
+		   "name" : "./krypton_run/results/test_analysis.root",
 		   "format" : "root",
 		   "tree" : "stanAnalysis",
 		   "branches" : [
-		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
 		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
 		   	   {"variable" : "MainField", "root_alias" : "MainField"},
-		   	   {"variable" : "gPower", "root_alias" : "gPower"},
-		   	   {"variable" : "df", "root_alias" : "df"},
 		   	   {"variable" : "muB", "root_alias" : "muB"},
-		   	   {"variable" : "uCauchy", "root_alias" : "uCauchy"},
-		   	   {"variable" : "SourceMean", "root_alias" : "SourceMean"},
-		   	   {"variable" : "SourceWidth", "root_alias" : "SourceWidth"},
-		   	   {"variable" : "SourceFrequency", "root_alias" : "SourceFrequency"},
-		   	   {"variable" : "SourcePower", "root_alias" : "SourcePower"},
-		   	   {"variable" : "SourceSlope", "root_alias" : "SourceSlope"},
-		   	   {"variable" : "avg_KE", "root_alias" : "avg_KE"},
-		   	   {"variable" : "avg_stheta", "root_alias" : "avg_stheta"},
+		   	   {"variable" : "df", "root_alias" : "df"},
+		   	   {"variable" : "gPower", "root_alias" : "gPower"},
+		   	   {"variable" : "SignalRate", "root_alias" : "SignalRate"},
+		   	   {"variable" : "BackgroundRate", "root_alias" : "BackgroundRate"},
+			   {"variable": "SourceMean", "root_alias" : "SourceMean"},		
 		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
 		    	   ]
 		   }	   

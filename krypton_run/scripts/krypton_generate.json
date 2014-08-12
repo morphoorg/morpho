@@ -24,9 +24,9 @@
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 10000,
+	       "iter": 9250,
 	       "warmup": 9000,
-	       "chain": 10},
+	       "chain": 8},
 
 	"plot": [
 		{"variable": "TotalField"},

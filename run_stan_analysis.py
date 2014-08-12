@@ -63,7 +63,7 @@ theFit = pyL.stan_cache(model_code= theModelFile,
 			algorithm = theAlgorithm, 
 			iter=nIter, chains=nChain, 
 			thin=nThin, warmup=nWarmup,
-			npars=nPars,
+			npars=nPars, 
 			sample_file=theSample)
 
 # Output the data into a root file
@@ -114,11 +114,11 @@ if theOutput is not None:
 
 # Print results and make plots
 
-print(theFit)
-
 if thePlots is not None:
     for key in thePlots:
 	thePlotData = theFit.extract()
 	theFit.plot(key['variable'])
     plt.show()
+
+print(theFit)
 

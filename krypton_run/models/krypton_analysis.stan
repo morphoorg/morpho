@@ -115,7 +115,6 @@ data {
 
      	real BCoil;
 	real BCoilError;
-  	real BCoilCurrent;
 
 //   Local oscillator offset and error (in Hz)
 
@@ -141,6 +140,8 @@ data {
 	int <lower=0> nData;
 	vector[nData] freq_data;
 	vector[nData] dfdt_data;
+  	vector[nData] TrapCurrent;
+	vector[nData] LivetimeWeight;
 
 }   
 
@@ -148,9 +149,11 @@ transformed data {
 	    
         real minKE;
 	real maxKE;
+	vector[nData] RunLivetime;
 
 	minKE <- get_kinetic_energy(maxFreq, 1.0, BField);
 	maxKE <- get_kinetic_energy(minFreq, 1.0, BField);
+	RunLivetime <- 1.0 ./ LivetimeWeight;
 
 }
 
@@ -164,93 +167,100 @@ parameters {
 
 	real gPower;
 
-	real<lower=minKE, upper=maxKE> SourceMean;
-	real<lower=0., upper = 1.e9> SourceWidth;
+	vector<lower=minKE, upper=maxKE>[nSignals] SourceMean;
+	vector<lower=0., upper = 1.e9>[nSignals] SourceWidth;
+	simplex[nSignals] SourceStrength;
 
+	real<lower=0.> SignalRate;
+	real<lower=0.> BackgroundRate;
 }
 
 transformed parameters {
 
-	real<lower=0.,upper=1.> sthetamin;
 	real MainField;
 	real TrappingField;
-	real<upper=MainField> TotalField;
-	real df;
 	real muB; 
+	real df;
 
+	vector[nData] TotalField;
+	vector[nData] sthetamin;
 	vector[nData] stheta;
 	vector[nData] KE;
 
 	vector[nData] frequency; 
 	vector[nData] dfdt;
 	vector[nData] power;
-
-// Calculate primary magnetic field
-
-	muB <-  vnormal_lp(uNormal[1], BField, BFieldError);
-	MainField <- vnormal_lp(uNormal[2], muB, BFieldResolution);
-
-// Calculate trapping coil effect and total (minimum) field
-
-   	TrappingField  <- vnormal_lp(uNormal[3], BCoil* BCoilCurrent, BCoilError);
-	TotalField <- MainField + TrappingField;
-
-//  Calculate maximum pitch angle from trapping coil
-    
-        sthetamin <- sqrt(TotalField/MainField);
+	
 
 //  Calculate the smear of the frequency due to windowing and clock error (plus clock shift).  Assume normal distribution.
 
 	df <- vcauchy_lp(uCauchy, fclock, fclockError);
 
+// Calculate primary magnetic field
+
+	muB <-  vnormal_lp(uNormal[1], BField, BFieldError);
+	MainField <- vnormal_lp(uNormal[2], muB, BFieldResolution);
+      	TrappingField  <- vnormal_lp(uNormal[3], BCoil, BCoilError);
+	TotalField <- MainField + TrappingField * (TrapCurrent / 1000.) ;
+
+// Calculate trapping coil effect and total (minimum) field
+	    
+	for (n in 1:nData) {
+
+//  Calculate maximum pitch angle from trapping coil
+
+	        sthetamin[n] <- sqrt(TotalField[n] / MainField);
+
 //   Calculate sin(pitch angle) and kinetic energy assuming flat distributions
 
-	stheta <- sthetamin + (1.-sthetamin)*sUniform;
-	KE <- minKE + (maxKE - minKE) * eUniform;
+	        stheta[n] <- sthetamin[n] + (1.-sthetamin[n])*sUniform[n];
+	        KE[n] <- minKE + (maxKE - minKE) * eUniform[n];
 
 //   Convert to observables for all data points.  Create for each data point.
 	
-	for (n in 1:nData) {
-	    frequency[n] <- get_frequency(KE[n], stheta[n], TotalField) - df;
-	    power[n] <- gPower * get_power(KE[n], stheta[n], TotalField);
-	    dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta[n], TotalField);
+		frequency[n] <- get_frequency(KE[n], stheta[n], TotalField[n]) - df;
+		power[n] <- gPower * get_power(KE[n], stheta[n], TotalField[n]);
+		dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta[n], TotalField[n]);
 	}
+
 }
 
 model{
 
+        real Signal;
+	real Background;
+	vector[nSignals+nBackgrounds] ps;
+
+//   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
+
+	for (n in 1:nData) {
+		if (TrapCurrent[n] > 0) {
+	   	   for (k in 1:nSignals) {
+	    	       ps[k] <-  log(SignalRate * RunLivetime[n]) + log(SourceStrength[k]) + cauchy_log(KE[n],SourceMean[k],SourceWidth[k]);
+	    	   }
+		}
+        	for (k in nSignals+1:nSignals+nBackgrounds) {
+	    	    ps[k] <- log(BackgroundRate * RunLivetime[n]) - log(maxKE - minKE);
+		}
+		increment_log_prob(+log_sum_exp(ps));
+	}
+
+//	Calculate signal and noise contributions to total rate
+
+	Signal <- sum(SignalRate * (RunLivetime));
+	Background <- sum(RunLivetime * BackgroundRate);
+
+//	nData ~ poisson(Signal + Background);
+
 //   Assume data is gaussian-distributed around the predicted frequency and power loss
-//   No correlation in the data for the moment
+
+	freq_data ~ normal(frequency, frequencyWidth);
 
 //   Calculate the power normalization factor
 
         gPower ~ normal(gCoupling, gCouplingWidth);
 
-	freq_data ~ normal(frequency, frequencyWidth);
-
 	if (usePower > 0) dfdt_data ~ normal(dfdt, dfdtWidth);
 
-//  Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
-
-	 if (nSignals >0)  KE ~ normal(SourceMean, SourceWidth);
-
 }
 
-generated quantities {
-
-//  Compute mean values of system
-
-    	  real avg_KE;
-    	  real avg_stheta;
-	  real SourceFrequency;
-	  real SourcePower;
-	  real SourceSlope;
-
-	  avg_stheta <- mean(stheta);
-	  avg_KE <- mean(KE);
-
-	  SourceFrequency <- get_frequency(SourceMean, avg_stheta , TotalField) - df;
-	  SourcePower <- gPower * get_power(SourceMean, avg_stheta , TotalField);
-	  SourceSlope <- gPower * get_frequency_loss(SourceMean, avg_stheta , TotalField);
-
-}

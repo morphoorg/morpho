@@ -1,6 +1,6 @@
 # Definitions for loading and using pystan for analysis
 
-import ROOT as root 
+from ROOT import *
 
 import pystan
 
@@ -61,8 +61,8 @@ def stan_data_files(theData):
 
 		elif atype =='root' :		    
 
-		    afile = root.TFile.Open(key['name'],'read')
-		    atree = root.TTree()
+		    afile = TFile.Open(key['name'],'read')
+		    atree = TTree()
 		    afile.GetObject(str(key['tree']), atree)
 		    
 		    aCut = readLabel(key,'cut',None)
@@ -71,22 +71,35 @@ def stan_data_files(theData):
 			atree = atree.CopyTree(aCut)
 
 		    nEvents = atree.GetEntries()
-		    ar = array.array('d',[0])
 		    alist['nData'] = int(nEvents)
-		    
+
+		    ar = array.array('d',[0.])
 		    for lbr in key['branches']:
-			branch = atree.GetBranch(lbr['name'])
-			branch.SetAddress (ar)
+			branch = atree.GetBranch(lbr['name']) or atree.GetBranch(lbr['name']+".")
+			if branch:
+			    leaf= branch.GetLeaf(lbr['name'])
+			    if not leaf:
+				leaves= branch.GetListOfLeaves()
+				if leaves and len(leaves)==1: leaf= leaves[0]
+				else:                         leaf= None
+			else:
+			    leaf= atree.GetLeaf(lbr['name'])
+			    branch= leaf.GetBranch()
 
-			for iEntry in range(0,nEvents):
+			if 'stan_alias' in lbr.keys():
+			    aname = str(lbr['stan_alias'])
+			else:
+			    aname = str(lbr['name'])
 
+			branch.GetEntry(0)>0
+			for iEntry in range(nEvents):
 			    atree.GetEntry(iEntry)
-
-			    if 'stan_alias' in lbr.keys():
-				aname = str(lbr['stan_alias'])
-			    else:
-				aname = str(lbr['name'])
-			    insertIntoDataStruct(aname, ar[0], alist)
+			    if leaf is None:
+				ar[0] = getattr(atree, lbr['name'])
+				insertIntoDataStruct(aname,ar[0], alist)
+			    else :
+				avalue = branch.GetValue(iEntry,1)
+				insertIntoDataStruct(aname, avalue, alist)
 
 		    afile.Close()
 

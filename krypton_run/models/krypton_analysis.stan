@@ -38,10 +38,12 @@ functions{
 // Method for converting frequency (Hz) to kinetic energy (eV)
 // Depends on stheta = sin(pitch angle) and magnetic field (Tesla)
 
+   	vector get_kinetic_energy(vector frequency, real stheta, real field) {
+	     return ((freq_c() * field * 2./  (1. + 1./square(stheta))) ./ frequency -1.) * m_electron();
+	}
+
    	real get_kinetic_energy(real frequency, real stheta, real field) {
-	     real gamma;
-	     gamma <- freq_c() / frequency * field * 2./  (1. + 1./square(stheta));
-	     return (gamma -1.) * m_electron();
+	     return ((freq_c() * field * 2./  (1. + 1./square(stheta))) / frequency -1.) * m_electron();
 	}
 
 //  Get magnetic field (Tesla) correction due to harmonic potential averaging
@@ -135,13 +137,17 @@ data {
   	real frequencyWidth;
   	real dfdtWidth;
 
+//   Run-specific settings
+
+	real LOFreq;
+  	real TrapCurrent;
+	real LivetimeWeight;
+
 //   Observed data and errors.  Measured in Hz and Hz/s.
 
 	int <lower=0> nData;
 	vector[nData] freq_data;
 	vector[nData] dfdt_data;
-  	vector[nData] TrapCurrent;
-	vector[nData] LivetimeWeight;
 
 }   
 
@@ -149,19 +155,22 @@ transformed data {
 	    
         real minKE;
 	real maxKE;
-	vector[nData] RunLivetime;
+	real RunLivetime;
+	real freq_shift;
 
 	minKE <- get_kinetic_energy(maxFreq, 1.0, BField);
 	maxKE <- get_kinetic_energy(minFreq, 1.0, BField);
 	RunLivetime <- 1.0 ./ LivetimeWeight;
+
+	 freq_shift <- fclock + LOFreq * 1.e6;
 
 }
 
 parameters {
 
 	vector[3] uNormal;
-	vector<lower=0., upper=1.>[nData] eUniform;
-	vector<lower=0., upper=1.>[nData] sUniform;
+	real<lower=0., upper=1.> eUniform;
+	real<lower=0., upper=1.> sUniform;
 
 	real<lower=-pi()/2,upper=+pi()/2> uCauchy;
 
@@ -179,88 +188,105 @@ transformed parameters {
 
 	real MainField;
 	real TrappingField;
-	real muB; 
+	real<lower=0., upper=2.0> muB; 
 	real df;
+	real dfWidth;
 
-	vector[nData] TotalField;
-	vector[nData] sthetamin;
-	vector[nData] stheta;
-	vector[nData] KE;
-
-	vector[nData] frequency; 
-	vector[nData] dfdt;
-	vector[nData] power;
-	
+	real TotalField;
+	real sthetamin;
+	real stheta;
 
 //  Calculate the smear of the frequency due to windowing and clock error (plus clock shift).  Assume normal distribution.
 
-	df <- vcauchy_lp(uCauchy, fclock, fclockError);
+	dfWidth <- sqrt(square(fclockError) + square(frequencyWidth));
+	df <- vcauchy_lp(uCauchy, freq_shift, dfWidth);
 
 // Calculate primary magnetic field
 
 	muB <-  vnormal_lp(uNormal[1], BField, BFieldError);
 	MainField <- vnormal_lp(uNormal[2], muB, BFieldResolution);
-      	TrappingField  <- vnormal_lp(uNormal[3], BCoil, BCoilError);
-	TotalField <- MainField + TrappingField * (TrapCurrent / 1000.) ;
 
 // Calculate trapping coil effect and total (minimum) field
 	    
-	for (n in 1:nData) {
+      	TrappingField  <- vnormal_lp(uNormal[3], BCoil, BCoilError);
+	TotalField <- MainField + TrappingField * (TrapCurrent / 1000.) ;
 
 //  Calculate maximum pitch angle from trapping coil
 
-	        sthetamin[n] <- sqrt(TotalField[n] / MainField);
+	sthetamin <- sqrt(TotalField / MainField);
 
 //   Calculate sin(pitch angle) and kinetic energy assuming flat distributions
 
-	        stheta[n] <- sthetamin[n] + (1.-sthetamin[n])*sUniform[n];
-	        KE[n] <- minKE + (maxKE - minKE) * eUniform[n];
-
-//   Convert to observables for all data points.  Create for each data point.
-	
-		frequency[n] <- get_frequency(KE[n], stheta[n], TotalField[n]) - df;
-		power[n] <- gPower * get_power(KE[n], stheta[n], TotalField[n]);
-		dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta[n], TotalField[n]);
-	}
+	stheta <- sthetamin + (1.-sthetamin)*sUniform;
 
 }
 
 model{
 
+        real lambda_sum;
+	vector[nSignals+nBackgrounds] ps;
         real Signal;
 	real Background;
-	vector[nSignals+nBackgrounds] ps;
 
-//   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
-
-	for (n in 1:nData) {
-		if (TrapCurrent[n] > 0) {
-	   	   for (k in 1:nSignals) {
-	    	       ps[k] <-  log(SignalRate * RunLivetime[n]) + log(SourceStrength[k]) + cauchy_log(KE[n],SourceMean[k],SourceWidth[k]);
-	    	   }
-		}
-        	for (k in nSignals+1:nSignals+nBackgrounds) {
-	    	    ps[k] <- log(BackgroundRate * RunLivetime[n]) - log(maxKE - minKE);
-		}
-		increment_log_prob(+log_sum_exp(ps));
-	}
-
-//	Calculate signal and noise contributions to total rate
-
-	Signal <- sum(SignalRate * (RunLivetime));
-	Background <- sum(RunLivetime * BackgroundRate);
-
-//	nData ~ poisson(Signal + Background);
-
-//   Assume data is gaussian-distributed around the predicted frequency and power loss
-
-	freq_data ~ normal(frequency, frequencyWidth);
-
+	vector[nData] KE;
+	vector[nData] frequency; 
+	vector[nData] dfdt;
+	vector[nData] power;
+	
 //   Calculate the power normalization factor
 
         gPower ~ normal(gCoupling, gCouplingWidth);
 
 	if (usePower > 0) dfdt_data ~ normal(dfdt, dfdtWidth);
 
+        lambda_sum <- 0.;
+
+//  Calculate observables from data
+
+	frequency <- freq_data + df;
+	KE <-get_kinetic_energy(frequency, stheta, TotalField);
+
+	for (n in 1:nData) {
+
+//  Calculate observables from data
+
+	    power[n] <- gPower * get_power(KE[n], stheta, TotalField);
+	    dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta, TotalField);
+
+//   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
+
+	    if (TrapCurrent > 0) {
+		   for (k in 1:nSignals) {
+ 	       	       ps[k] <-  log(SignalRate * RunLivetime) + log(SourceStrength[k]) + cauchy_log(KE[n],SourceMean[k],SourceWidth[k]);
+	       	       lambda_sum <- lambda_sum + SignalRate * RunLivetime * SourceStrength[k] * (cauchy_cdf(maxKE,SourceMean[k],SourceWidth[k]) - cauchy_cdf(minKE,SourceMean[k],SourceWidth[k]));
+	   	   }
+	    }
+        	for (k in nSignals+1:nSignals+nBackgrounds) {
+	       	    ps[k] <- log(BackgroundRate * RunLivetime) - log(maxKE - minKE);
+	       	    lambda_sum <- lambda_sum + BackgroundRate * RunLivetime;
+            }
+
+//  Increment likelihood based on amplitudes
+
+	      increment_log_prob(+log_sum_exp(ps));	
+	      increment_log_prob(-log(lambda_sum));	
+	}
+
+//  Include extended likelihood into fit
+
+	Signal <- SignalRate * RunLivetime;
+	Background <- BackgroundRate * RunLivetime;
+
+	nData ~ poisson(Signal + Background);
+
 }
 
+generated quantities {
+
+	vector[nSignals] freq_rec;
+
+//   Convert to observables for all data points.  Create for each data point.
+	
+	for (n in 1:nSignals)
+	    freq_rec[n] <- get_frequency(SourceMean[n], stheta, TotalField) - df;
+}

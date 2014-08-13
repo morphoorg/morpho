@@ -19,7 +19,6 @@
 			"name" : "./krypton_run/results/test_generator.root", 
 			"format" : "root",
 			"tree" : "procTracks",
-			"cut" :  "! IsCut",
 			"branches" : [
 				   {"name" : "MinFrequency", "stan_alias" : "freq_data"},				   
 				   {"name" : "Slope", "stan_alias" : "dfdt_data"}	
@@ -28,8 +27,8 @@
 		 ],
 		"parameters": [
 		      {
-		        "minFreq" : 24.2e9,
-		        "maxFreq" : 26.2e9,			
+		        "minFreq" : 24.0e9,
+		        "maxFreq" : 26.0e9,			
 		        "LOFreq" : 0,
 			"fClock"  : 0,
 			"TrapCurrent" : 2000,
@@ -41,8 +40,9 @@
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 20000,
-	       "chain": 12
+	       "iter": 40000,
+	       "warmup": 30000,
+	       "chain": 8
 	       },
 
 	"plot_off": [
@@ -76,6 +76,7 @@
 		   	   {"variable" : "df", "root_alias" : "df"},
 		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
 		   	   {"variable" : "stheta", "root_alias" : "stheta"},
+			   {"variable" : "freq_rec", "root_alias" : "freq_rec"},
 		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
 		    	   ]
 		   }	   

@@ -38,12 +38,10 @@ functions{
 // Method for converting frequency (Hz) to kinetic energy (eV)
 // Depends on stheta = sin(pitch angle) and magnetic field (Tesla)
 
-   	vector get_kinetic_energy(vector frequency, real stheta, real field) {
-	     return ((freq_c() * field * 2./  (1. + 1./square(stheta))) ./ frequency -1.) * m_electron();
-	}
-
    	real get_kinetic_energy(real frequency, real stheta, real field) {
-	     return ((freq_c() * field * 2./  (1. + 1./square(stheta))) / frequency -1.) * m_electron();
+	     real gamma;
+	     gamma <- freq_c() / frequency * field * (1. + 1./square(stheta))/2.;
+	     return (gamma -1.) * m_electron();
 	}
 
 //  Get magnetic field (Tesla) correction due to harmonic potential averaging
@@ -178,6 +176,7 @@ parameters {
 
 	vector<lower=minKE, upper=maxKE>[nSignals] SourceMean;
 	vector<lower=0., upper = 1.e9>[nSignals] SourceWidth;
+	vector[nSignals] SourceSkew;
 	simplex[nSignals] SourceStrength;
 
 	real<lower=0.> SignalRate;
@@ -223,11 +222,12 @@ transformed parameters {
 
 model{
 
-        real lambda_sum;
 	vector[nSignals+nBackgrounds] ps;
         real Signal;
 	real Background;
+	real logdKdf;
 
+        vector[nData] lambda;
 	vector[nData] KE;
 	vector[nData] frequency; 
 	vector[nData] dfdt;
@@ -239,45 +239,35 @@ model{
 
 	if (usePower > 0) dfdt_data ~ normal(dfdt, dfdtWidth);
 
-        lambda_sum <- 0.;
-
 //  Calculate observables from data
 
 	frequency <- freq_data + df;
-	KE <-get_kinetic_energy(frequency, stheta, TotalField);
-
 	for (n in 1:nData) {
 
 //  Calculate observables from data
 
+	    KE[n] <-get_kinetic_energy(frequency[n], stheta, TotalField);
 	    power[n] <- gPower * get_power(KE[n], stheta, TotalField);
 	    dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta, TotalField);
 
 //   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
 
+            logdKdf <- log(KE[n] + m_electron()) - log(get_frequency(KE[n], stheta, TotalField));
 	    if (TrapCurrent > 0) {
 		   for (k in 1:nSignals) {
- 	       	       ps[k] <-  log(SignalRate * RunLivetime) + log(SourceStrength[k]) + cauchy_log(KE[n],SourceMean[k],SourceWidth[k]);
-	       	       lambda_sum <- lambda_sum + SignalRate * RunLivetime * SourceStrength[k] * (cauchy_cdf(maxKE,SourceMean[k],SourceWidth[k]) - cauchy_cdf(minKE,SourceMean[k],SourceWidth[k]));
-	   	   }
+ 	       	       ps[k] <-  log(SignalRate * RunLivetime) + log(SourceStrength[k]) + cauchy_log(KE[n],SourceMean[k],SourceWidth[k])+ logdKdf;
+	   	   }		   
 	    }
         	for (k in nSignals+1:nSignals+nBackgrounds) {
-	       	    ps[k] <- log(BackgroundRate * RunLivetime) - log(maxKE - minKE);
-	       	    lambda_sum <- lambda_sum + BackgroundRate * RunLivetime;
+	       	    ps[k] <- log(BackgroundRate * RunLivetime) - log(maxFreq - minFreq);
             }
 
 //  Increment likelihood based on amplitudes
 
 	      increment_log_prob(+log_sum_exp(ps));	
-	      increment_log_prob(-log(lambda_sum));	
 	}
 
-//  Include extended likelihood into fit
-
-	Signal <- SignalRate * RunLivetime;
-	Background <- BackgroundRate * RunLivetime;
-
-	nData ~ poisson(Signal + Background);
+	nData ~ poisson((SignalRate + BackgroundRate) * RunLivetime);
 
 }
 

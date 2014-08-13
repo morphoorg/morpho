@@ -40,7 +40,7 @@ functions{
 
    	real get_kinetic_energy(real frequency, real stheta, real field) {
 	     real gamma;
-	     gamma <- freq_c() / frequency * field * 2./  (1. + 1./square(stheta));
+	     gamma <- freq_c() / frequency * field * (1. + 1./square(stheta)) / 2.;
 	     return (gamma -1.) * m_electron();
 	}
 
@@ -140,6 +140,7 @@ data {
   	vector[nSignals] FunctionMean;
   	vector[nSignals] FunctionMeanError;
 	vector[nSignals] FunctionWidth;
+	vector[nSignals] FunctionSkew;
 
 //   Broadening due to measurement
 
@@ -229,11 +230,11 @@ transformed parameters {
 
 model{
 
-	real log_normalization;
-        real lambda_sum;
 	vector[nSignals+nBackgrounds] ps;
 	real Signal;
 	real Background;
+
+        real logdKdf;
 
 //   Calculate the power normalization factor
 
@@ -245,27 +246,25 @@ model{
 
 //   Add in krypton lines
 
-        lambda_sum <- 0.;
+     	logdKdf <- log(KE + m_electron()) - log(get_frequency(KE, stheta, TotalField));
+
 	if (TrapCurrent > 0.) {
 	   for (k in 1:nSignals) {
-	    	    ps[k] <-  log(SignalRate * RunLivetime) + log(BranchRatio[k]) + cauchy_log(KE,BranchMean[k],FunctionWidth[k]);
-	    	    lambda_sum <- lambda_sum + SignalRate * RunLivetime * BranchRatio[k] * (cauchy_cdf(maxKE,BranchMean[k],FunctionWidth[k]) - cauchy_cdf(minKE,BranchMean[k],FunctionWidth[k]));
-	    }
-	    Signal <- SignalRate * RunLivetime;
+	    	 ps[k] <-  log(SignalRate * RunLivetime) + log(BranchRatio[k]) + cauchy_log(KE,BranchMean[k],FunctionWidth[k]) + logdKdf;
+	   }
+	   Signal <- SignalRate * RunLivetime;		   
 	}
 
 //   Add in linear background in kinetic energy (i.e. background electrons)
 
         for (k in nSignals+1:nSignals+nBackgrounds) {
-	    ps[k] <- log(BackgroundRate * RunLivetime) - log(maxKE - minKE);
-	    lambda_sum <- lambda_sum + BackgroundRate * RunLivetime;
+	    ps[k] <- log(BackgroundRate * RunLivetime) - log(maxFreq - minFreq);
 	}
 	Background <- BackgroundRate * RunLivetime;
 
 //  Increment likelihood based on amplitudes
 
 	increment_log_prob(+log_sum_exp(ps));	
-	increment_log_prob(-log(lambda_sum));	
 
 //  Include extended likelihood 
 

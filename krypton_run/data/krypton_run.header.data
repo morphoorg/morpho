@@ -1,11 +1,11 @@
 nSignals <- 1
 nBackgrounds <- 1
 
-BField <- 0.9467
+BField <- 0.9459
 BFieldError <- 1.0e-04
 BFieldResolution <- 0.1e-04
 
-BCoil <- -47.5e-04
+BCoil <- -42.5e-04
 BCoilError <- 1.e-04
 
 minFreq <- 24.200e9

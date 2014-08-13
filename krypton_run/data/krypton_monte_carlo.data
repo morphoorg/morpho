@@ -5,4 +5,5 @@ FunctionAmplitudeError <- c(0.01)
 FunctionMean <- c(17830.)
 FunctionMeanError <- c(2.)
 FunctionWidth <- c(2.83)
-BackgroundRate <- 0.25
+FunctionSkew <- c(1.00)
+BackgroundRate <- 0.20

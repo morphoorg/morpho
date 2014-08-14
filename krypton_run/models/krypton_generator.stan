@@ -110,18 +110,23 @@ data {
 
      	real<lower=0> BField;
 	real<lower=0> BFieldError;
-  	real<lower=0> BFieldResolution;
 
-//   Secondary trapping magnetic field (in Tesla/Amp).  Error in Tesla.  Current in Amperes. 
+//   Secondary trapping magnetic field (in Tesla/milliAmp).  Error in Tesla.  Current in milliAmperes. 
 
      	real BCoil;
-	real BCoilError;
   	real TrapCurrent;
+	real TrapCurrentError;
 
-//   Local oscillator offset and error (in Hz)
+//   Radial gradient of magnetic field (in Tesla/mm^2/mA).  Radial distance in millimeters
+
+        real BGradient;
+	real maxRadius;     	       
+
+//   Local oscillator and main mixer offset and error (in Hz)
 
    	real fclock;
   	real fclockError;
+	real LOFreq;
 
 //   Range for fits (in Hz)
 
@@ -149,71 +154,84 @@ data {
 
 //   Signal and noise levels
 
-     	real LivetimeWeight;
+     	real RunLivetime;
+     	real SignalRate;
      	real BackgroundRate;
 
-	int nData;
 }   
 
 transformed data {
 	    
         real minKE;
 	real maxKE;
-	real RunLivetime;
-	real freq_shift;
 
 	minKE <- get_kinetic_energy(maxFreq, 1.0, BField);
 	maxKE <- get_kinetic_energy(minFreq, 1.0, BField);
-	RunLivetime <- 1.0 ./ LivetimeWeight;
 
 }
 
 parameters {
 
-	vector[3] uNormal;
+	vector[2] uNormal;
 	vector[nSignals] zNormal;
-	real<lower=0., upper=1.> eUniform;
+	real<lower=0., upper=1.> rUniform;
 	real<lower=0., upper=1.> sUniform;
-
+	real<lower=0., upper=1.> fUniform;
 	real<lower=-pi()/2,upper=+pi()/2> uCauchy;
 
 	simplex[nSignals] BranchRatio;
 	real gPower;
 
-	real SignalRate;
 }
 
 transformed parameters {
 
 	real<lower=0.,upper=1.> sthetamin;
+	real radius_sq;
 	real MainField;
 	real TrappingField;
+	real BGradientField;
 	real TotalField;
+	real ITrap;
+	real freq_shift;
 	real df;
-	real muB; 
+	real LivetimeWeight;
 
 	real stheta;
 	real KE;
+
+	real frequency;
+	real power;
+	real dfdt;
 
 	vector[nSignals] BranchMean;
 
 // Calculate primary magnetic field
 
-	muB <-  vnormal_lp(uNormal[1], BField, BFieldError);
-	MainField <- vnormal_lp(uNormal[2], muB, BFieldResolution);
+	MainField <-  vnormal_lp(uNormal[1], BField, BFieldError);
+
+//  Calculate radius
+
+       radius_sq <- rUniform * square(maxRadius);
 
 // Calculate trapping coil effect and total (minimum) field
 
-      	TrappingField  <- vnormal_lp(uNormal[3], BCoil, BCoilError);
-	TotalField <- MainField + TrappingField * (TrapCurrent / 1000.) ;
+   	ITrap <- vnormal_lp(uNormal[2], TrapCurrent, TrapCurrentError);	
+
+	TrappingField <- BCoil * ITrap;
+
+	BGradientField <- BGradient * radius_sq * ITrap;
+
+	TotalField <- MainField + TrappingField + BGradientField;
 
 //  Calculate maximum pitch angle from trapping coil
     
-        sthetamin <- sqrt(TotalField/MainField);
+        sthetamin <- sqrt(TotalField/(TotalField-TrappingField));
 
-//  Calculate the smear of the frequency due to windowing and clock error (plus clock shift).  Assume normal distribution.
+//  Calculate the smear of the frequency due to windowing and clock error (plus clock shift).  Assume cauchy distribution.
 
-	df <- vcauchy_lp(uCauchy, fclock, fclockError);
+        freq_shift <- fclock + LOFreq;
+	df <- vcauchy_lp(uCauchy, freq_shift, fclockError);
 
 // Calculate mean energy of each branch
 
@@ -221,10 +239,20 @@ transformed parameters {
 	    BranchMean[i] <- vnormal_lp(zNormal[i], FunctionMean[i], FunctionMeanError[i]);   
 	}
 
+//   Determine livetime weighting for run
+
+	LivetimeWeight <- 1./RunLivetime;
+
 //   Calculate sin(pitch angle) and kinetic energy assuming flat distributions
 
 	stheta <- sthetamin + (1.-sthetamin)*sUniform;
-	KE <- minKE + (maxKE - minKE) * eUniform;
+	frequency <- minFreq+ (maxFreq - minFreq) * fUniform;
+	KE <-get_kinetic_energy(frequency, stheta, TotalField);
+
+//   Calculate additional derived quantities
+
+	power <- gPower * get_power(KE, stheta, TotalField);
+	dfdt <- gPower * get_frequency_loss(KE, stheta, TotalField);
 
 }
 
@@ -248,7 +276,7 @@ model{
 
      	logdKdf <- log(KE + m_electron()) - log(get_frequency(KE, stheta, TotalField));
 
-	if (TrapCurrent > 0.) {
+	if (TrapCurrent > 0. && nSignals > 0 && RunLivetime > 0.) {
 	   for (k in 1:nSignals) {
 	    	 ps[k] <-  log(SignalRate * RunLivetime) + log(BranchRatio[k]) + cauchy_log(KE,BranchMean[k],FunctionWidth[k]) + logdKdf;
 	   }
@@ -257,40 +285,38 @@ model{
 
 //   Add in linear background in kinetic energy (i.e. background electrons)
 
-        for (k in nSignals+1:nSignals+nBackgrounds) {
-	    ps[k] <- log(BackgroundRate * RunLivetime) - log(maxFreq - minFreq);
+        if (nBackgrounds >0 && RunLivetime > 0.) {
+           for (k in nSignals+1:nSignals+nBackgrounds) {
+	       ps[k] <- log(BackgroundRate * RunLivetime) - log(maxFreq - minFreq);
+	   }
+	   Background <- BackgroundRate * RunLivetime;
 	}
-	Background <- BackgroundRate * RunLivetime;
 
 //  Increment likelihood based on amplitudes
 
 	increment_log_prob(+log_sum_exp(ps));	
 
-//  Include extended likelihood 
-
-	nData ~ poisson(Signal + Background);
-
 }
 
 generated quantities {
 
-	real frequency; 
-	real power;
-	real dfdt;
-
 	real freq_data;
 	real dfdt_data;
-
 	int IsCut;
 
+	real total_rate;
+	int nData;
+
 //   Convert to observables for all data points.  Create for each data point.
-	
-	frequency <- get_frequency(KE, stheta, TotalField) - df;
-	power <- gPower * get_power(KE, stheta, TotalField);
-	dfdt <- gPower * get_frequency_loss(KE, stheta, TotalField);
-	
-	freq_data <- normal_rng(frequency, frequencyWidth);
+		
+	freq_data <- normal_rng(frequency - df, frequencyWidth);
 	dfdt_data <- normal_rng(dfdt, dfdtWidth);
 
 	IsCut <- 0;
+
+//   Calculate expected number of events
+
+	total_rate <- (SignalRate + BackgroundRate) * RunLivetime;
+	nData <- poisson_rng(total_rate);
+
 }

@@ -1,17 +1,21 @@
 nSignals <- 1
 nBackgrounds <- 1
 
-BField <- 0.9459
+BField <- 0.9455
 BFieldError <- 1.0e-04
-BFieldResolution <- 0.1e-04
 
-BCoil <- -42.5e-04
-BCoilError <- 1.e-04
+TrapCurrent <- 2000.
+TrapCurrentError <- 1.0
+
+BCoil <- -43.5e-07
+BGradient <- 1.275e-07
+maxRadius <- 3.3
 
 minFreq <- 24.200e9
 maxFreq <-26.200e9
 
 fclock <- 0.
+LOFreq <- 0.
 fclockError <- 10.0
 
 gCoupling <- 1.00

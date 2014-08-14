@@ -19,27 +19,23 @@
 			"name": "./krypton_run/data/krypton_monte_carlo.data", 
 			"format":"R"
 		    }
-		 ],
-		"parameters": [
-		      {
-			"TrapCurrent" : 2000,
-			"LivetimeWeight" : 5.0e-03,
-			"nData" : 200
-		      }
-		    ]
-
+		 ]
 	},
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 19025,
+	       "iter": 20000,
 	       "warmup": 19000,
-	       "chain": 8},
+	       "chain": 1},
 
 	"plot": [
+		{"variable": "MainField"},
 		{"variable": "TotalField"},
 		{"variable": "TrappingField"},
-		{"variable": "MainField"},
+		{"variable": "BGradientField"},
+		{"variable": "TotalField"},
+		{"variable": "ITrap"},
+		{"variable": "radius_sq"},
 		{"variable": "KE"},
 		{"variable": "frequency"},
 		{"variable": "stheta"}
@@ -57,10 +53,15 @@
 		   	   {"variable" : "KE", "root_alias" : "KE"},
 		   	   {"variable" : "MainField", "root_alias" : "MainField"},
 		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
+		   	   {"variable" : "BGradientField", "root_alias" : "BGradientField"},
+		   	   {"variable" : "radius_sq", "root_alias" : "radius_sq"},
 		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
 		   	   {"variable" : "gPower", "root_alias" : "gPower"},
-		   	   {"variable" : "power", "root_alias" : "power"},
+		   	   {"variable" : "nData", "root_alias" : "nData"},
+		   	   {"variable" : "LivetimeWeight", "root_alias" : "LivetimeWeight"},
+		   	   {"variable" : "ITrap", "root_alias" : "ITrap"},
 		   	   {"variable" : "frequency", "root_alias" : "MinFrequency"},
+		   	   {"variable" : "power", "root_alias" : "power"},
 		   	   {"variable" : "dfdt", "root_alias" : "Slope"},
 		   	   {"variable" : "IsCut", "root_alias" : "IsCut"},
 		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}

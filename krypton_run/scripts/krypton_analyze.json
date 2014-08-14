@@ -20,6 +20,7 @@
 			"format" : "root",
 			"tree" : "procTracks",
 			"branches" : [
+				   {"name" : "LivetimeWeight", "stan_alias" : "LivetimeWeight"},	
 				   {"name" : "MinFrequency", "stan_alias" : "freq_data"},				   
 				   {"name" : "Slope", "stan_alias" : "dfdt_data"}	
 				   ]
@@ -27,12 +28,8 @@
 		 ],
 		"parameters": [
 		      {
-		        "minFreq" : 24.0e9,
-		        "maxFreq" : 26.0e9,			
-		        "LOFreq" : 0,
-			"fClock"  : 0,
 			"TrapCurrent" : 2000,
-			"LivetimeWeight" : 1.0, 
+			"nBackgrounds" : 0,
 		        "usePower" : 0
 		      }
 		    ]
@@ -40,22 +37,20 @@
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 40000,
-	       "warmup": 30000,
-	       "chain": 8
+	       "iter": 1000,
+	       "chain": 4
 	       },
 
 	"plot_off": [
-		{"variable": "muB"},
 		{"variable": "MainField"},
 		{"variable": "TrappingField"},
 		{"variable": "TotalField"},
-		{"variable": "df"},
 		{"variable": "SignalRate"},
 		{"variable": "BackgroundRate"},
 		{"variable": "SourceMean"},
 		{"variable": "SourceWidth"},		
 		{"variable": "stheta"},
+		{"variable": "radius_sq"},
 		{"variable": "lp__"}				
 		],
 
@@ -72,11 +67,6 @@
 		   	   {"variable" : "BackgroundRate", "root_alias" : "BackgroundRate"},
 		   	   {"variable" : "MainField", "root_alias" : "MainField"},
 		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
-		   	   {"variable" : "muB", "root_alias" : "muB"},
-		   	   {"variable" : "df", "root_alias" : "df"},
-		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
-		   	   {"variable" : "stheta", "root_alias" : "stheta"},
-			   {"variable" : "freq_rec", "root_alias" : "freq_rec"},
 		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
 		    	   ]
 		   }	   

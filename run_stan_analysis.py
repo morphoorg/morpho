@@ -12,8 +12,8 @@ import matplotlib
 matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 
-def theHack(theString,theVariable):
-    theResult = str(theString.format(theVariable))
+def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
+    theResult = str(theString.format(theVariable,theSecondVariable,theThirdVariable))
     return theResult
 
 theConfigFile = sys.argv[1]
@@ -44,6 +44,7 @@ nIter =   pyL.readLabel(theRunConditions,'iter',2000)
 nChain =  pyL.readLabel(theRunConditions,'chain',4)
 nThin  =  pyL.readLabel(theRunConditions,'thin',1)
 nWarmup = pyL.readLabel(theRunConditions,'warmup',nIter/2)
+nInitPar = pyL.readLabel(theRunConditions,'init','')
 
 parList = pyL.readLabel(theRunConditions,'pars',None)
 if parList is None:
@@ -63,8 +64,10 @@ theFit = pyL.stan_cache(model_code= theModelFile,
 			algorithm = theAlgorithm, 
 			iter=nIter, chains=nChain, 
 			thin=nThin, warmup=nWarmup,
-			npars=nPars, init = "random",
+			npars=nPars, init = nInitPar,
 			sample_file=theSample)
+
+print 'Analysis complete.'
 
 # Output the data into a root file
 
@@ -83,8 +86,15 @@ if theOutput is not None:
 
 	iBranch = 0
 	for key in theOutputVar:
-	    exec(theHack("theVariable_{} = np.zeros(1, dtype=float)",str(key['root_alias'])))
-	    exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'/D')",str(key['root_alias'])))
+
+	    nSize = pyL.readLabel(key,'ndim',1)
+	    exec(theHack("theVariable_{} = np.zeros({}, dtype=float)",str(key['root_alias']),nSize))
+
+	    if (nSize == 1) :
+		exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'/D')",str(key['root_alias'])))
+	    else :
+		exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]/D')",str(key['root_alias']),nSize))
+
 	    theOutputData[iBranch] = theFit.extract(key['variable'])
 	    nEvents = len(theOutputData[iBranch][key['variable']])
 	    iBranch += 1
@@ -93,12 +103,19 @@ if theOutput is not None:
 	    iBranch = 0
 	    for key in theOutputVar:
 		theValue = theOutputData[iBranch][key['variable']][iEvent]
-		exec(theHack("theVariable_{}[0] = theValue",str(key['root_alias'])))
+		nSize = pyL.readLabel(key,'ndim',1)
+		if (nSize == 1) :
+		    exec(theHack("theVariable_{}[0] = theValue",str(key['root_alias'])))
+		else :
+		    for iNum in range(0,nSize):
+			exec(theHack("theVariable_{}[{}] = theValue[{}]",str(key['root_alias']),iNum,iNum))
 		iBranch +=1
 	    atree.Fill()
 	    
 	atree.Write()
 	afile.Close()
+
+	print 'The root file has been written to', theOutputFile
 
     elif theOutputType=='R':
 
@@ -119,6 +136,5 @@ if thePlots is not None:
 	thePlotData = theFit.extract()
 	theFit.plot(key['variable'])
     plt.show()
-
-print(theFit)
+    print(theFit)
 

@@ -1,0 +1,85 @@
+{
+  "stan": {
+
+  	 "name": "krypton_frequency_analysis",
+
+	 "model":	{
+	 	"file": "./krypton_run/models/krypton_frequency_analysis.stan",
+		"cache": "./krypton_run/cache"
+		},
+
+	 "data": {
+	 	"type": "data",
+		"files": [
+		    {
+			"name": "./krypton_run/data/krypton_frequency_run.header.data", 
+			"format":"R"
+		    },
+	 	    {
+			"name" : "krypton_run/data/events_combined_full.root", 
+			"format" : "root",
+			"tree" : "combinedCandidates",
+			"cut" : "TrapCurrent == 800 && ((StartFrequencyCal>24.85e9 && StartFrequencyCal<24.95e9) || (StartFrequencyCal>25.40e9 && StartFrequencyCal<25.55e9))",
+			"branches" : [
+				   {"name" : "LivetimeWeight", "stan_alias" : "LivetimeWeight"},	
+				   {"name" : "StartFrequencyCal", "stan_alias" : "freq_data"}
+				   ]
+		     }
+		 ],
+		"parameters": [
+		      {
+			"TrapCurrent" : 800,
+			"minFreq" : 24.80e9,
+			"maxFreq" : 25.55e9,
+			"nSignals" : 2
+		      }
+		    ]
+	},
+
+	"run": {
+	       "algorithim": "NUTS",
+	       "iter": 40000,
+	       "chain": 1,
+	       "init": [
+	       	       {"uNormal": [0.0,0.0],
+		       "uCauchy": 0.0,
+		       "SourceMean":[25.475e09, 24.880e09],
+		       "SourceWidth" :[1.628e06, 2.76e06],
+		       "SourceSkew" :[5.0e06, 5.0e06],
+		       "SourceStrength" :[0.5,0.5]}
+		       ]
+	       },
+	"plot_off": [
+		{"variable": "MainField"},
+		{"variable": "TrappingField"},
+		{"variable": "TotalField"},
+		{"variable": "SourceMean"},
+		{"variable": "SourceWidth"},		
+		{"variable": "SourceSkew"},
+		{"variable": "lp__"}				
+		],
+
+	"output": 
+		  {
+		   "name" : "./krypton_run/results/combined_frequency_analysis.root",
+		   "format" : "root",
+		   "tree" : "stanAnalysis",
+		   "branches" : [
+		   	   {"variable" : "SourceStrength", "root_alias" : "SourceStrength", "ndim":2},
+		   	   {"variable" : "SourceMean", "root_alias" : "SourceMean","ndim":2},
+		   	   {"variable" : "SourceWidth", "root_alias" : "SourceWidth","ndim":2},
+		   	   {"variable" : "SourceSkew", "root_alias" : "SourceSkew","ndim":2},
+		   	   {"variable" : "EnergyMean", "root_alias" : "EnergyMean","ndim":2},
+		   	   {"variable" : "EnergyWidth", "root_alias" : "EnergyWidth","ndim":2},
+		   	   {"variable" : "EnergySkew", "root_alias" : "EnergySkew","ndim":2},
+		   	   {"variable" : "freq_gen", "root_alias" : "freq_gen","ndim":2},
+		   	   {"variable" : "energy_gen", "root_alias" : "energy_gen","ndim":2},
+		   	   {"variable" : "MainField", "root_alias" : "MainField"},
+		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
+		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
+		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
+		    	   ]
+		   }	   
+   }
+
+}

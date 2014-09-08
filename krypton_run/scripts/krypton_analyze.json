@@ -16,19 +16,23 @@
 			"format":"R"
 		    },
 	 	    {
-			"name" : "./krypton_run/results/test_generator.root", 
+			"name" : "krypton_run/data/events_combined_full.root", 
 			"format" : "root",
-			"tree" : "procTracks",
+			"tree" : "combinedCandidates",
+			"cuts" : "TrapCurrent == 800 && StartFrequencyCal>25.4e9 && StartFrequencyCal<25.6e9",
 			"branches" : [
 				   {"name" : "LivetimeWeight", "stan_alias" : "LivetimeWeight"},	
-				   {"name" : "MinFrequency", "stan_alias" : "freq_data"},				   
-				   {"name" : "Slope", "stan_alias" : "dfdt_data"}	
+				   {"name" : "StartFrequencyCal", "stan_alias" : "freq_data"},
+				   {"name" : "LOFreq", "stan_alias" : "dfdt_data"}	
 				   ]
 		     }
 		 ],
 		"parameters": [
 		      {
-			"TrapCurrent" : 2000,
+			"TrapCurrent" : 800,
+			"minFreq" : 25.4e9,
+			"maxFreq" : 25.6e9,
+			"nSignals" : 1,
 			"nBackgrounds" : 0,
 		        "usePower" : 0
 		      }
@@ -37,7 +41,7 @@
 
 	"run": {
 	       "algorithim": "NUTS",
-	       "iter": 1000,
+	       "iter": 4000,
 	       "chain": 4
 	       },
 
@@ -56,7 +60,7 @@
 
 	"output": 
 		  {
-		   "name" : "./krypton_run/results/test_analysis.root",
+		   "name" : "./krypton_run/results/combined_analysis.root",
 		   "format" : "root",
 		   "tree" : "stanAnalysis",
 		   "branches" : [

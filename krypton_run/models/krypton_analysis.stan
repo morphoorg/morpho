@@ -174,7 +174,7 @@ transformed data {
 parameters {
 
 	vector[2] uNormal;
-	vector<lower=0., upper=1.>[nData] sUniform;
+	real<lower=0., upper=1.> sUniform;
 	real<lower=0., upper=1.> rUniform;
 	real<lower=-pi()/2,upper=+pi()/2> uCauchy;
 
@@ -246,12 +246,13 @@ model{
 
 	real lambda;
 
-        vector[nData] stheta;
-	vector[nData] KE;
-	vector[nData] frequency; 
-	vector[nData] dfdt;
-	vector[nData] power;
+        real stheta;
+	real KE;
+	real dfdt;
+	real power;
 	
+	vector[nData] frequency; 
+
 //   Calculate the power normalization factor
 
         gPower ~ normal(gCoupling, gCouplingWidth);
@@ -266,25 +267,28 @@ model{
 
 	lambda <- (SignalRate + BackgroundRate)*mean(RunLivetime);
 
+//  Calculate pitch angle assuming flat distribution
+
+	stheta <- sthetamin + (1.-sthetamin)*sUniform;
+
+//   Loop over events
+
 	for (n in 1:nData) {
 
-//   Calculate sin(pitch angle) and kinetic energy assuming flat distributions
-
-	    stheta[n] <- sthetamin + (1.-sthetamin)*sUniform[n];
-	    KE[n] <-get_kinetic_energy(frequency[n], stheta[n], TotalField);
+	    KE <-get_kinetic_energy(frequency[n], stheta, TotalField);
 
 //  Calculate observables from data
 
-	    power[n] <- gPower * get_power(KE[n], stheta[n], TotalField);
-	    dfdt[n] <- gPower * get_frequency_loss(KE[n], stheta[n], TotalField);
+	    power <- gPower * get_power(KE, stheta, TotalField);
+	    dfdt <- gPower * get_frequency_loss(KE, stheta, TotalField);
 
 //   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
 
-            logdKdf <- log(KE[n] + m_electron()) - log(get_frequency(KE[n], stheta[n], TotalField));
+            logdKdf <- log(KE + m_electron()) - log(get_frequency(KE, stheta, TotalField));
 
 	    if (TrapCurrent > 0 && nSignals>0) {
 		   for (k in 1:nSignals) {
- 	       	       ps[k] <-  log(SignalRate * RunLivetime[n]) + log(SourceStrength[k]) + cauchy_log(KE[n],SourceMean[k],SourceWidth[k])+ logdKdf;
+ 	       	       ps[k] <-  log(SignalRate * RunLivetime[n]) + log(SourceStrength[k]) + cauchy_log(KE,SourceMean[k],SourceWidth[k])+ logdKdf;
 	   	   }		   
 	    }
 

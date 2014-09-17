@@ -124,7 +124,7 @@ parameters {
 
 	vector<lower=0.0>[nSignals] SourceMean;
 	vector<lower=0.0>[nSignals] SourceWidth;
-	vector[nSignals] SourceSkew;
+	vector<lower=0.0>[nSignals] SourceSkew;
 	simplex[nSignals] SourceStrength;
 
 }
@@ -140,6 +140,7 @@ transformed parameters {
 	real df;
 
 	vector[nData] frequency; 
+	vector[nData] kinetic_energy; 
 
 // Calculate primary magnetic field, trapping coil effect and total (minimum) field
 
@@ -161,6 +162,10 @@ transformed parameters {
 
 	frequency <- freq_data + df;
 
+	for (n in 1:nData) {
+	    kinetic_energy[n] <- get_kinetic_energy(frequency[n], TotalField);
+	}
+
 }
 
 model{
@@ -175,8 +180,8 @@ model{
 //   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
 	    if (TrapCurrent > 0 && nSignals>0) {	       
 		   for (k in 1:nSignals) {
-		       z <- (frequency[n] - SourceMean[k])/SourceWidth[k];
-	       	       ps[k] <- log(SourceStrength[k]) +  log(RunLivetime[n]) + normal_log(frequency[n], SourceMean[k], SourceWidth[k]);
+		       z <- (frequency[n] - SourceMean[k])/SourceWidth[k];		       
+	       	       ps[k] <- log(SourceStrength[k]) +  log(RunLivetime[n]) + cauchy_log(kinetic_energy[n], SourceMean[k], SourceWidth[k]);
 	   	   }		   
 	    }
 //  Increment likelihood based on amplitudes
@@ -188,17 +193,11 @@ model{
 
 generated quantities{
 	 
-	  vector[nSignals] EnergyMean;
-	  vector[nSignals] EnergyWidth;
-	  vector[nSignals] EnergySkew;
 	  vector[nSignals] freq_gen;
 	  vector[nSignals] energy_gen;
 
 	  for (k in 1:nSignals) {
-	      EnergyMean[k] <-get_kinetic_energy(SourceMean[k], TotalField);
-	      EnergyWidth[k] <- (m_electron() * freq_c() / square(SourceMean[k])) * SourceWidth[k];
-	      EnergySkew[k] <-  (m_electron() * freq_c() / square(SourceMean[k])) * SourceSkew[k];
-	      freq_gen[k] <- normal_rng(SourceMean[k],SourceWidth[k]);
-	      energy_gen[k] <-get_kinetic_energy(freq_gen[k], TotalField);
+	      energy_gen[k] <- cauchy_rng(SourceMean[k],SourceWidth[k]);
+	      freq_gen[k] <- get_frequency(energy_gen[k], TotalField);
 	  }
 }

@@ -193,11 +193,19 @@ model{
 
 generated quantities{
 	 
-	  vector[nSignals] freq_gen;
-	  vector[nSignals] energy_gen;
+	  real freq_gen;
+	  real energy_gen;
+	  real prob_sum;
+	  real peak_sum;
 
+	  prob_sum <- 0.;
+	  peak_sum <- uniform_rng(0.,1.);
 	  for (k in 1:nSignals) {
-	      energy_gen[k] <- cauchy_rng(SourceMean[k],SourceWidth[k]);
-	      freq_gen[k] <- get_frequency(energy_gen[k], TotalField);
+	      prob_sum <- prob_sum + SourceStrength[k];
+	      if (peak_sum < prob_sum){              
+	         peak_sum <- 2.0;
+	      	 energy_gen <- cauchy_rng(SourceMean[k],SourceWidth[k]);
+	      	 freq_gen <- get_frequency(energy_gen, TotalField);
+	      }
 	  }
 }

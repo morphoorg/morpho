@@ -8,9 +8,9 @@ from array import array
 
 import numpy as np
 
-import matplotlib
-matplotlib.use('TKAgg')
-import matplotlib.pyplot as plt
+#import matplotlib
+#matplotlib.use('TKAgg')
+#import matplotlib.pyplot as plt
 
 def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
     theResult = str(theString.format(theVariable,theSecondVariable,theThirdVariable))
@@ -135,6 +135,6 @@ if thePlots is not None:
     for key in thePlots:
 	thePlotData = theFit.extract()
 	theFit.plot(key['variable'])
-    plt.show()
+#    plt.show()
     print(theFit)
 

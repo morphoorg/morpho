@@ -1,0 +1,79 @@
+{
+  "stan": {
+
+  	 "name": "krypton_analysis",
+
+	 "model":	{
+	 	"file": "./krypton_run/models/krypton_analysis.stan",
+		"cache": "./krypton_run/cache"
+		},
+
+	 "data": {
+	 	"type": "data",
+		"files": [
+		    {
+			"name": "./krypton_run/data/krypton_run.header.data", 
+			"format":"R"
+		    },
+	 	    {
+			"name" : "krypton_run/data/events_combined_full.root", 
+			"format" : "root",
+			"tree" : "combinedCandidates",
+			"cuts" : "TrapCurrent == 800 && StartFrequencyCal>25.4e9 && StartFrequencyCal<25.6e9",
+			"branches" : [
+				   {"name" : "LivetimeWeight", "stan_alias" : "LivetimeWeight"},	
+				   {"name" : "StartFrequencyCal", "stan_alias" : "freq_data"},
+				   {"name" : "LOFreq", "stan_alias" : "dfdt_data"}	
+				   ]
+		     }
+		 ],
+		"parameters": [
+		      {
+			"TrapCurrent" : 800,
+			"minFreq" : 25.4e9,
+			"maxFreq" : 25.6e9,
+			"nSignals" : 1,
+			"nBackgrounds" : 0,
+		        "usePower" : 0
+		      }
+		    ]
+	},
+
+	"run": {
+	       "algorithim": "NUTS",
+	       "iter": 4000,
+	       "chain": 4
+	       },
+
+	"plot_off": [
+		{"variable": "MainField"},
+		{"variable": "TrappingField"},
+		{"variable": "TotalField"},
+		{"variable": "SignalRate"},
+		{"variable": "BackgroundRate"},
+		{"variable": "SourceMean"},
+		{"variable": "SourceWidth"},		
+		{"variable": "stheta"},
+		{"variable": "radius_sq"},
+		{"variable": "lp__"}				
+		],
+
+	"output": 
+		  {
+		   "name" : "./krypton_run/results/combined_analysis.root",
+		   "format" : "root",
+		   "tree" : "stanAnalysis",
+		   "branches" : [
+		   	   {"variable" : "gPower", "root_alias" : "gPower"},
+		   	   {"variable" : "SourceMean", "root_alias" : "SourceMean"},
+		   	   {"variable" : "SourceWidth", "root_alias" : "SourceWidth"},
+		   	   {"variable" : "SignalRate", "root_alias" : "SignalRate"},
+		   	   {"variable" : "BackgroundRate", "root_alias" : "BackgroundRate"},
+		   	   {"variable" : "MainField", "root_alias" : "MainField"},
+		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
+		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
+		    	   ]
+		   }	   
+   }
+
+}

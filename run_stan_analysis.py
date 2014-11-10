@@ -1,4 +1,4 @@
-import ROOT as root 
+import ROOT as root
 
 import pystanLoad as pyL
 
@@ -30,7 +30,7 @@ config_file = pyL.readLabel(json_data,'stan','./run.json')
 theModel = pyL.readLabel(config_file, 'model')
 casheDirectory = pyL.readLabel(theModel, 'cache', './cache')
 theModelFile =  pyL.readLabel(theModel,'file')
-     
+
 # Set up the input, output and plotting configurations
 theDataFiles =  pyL.readLabel(config_file, 'data')
 theSample = pyL.readLabel(config_file,'sample', None)
@@ -58,13 +58,13 @@ else :
 theData = pyL.stan_data_files(theDataFiles)
 
 # Execute the fit
-theFit = pyL.stan_cache(model_code= theModelFile, 
+theFit = pyL.stan_cache(model_code= theModelFile,
 			cashe_dir= casheDirectory,
 			data=theData,
-			algorithm = theAlgorithm, 
-			iter=nIter, chains=nChain, 
+			algorithm = theAlgorithm,
+			iter=nIter, chains=nChain,
 			thin=nThin, warmup=nWarmup,
-			npars=nPars, init = nInitPar,
+			pars=nPars, init = nInitPar,
 			sample_file=theSample)
 
 print 'Analysis complete.'
@@ -111,7 +111,7 @@ if theOutput is not None:
 			exec(theHack("theVariable_{}[{}] = theValue[{}]",str(key['root_alias']),iNum,iNum))
 		iBranch +=1
 	    atree.Fill()
-	    
+
 	atree.Write()
 	afile.Close()
 
@@ -137,4 +137,3 @@ if thePlots is not None:
 	theFit.plot(key['variable'])
 #    plt.show()
     print(theFit)
-

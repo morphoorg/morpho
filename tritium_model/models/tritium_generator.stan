@@ -1,22 +1,17 @@
 /*
-* MC Beta Decay Spectrum Model (Generator)
+* Tritium Spectrum Model (Generator)
 * -----------------------------------------------------
 * Copyright: J. A. Formaggio <josephf@mit.edu>
 *
-* Date: 7 August 2013
+* Date: 25 September 2014
 *
 * Purpose: 
 *
 *		Program will generate a set of sampled data distributed according to the beta decay spectrum of tritium.
-*
 *		Program assumes Project-8 measurement (frequency) and molecular tritium as the source.
-*
 *		Spectrum includes Fermi-function correction and final state distribution (assuming 0.36 eV gaussian model)
-*
 *		Includes broadening due to magnetic field homogeneity, radiative energy loss, and scattering.
-*
 *		T_2 scattering cross-section is assumed constant (18 keV value used) until a better model comes along.
-*
 *		Note that sample events are distributed according to true distribution.  
 *
 *		You can also obtain the number of events (Poisson-distributed) expected as a function of frequency or energy
@@ -26,97 +21,126 @@
 * Collaboration:  Project 8
 */
 
+functions{
+
+// Set up constants 
+
+	real m_electron() { return  510998.910;}				 // Electron mass in eV
+	real c() { return  299792458.;}			   	   	    	 // Speed of light in m/s
+	real omega_c() {return 1.758820088e+11;}		         // Angular gyromagnetic ratio in rad Hz/Tesla
+	real freq_c() {return omega_c()/(2. * pi());}			 // Gyromagnetic ratio in Hz/Tesla
+	real alpha() { return 7.29735257e-3;}               	   	 // Fine structure constant
+	real bohr_radius() { return 5.2917721092e-11;}	 	 // Bohr radius in meters
+	real k_boltzmann() {return  8.61733238e-5;}		         // Boltzmann's constant in eV/Kelvin
+	real unit_mass() { return 931.494061e6;}			 // Unit mass in eV
+	real r0_electron() { return square(alpha())*bohr_radius();}  // Electron radius in meters
+	real seconds_per_year() {return 365.25 * 86400.;}	         // Seconds in a year
+
+//  Tritium-specific constants
+
+	real tritium_molecular_mass() {return  2. * 3.016 * unit_mass();}   	 // Molecular tritium mass in eV
+	real tritium_halflife() {return 12.32 * seconds_per_year();}  // Halflife of tritium (in seconds)
+	
+// Method for converting kinetic energy (eV) to frequency (Hz).  
+// Depends on magnetic field (Tesla)
+
+   	real get_frequency(real kinetic_energy,real field) {
+	     real gamma;
+	     gamma <- 1. +  kinetic_energy/m_electron();
+	     return freq_c() / gamma * field;
+	}
+
+// Method for converting frequency (Hz) to kinetic energy (eV)
+// Depends on magnetic field (Tesla)
+
+   	real get_kinetic_energy(real frequency, real field) {
+	     real gamma;
+	     gamma <- freq_c() / frequency * field;
+	     return (gamma -1.) * m_electron();
+	}
+
+//  Create a centered normal distribution function for faster convergence on normal distributions
+
+	real vnormal_lp(real beta_raw, real mu, real sigma) {
+	       beta_raw ~ normal(0,1);
+	       return mu + beta_raw * sigma;
+	}
+
+//  Create a centered normal distribution function for faster convergence on cauchy distributions.
+//  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
+
+	real vcauchy_lp(real beta_raw, real mu, real sigma) {
+	       beta_raw ~ uniform(-pi()/2. , +pi()/2.);
+	       return mu +  tan(beta_raw) * sigma;
+	}
+
+}
+
+data {
+
+//   Number of neutrinos and mixing parameters
+
+     int<lower=1> nNeutrino;
+     simplex[nNeutrino] U_e;
+     vector[nNeutrino] m_nu;
+
+//   Primary magnetic field (in Tesla)
+
+     	real<lower=0> BField;
+	real BFieldError;
+
+//   Endpoint of tritium, in eV
+
+     	real<lower=0> QValue;
+	real QValueError;
+
+//  Cross-section of e-T2 , in meter^-2
+
+     	real<lower=0> eT2_xsection;
+     	real eT2_xsectionError;
+
+//  Conditions of the experiment and measurement
+
+	real density;					//  Tritium number density (in meter^-3)
+	real temperature;				//  Temperature of gas (in Kelvin)
+	real effective_volume;		        //  Effective volume (in meter^3)
+	real measuring_time;			//  Measuring time (in seconds)
+
+//  Background rate
+
+	real background_rate;			//  Background rate in Hz
+
+}
+
+
+transformed data {
+	    
+        real minKE;
+	real maxKE;
+	
+	vector[nNeutrino] z_nu;
+	real signal_rate;
+
+	minKE <- get_kinetic_energy(maxFreq, BField);
+	maxKE <- get_kinetic_energy(minFreq, BField);
+
+	z_nu <- m_nu / m_electron();
+
+	signal_rate <- density * effective_volume / (tritium_halflife() / log(2.) );
+
+}
+
+
 transformed data {
 
-  real n_samples;
-
-  real c;
-  real m_electron;
-  real m_tritium;
-  real alpha;
-  real k_b;
-
-  real B;
-  real f_c;
-
-  real density;
-  real temperature;
-  real V_eff;
-  real halflife;
-  real time;
-  real activity;
-
-  real Q_value;
-  real<lower=0> t_start;
-  real<lower=0> t_end;
-
-  real<lower=0> ymin;
-  real<lower=0> ymax;
-
-  real<lower=0> m_nu;
-  real<lower=0> z_nu;
-
-  real background_rate;
-
   real<lower=0> beta_max;
-  real<lower=0> cross_section;
   real<lower=0> rad_width;
   real<lower=0> scatt_width;
-  real<lower=0> sigma_B;
-  real<lower=0> sigma_Q;
-
-# Information about the run itself
-
-  n_samples <- 1000.;
-
-# Fundamental constants to be used in program
-
-  c <- 29979245800;						// Speed of light in cm/s
-  m_electron <- 510998.;					// Electron mass in eV
-  m_tritium <- 2. * 3.016 * 931.494061e6;		// Tritium molecule mass in eV
-  alpha <- 1./137.035999074 ; 			    	// Fine structure constant
-  k_b    <- 8.61733238e-5;   				   	// Boltzmann's constant in eV/Kelvin
-
-# Input on magnetic field and cyclotron frequency
-
-  B <- 1.;									// Field strength in Tesla
-  f_c <- 27.9924911e+9 * B;     				// Electron cyclotron frequency  in Hertz
-
-# Neutrino mass parameters
-
-   m_nu <- 0.;                                                         // Neutrino mass (in eV)
-   z_nu  <- m_nu / m_electron;                               // Normalized neutrino mass
-
-# Start and end energies
-
-  Q_value <- 18575.;						// Endpoint of tritium beta decay spectrum
-
-  t_start <-  0.;   			   	       	   	        // Kinetic energy start for generation
-  ymax   <-  1./(1. + t_start/m_electron);
-
-  t_end   <- 18600.;						// Kinetic energy end for generation (includes buffer)
-  ymin   <-  1./(1. + t_end/m_electron);
-
-# Calculation of activity for model being used.
-
-  density <- 1.e11;							// tritium number density (in cm^-3)
-  temperature <- 30.;						// Temperature of gas (in Kelvin)
-  V_eff <- 1.;       							// Effective trapping volume (in cm^3)
-  time <- 86400.;            					// Total running time (in seconds)
-
-  halflife <- 12.32 * 31536000.;    				// Tritium half-life in seconds
-  activity <- density * V_eff * time / (halflife/log(2.));
-
-# Background calculations.
-
-  background_rate <- 1.e-12;					// Background rate (in events per second per Hz window)
 
 # Uncertainties assumed in broadening distributions
 
   sigma_Q <- 0.36;							//  Uncertain in final state distribution (in eV)
-  sigma_B <- 1.e-05;						//  Uncertainty in magnetic field (in Tesla)
 
-  cross_section <- 3.4e-18;										//  Cross-section of electron-T2 molecule at 18 keV (in cm^2)
   beta_max <-  sqrt(1-square(1. / (1. + Q_value/m_electron)));	   		//  Maximum velocity/(speed of light) of beta decay 
   scatt_width <- cross_section * beta_max * c * density;			    	//  Scattering width in Hertz
   rad_width <- 0.387697196 * square(B);                					//  Free space radiation of particle, tagged at 1 Tesla (in Hz)
@@ -137,7 +161,6 @@ transformed parameters{
   real nu;
   real beta;
   real nu_doppler;
-  real fermi_function;
   real mass_term;
   real tot_width;
   real norm;
@@ -155,13 +178,11 @@ transformed parameters{
 
   tot_width <- (scatt_width + rad_width);
 
-  fermi_function <- (4. * pi() * alpha) / beta/(1.-exp(-(4. * pi() * alpha) / beta)) * (1.002037 - 0.001427 * beta);
-
   mass_term <- sqrt(1.-square((eta * nu * z_nu)/(eta-nu)));
 
   norm <- (105./(16. *sqrt(2.))) * pow(eta/(1.-eta),3.5) * activity;
 
-  signal <- if_else(nu>zmin && nu<1, norm * beta / pow(nu,6.) * square(nu - eta) / square(eta) * fermi_function * mass_term, 0.);
+  signal <- if_else(nu>zmin && nu<1, norm * beta / pow(nu,6.) * square(nu - eta) / square(eta) * mass_term, 0.);
 
   background <- background_rate * f_c * time;							
 

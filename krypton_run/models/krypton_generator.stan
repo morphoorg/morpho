@@ -5,7 +5,7 @@
 *
 * Date: 23 July 2014
 *
-* Purpose: 
+* Purpose:
 *
 *		Program will generate a set of sampled data distributed according to the decay of 83mKr .
 *
@@ -16,7 +16,7 @@
 
 functions{
 
-// Set up constants 
+// Set up constants
 
 	real m_electron() { return  510998.910;}				 // Electron mass in eV
 	real c() { return  299792458.;}			   	   	    	 // Speed of light in m/s
@@ -26,7 +26,7 @@ functions{
 	real bohr_radius() { return 5.2917721092e-11;}	 	 // Bohr radius in meters
 	real r0_electron() { return square(alpha())*bohr_radius();}  // Electron radius
 
-// Method for converting kinetic energy (eV) to frequency (Hz).  
+// Method for converting kinetic energy (eV) to frequency (Hz).
 // Depends on stheta = sin(pitch angle) and magnetic field (Tesla)
 
    	real get_frequency(real kinetic_energy, real stheta, real field) {
@@ -66,7 +66,7 @@ functions{
 
 //   Get loss in frequency over time (Hz/s)
 //   Depends on kinetic energy (eV), stheta = sin(pitch angle) and magnetic field (Tesla)
-     
+
         real get_frequency_loss(real kinetic_energy, real stheta, real field) {
 
 	      real gamma;
@@ -111,7 +111,7 @@ data {
      	real<lower=0> BField;
 	real<lower=0> BFieldError;
 
-//   Secondary trapping magnetic field (in Tesla/milliAmp).  Error in Tesla.  Current in milliAmperes. 
+//   Secondary trapping magnetic field (in Tesla/milliAmp).  Error in Tesla.  Current in milliAmperes.
 
      	real BCoil;
   	real TrapCurrent;
@@ -120,7 +120,7 @@ data {
 //   Radial gradient of magnetic field (in Tesla/mm^2/mA).  Radial distance in millimeters
 
         real BGradient;
-	real maxRadius;     	       
+	real maxRadius;
 
 //   Local oscillator and main mixer offset and error (in Hz)
 
@@ -158,10 +158,10 @@ data {
      	real SignalRate;
      	real BackgroundRate;
 
-}   
+}
 
 transformed data {
-	    
+
         real minKE;
 	real maxKE;
 
@@ -216,7 +216,7 @@ transformed parameters {
 
 // Calculate trapping coil effect and total (minimum) field
 
-   	ITrap <- vnormal_lp(uNormal[2], TrapCurrent, TrapCurrentError);	
+   	ITrap <- vnormal_lp(uNormal[2], TrapCurrent, TrapCurrentError);
 
 	TrappingField <- BCoil * ITrap;
 
@@ -225,7 +225,7 @@ transformed parameters {
 	TotalField <- MainField + TrappingField + BGradientField;
 
 //  Calculate maximum pitch angle from trapping coil
-    
+
         sthetamin <- sqrt(TotalField/(TotalField-TrappingField));
 
 //  Calculate the smear of the frequency due to windowing and clock error (plus clock shift).  Assume cauchy distribution.
@@ -236,7 +236,7 @@ transformed parameters {
 // Calculate mean energy of each branch
 
 	for (i in 1:nSignals) {
-	    BranchMean[i] <- vnormal_lp(zNormal[i], FunctionMean[i], FunctionMeanError[i]);   
+	    BranchMean[i] <- vnormal_lp(zNormal[i], FunctionMean[i], FunctionMeanError[i]);
 	}
 
 //   Determine livetime weighting for run
@@ -268,7 +268,7 @@ model{
 
        gPower ~ normal(gCoupling, gCouplingWidth);
 
-//  Distribute fraction of signal krypton events.  
+//  Distribute fraction of signal krypton events.
 
 	BranchRatio ~ normal(FunctionAmplitude/sum(FunctionAmplitude), FunctionAmplitudeError/sum(FunctionAmplitude));
 
@@ -280,7 +280,7 @@ model{
 	   for (k in 1:nSignals) {
 	    	 ps[k] <-  log(SignalRate * RunLivetime) + log(BranchRatio[k]) + cauchy_log(KE,BranchMean[k],FunctionWidth[k]) + logdKdf;
 	   }
-	   Signal <- SignalRate * RunLivetime;		   
+	   Signal <- SignalRate * RunLivetime;
 	}
 
 //   Add in linear background in kinetic energy (i.e. background electrons)
@@ -294,7 +294,7 @@ model{
 
 //  Increment likelihood based on amplitudes
 
-	increment_log_prob(+log_sum_exp(ps));	
+	increment_log_prob(+log_sum_exp(ps));
 
 }
 
@@ -308,7 +308,7 @@ generated quantities {
 	int nData;
 
 //   Convert to observables for all data points.  Create for each data point.
-		
+
 	freq_data <- normal_rng(frequency - df, frequencyWidth);
 	dfdt_data <- normal_rng(dfdt, dfdtWidth);
 

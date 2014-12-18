@@ -1,11 +1,9 @@
-# Definitions for loading and using pystan for analysis
+# Definitions for loading and using pystan for analysis using root 
 
 from ROOT import *
 
 import pystan
-
-import pickle
-from hashlib import md5
+import numpy as np
 
 import array
 
@@ -23,25 +21,9 @@ def insertIntoDataStruct(name,aValue,aDict):
     else:
         aDict[name].append(aValue)
 
-# make definition such that it is not necessary to recompile each and every time
-
-def stan_cache(model_code, model_name=None, cashe_dir='.',**kwargs):
-    """Use just as you would `stan`"""
-    theData = open(model_code,'r+').read()
-    code_hash = md5(theData.encode('ascii')).hexdigest()
-    if model_name is None:
-        cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
-    else:
-        cache_fn = '{}/cached-{}-{}.pkl'.format(cashe_dir, model_name, code_hash)
-    try:
-        sm = pickle.load(open(cache_fn, 'rb'))
-    except:
-        sm = pystan.StanModel(file=model_code)
-        with open(cache_fn, 'wb') as f:
-            pickle.dump(sm, f)
-    else:
-        print("Using cached StanModel")
-    return sm.sampling(**kwargs)
+def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
+    theResult = str(theString.format(theVariable,theSecondVariable,theThirdVariable))
+    return theResult
 
 # reading dict file.  Right now it is set up as an R reader, but this can definitely be improved
 
@@ -112,3 +94,44 @@ def stan_data_files(theData):
 
     return alist
 
+def stan_write_root(conf, theOutput):
+
+    afile = TFile.Open(conf.out_fname, "recreate")
+    atree = TTree(conf.out_tree,conf.out_tree)
+    theOutputVar = conf.out_branches
+    theOutputData = {}
+
+    nBranches = len(theOutputVar)
+
+    iBranch = 0
+    for key in theOutputVar:
+
+	    nSize = readLabel(key,'ndim',1)
+	    exec(theHack("theVariable_{} = np.zeros({}, dtype=float)",str(key['root_alias']),nSize))
+
+	    if (nSize == 1) :
+		exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'/D')",str(key['root_alias'])))
+	    else :
+		exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]/D')",str(key['root_alias']),nSize))
+
+	    theOutputData[iBranch] = theOutput.extract(key['variable'])
+	    nEvents = len(theOutputData[iBranch][key['variable']])
+	    iBranch += 1
+
+    for iEvent in range(0,nEvents):
+	    iBranch = 0
+	    for key in theOutputVar:
+		theValue = theOutputData[iBranch][key['variable']][iEvent]
+		nSize = readLabel(key,'ndim',1)
+		if (nSize == 1) :
+		    exec(theHack("theVariable_{}[0] = theValue",str(key['root_alias'])))
+		else :
+		    for iNum in range(0,nSize):
+			exec(theHack("theVariable_{}[{}] = theValue[{}]",str(key['root_alias']),iNum,iNum))
+		iBranch +=1
+	    atree.Fill()
+
+    atree.Write()
+    afile.Close()
+
+    print 'The root file has been written to', conf.out_fname

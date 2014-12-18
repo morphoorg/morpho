@@ -175,20 +175,16 @@ model{
 
 //   Loop over events
 
-	for (n in 1:nData) {
+     	for (n in 1:nData) {
 
 //   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
-	    if (TrapCurrent > 0 && nSignals>0) {	       
-		   for (k in 1:nSignals) {
-		       z <- (frequency[n] - SourceMean[k])/SourceWidth[k];		       
-	       	       ps[k] <- log(SourceStrength[k]) +  log(RunLivetime[n]) + cauchy_log(kinetic_energy[n], SourceMean[k], SourceWidth[k]);
-	   	   }		   
-	    }
+     	   for (k in 1:nSignals) {
+    	       ps[k] <- log(SourceStrength[k]) +  log(RunLivetime[n]) + cauchy_log(kinetic_energy[n], SourceMean[k], SourceWidth[k]);
+	   }		   
 //  Increment likelihood based on amplitudes
 
-	    increment_log_prob(+log_sum_exp(ps));	
+	   increment_log_prob(+log_sum_exp(ps));	
 	}
-
 }
 
 generated quantities{

@@ -1,72 +1,55 @@
 {
   "stan": {
 
-  	 "name": "krypton_generator",
+      "name": "krypton_generator",
 
-	 "model":	{
-	 	"file": "./krypton_run/models/krypton_generator.stan",
-		"cache": "./krypton_run/cache"
-		},
+    "model":   {
+       "file": "./krypton_run/models/krypton_generator.stan",
+      "cache": "./krypton_run/cache"
+      },
 
-	 "data": {
-	 	"type": "mc",
-		"files": [
-		    {
-			"name": "./krypton_run/data/krypton_run.header.data", 
-			"format":"R"
-		    },
-		    {
-			"name": "./krypton_run/data/krypton_monte_carlo.data", 
-			"format":"R"
-		    }
-		 ]
-	},
+    "data": {
+       "type": "mc",
+      "files": [
+          {
+         "name": "./krypton_run/data/krypton_run.header.data", 
+         "format":"R"
+          },
+          {
+         "name": "./krypton_run/data/krypton_monte_carlo.data", 
+         "format":"R"
+          }
+       ]
+   },
 
-	"run": {
-	       "algorithim": "NUTS",
-	       "iter": 10000,
-	       "warmup": 9000,
-	       "chain": 8},
+   "run": {
+          "algorithim": "NUTS",
+          "iter": 1000,
+          "warmup": 900,
+          "chain": 1},
 
-	"plot": [
-		{"variable": "MainField"},
-		{"variable": "TotalField"},
-		{"variable": "TrappingField"},
-		{"variable": "BGradientField"},
-		{"variable": "TotalField"},
-		{"variable": "ITrap"},
-		{"variable": "radius_sq"},
-		{"variable": "KE"},
-		{"variable": "frequency"},
-		{"variable": "stheta"}
-		],
+   "plot": [
+      {"variable": "TotalField"},
+      {"variable": "KE"},
+      {"variable": "frequency"}
+      ],
 
-	"sample": "./krypton_run/results/test_generator.out",
+   "sample": "./krypton_run/results/test_generator.out",
 
-	"output": 
-		  {
-		   "name" : "./krypton_run/results/test_generator.root",
-		   "format" : "root",
-		   "tree" : "procTracks",
-		   "branches" : [
-		   	   {"variable" : "stheta", "root_alias" : "stheta"},
-		   	   {"variable" : "KE", "root_alias" : "KE"},
-		   	   {"variable" : "MainField", "root_alias" : "MainField"},
-		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
-		   	   {"variable" : "BGradientField", "root_alias" : "BGradientField"},
-		   	   {"variable" : "radius_sq", "root_alias" : "radius_sq"},
-		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
-		   	   {"variable" : "gPower", "root_alias" : "gPower"},
-		   	   {"variable" : "nData", "root_alias" : "nData"},
-		   	   {"variable" : "LivetimeWeight", "root_alias" : "LivetimeWeight"},
-		   	   {"variable" : "ITrap", "root_alias" : "ITrap"},
-		   	   {"variable" : "frequency", "root_alias" : "MinFrequency"},
-		   	   {"variable" : "power", "root_alias" : "power"},
-		   	   {"variable" : "dfdt", "root_alias" : "Slope"},
-		   	   {"variable" : "IsCut", "root_alias" : "IsCut"},
-		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
-		    	   ]
-		   }	   
+   "output": 
+        {
+         "name" : "./krypton_run/results/test_generator.h5",
+         "format": "hdf5",
+         "config": {"group": "/"},
+            "data": [
+              {"stan_parameter": "nData","output_name": "nData"},
+              {"stan_parameter": "frequency","output_name": "MinFrequency"},
+              {"stan_parameter": "KE","output_name": "KE"},
+              {"stan_parameter": "MainField","output_name": "MainField"},
+              {"stan_parameter": "LivetimeWeight","output_name": "LivetimeWeight"},
+              {"stan_parameter": "lp__","output_name": "LogLikelihood"},
+            ]
+         }      
 
    }
 

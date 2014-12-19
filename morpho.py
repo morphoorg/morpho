@@ -5,9 +5,10 @@
 #
 # author: j.n. kofron <jared.kofron@gmail.com>
 #
-from pystan import stan
+import pystan
 import pystanLoad as pyL
 
+from pystan import stan
 from h5py import File as HDF5
 from yaml import load as yload
 from argparse import ArgumentParser
@@ -40,6 +41,9 @@ class stan_args(object):
         sa = getargspec(stan)
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
+    def init_function(self):
+        return self.init_per_chain
+    
     def __init__(self, yd):
         try:
             # STAN model stuff
@@ -56,8 +60,9 @@ class stan_args(object):
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
-            self.init = self.read_param(yd, 'stan.run.init', '')
-
+            self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
+            self.init = self.init_function();
+                        
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
 
@@ -159,6 +164,7 @@ if __name__ == '__main__':
         try:
             cdata = yload(cfile)
             sa = stan_args(cdata)
+
             result = stan_cache(**(sa.gen_arg_dict()))
 
             write_result(sa, result)

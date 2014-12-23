@@ -1,10 +1,10 @@
 {
   "stan": {
 
-      "name": "krypton_frequency_analysis",
+      "name": "krypton_RSA_analysis",
 
     "model":   {
-       "file": "./krypton_run/models/krypton_frequency_analysis.stan",
+       "file": "./krypton_run/models/krypton_RSA_analysis.stan",
       "cache": "./krypton_run/cache"
       },
 
@@ -16,39 +16,33 @@
          "format":"R"
           },
            {
-         "name" : "RSAdatav3_20140903_17keV_tcut.data", 
-         "format" : "R",
-         "tree" : "combinedCandidates",
-         "cut" : "TrapCurrent == 800 && ((StartFrequencyCal>24.75e9 && StartFrequencyCal<25.55e9))",
-         "branches" : [
-               {"name" : "LivetimeWeight", "stan_alias" : "LivetimeWeight"},   
-               {"name" : "StartFrequencyCal", "stan_alias" : "freq_data"}
-               ]
-           }
-       ],
+         "name" : "./krypton_run/data/RSAdatav3_20140903_30keV_tthreshcut.data", 
+         "format" : "R"
+          }],
       "parameters": [
             {
-         "TrapCurrent" : 800,
-         "maxFreq" : 25550000000.0,
-         "minFreq" : 24800000000.0,
-         "nSignals" : 4
+         "BField" : 0.953382,
+         "TrapCurrent" : 400,
+         "minFreq" : 25100000000.0,
+         "maxFreq" : 25200000000.0,
+         "nSignals" : 3
             }
           ]
    },
 
    "run": {
           "algorithim": "NUTS",
-          "iter": 600,
-          "warmup": 400,
+          "iter": 10000,
+          "warmup": 5000,
           "chain": 1,
           "init": [
             {"uNormal": [0.0,0.0],
              "uCauchy": 0.0,
-             "GlobalWidth" : 100.0,
-             "SourceMean":[17830.0, 30440.0, 30477.0, 31940.0],
-             "SourceWidth" :[60.0, 60.0, 60.0, 60.0],
-             "SourceSkew" :[50.0, 50.0, 50.0, 50.0],
-             "SourceStrength" :[0.2,0.3,0.4,0.1]}
+             "GlobalWidth" : 15.0,
+             "SourceMean":[30440.0, 30477.0, 30250.0],
+             "SourceWidth" :[2.0, 2.0, 2.0],
+             "SourceStrength" :[0.6, 0.3, 0.1]
+            }
              ]
           },
    "plot": [
@@ -63,14 +57,13 @@
 
    "output": 
         {
-         "name" : "./krypton_run/results/combined_frequency_analysis.root",
+         "name" : "./krypton_run/results/RSA_30keV_analysis.root",
          "format" : "root",
          "tree" : "stanAnalysis",
          "branches" : [
-               {"variable" : "SourceStrength", "root_alias" : "SourceStrength", "ndim":4},
-               {"variable" : "SourceMean", "root_alias" : "SourceMean","ndim":4},
-               {"variable" : "SourceWidth", "root_alias" : "SourceWidth","ndim":4},
-               {"variable" : "SourceSkew", "root_alias" : "SourceSkew","ndim":4},
+               {"variable" : "SourceStrength", "root_alias" : "SourceStrength", "ndim":3},
+               {"variable" : "SourceMean", "root_alias" : "SourceMean","ndim":3},
+               {"variable" : "SourceWidth", "root_alias" : "SourceWidth","ndim":3},
                {"variable" : "GlobalWidth", "root_alias" : "SourceSkew"},
                {"variable" : "freq_gen", "root_alias" : "freq_gen"},
                {"variable" : "energy_gen", "root_alias" : "energy_gen"},

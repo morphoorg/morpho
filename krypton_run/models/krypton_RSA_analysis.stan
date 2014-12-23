@@ -98,10 +98,6 @@ data {
 	int <lower=0> nData;
 	vector[nData] freq_data;
 
-//   Livetime weighting
-
-	vector[nData] LivetimeWeight;
-
 }   
 
 transformed data {
@@ -113,8 +109,6 @@ transformed data {
 	minKE <- get_kinetic_energy(maxFreq, BField);
 	maxKE <- get_kinetic_energy(minFreq, BField);
 
-	RunLivetime <- 1.0 ./ LivetimeWeight;
-
 }
 
 parameters {
@@ -125,7 +119,6 @@ parameters {
 	real<lower=0.0> GlobalWidth;
 	vector<lower=0.0>[nSignals] SourceMean;
 	vector<lower=0.0>[nSignals] SourceWidth;
-	vector<lower=0.0>[nSignals] SourceSkew;
 	simplex[nSignals] SourceStrength;
 
 }
@@ -171,7 +164,6 @@ transformed parameters {
 
 model{
 
-	real z;
 	vector[nSignals] ps;
 
 //   Loop over events
@@ -180,12 +172,13 @@ model{
 
 //   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
      	   for (k in 1:nSignals) {
-    	       ps[k] <- log(SourceStrength[k]) +  log(RunLivetime[n]) + cauchy_log(kinetic_energy[n], SourceMean[k], GlobalWidth);
+    	       ps[k] <- log(SourceStrength[k]) + cauchy_log(kinetic_energy[n], SourceMean[k], SourceWidth[k]);
 	   }		   
 //  Increment likelihood based on amplitudes
 
 	   increment_log_prob(+log_sum_exp(ps));	
 	}
+
 }
 
 generated quantities{

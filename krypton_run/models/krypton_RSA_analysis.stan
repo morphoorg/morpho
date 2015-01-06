@@ -63,10 +63,6 @@ functions{
 
 data {
 
-//   Number of signal and background models
-
-	int<lower=0> nSignals;
-
 //   Primary magnetic field (in Tesla)
 
      	real<lower=0> BField;
@@ -93,6 +89,14 @@ data {
 
   	real frequencyWidth;
 
+//   Kr Lines
+
+     	int nLevels;
+        real eGamma;
+     	vector<lower=0.0>[nLevels] eParentLevel;
+	vector<lower=0.0>[nLevels] eParentWidth;
+     	vector<lower=0.0>[nLevels] eProgenyLevel;
+
 //   Observed data (frequency and frequency loss).  Measured in Hz and Hz/s.
 
 	int <lower=0> nData;
@@ -102,12 +106,53 @@ data {
 
 transformed data {
 	    
-        real minKE;
+	real minKE;
 	real maxKE;
-	vector[nData] RunLivetime;
 
-	minKE <- get_kinetic_energy(maxFreq, BField);
-	maxKE <- get_kinetic_energy(minFreq, BField);
+	real ePrimary;
+	real eShakeoff;
+	real eShakeup;
+
+	int nLines;
+	vector[nLevels*(nLevels+1)/2] eLineEnergy;
+	vector[nLevels*(nLevels+1)/2] eLineWidth;
+
+	minKE <- get_kinetic_energy(maxFreq, BField + BCoil * TrapCurrent);
+	maxKE <- get_kinetic_energy(minFreq, BField + BCoil * TrapCurrent);
+
+	nLines <- 0;
+	for (i in 1:nLevels){
+
+	    ePrimary <- eGamma - eParentLevel[i];
+	    if ((ePrimary > minKE) && (ePrimary < maxKE)) {
+	       nLines <- nLines+1;
+	       eLineEnergy[nLines] <- ePrimary;
+	       eLineWidth[nLines] <-  eParentWidth[i];
+	    }
+
+	    eShakeoff <- eGamma - eParentLevel[i] - eProgenyLevel[i];
+	    if ((eShakeoff > minKE) && (eShakeoff < maxKE)) {
+	       nLines <- nLines+1;
+	       eLineEnergy[nLines] <- eShakeoff;
+	       eLineWidth[nLines] <-  eParentWidth[i];
+	    }
+
+//	    Shakeup contribution; turn off for now.
+	  if (1==0) {
+	    for (j in 1:nLevels-i){
+	    	eShakeup <- ePrimary - eParentLevel[i+j];
+		if ((eShakeup > minKE) && (eShakeup < maxKE)) {
+	           nLines <- nLines+1;
+	       	   eLineEnergy[nLines] <- eShakeup;
+	       	   eLineWidth[nLines] <-  eParentWidth[i] + eParentWidth[i+j];
+	    	}
+	    }
+	  }
+	}	    
+
+	for (k in 1:nLines) {
+	    print("Lines included :", k, " ->", eLineEnergy[k], " : ",eLineWidth[k]);
+	}
 
 }
 
@@ -115,11 +160,10 @@ parameters {
 
 	vector[2] uNormal;
 	real<lower=-pi()/2,upper=+pi()/2> uCauchy;
+	vector<lower=-pi()/2,upper=+pi()/2>[nLines] zCauchy;
 
 	real<lower=0.0> GlobalWidth;
-	vector<lower=0.0>[nSignals] SourceMean;
-	vector<lower=0.0>[nSignals] SourceWidth;
-	simplex[nSignals] SourceStrength;
+	simplex[nLines] SourceStrength;
 
 }
 
@@ -132,6 +176,8 @@ transformed parameters {
 	real freq_shift;
 	real dfWidth;
 	real df;
+
+	vector[nLines] theLines;
 
 	vector[nData] frequency; 
 	vector[nData] kinetic_energy; 
@@ -152,6 +198,12 @@ transformed parameters {
 
 	df <- vcauchy_lp(uCauchy, freq_shift, dfWidth);
 
+//  Calculate lines
+
+	for (k in 1:nLines) {
+	    theLines[k] <- vcauchy_lp(zCauchy[k], eLineEnergy[k], eLineWidth[k]);
+	}
+	
 //  Calculate observables from data
 
 	frequency <- freq_data + df;
@@ -164,18 +216,17 @@ transformed parameters {
 
 model{
 
-	vector[nSignals] ps;
+	vector[nLines] ps;
 
 //   Loop over events
 
      	for (n in 1:nData) {
 
 //   Allow the kinetic energy to have a cauchy prior drawn from a parent global distribution
-     	   for (k in 1:nSignals) {
-    	       ps[k] <- log(SourceStrength[k]) + cauchy_log(kinetic_energy[n], SourceMean[k], SourceWidth[k]);
-	   }		   
+     	   for (k in 1:nLines) {
+	       ps[k] <- log(SourceStrength[k]) + cauchy_log(kinetic_energy[n], theLines[k], GlobalWidth);
+	    }		   
 //  Increment likelihood based on amplitudes
-
 	   increment_log_prob(+log_sum_exp(ps));	
 	}
 
@@ -190,11 +241,11 @@ generated quantities{
 
 	  prob_sum <- 0.;
 	  peak_sum <- uniform_rng(0.,1.);
-	  for (k in 1:nSignals) {
+	  for (k in 1:nLines) {
 	      prob_sum <- prob_sum + SourceStrength[k];
 	      if (peak_sum < prob_sum){              
 	         peak_sum <- 2.0;
-	      	 energy_gen <- cauchy_rng(SourceMean[k],GlobalWidth);
+	      	 energy_gen <- cauchy_rng(eLineEnergy[k],GlobalWidth);
 	      	 freq_gen <- get_frequency(energy_gen, TotalField);
 	      }
 	  }

@@ -21,27 +21,31 @@
           }],
       "parameters": [
             {
-         "BField" : 0.953382,
+         "BField" : 0.95338,
          "TrapCurrent" : 400,
-         "minFreq" : 25100000000.0,
+         "minFreq" : 25130000000.0,
          "maxFreq" : 25200000000.0,
-         "nSignals" : 3
+         "eGamma" : 32151.7,
+         "nLevels" : 12,
+         "eParentLevel":  [14326.0, 1921.0, 1730.9, 1678.4, 292.8, 222.2, 214.5, 95.0, 93.8, 27.5, 14.1, 14.1],
+         "eProgenyLevel": [15200.0, 2065.0, 1864.0, 1804.0, 326.7, 248.7, 239.1,113.0,112.0, 30.5, 16.3, 15.3],
+         "eParentWidth":  [2.83, 5.3, 1.8, 1.4, 4.27, 1.99, 1.66, 0.19, 0.59, 1.0, 1.0, 1.0]
             }
           ]
    },
 
    "run": {
           "algorithim": "NUTS",
-          "iter": 10000,
-          "warmup": 5000,
+          "iter": 1000,
+          "warmup": 500,
           "chain": 1,
-          "init": [
-            {"uNormal": [0.0,0.0],
+          "init": "random",
+          "init_off": [
+            {"uNormal": [0.0, 0.0],
              "uCauchy": 0.0,
+             "zCauchy": [0.0, 0.0],
              "GlobalWidth" : 15.0,
-             "SourceMean":[30440.0, 30477.0, 30250.0],
-             "SourceWidth" :[2.0, 2.0, 2.0],
-             "SourceStrength" :[0.6, 0.3, 0.1]
+             "SourceStrength" :[0.7, 0.3]
             }
              ]
           },
@@ -49,9 +53,7 @@
       {"variable": "MainField"},
       {"variable": "TrappingField"},
       {"variable": "TotalField"},
-      {"variable": "SourceMean"},
-      {"variable": "SourceWidth"},      
-      {"variable": "SourceSkew"},
+      {"variable": "GlobalWidth"},
       {"variable": "lp__"}            
       ],
 
@@ -61,10 +63,7 @@
          "format" : "root",
          "tree" : "stanAnalysis",
          "branches" : [
-               {"variable" : "SourceStrength", "root_alias" : "SourceStrength", "ndim":3},
-               {"variable" : "SourceMean", "root_alias" : "SourceMean","ndim":3},
-               {"variable" : "SourceWidth", "root_alias" : "SourceWidth","ndim":3},
-               {"variable" : "GlobalWidth", "root_alias" : "SourceSkew"},
+               {"variable" : "GlobalWidth", "root_alias" : "GlobalWidth"},
                {"variable" : "freq_gen", "root_alias" : "freq_gen"},
                {"variable" : "energy_gen", "root_alias" : "energy_gen"},
                {"variable" : "MainField", "root_alias" : "MainField"},

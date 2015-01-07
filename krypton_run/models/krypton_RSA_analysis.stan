@@ -150,7 +150,7 @@ transformed data {
 	  }
 	}	    
 
-	for (k in 1:nLines) {
+	for (k in 1:nLines) {    
 	    print("Lines included :", k, " ->", eLineEnergy[k], " : ",eLineWidth[k]);
 	}
 
@@ -245,7 +245,7 @@ generated quantities{
 	      prob_sum <- prob_sum + SourceStrength[k];
 	      if (peak_sum < prob_sum){              
 	         peak_sum <- 2.0;
-	      	 energy_gen <- cauchy_rng(eLineEnergy[k],GlobalWidth);
+	      	 energy_gen <- cauchy_rng(theLines[k],GlobalWidth);
 	      	 freq_gen <- get_frequency(energy_gen, TotalField);
 	      }
 	  }

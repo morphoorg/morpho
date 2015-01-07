@@ -36,8 +36,8 @@
 
    "run": {
           "algorithim": "NUTS",
-          "iter": 1000,
-          "warmup": 500,
+          "iter": 100,
+          "warmup": 50,
           "chain": 1,
           "init": "random",
           "init_off": [
@@ -69,6 +69,8 @@
                {"variable" : "MainField", "root_alias" : "MainField"},
                {"variable" : "TrappingField", "root_alias" : "TrappingField"},
                {"variable" : "TotalField", "root_alias" : "TotalField"},
+               {"variable" : "SourceStrength", "root_alias" : "SourceStrength", "ndim":3},
+               {"variable" : "theLines", "root_alias" : "SourceMean","ndim":3},
                {"variable" : "lp__", "root_alias" : "LogLikelihood"}
                 ]
          }      

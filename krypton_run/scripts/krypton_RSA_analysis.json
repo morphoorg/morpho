@@ -1,7 +1,9 @@
 {
   "stan": {
 
-      "name": "krypton_RSA_analysis",
+    "name": "krypton_RSA_analysis",
+
+    "job_id": "<job_id>",
 
     "model":   {
        "file": "./krypton_run/models/krypton_RSA_analysis.stan",
@@ -36,10 +38,11 @@
 
    "run": {
           "algorithim": "NUTS",
-          "iter": 100,
-          "warmup": 50,
-          "chain": 1,
+          "iter": 10,
+          "warmup": 5,
+          "chain": 32,
           "init": "random",
+          "seed": <314159>,
           "init_off": [
             {"uNormal": [0.0, 0.0],
              "uCauchy": 0.0,
@@ -59,7 +62,7 @@
 
    "output": 
         {
-         "name" : "./krypton_run/results/RSA_30keV_analysis.root",
+         "name" : "./krypton_run/results/RSA_30keV_analysis_batch",
          "format" : "root",
          "tree" : "stanAnalysis",
          "branches" : [

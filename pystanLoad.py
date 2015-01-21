@@ -94,9 +94,9 @@ def stan_data_files(theData):
 
     return alist
 
-def stan_write_root(conf, theOutput):
+def stan_write_root(conf, theFileName, theOutput):
 
-    afile = TFile.Open(conf.out_fname, "recreate")
+    afile = TFile.Open(theFileName, "recreate")
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
     theOutputData = {}
@@ -134,4 +134,4 @@ def stan_write_root(conf, theOutput):
     atree.Write()
     afile.Close()
 
-    print 'The root file has been written to', conf.out_fname
+    print 'The root file has been written to', theFileName

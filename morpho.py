@@ -183,11 +183,10 @@ if __name__ == '__main__':
     with open(args.config, 'r') as cfile:
         try:
             cdata = yload(cfile)
-            cdata.update(vars(args))
             sa = stan_args(cdata)
 
             result = stan_cache(**(sa.gen_arg_dict()))
-            
+
             write_result(sa, result)
             plot_result(sa, result)
                                         

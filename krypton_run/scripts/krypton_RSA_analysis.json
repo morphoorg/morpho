@@ -6,7 +6,7 @@
     "job_id": "<job_id>",
 
     "model":   {
-       "file": "./krypton_run/models/krypton_RSA_analysis.stan",
+      "file": "./krypton_run/models/krypton_RSA_analysis.stan",
       "cache": "./krypton_run/cache"
       },
 
@@ -18,7 +18,7 @@
          "format":"R"
           },
            {
-         "name" : "./krypton_run/data/RSAdatav3_20140903_30keV_tthreshcut.data", 
+         "name" : "./krypton_run/data/RSAdatav3_20140903_30keV_fixed.data", 
          "format" : "R"
           }],
       "parameters": [
@@ -38,11 +38,11 @@
 
    "run": {
           "algorithim": "NUTS",
-          "iter": 10,
-          "warmup": 5,
+          "iter": 2000,
+          "warmup": 1000,
           "chain": 32,
           "init": "random",
-          "seed": <314159>,
+          "seed": 314159,
           "init_off": [
             {"uNormal": [0.0, 0.0],
              "uCauchy": 0.0,

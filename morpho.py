@@ -9,7 +9,7 @@ import pystan
 import pystanLoad as pyL
 
 from pystan import stan
-from h5py import File as HDF5
+#from h5py import File as HDF5
 from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
@@ -46,6 +46,9 @@ class stan_args(object):
     
     def __init__(self, yd):
         try:
+            # Identifications
+            self.job_id = self.read_param(yd, 'stan.job_id', '0')
+
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
@@ -59,6 +62,7 @@ class stan_args(object):
             self.iter = self.read_param(yd, 'stan.run.iter', 2000)
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
+            self.seed = self.read_param(yd, 'stan.run.seed', 314159)
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
             self.init = self.init_function();
@@ -108,6 +112,15 @@ def parse_args():
                    metavar='<configuration file>',
                    help='Full path to the configuration file used by morpho',
                    required=True)
+    p.add_argument('--job_id',
+                   metavar='<job_id>',
+                   help='Job id number for batching',
+                   required=False)
+    p.add_argument('--seed',
+                   metavar='<seed>',
+                   help='Add random seed number to file',
+                   required=False)                   
+
     return p.parse_args()
 
 
@@ -137,16 +150,23 @@ def plot_result(conf, stanres):
         print(result)
 
 def write_result(conf, stanres):
-    if sa.out_format == 'hdf5':
-        write_result_hdf5(sa, result)
-    if sa.out_format == 'root':
-        pyL.stan_write_root(sa, result)
 
-def write_result_hdf5(conf, stanres):
+    ofilename = sa.out_fname
+    if (args.job_id>0):
+        ofilename = ofilename+'_'+args.job_id        
+    if sa.out_format == 'hdf5':
+        ofilename = ofilename+'.h5'
+        write_result_hdf5(sa, ofilename, result)
+
+    if sa.out_format == 'root':
+        ofilename = ofilename+'.root'
+        pyL.stan_write_root(sa, ofilename, result)
+
+def write_result_hdf5(conf, ofilename, stanres):
     """
     Write the STAN result to an HDF5 file.
     """
-    with HDF5(conf.out_fname,'w') as ofile:
+    with HDF5(ofilename,'w') as ofile:
         g = open_or_create(ofile, conf.out_cfg['group'])
         fit = stanres.extract()
         for var in conf.out_vars:

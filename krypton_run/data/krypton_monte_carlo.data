@@ -1,6 +1,8 @@
 nSignals <- 4
 nBackgrounds <-0
 
+number_density <- 1.0e-12
+
 RunLivetime <- 100.
 SignalRate <- 0.95
 BackgroundRate <-0.05

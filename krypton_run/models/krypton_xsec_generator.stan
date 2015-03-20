@@ -20,11 +20,13 @@ functions{
 
 	real m_electron() { return  510998.910;}				 // Electron mass in eV
 	real c() { return  299792458.;}			   	   	    	 // Speed of light in m/s
-	real omega_c() {return 1.758820088e+11;}		         // Angular gyromagnetic ratio in rad Hz/Tesla
-	real freq_c() {return omega_c()/(2. * pi());}			 // Gyromagnetic ratio in Hz/Tesla
-	real alpha() { return 7.29735257e-3;}               	   	 // Fine structure constant
-	real bohr_radius() { return 5.2917721092e-11;}	 	 // Bohr radius in meters
-	real r0_electron() { return square(alpha())*bohr_radius();}  // Electron radius
+	real omega_c() {return 1.758820088e+11;}		         	 // Angular gyromagnetic ratio in rad Hz/Tesla
+	real freq_c() {return omega_c()/(2. * pi());}			 	 // Gyromagnetic ratio in Hz/Tesla
+	real alpha() { return 7.29735257e-3;}               	   	 	 // Fine structure constant
+	real k_boltzmann() {return  8.61733238e-5;}		         	 // Boltzmann's constant in eV/Kelvin
+	real bohr_radius() { return 5.2917721092e-11;}	 	 		 // Bohr radius in meters
+	real r0_electron() { return square(alpha())*bohr_radius();}  		 // Electron radius
+	real ry_hydrogen() { return 13.60569253;}                    		 // Rydberg energy in eV
 
 // Method for converting kinetic energy (eV) to frequency (Hz).
 // Depends on stheta = sin(pitch angle) and magnetic field (Tesla)
@@ -90,11 +92,13 @@ functions{
 
 //  Total cross-section (in 1/(meters)^2)
 
-        real xsection(real kinetic_energy) {
+        real xsection(real kinetic_energy, real msq_tot, real Aconst) {
 	     real beta;
 	     real xsec;
+	     real u_energy;
 	     beta <- get_beta(kinetic_energy);
-	     xsec <- 1./square(beta);
+	     u_energy <- kinetic_energy / ry_hydrogen();
+	     xsec <- 4.0 * pi() * square(bohr_radius()) / u_energy * (msq_tot * log(u_energy) + Aconst) ;
 	     return xsec;
 	}
 
@@ -168,6 +172,9 @@ data {
   	vector[nSignals] FunctionMeanError;
 	vector[nSignals] FunctionWidth;
 
+	real xsec_msq;
+	real xsec_const;
+
 	int nPar;
 	simplex[nPar] eLossRatio;
 	vector[nPar] eLossMean;
@@ -187,6 +194,8 @@ transformed data {
 
 	minKE <- get_kinetic_energy(maxFreq, 1.0, BField);
 	maxKE <- get_kinetic_energy(minFreq, 1.0, BField);
+
+	print("The range for the energy will be <",minKE,",",maxKE,">");
 
 }
 
@@ -221,6 +230,7 @@ transformed parameters {
 	real beta;
 	real dfdt;
 
+	real xsec;
 	real scattering_length;
 
         real stheta_jump;
@@ -272,7 +282,8 @@ transformed parameters {
 
 //   Calculate scattering length
 
-     	scattering_length <- number_density * c() * beta * xsection(KE);
+        xsec <- xsection(KE, xsec_msq, xsec_const);
+     	scattering_length <- number_density * c() * beta * xsec;
 
 //   Calculate jump parameters
 

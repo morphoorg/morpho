@@ -56,6 +56,7 @@
          "tree" : "stanAnalysis",
          "branches" : [
                {"variable" : "KE", "root_alias" : "KE"},
+               {"variable" : "beta", "root_alias" : "beta"},
                {"variable" : "stheta", "root_alias" : "stheta"},
                {"variable" : "frequency", "root_alias" : "frequency"},
                {"variable" : "xsec", "root_alias" : "xsec"},

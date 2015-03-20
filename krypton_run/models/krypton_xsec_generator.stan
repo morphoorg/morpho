@@ -97,7 +97,7 @@ functions{
 	     real xsec;
 	     real u_energy;
 	     beta <- get_beta(kinetic_energy);
-	     u_energy <- kinetic_energy / ry_hydrogen();
+	     u_energy <- (0.5 * m_electron() * beta * beta) / ry_hydrogen();
 	     xsec <- 4.0 * pi() * square(bohr_radius()) / u_energy * (msq_tot * log(u_energy) + Aconst) ;
 	     return xsec;
 	}

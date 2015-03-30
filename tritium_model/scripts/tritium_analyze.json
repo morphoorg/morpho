@@ -29,7 +29,7 @@
                      {"name" : "time_data", "stan_alias" : "time_data"},
                      {"name" : "freq_data", "stan_alias" : "freq_data"},
                      {"name" : "rate_data", "stan_alias" : "rate_data"},
-                     {"name" : "events", "stan_alias" : "events"}
+                     {"name" : "events", "stan_alias" : "events", "data_format":"integer"}
                       ]
                }
             ],

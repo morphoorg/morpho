@@ -305,6 +305,7 @@ generated quantities {
     real KE_recon;
 
     int isOK;
+    int nData;
     int  events;
     real freq_data;
     real time_data;
@@ -317,6 +318,8 @@ generated quantities {
 
 # Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
     
+    nData <- nGenerate;
+
     time_data <- exponential_rng(scatt_width);
 
     freq_data <- freq_recon - fclock;

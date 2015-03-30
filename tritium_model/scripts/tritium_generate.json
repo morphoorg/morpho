@@ -72,12 +72,11 @@
                      {"variable" : "lp__", "root_alias" : "LogLikelihood"}
                    ],
              "branches" : [
-                     {"variable" : "isOK", "root_alias" : "isOK"},
-                     {"variable" : "nGenerate", "root_alias" : "nGenerate"},
+                     {"variable" : "isOK", "root_alias" : "isOK", "type":"int"},
                      {"variable" : "time_data", "root_alias" : "time_data"},
                      {"variable" : "freq_data", "root_alias" : "freq_data"},
                      {"variable" : "rate_data", "root_alias" : "rate_data"},
-                     {"variable" : "events", "root_alias" : "events"},
+                     {"variable" : "events", "root_alias" : "events", "type":"int"},
                      {"variable" : "lp__", "root_alias" : "LogLikelihood"}
                       ]
              }        

@@ -185,7 +185,7 @@ data {
      vector[nData] time_data;
      vector[nData] freq_data;
      vector[nData] rate_data;
-     vector[nData] events;
+     int events[nData];
 
 }
 
@@ -286,10 +286,10 @@ transformed parameters{
     	   } else {
        	      rate_log <- background_log;
     	   }
-	   sum_log_rate <- sum_log_rate + events[i] * (rate_log);
+	   rate[i] <- total_rate * exp(rate_log);
+	   sum_log_rate <- sum_log_rate + poisson_log(events[i], rate[i]);
 	}
      }
-
 }
 
 model {

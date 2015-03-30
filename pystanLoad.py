@@ -9,9 +9,9 @@ import array
 
 def readLabel(aDict, name, default=None):
     if not name in aDict:
-	return default
+        return default
     else :
-	return aDict[name]
+        return aDict[name]
 
 # Inserting data into dict
 
@@ -32,65 +32,75 @@ def stan_data_files(theData):
     alist = {}
 
     for tags in theData.keys():
-	for key in theData[tags]:
-	    if tags=='files':
-		atype = key['format']
-		afile = None
+        for key in theData[tags]:
+            if tags=='files':
+                atype = key['format']
+                afile = None
 
-		if atype =='R' :
-		    afile = pystan.misc.read_rdump(key['name'])
-		    alist = dict(alist.items() + afile.items())
+                if atype =='R' :
+                    afile = pystan.misc.read_rdump(key['name'])
+                    alist = dict(alist.items() + afile.items())
 
-		elif atype =='root' :		    
-
-		    afile = TFile.Open(key['name'],'read')
-		    atree = TTree()
-		    afile.GetObject(str(key['tree']), atree)
+                elif atype =='root' :		    
+    
+                    afile = TFile.Open(key['name'],'read')
+                    atree = TTree()
+                    afile.GetObject(str(key['tree']), atree)
 		    
-		    aCut = readLabel(key,'cut',None)
+                    aCut = readLabel(key,'cut',None)
 
-		    if aCut is not None:
-			atree = atree.CopyTree(aCut)
+                    if aCut is not None:
+                        atree = atree.CopyTree(aCut)
 
-		    nEvents = atree.GetEntries()
-		    alist['nData'] = int(nEvents)
+                    nEvents = atree.GetEntries()
+                    alist['nData'] = int(nEvents)
 
-		    ar = array.array('d',[0.])
-		    for lbr in key['branches']:
-			branch = atree.GetBranch(lbr['name']) or atree.GetBranch(lbr['name']+".")
-			if branch:
-			    leaf= branch.GetLeaf(lbr['name'])
-			    if not leaf:
-				leaves= branch.GetListOfLeaves()
-				if leaves and len(leaves)==1: leaf= leaves[0]
-				else:                         leaf= None
-			else:
-			    leaf= atree.GetLeaf(lbr['name'])
-			    branch= leaf.GetBranch()
+                    areal = array.array('d',[0.])
+                    aint  = array.array('i',[0])
+                    for lbr in key['branches']:
+                        branch = atree.GetBranch(lbr['name']) or atree.GetBranch(lbr['name']+".")
+                        if branch:
+                            leaf= branch.GetLeaf(lbr['name'])
+                            if not leaf:
+                                leaves= branch.GetListOfLeaves()
+                                if leaves and len(leaves)==1: leaf= leaves[0]
+                                else:                         leaf= None
+                        else:
+                            leaf= atree.GetLeaf(lbr['name'])
+                            branch= leaf.GetBranch()
 
-			if 'stan_alias' in lbr.keys():
-			    aname = str(lbr['stan_alias'])
-			else:
-			    aname = str(lbr['name'])
+                        if 'stan_alias' in lbr.keys():
+                            aname = str(lbr['stan_alias'])
+                        else:
+                            aname = str(lbr['name'])
 
-			branch.GetEntry(0)>0
-			for iEntry in range(nEvents):
-			    atree.GetEntry(iEntry)
+                        if 'data_format' in lbr.keys():
+                            adataformat =  str(lbr['data_format'])
+                        else:
+                            adataformat = 'float'
+                            
+                        branch.GetEntry(0)>0
+                        for iEntry in range(nEvents):
+                            atree.GetEntry(iEntry)
 # Take the line below out if reading from a data file/TObject???
-			    leaf = None
-			    if leaf is None:
-				ar[0] = getattr(atree, lbr['name'])
-				insertIntoDataStruct(aname,ar[0], alist)
-			    else :
-				avalue = branch.GetValue(iEntry,1)
-				insertIntoDataStruct(aname, avalue, alist)
+                            leaf = None
+                            if leaf is None:
+                                if (adataformat=='float'):
+                                    areal[0] = getattr(atree, lbr['name'])
+                                    insertIntoDataStruct(aname,areal[0], alist)
+                                else :
+                                    aint[0] = getattr(atree, lbr['name'])
+                                    insertIntoDataStruct(aname,aint[0], alist)                                    
+                            else :
+                                avalue = branch.GetValue(iEntry,1)
+                                insertIntoDataStruct(aname, avalue, alist)
+                        
+                    afile.Close()
 
-		    afile.Close()
-
-		else:
-		    print atype,' format not yet implemented.'
-	    elif tags=='parameters':
-		alist = dict(alist.items() + key.items())
+                else:
+                    print atype,' format not yet implemented.'
+            elif tags=='parameters':
+                alist = dict(alist.items() + key.items())
 
     return alist
 
@@ -100,37 +110,41 @@ def stan_write_root(conf, theFileName, theOutput):
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
     theOutputData = {}
-
+    
     nBranches = len(theOutputVar)
-
+    
     iBranch = 0
     for key in theOutputVar:
+        nSize = readLabel(key,'ndim',1)
 
-	    nSize = readLabel(key,'ndim',1)
-	    exec(theHack("theVariable_{} = np.zeros({}, dtype=float)",str(key['root_alias']),nSize))
+        pType = '/D'
+        nType = readLabel(key,'type','float')
+        if (nType=='int') :
+            pType='/I'
+            
+        exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key['root_alias']),nSize,nType))
 
-	    if (nSize == 1) :
-		exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'/D')",str(key['root_alias'])))
-	    else :
-		exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]/D')",str(key['root_alias']),nSize))
-
-	    theOutputData[iBranch] = theOutput.extract(key['variable'])
-	    nEvents = len(theOutputData[iBranch][key['variable']])
-	    iBranch += 1
-
+        if (nSize == 1) :
+            exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'{}')",str(key['root_alias']),pType))
+        else :
+            exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]{}')",str(key['root_alias']),nSize,pType))
+    
+        theOutputData[iBranch] = theOutput.extract(key['variable'])
+        nEvents = len(theOutputData[iBranch][key['variable']])
+        iBranch += 1
     for iEvent in range(0,nEvents):
-	    iBranch = 0
-	    for key in theOutputVar:
-		theValue = theOutputData[iBranch][key['variable']][iEvent]
-		nSize = readLabel(key,'ndim',1)
-		if (nSize == 1) :
-		    exec(theHack("theVariable_{}[0] = theValue",str(key['root_alias'])))
-		else :
-		    for iNum in range(0,nSize):
-			exec(theHack("theVariable_{}[{}] = theValue[{}]",str(key['root_alias']),iNum,iNum))
-		iBranch +=1
-	    atree.Fill()
-
+        iBranch = 0
+        for key in theOutputVar:
+            theValue = theOutputData[iBranch][key['variable']][iEvent]
+            nSize = readLabel(key,'ndim',1)
+            if (nSize == 1) :
+                exec(theHack("theVariable_{}[0] = theValue",str(key['root_alias'])))
+            else :
+                for iNum in range(0,nSize):
+                    exec(theHack("theVariable_{}[{}] = theValue[{}]",str(key['root_alias']),iNum,iNum))
+            iBranch +=1
+        atree.Fill()
+        
     atree.Write()
     afile.Close()
 

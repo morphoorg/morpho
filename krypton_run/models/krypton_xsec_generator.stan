@@ -19,7 +19,7 @@ functions{
 // Set up constants
 
 	real m_electron() { return  510998.910;}				 // Electron mass in eV
-	real c() { return  299792458.;}			   	   	    	 // Speed of light in m/s
+	real c() { return  2.99792458e+8;}			   	   	 // Speed of light in m/s
 	real omega_c() {return 1.758820088e+11;}		         	 // Angular gyromagnetic ratio in rad Hz/Tesla
 	real freq_c() {return omega_c()/(2. * pi());}			 	 // Gyromagnetic ratio in Hz/Tesla
 	real alpha() { return 7.29735257e-3;}               	   	 	 // Fine structure constant
@@ -27,6 +27,7 @@ functions{
 	real bohr_radius() { return 5.2917721092e-11;}	 	 		 // Bohr radius in meters
 	real r0_electron() { return square(alpha())*bohr_radius();}  		 // Electron radius
 	real ry_hydrogen() { return 13.60569253;}                    		 // Rydberg energy in eV
+	real gamma_c() {return (4./3.)*r0_electron()/c()*square(omega_c());}     // Frequency damping constant (in units of Hz/Tesla^2)
 
 // Method for converting kinetic energy (eV) to frequency (Hz).
 // Depends on stheta = sin(pitch angle) and magnetic field (Tesla)
@@ -91,14 +92,27 @@ functions{
 	}
 
 //  Total cross-section (in 1/(meters)^2)
+//  Based on the paper Binary-encounter-dipole model for electron-impact ionization
+//  Yong-Ki Kim and M. Eugene Rudd, Phys. Rev. A 50, 3954
 
-        real xsection(real kinetic_energy, real msq_tot, real Aconst) {
+        real xsection(real kinetic_energy, real ave_kinetic, real bind_energy, real msq, real Q) {
 	     real beta;
+	     real d_inf;
+	     real S;
 	     real xsec;
+	     real t_energy;
 	     real u_energy;
+	     real b_energy;
+
 	     beta <- get_beta(kinetic_energy);
-	     u_energy <- (0.5 * m_electron() * beta * beta) / ry_hydrogen();
-	     xsec <- 4.0 * pi() * square(bohr_radius()) / u_energy * (msq_tot * log(u_energy) + Aconst) ;
+	     b_energy <- bind_energy;
+	     t_energy <- (0.5 * m_electron() * beta * beta) / b_energy;
+	     u_energy <- ave_kinetic / b_energy;
+
+	     S <- 4.0 * pi() * square(bohr_radius()) / (t_energy + u_energy + 1) * square(ry_hydrogen()/b_energy);
+	     d_inf <- b_energy * msq / ry_hydrogen();
+	     xsec <- S * (d_inf * log(t_energy) + (2 - Q) * (1.0 - 1.0/t_energy - log(t_energy)/(1.0+t_energy)));
+	     
 	     return xsec;
 	}
 
@@ -172,8 +186,10 @@ data {
   	vector[nSignals] FunctionMeanError;
 	vector[nSignals] FunctionWidth;
 
+	real xsec_avekin;
+	real xsec_bindkin;
 	real xsec_msq;
-	real xsec_const;
+	real xsec_Q;
 
 	int nPar;
 	simplex[nPar] eLossRatio;
@@ -282,7 +298,7 @@ transformed parameters {
 
 //   Calculate scattering length
 
-        xsec <- xsection(KE, xsec_msq, xsec_const);
+     	xsec <- xsection(KE,  xsec_avekin, xsec_bindkin, xsec_msq, xsec_Q);
      	scattering_length <- number_density * c() * beta * xsec;
 
 //   Calculate jump parameters

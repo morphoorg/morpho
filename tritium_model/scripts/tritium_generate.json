@@ -1,72 +1,86 @@
 {
   "stan": {
 
-  	 "name": "krypton_generator",
+      "name": "tritium_generator",
 
-	 "model":	{
-	 	"file": "./krypton_run/models/krypton_generator.stan",
-		"cache": "./krypton_run/cache"
-		},
+      "model":     {
+          "file": "./tritium_model/models/tritium_generator.stan",
+          "cache": "./tritium_model/cache"
+          },
 
-	 "data": {
-	 	"type": "mc",
-		"files": [
-		    {
-			"name": "./krypton_run/data/krypton_run.header.data", 
-			"format":"R"
-		    },
-		    {
-			"name": "./krypton_run/data/krypton_monte_carlo.data", 
-			"format":"R"
-		    }
-		 ]
-	},
+      "data": {
+           "type": "mc",
+           "files": [
+              {
+               "name": "./tritium_model/data/tritium.header.data", 
+               "format":"R"
+              },
+              {
+               "name": "./tritium_model/data/tritium_monte_carlo.data", 
+               "format":"R"
+              }
+              ],
+           "parameters": [
+             {
+             "nGenerate" : 2000
+             }
+            ]
+     },
+     "run": {
+            "algorithim": "NUTS",
+            "iter": 252000,
+            "warmup": 250000,
+            "chain": 1,
+            "init": [
+            {"KE": 18560.0,
+             "MainField": 1.000,
+             "uB" : 0.0,
+             "uQ" : 0.0,
+             "df" : 0.0,
+             "neutrino_mass" : 0.005,
+             "eDop":0.05}
+             ]
+},
 
-	"run": {
-	       "algorithim": "NUTS",
-	       "iter": 10000,
-	       "warmup": 9000,
-	       "chain": 8},
+     "sample": "./tritium_model/results/tritium_generator.out",
 
-	"plot": [
-		{"variable": "MainField"},
-		{"variable": "TotalField"},
-		{"variable": "TrappingField"},
-		{"variable": "BGradientField"},
-		{"variable": "TotalField"},
-		{"variable": "ITrap"},
-		{"variable": "radius_sq"},
-		{"variable": "KE"},
-		{"variable": "frequency"},
-		{"variable": "stheta"}
-		],
-
-	"sample": "./krypton_run/results/test_generator.out",
-
-	"output": 
-		  {
-		   "name" : "./krypton_run/results/test_generator.root",
-		   "format" : "root",
-		   "tree" : "procTracks",
-		   "branches" : [
-		   	   {"variable" : "stheta", "root_alias" : "stheta"},
-		   	   {"variable" : "KE", "root_alias" : "KE"},
-		   	   {"variable" : "MainField", "root_alias" : "MainField"},
-		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
-		   	   {"variable" : "BGradientField", "root_alias" : "BGradientField"},
-		   	   {"variable" : "radius_sq", "root_alias" : "radius_sq"},
-		   	   {"variable" : "TotalField", "root_alias" : "TotalField"},
-		   	   {"variable" : "gPower", "root_alias" : "gPower"},
-		   	   {"variable" : "nData", "root_alias" : "nData"},
-		   	   {"variable" : "LivetimeWeight", "root_alias" : "LivetimeWeight"},
-		   	   {"variable" : "ITrap", "root_alias" : "ITrap"},
-		   	   {"variable" : "frequency", "root_alias" : "MinFrequency"},
-		   	   {"variable" : "power", "root_alias" : "power"},
-		   	   {"variable" : "dfdt", "root_alias" : "Slope"},
-		   	   {"variable" : "IsCut", "root_alias" : "IsCut"},
-		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
-		    	   ]
-		   }	   
+     "output": 
+            {
+             "name" : "./tritium_model/results/tritium_generator",
+             "format" : "root",
+             "tree" : "procTracks",
+             "branches_all" : [
+                     {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
+                     {"variable" : "KE", "root_alias" : "KE"},
+                     {"variable" : "beta", "root_alias" : "beta"},
+                     {"variable" : "MainField", "root_alias" : "MainField"},
+                     {"variable" : "frequency", "root_alias" : "frequency"},
+                     {"variable" : "xsec", "root_alias" : "xsec"},
+                     {"variable" : "scatt_width", "root_alias" : "scatt_width"},
+                     {"variable" : "rad_width", "root_alias" : "rad_width"},
+                     {"variable" : "eDop", "root_alias" : "eDop"},
+                     {"variable" : "kDoppler", "root_alias" : "kDoppler"},
+                     {"variable" : "Q", "root_alias" : "Q"},
+                     {"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
+                     {"variable" : "sigma_freq", "root_alias" : "sigma_freq"},
+                     {"variable" : "freq_recon", "root_alias" : "freq_recon"},
+                     {"variable" : "KE_recon", "root_alias" : "KE_recon"},
+                     {"variable" : "isOK", "root_alias" : "isOK"},
+                     {"variable" : "time_data", "root_alias" : "time_data"},
+                     {"variable" : "freq_data", "root_alias" : "freq_data"},
+                     {"variable" : "events", "root_alias" : "events"},
+                     {"variable" : "lp__", "root_alias" : "LogLikelihood"}
+                   ],
+             "branches" : [
+                     {"variable" : "isOK", "root_alias" : "isOK"},
+                     {"variable" : "nGenerate", "root_alias" : "nGenerate"},
+                     {"variable" : "time_data", "root_alias" : "time_data"},
+                     {"variable" : "freq_data", "root_alias" : "freq_data"},
+                     {"variable" : "rate_data", "root_alias" : "rate_data"},
+                     {"variable" : "events", "root_alias" : "events"},
+                     {"variable" : "lp__", "root_alias" : "LogLikelihood"}
+                      ]
+             }        
 
    }
 

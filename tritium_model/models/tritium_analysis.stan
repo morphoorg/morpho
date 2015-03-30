@@ -1,165 +1,312 @@
 /*
-* MC Beta Decay Spectrum Model (Analysis)
+* Tritium Spectrum Model (Analysis)
 * -----------------------------------------------------
 * Copyright: J. A. Formaggio <josephf@mit.edu>
 *
-* Date: 12 August 2013
+* Date: 25 March 2015
 *
 * Purpose: 
 *
-*		Program will analyze a set of sampled data distributed according to the beta decay spectrum of tritium.
-*
+*		Program will analyze a set of generated data distributed according to the beta decay spectrum of tritium.
 *		Program assumes Project-8 measurement (frequency) and molecular tritium as the source.
-*
-*		Spectrum includes Fermi-function correction and final state distribution (assuming 0.36 eV gaussian model)
-*
-*		Includes broadening due to magnetic field homogeneity, radiative energy loss, and scattering.
-*
-*		T_2 scattering cross-section is assumed constant (18 keV value used) until a better model comes along.
-*
+*		Spectrum includes simplified beta-function with final state distribution (assuming 0.36 eV gaussian model)
+*		Includes broadening due to magnetic field homogeneity, radiative energy loss, Doppler and scattering.
+*		T_2 scattering cross-section model implemented.
 *		Note that sample events are distributed according to true distribution.  
-*
-*		You can also obtain the number of events (Poisson-distributed) expected as a function of frequency or energy
-*		by plotting prob*dy versus frequency or nu versus frequency.
 *
 *
 * Collaboration:  Project 8
 */
 
-data{
+functions{
+
+// Set up constants 
+
+	real m_electron() { return  510998.910;}				// Electron mass in eV
+	real c() { return  299792458.;}			   	   	 	// Speed of light in m/s
+	real omega_c() {return 1.758820088e+11;}		         	// Angular gyromagnetic ratio in rad Hz/Tesla
+	real freq_c() {return omega_c()/(2. * pi());}			 	// Gyromagnetic ratio in Hz/Tesla
+	real alpha() { return 7.29735257e-3;}               	   	 	// Fine structure constant
+	real bohr_radius() { return 5.2917721092e-11;}	 	 	 	// Bohr radius in meters
+	real k_boltzmann() {return  8.61733238e-5;}		         	// Boltzmann's constant in eV/Kelvin
+	real unit_mass() { return 931.494061e6;}			 	// Unit mass in eV
+	real r0_electron() { return square(alpha())*bohr_radius();}  	 	// Electron radius in meters
+	real ry_hydrogen() { return 13.60569253;}                    	    	// Rydberg energy in eV
+	real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * B);}    // Frequency damping constant (in units of Hz/Tesla^2)
+	real seconds_per_year() {return 365.25 * 86400.;}	        	// Seconds in a year
+
+//  Tritium-specific constants
+
+    	real tritium_rate_per_eV() {return 2.0e-13;}				 // fraction of rate in last 1 eV
+    	real tritium_molecular_mass() {return  2. * 3.016 * unit_mass();}   	 // Molecular tritium mass in eV
+	real tritium_halflife() {return 12.32 * seconds_per_year();}  // Halflife of tritium (in seconds)
 	
-  int<lower=0> n_samples;
-  real<lower=0,upper=1> ymin;
-  real<lower=0,upper=1> ymax;
-  real frequency[n_samples];
+// Method for converting kinetic energy (eV) to frequency (Hz).  
+// Depends on magnetic field (Tesla)
+
+   	real get_frequency(real kinetic_energy,real field) {
+	     real gamma;
+	     gamma <- 1. +  kinetic_energy/m_electron();
+	     return freq_c() / gamma * field;
+	}
+
+// Method for converting frequency (Hz) to kinetic energy (eV)
+// Depends on magnetic field (Tesla)
+
+   	real get_kinetic_energy(real frequency, real field) {
+	     real gamma;
+	     gamma <- freq_c() / frequency * field;
+	     return (gamma -1.) * m_electron();
+	}
+
+//  Create a centered normal distribution function for faster convergence on normal distributions
+
+	real vnormal_lp(real beta_raw, real mu, real sigma) {
+	       beta_raw ~ normal(0,1);
+	       return mu + beta_raw * sigma;
+	}
+
+//  Create a centered normal distribution function for faster convergence on cauchy distributions.
+//  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
+
+	real vcauchy_lp(real beta_raw, real mu, real sigma) {
+	       beta_raw ~ uniform(-pi()/2. , +pi()/2.);
+	       return mu +  tan(beta_raw) * sigma;
+	}
+
+//   Get relativistic velocity (beta)
+
+        real get_velocity(real kinetic_energy) {
+
+	      real gamma;
+	      real beta;
+
+      	      gamma <-1. +  kinetic_energy/m_electron();
+	      beta <- sqrt(square(gamma)-1.)/gamma;
+	      return beta;
+
+	}
+
+//  Beta decay function given an endpoint Q, and neutrino mass m, and a kinetic energy KE (valid only near the tail)
+
+        real get_beta_function_log(real KE, real Q, real m_nu, real minKE) {
+
+	     real log_rate;
+	     real log_norm;
+	     
+	     log_norm <- 1.5 * log(square(Q - minKE) - square(m_nu));	     
+	     log_rate <- log(3.) + log(Q - KE) + 0.5 * log(square(KE - Q) - square(m_nu));		
+
+	     return (log_rate-log_norm);
+	}
+
+
+//  Total cross-section (in 1/(meters)^2)
+//  Based on the paper Binary-encounter-dipole model for electron-impact ionization
+//  Yong-Ki Kim and M. Eugene Rudd, Phys. Rev. A 50, 3954
+
+        real xsection(real kinetic_energy, real ave_kinetic, real bind_energy, real msq, real Q) {
+	     real beta;
+	     real d_inf;
+	     real S;
+	     real xsec;
+	     real t_energy;
+	     real u_energy;
+	     real b_energy;
+
+	     beta <- get_velocity(kinetic_energy);
+	     b_energy <- bind_energy;
+	     t_energy <- (0.5 * m_electron() * beta * beta) / b_energy;
+	     u_energy <- ave_kinetic / b_energy;
+
+	     S <- 4.0 * pi() * square(bohr_radius()) / (t_energy + u_energy + 1) * square(ry_hydrogen()/b_energy);
+	     d_inf <- b_energy * msq / ry_hydrogen();
+	     xsec <- S * (d_inf * log(t_energy) + (2 - Q) * (1.0 - 1.0/t_energy - log(t_energy)/(1.0+t_energy)));
+	     
+	     return xsec;
+	}
+
+//  Butterworth-type filter.
+
+       real filter_log(real s, real s_min, real s_max, real n) {
+	     return -1./2. * ( log1p(pow(s_min/s,2.*n)) +log1p(pow(s/s_max,2.*n)) );
+       }
+
+       vector gen_data_rng(int nData, vector mu){
+
+       	      vector[nData] n_events;
+
+     	      for (i in 1:nData) {
+    	      	  n_events[i] <- poisson_rng(mu[i] / nData);
+     	      }
+
+     	return n_events;
+	}
+}
+
+data {
+
+//   Number of neutrinos and mixing parameters
+
+     real neutrino_mass_limit;
+
+//   Primary magnetic field (in Tesla)
+
+     real<lower=0> BField;
+     real BFieldError;
+
+//   Range for fits (in Hz)
+
+     real<lower=0 > minKE;
+     real<lower=minKE> maxKE;
+
+//   Endpoint of tritium, in eV
+
+     real QValue;
+     real QValue_Error;
+     real sigmaQ;
+
+//  Conditions of the experiment and measurement
+
+     real number_density;				//  Tritium number density (in meter^-3)
+     real temperature;				//  Temperature of gas (in Kelvin)
+     real effective_volume;		        //  Effective volume (in meter^3)
+     real measuring_time;			//  Measuring time (in seconds)
+
+//  Clock and filter information
+
+     real fBandpass;
+     real fclockError;
+     int  fFilterN;
+
+//  Input data from generated sample
+
+     int nData;
+     vector[nData] time_data;
+     vector[nData] freq_data;
+     vector[nData] rate_data;
+     vector[nData] events;
 
 }
 
 transformed data {
 
-  real c;
-  real m_electron;
-  real m_tritium;
-  real alpha;
-  real k_b;
+    real minFreq;
+    real maxFreq;
+    real fclock;
+    real activity;
 
-  real B;
-  real f_c;
+    minFreq <- get_frequency(maxKE, BField);
+    maxFreq <- get_frequency(minKE, BField);
 
-  real Q_value;
+    fclock <- minFreq;
 
-  real<lower=0> beta_max;
-  real<lower=0> cross_section;
-  real<lower=0> rad_width;
-  real<lower=0> scatt_width;
-  real<lower=0> tot_width;
-  real<lower=0> sigma_B;
-  real<lower=0> sigma_Q;
+    if (fBandpass > (maxFreq-minFreq)) {
+       print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
+       print("Consider enlarging energy region.");
+    }
 
-  real <lower=0> density;
-  real <lower=0> temperature;
-
-# Fundamental constants to be used in program
-
-  c <- 29979245800;						// Speed of light in cm/s
-  m_electron <- 510998.;					// Electron mass in eV
-  m_tritium <- 2. * 3.016 * 931.494061e6;		// Tritium molecule mass in eV
-  alpha <- 1./137.035999074 ; 			    	// Fine structure constant
-  k_b    <- 8.61733238e-5;   				   	// Boltzmann's constant in eV/Kelvin
-
-# Input on magnetic field and cyclotron frequency
-
-  B <- 1.;									// Field strength in Tesla
-  f_c <- 27.9924911e+9 * B;     				// Electron cyclotron frequency  in Hertz
-
-# Start and end energies
-
-  Q_value <- 18575.;						// Endpoint of tritium beta decay spectrum
-
-# Calculation of activity for model being used.
-
-  density <- 1.e11;							// tritium number density (in cm^-3)\  
-  temperature <- 30.;						// Temperature of gas (in Kelvin)
-
-# Uncertainties assumed in broadening distributions
-
-  sigma_Q <- 2.00;							//  Constraint in endpoint (in eV)
-  sigma_B <- 1.e-05;						//  Uncertainty in magnetic field (in Tesla)
-
-  cross_section <- 3.4e-18;										//  Cross-section of electron-T2 molecule at 18 keV (in cm^2)
-  beta_max <-  sqrt(1-square(1. / (1. + Q_value/m_electron)));	   		//  Maximum velocity/(speed of light) of beta decay 
-  scatt_width <- cross_section * beta_max * c * density;			    	//  Scattering width in Hertz
-  rad_width <- 0.387697196 * square(B);                					//  Free space radiation of particle, tagged at 1 Tesla (in Hz)
-  tot_width <- scatt_width + rad_width;
+    activity <- tritium_rate_per_eV() * pow(QValue - minKE,3) * number_density * effective_volume / (tritium_halflife() / log(2.) );
+    print("total activity = ",activity * measuring_time, " events over ",measuring_time," seconds.")
 
 }
 
 parameters {
-  real<lower=0> normalization;
-  real<lower=0> background;
-  real<lower=0> m_nu;
-  real<lower=0> endpoint;  
 
-  real y;
-  real df;
-  real omega;  
-  real eDop;
+    real<lower=0.,upper=1.> signal_fraction;
+    real Q0;
+    real Q;
+    real<lower=0> scatt_width;
+    real<lower=0> mu_tot;
+
+    real uB;
+    real<lower=-pi()/2.,upper=+pi()/2> uf;
+    real eDop;
+    real<lower=-neutrino_mass_limit, upper=neutrino_mass_limit> neutrino_mass;
 }
 
 transformed parameters{
 
-  real eta;
-  real z_nu;
-  real nu_min;
-  real nu[n_samples];
-  real signal[n_samples];
-  real beta[n_samples];
-  real nu_doppler[n_samples];
-  real fermi_function[n_samples];
-  real mass_term[n_samples];
+    real KE;
+    real frequency;
+    vector[nData] freq_recon;
+    vector[nData] rate;
+    real df;
+    real signal_rate;
+    real<lower=0> MainField;
+    real beta;
+    real sum_log_rate;
 
-  eta <- 1. / (1. + endpoint/m_electron);
+    real rad_width;
+    real tot_width;
+    real sigma_freq;
+    
+    real kDoppler;
+    real KE_shift;
 
-  z_nu <- m_nu / m_electron;
+    real signal_log;
+    real background_log;
+    real rate_log;
+    real total_rate;
+    
+//   Obtain magnetic field (with prior distribution)
 
-  nu_min <- eta + z_nu;
+    MainField <- vnormal_lp(uB, BField, BFieldError);
 
-  for (n in 1:n_samples){
+//   Calculate scattering length, radiation width, and total width;
 
-    nu[n] <- (frequency[n])/f_c;
+    rad_width <- cyclotron_rad(MainField);
+    tot_width <- (scatt_width + rad_width);
+    sigma_freq <- (scatt_width + rad_width) / (4. * pi());    
 
-    beta[n] <- sqrt(1-square(nu[n]));
+    total_rate <- mu_tot * activity * measuring_time;
+    sum_log_rate <- 0.;
 
-    nu_doppler[n] <- beta[n] / square(nu[n]) * sqrt(2. * eDop / m_tritium);
+    for (i in 1:nData){
 
-    fermi_function[n] <- (4. * pi() * alpha) / beta[n]/(1.-exp(-(4. * pi() * alpha) / beta[n])) * (1.002037 - 0.001427 * beta[n]);
+    	frequency <- freq_data[i] + fclock;
 
-    mass_term[n] <- sqrt(1.-square((eta * nu[n] * z_nu)/(eta-nu[n])));
+    	df <- vcauchy_lp(uf, 0., sigma_freq);    
 
-    signal[n]<- if_else(nu[n] > nu_min, normalization * beta[n] / pow(nu[n],6.) * square(nu[n] - eta) / square(eta) * fermi_function[n] * mass_term[n], 0.);
-  }
+    	freq_recon[i] <- freq_data[i] + df + fclock;
+
+	KE <- get_kinetic_energy(frequency, BField);
+
+	if ((KE > minKE) && (KE < maxKE)) {
+
+	   beta <- get_velocity(KE);
+     
+	   kDoppler <-  2. * KE / beta * sqrt(eDop / tritium_molecular_mass());
+
+    	   background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
+
+	   if (KE < (Q-fabs(neutrino_mass))) {
+       	      signal_log <- log(signal_fraction) + get_beta_function_log(KE, Q, neutrino_mass, minKE);
+       	      rate_log <- log_sum_exp(signal_log,  background_log);
+    	   } else {
+       	      rate_log <- background_log;
+    	   }
+	   sum_log_rate <- sum_log_rate + events[i] * (rate_log);
+	}
+     }
+
 }
 
 model {
 
- # Dispersion due to uncertainty in knowledge of endpoint
-  endpoint ~ normal(Q_value,sigma_Q);
+#  Thermal Doppler broadening of the tritium source
 
- # Dispersion due to uncertainty in magnetic field
-  df ~ normal(0, f_c *sigma_B / B) ;
+    Q0 ~ normal(QValue, QValue_Error);
 
- # Dispersion due to frequency broadening
-  omega ~ cauchy(0,tot_width); 
+    Q ~ normal(Q0,sigmaQ);
 
-  # Thermal Doppler broadening of the tritium source
-  eDop ~ gamma(1.5,1./(k_b * temperature));
+    time_data ~ exponential(scatt_width);
+    
+    eDop ~ gamma(1.5,1./(k_boltzmann() * temperature));
 
-   for (n in 1:n_samples) {
-        lp__ <- lp__ + log(signal[n] + background);
-   }
-      
-  # Apply correction due to neutrino mass being >0 (log Jacobian = log(exp(m_nu))) ??
-  lp__ <- lp__ + m_nu;
+    for (i in 1:nData) freq_recon[i] ~ filter(minFreq, maxFreq, fFilterN);
+
+    increment_log_prob(sum_log_rate);    
 
 }
 

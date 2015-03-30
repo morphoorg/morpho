@@ -1,79 +1,84 @@
 {
   "stan": {
 
-  	 "name": "krypton_analysis",
+      "name": "tritium_analysis",
 
-	 "model":	{
-	 	"file": "./krypton_run/models/krypton_analysis.stan",
-		"cache": "./krypton_run/cache"
-		},
+      "model":     {
+          "file": "./tritium_model/models/tritium_analysis.stan",
+          "cache": "./tritium_model/cache"
+          },
 
-	 "data": {
-	 	"type": "data",
-		"files": [
-		    {
-			"name": "./krypton_run/data/krypton_run.header.data", 
-			"format":"R"
-		    },
-	 	    {
-			"name" : "krypton_run/data/events_combined_full.root", 
-			"format" : "root",
-			"tree" : "combinedCandidates",
-			"cuts" : "TrapCurrent == 800 && StartFrequencyCal>25.4e9 && StartFrequencyCal<25.6e9",
-			"branches" : [
-				   {"name" : "LivetimeWeight", "stan_alias" : "LivetimeWeight"},	
-				   {"name" : "StartFrequencyCal", "stan_alias" : "freq_data"},
-				   {"name" : "LOFreq", "stan_alias" : "dfdt_data"}	
-				   ]
-		     }
-		 ],
-		"parameters": [
-		      {
-			"TrapCurrent" : 800,
-			"minFreq" : 25.4e9,
-			"maxFreq" : 25.6e9,
-			"nSignals" : 1,
-			"nBackgrounds" : 0,
-		        "usePower" : 0
-		      }
-		    ]
-	},
+      "data": {
+           "type": "data",
+           "files": [
+              {
+               "name": "./tritium_model/data/tritium.header.data", 
+               "format":"R"
+              },
+              {
+               "name": "./tritium_model/data/tritium_monte_carlo.data", 
+               "format":"R"
+              },
+           {
+               "name" : "./tritium_model/results/tritium_generator.root", 
+               "format" : "root",
+               "tree" : "procTracks",
+               "cuts" : "isOK==1",
+               "branches" : [
+                     {"name" : "isOK", "stan_alias" : "isOK"},
+                     {"name" : "time_data", "stan_alias" : "time_data"},
+                     {"name" : "freq_data", "stan_alias" : "freq_data"},
+                     {"name" : "rate_data", "stan_alias" : "rate_data"},
+                     {"name" : "events", "stan_alias" : "events"}
+                      ]
+               }
+            ],
+           "parameters": [
+             {
+             "neutrino_mass_limit" : 4.0
+             }
+            ]
+      },
 
-	"run": {
-	       "algorithim": "NUTS",
-	       "iter": 4000,
-	       "chain": 4
-	       },
+     "run": {
+            "algorithim": "NUTS",
+            "iter": 10000,
+            "warmup": 5000,
+            "chain": 1,
+            "init": [
+            {"signal_fraction": 0.999,
+             "Q0" : 18565.0,
+             "Q" : 18565.0,
+             "scatt_width" : 7.0e+04,
+             "uB" : 0.0,
+             "uQ" : 0.0,
+             "uf" : 0.0,
+             "neutrino_mass" : 0.0,
+             "mu_tot" : 1.0,
+             "eDop":0.05}
+             ]
+      },
 
-	"plot_off": [
-		{"variable": "MainField"},
-		{"variable": "TrappingField"},
-		{"variable": "TotalField"},
-		{"variable": "SignalRate"},
-		{"variable": "BackgroundRate"},
-		{"variable": "SourceMean"},
-		{"variable": "SourceWidth"},		
-		{"variable": "stheta"},
-		{"variable": "radius_sq"},
-		{"variable": "lp__"}				
-		],
+     "sample": "./tritium_model/results/tritium_analysis.out",
 
-	"output": 
-		  {
-		   "name" : "./krypton_run/results/combined_analysis.root",
-		   "format" : "root",
-		   "tree" : "stanAnalysis",
-		   "branches" : [
-		   	   {"variable" : "gPower", "root_alias" : "gPower"},
-		   	   {"variable" : "SourceMean", "root_alias" : "SourceMean"},
-		   	   {"variable" : "SourceWidth", "root_alias" : "SourceWidth"},
-		   	   {"variable" : "SignalRate", "root_alias" : "SignalRate"},
-		   	   {"variable" : "BackgroundRate", "root_alias" : "BackgroundRate"},
-		   	   {"variable" : "MainField", "root_alias" : "MainField"},
-		   	   {"variable" : "TrappingField", "root_alias" : "TrappingField"},
-		   	   {"variable" : "lp__", "root_alias" : "LogLikelihood"}
-		    	   ]
-		   }	   
-   }
-
+     "output": 
+            {
+             "name" : "./tritium_model/results/tritium_analysis",
+             "format" : "root",
+             "tree" : "stanAnalysis",
+             "branches" : [
+                     {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
+                     {"variable" : "MainField", "root_alias" : "MainField"},
+                     {"variable" : "scatt_width", "root_alias" : "scatt_width"},
+                     {"variable" : "rad_width", "root_alias" : "rad_width"},
+                     {"variable" : "df", "root_alias" : "df"},
+                     {"variable" : "kDoppler", "root_alias" : "kDoppler"},
+                     {"variable" : "Q", "root_alias" : "Q"},
+                     {"variable" : "mu_tot", "root_alias" : "mu_tot"},
+                     {"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
+                     {"variable" : "lp__", "root_alias" : "LogLikelihood"}
+                   ]
+            }
+  }
 }
+

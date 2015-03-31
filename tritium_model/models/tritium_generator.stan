@@ -132,6 +132,22 @@ functions{
 	     return -1./2. * ( log1p(pow(s_min/s,2.*n)) +log1p(pow(s/s_max,2.*n)) );
        }
 
+       real signal_to_noise_log(real KE, real Q, real m_nu, real minKE, real maxKE, real signal_fraction) {
+
+       	   real background_log;
+	   real signal_log;
+	   real rate_log;
+
+    	   background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
+
+	   if (KE < (Q-fabs(m_nu))) {
+       	      signal_log <- log(signal_fraction) + get_beta_function_log(KE, Q, m_nu, minKE);
+       	      rate_log <- log_sum_exp(signal_log,  background_log);
+    	   } else {
+       	      rate_log <- background_log;
+    	   }
+	   return rate_log;  
+	}
 }
 
 data {
@@ -210,11 +226,12 @@ transformed data {
 
 parameters {
 
-    real<lower=minKE,upper=maxKE> KE;
     real uQ;
     real uB;
-    real eDop;
     real df;
+    real<lower=0.0> eDop;
+    real<lower=0.0> duration;
+    real<lower=minKE,upper=maxKE> KE;
     real<lower=0.0, upper=neutrino_mass_limit> neutrino_mass;
 }
 
@@ -231,18 +248,19 @@ transformed parameters{
     real rad_width;
     real tot_width;
 
-    real duration;
     real sigma_freq;
     real freq_recon;
     
     real kDoppler;
     real KE_shift;
 
+    real signal_fraction;
+    real total_rate;
     real signal_log;
     real background_log;
     real rate_log;
-    real signal_fraction;
-
+    real rate;
+    
     beta <- get_velocity(KE);
 
     signal_fraction <- activity/(activity + background_rate);
@@ -251,10 +269,6 @@ transformed parameters{
 
     MainField <- vnormal_lp(uB, BField, BFieldError);
      
-// Dispersion due to uncertainty in final states (with prior distribution)
-
-    Q <- vnormal_lp(uQ, QValue, sigmaQ);
-
 //   Calculate scattering length, radiation width, and total width;
 
     xsec <- xsection(KE,  xsec_avekin, xsec_bindkin, xsec_msq, xsec_Q);
@@ -264,25 +278,30 @@ transformed parameters{
     tot_width <- (scatt_width + rad_width);
     sigma_freq <- (scatt_width + rad_width) / (4. * pi());    
 
-//   Calculate Doppler shift effect
+// Determine total rate from activity
+
+   total_rate <- activity * measuring_time;
+
+// Dispersion due to uncertainty in final states (with prior distribution)
+
+    Q <- vnormal_lp(uQ, QValue, sigmaQ);
+
+//   Calculate frequency dispersion
 
     frequency <- get_frequency(KE, MainField);
 
-    freq_recon <- frequency + df;
+    freq_recon <- frequency + df - fclock;
 
-    kDoppler <-  2. * KE / beta * sqrt(eDop / tritium_molecular_mass());
+//   Calculate Doppler effect from tritium atom/molecule motion
 
-    background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
+    kDoppler <-  m_electron() * beta * sqrt(eDop / tritium_molecular_mass());
 
     KE_shift <- KE + kDoppler;
 
-    if (KE_shift < (Q-neutrino_mass)) {
-       signal_log <- log(signal_fraction) + get_beta_function_log(KE_shift, Q, neutrino_mass, minKE);
-       rate_log <- log_sum_exp(signal_log,  background_log);
-    }else {
-       rate_log <- background_log;
-    }
+//   Determine signal and background rates from beta function and background level
 
+     rate_log <- signal_to_noise_log(KE_shift, Q, neutrino_mass, minKE, maxKE, signal_fraction);
+     rate <- total_rate * exp(rate_log);
 }
 
 model {
@@ -291,18 +310,23 @@ model {
 
     eDop ~ gamma(1.5,1./(k_boltzmann() * temperature));
 
+# Frequency broadening from collision and radiation
+
     df ~ cauchy(0.0, sigma_freq);
+
+    duration ~ exponential(scatt_width);
     
-    freq_recon ~ filter(minFreq, maxFreq, fFilterN);
+# Effect of filter in cleaning data
+
+    freq_recon ~ filter(0.0, fBandpass, fFilterN);
+
+# The Poisson distribution of the beta decay and background
 
     increment_log_prob(rate_log);    
 
 }
 
-
 generated quantities {
-
-    real KE_recon;
 
     int isOK;
     int nData;
@@ -310,24 +334,26 @@ generated quantities {
     real freq_data;
     real time_data;
     real rate_data;
-    real fbandpass;
+    real KE_recon;
 
-#   Simulate duration of event
-
-    KE_recon <- get_kinetic_energy(freq_recon, MainField);
-
-# Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
-    
     nData <- nGenerate;
 
-    time_data <- exponential_rng(scatt_width);
+#   Simulate duration of event and store frequency and reconstructed kinetic energy
 
-    freq_data <- freq_recon - fclock;
+    time_data <- duration;
+
+    freq_data <- freq_recon;
+
+    KE_recon <- get_kinetic_energy(freq_recon, MainField);
+    
+# Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
+
+    rate_data <- rate;
+    
+    events <- poisson_rng(rate / nGenerate);
+
+# Tag events that are below DC in analysis
 
     isOK <- (freq_data > 0.);
-
-    rate_data <- (activity + background_rate) * exp(rate_log) * measuring_time;
     
-    events <- poisson_rng((activity + background_rate) * exp(rate_log) * measuring_time / nGenerate);
-
 }

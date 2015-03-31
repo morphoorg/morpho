@@ -132,15 +132,21 @@ functions{
 	     return -1./2. * ( log1p(pow(s_min/s,2.*n)) +log1p(pow(s/s_max,2.*n)) );
        }
 
-       vector gen_data_rng(int nData, vector mu){
+       real signal_to_noise_log(real KE, real Q, real m_nu, real minKE, real maxKE, real signal_fraction) {
 
-       	      vector[nData] n_events;
+       	   real background_log;
+	   real signal_log;
+	   real rate_log;
 
-     	      for (i in 1:nData) {
-    	      	  n_events[i] <- poisson_rng(mu[i] / nData);
-     	      }
+    	   background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
 
-     	return n_events;
+	   if (KE < (Q-fabs(m_nu))) {
+       	      signal_log <- log(signal_fraction) + get_beta_function_log(KE, Q, m_nu, minKE);
+       	      rate_log <- log_sum_exp(signal_log,  background_log);
+    	   } else {
+       	      rate_log <- background_log;
+    	   }
+	   return rate_log;  
 	}
 }
 
@@ -214,14 +220,14 @@ transformed data {
 parameters {
 
     real<lower=0.,upper=1.> signal_fraction;
-    real Q0;
-    real Q;
     real<lower=0> scatt_width;
     real<lower=0> mu_tot;
 
     real uB;
+    real uQ0;
+    real uQ;
+    real<lower=0.0> eDop;
     real<lower=-pi()/2.,upper=+pi()/2> uf;
-    real eDop;
     real<lower=-neutrino_mass_limit, upper=neutrino_mass_limit> neutrino_mass;
 }
 
@@ -234,6 +240,8 @@ transformed parameters{
     real df;
     real signal_rate;
     real<lower=0> MainField;
+    real Q0;
+    real Q;
     real beta;
     real sum_log_rate;
 
@@ -259,16 +267,26 @@ transformed parameters{
     tot_width <- (scatt_width + rad_width);
     sigma_freq <- (scatt_width + rad_width) / (4. * pi());    
 
+// Determine total rate from activity
+
     total_rate <- mu_tot * activity * measuring_time;
     sum_log_rate <- 0.;
 
+// Dispersion due to uncertainty in final states (with prior distribution)
+
+#  Determining endpoint
+
+    Q0 <- vnormal_lp(uQ0, QValue, QValue_Error);
+
+    Q  <- vnormal_lp(uQ, Q0, sigmaQ);
+    
+    df <- vcauchy_lp(uf, 0., sigma_freq);    
+
     for (i in 1:nData){
 
-    	frequency <- freq_data[i] + fclock;
-
-    	df <- vcauchy_lp(uf, 0., sigma_freq);    
-
-    	freq_recon[i] <- freq_data[i] + df + fclock;
+    	freq_recon[i] <- freq_data[i];
+	
+    	frequency <- freq_data[i] - df + fclock;
 
 	KE <- get_kinetic_energy(frequency, BField);
 
@@ -276,16 +294,13 @@ transformed parameters{
 
 	   beta <- get_velocity(KE);
      
-	   kDoppler <-  2. * KE / beta * sqrt(eDop / tritium_molecular_mass());
+    	   kDoppler <-  m_electron() * get_velocity(QValue) * sqrt(eDop / tritium_molecular_mass());
 
-    	   background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
+    	   KE_shift <- KE;
 
-	   if (KE < (Q-fabs(neutrino_mass))) {
-       	      signal_log <- log(signal_fraction) + get_beta_function_log(KE, Q, neutrino_mass, minKE);
-       	      rate_log <- log_sum_exp(signal_log,  background_log);
-    	   } else {
-       	      rate_log <- background_log;
-    	   }
+//   Determine signal and background rates from beta function and background level
+    
+    	   rate_log <- signal_to_noise_log(KE_shift, Q, neutrino_mass, minKE, maxKE, signal_fraction);
 	   rate[i] <- total_rate * exp(rate_log);
 	   sum_log_rate <- sum_log_rate + poisson_log(events[i], rate[i]);
 	}
@@ -296,15 +311,19 @@ model {
 
 #  Thermal Doppler broadening of the tritium source
 
-    Q0 ~ normal(QValue, QValue_Error);
-
-    Q ~ normal(Q0,sigmaQ);
-
-    time_data ~ exponential(scatt_width);
-    
     eDop ~ gamma(1.5,1./(k_boltzmann() * temperature));
 
-    for (i in 1:nData) freq_recon[i] ~ filter(minFreq, maxFreq, fFilterN);
+#  In-situ measurement of the collisional broadening term
+
+    time_data ~ exponential(scatt_width);
+
+#  Effect of filter in cleaning data
+
+    for (i in 1:nData) {
+    	freq_recon[i] ~ filter(0.0, fBandpass, fFilterN);
+    }
+
+#  The Poisson distribution of the beta decay and background
 
     increment_log_prob(sum_log_rate);    
 

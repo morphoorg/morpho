@@ -42,16 +42,15 @@
 
      "run": {
             "algorithim": "NUTS",
-            "iter": 10000,
-            "warmup": 5000,
+            "iter": 2000,
+            "warmup": 1000,
             "chain": 1,
             "init": [
             {"signal_fraction": 0.999,
-             "Q0" : 18565.0,
-             "Q" : 18565.0,
-             "scatt_width" : 7.0e+04,
+             "scatt_width" : 7.3e+04,
              "uB" : 0.0,
              "uQ" : 0.0,
+             "uQ0" : 0.0,
              "uf" : 0.0,
              "neutrino_mass" : 0.0,
              "mu_tot" : 1.0,

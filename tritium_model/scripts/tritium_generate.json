@@ -31,14 +31,14 @@
             "iter": 252000,
             "warmup": 250000,
             "chain": 1,
-            "init": [
-            {"KE": 18560.0,
-             "MainField": 1.000,
-             "uB" : 0.0,
+            "init_off": [
+            {"uB" : 0.0,
              "uQ" : 0.0,
              "df" : 0.0,
-             "neutrino_mass" : 0.005,
-             "eDop":0.05}
+             "eDop":0.05,
+             "duration" : 1.0e-05,
+             "KE": 18560.0,
+             "neutrino_mass" : 0.005}
              ]
 },
 

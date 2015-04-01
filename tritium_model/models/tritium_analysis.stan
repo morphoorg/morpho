@@ -280,12 +280,12 @@ transformed parameters{
 
     Q  <- vnormal_lp(uQ, Q0, sigmaQ);
     
-    df <- vcauchy_lp(uf, 0., sigma_freq);    
-
     for (i in 1:nData){
 
     	freq_recon[i] <- freq_data[i];
 	
+    	df <- vcauchy_lp(uf, 0., sigma_freq);    
+
     	frequency <- freq_data[i] - df + fclock;
 
 	KE <- get_kinetic_energy(frequency, BField);
@@ -296,7 +296,7 @@ transformed parameters{
      
     	   kDoppler <-  m_electron() * get_velocity(QValue) * sqrt(eDop / tritium_molecular_mass());
 
-    	   KE_shift <- KE;
+	   KE_shift <- KE + kDoppler;
 
 //   Determine signal and background rates from beta function and background level
     

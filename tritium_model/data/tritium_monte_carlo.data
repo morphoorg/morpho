@@ -10,7 +10,7 @@ sigmaQ <- 0.36
 
 temperature <- 32.0
 number_density <- 3.0e+18
-effective_volume <- 1.0e+00
+effective_volume <- 1.0e-00
 measuring_time <- 3.0e+07
 background_rate <- 25.0e-03
 

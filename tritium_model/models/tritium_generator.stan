@@ -320,9 +320,9 @@ model {
 
     freq_recon ~ filter(0.0, fBandpass, fFilterN);
 
-# The Poisson distribution of the beta decay and background
+# The Poisson distribution of the beta decay and background if desired
 
-    increment_log_prob(rate_log);    
+    if (nGenerate <= 1) increment_log_prob(rate_log);    
 
 }
 
@@ -350,7 +350,7 @@ generated quantities {
 
     rate_data <- rate;
     
-    events <- poisson_rng(rate / nGenerate);
+    events <- poisson_rng(rate / max(nGenerate,1) );
 
 # Tag events that are below DC in analysis
 

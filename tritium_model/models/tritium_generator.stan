@@ -320,7 +320,7 @@ model {
 
     freq_recon ~ filter(0.0, fBandpass, fFilterN);
 
-# The Poisson distribution of the beta decay and background if desired
+# The Poisson distribution of the beta decay and background if desired, otherwise set to flat distribution
 
     if (nGenerate <= 1) increment_log_prob(rate_log);    
 

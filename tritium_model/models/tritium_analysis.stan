@@ -89,17 +89,20 @@ functions{
 
 //  Beta decay function given an endpoint Q, and neutrino mass m, and a kinetic energy KE (valid only near the tail)
 
+	real beta_integral(real Q, real m_nu, real minKE) {
+	     return pow(square(Q - minKE) - square(m_nu),1.5);
+	}
+
         real get_beta_function_log(real KE, real Q, real m_nu, real minKE) {
 
 	     real log_rate;
 	     real log_norm;
 	     
-	     log_norm <- 1.5 * log(square(Q - minKE) - square(m_nu));	     
+	     log_norm <- log(beta_integral(Q, m_nu, minKE)); 
 	     log_rate <- log(3.) + log(Q - KE) + 0.5 * log(square(KE - Q) - square(m_nu));		
 
 	     return (log_rate-log_norm);
 	}
-
 
 //  Total cross-section (in 1/(meters)^2)
 //  Based on the paper Binary-encounter-dipole model for electron-impact ionization
@@ -148,6 +151,7 @@ functions{
     	   }
 	   return rate_log;  
 	}
+
 }
 
 data {
@@ -200,7 +204,6 @@ transformed data {
     real minFreq;
     real maxFreq;
     real fclock;
-    real activity;
 
     minFreq <- get_frequency(maxKE, BField);
     maxFreq <- get_frequency(minKE, BField);
@@ -212,38 +215,36 @@ transformed data {
        print("Consider enlarging energy region.");
     }
 
-    activity <- tritium_rate_per_eV() * pow(QValue - minKE,3) * number_density * effective_volume / (tritium_halflife() / log(2.) );
-    print("total activity = ",activity * measuring_time, " events over ",measuring_time," seconds.")
+    print("Approximate activity = ",tritium_rate_per_eV() * beta_integral(QValue, 0., minKE) * number_density * effective_volume / tritium_halflife() / log(2.) * measuring_time);
+
+    print("Approximate rate (Hz) = ",tritium_rate_per_eV() * beta_integral(QValue, 0., minKE) * number_density * effective_volume / tritium_halflife() / log(2.));
 
 }
 
 parameters {
 
     real<lower=0.,upper=1.> signal_fraction;
-    real<lower=0> scatt_width;
     real<lower=0> mu_tot;
 
     real uB;
     real uQ0;
     real uQ;
+    real uF;
     real<lower=0.0> eDop;
-    real<lower=-pi()/2.,upper=+pi()/2> uf;
-    real<lower=-neutrino_mass_limit, upper=neutrino_mass_limit> neutrino_mass;
+    real<lower=0.0> scatt_width;
+    real<lower=0.0, upper=neutrino_mass_limit> neutrino_mass;
 }
 
 transformed parameters{
 
     real KE;
     real frequency;
-    vector[nData] freq_recon;
-    vector[nData] rate;
-    real df;
+
     real signal_rate;
     real<lower=0> MainField;
     real Q0;
     real Q;
-    real beta;
-    real sum_log_rate;
+    real df;
 
     real rad_width;
     real tot_width;
@@ -252,11 +253,15 @@ transformed parameters{
     real kDoppler;
     real KE_shift;
 
+    real activity;
     real signal_log;
     real background_log;
     real rate_log;
     real total_rate;
     
+    vector[nData] freq_recon;
+    vector[nData] rate;
+
 //   Obtain magnetic field (with prior distribution)
 
     MainField <- vnormal_lp(uB, BField, BFieldError);
@@ -267,43 +272,36 @@ transformed parameters{
     tot_width <- (scatt_width + rad_width);
     sigma_freq <- (scatt_width + rad_width) / (4. * pi());    
 
-// Determine total rate from activity
-
-    total_rate <- mu_tot * activity * measuring_time;
-    sum_log_rate <- 0.;
-
-// Dispersion due to uncertainty in final states (with prior distribution)
-
 #  Determining endpoint
 
     Q0 <- vnormal_lp(uQ0, QValue, QValue_Error);
 
     Q  <- vnormal_lp(uQ, Q0, sigmaQ);
     
+// Determine total rate from activity
+
+    activity <- tritium_rate_per_eV() * beta_integral(Q, neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
+    total_rate <- mu_tot * activity * measuring_time / nData;
+    
     for (i in 1:nData){
 
     	freq_recon[i] <- freq_data[i];
 	
-    	df <- vcauchy_lp(uf, 0., sigma_freq);    
+    	df <- vnormal_lp(uF, 0.0, sigma_freq);
 
     	frequency <- freq_data[i] - df + fclock;
 
 	KE <- get_kinetic_energy(frequency, BField);
 
-	if ((KE > minKE) && (KE < maxKE)) {
+    	kDoppler <-  m_electron() * get_velocity(QValue) * sqrt(eDop / tritium_molecular_mass());
 
-	   beta <- get_velocity(KE);
-     
-    	   kDoppler <-  m_electron() * get_velocity(QValue) * sqrt(eDop / tritium_molecular_mass());
-
-	   KE_shift <- KE + kDoppler;
+	KE_shift <- KE - kDoppler;
 
 //   Determine signal and background rates from beta function and background level
     
-    	   rate_log <- signal_to_noise_log(KE_shift, Q, neutrino_mass, minKE, maxKE, signal_fraction);
-	   rate[i] <- total_rate * exp(rate_log);
-	   sum_log_rate <- sum_log_rate + poisson_log(events[i], rate[i]);
-	}
+    	rate_log <- signal_to_noise_log(KE_shift, Q, neutrino_mass, minKE, maxKE, signal_fraction);
+	rate[i] <- total_rate * exp(rate_log);
+	
      }
 }
 
@@ -325,7 +323,7 @@ model {
 
 #  The Poisson distribution of the beta decay and background
 
-    increment_log_prob(sum_log_rate);    
+   events ~ poisson(rate);
 
 }
 

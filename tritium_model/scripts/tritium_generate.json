@@ -22,13 +22,13 @@
               ],
            "parameters": [
              {
-             "nGenerate" : 2000
+             "nGenerate" : 5000
              }
             ]
      },
      "run": {
             "algorithim": "NUTS",
-            "iter": 252000,
+            "iter": 255000,
             "warmup": 250000,
             "chain": 1,
             "init_off": [
@@ -37,8 +37,7 @@
              "df" : 0.0,
              "eDop":0.05,
              "duration" : 1.0e-05,
-             "KE": 18560.0,
-             "neutrino_mass" : 0.005}
+             "KE": 18560.0}
              ]
 },
 

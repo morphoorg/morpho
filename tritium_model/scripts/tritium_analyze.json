@@ -41,18 +41,18 @@
       },
 
      "run": {
-            "algorithim": "NUTS",
-            "iter": 2000,
-            "warmup": 1000,
+            "algorithim": "HMC",
+            "iter": 1000,
+            "warmup": 500,
             "chain": 1,
             "init": [
-            {"signal_fraction": 0.999,
+            {"signal_fraction": 0.9999,
              "scatt_width" : 7.3e+04,
              "uB" : 0.0,
              "uQ" : 0.0,
              "uQ0" : 0.0,
-             "uf" : 0.0,
-             "neutrino_mass" : 0.0,
+             "uF" : 0.0,
+             "neutrino_mass" : 1.0,
              "mu_tot" : 1.0,
              "eDop":0.05}
              ]

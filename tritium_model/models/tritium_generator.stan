@@ -89,17 +89,20 @@ functions{
 
 //  Beta decay function given an endpoint Q, and neutrino mass m, and a kinetic energy KE (valid only near the tail)
 
+	real beta_integral(real Q, real m_nu, real minKE) {
+	     return pow(square(Q - minKE) - square(m_nu),1.5);
+	}
+
         real get_beta_function_log(real KE, real Q, real m_nu, real minKE) {
 
 	     real log_rate;
 	     real log_norm;
 	     
-	     log_norm <- 1.5 * log(square(Q - minKE) - square(m_nu));	     
+	     log_norm <- log(beta_integral(Q, m_nu, minKE)); 
 	     log_rate <- log(3.) + log(Q - KE) + 0.5 * log(square(KE - Q) - square(m_nu));		
 
 	     return (log_rate-log_norm);
 	}
-
 
 //  Total cross-section (in 1/(meters)^2)
 //  Based on the paper Binary-encounter-dipole model for electron-impact ionization
@@ -132,19 +135,24 @@ functions{
 	     return -1./2. * ( log1p(pow(s_min/s,2.*n)) +log1p(pow(s/s_max,2.*n)) );
        }
 
-       real signal_to_noise_log(real KE, real Q, real m_nu, real minKE, real maxKE, real signal_fraction) {
+       real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, real maxKE, real signal_fraction) {
 
+           int nFamily;
        	   real background_log;
 	   real signal_log;
 	   real rate_log;
 
-    	   background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
+	   nFamily <- num_elements(U);
 
-	   if (KE < (Q-fabs(m_nu))) {
-       	      signal_log <- log(signal_fraction) + get_beta_function_log(KE, Q, m_nu, minKE);
-       	      rate_log <- log_sum_exp(signal_log,  background_log);
-    	   } else {
-       	      rate_log <- background_log;
+    	   background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
+	   
+	   for (i in 1:nFamily){
+	       if (KE < (Q-fabs(m_nu[i]))) {
+       	       	  signal_log <- log(signal_fraction) + log(U[i]) + get_beta_function_log(KE, Q, m_nu[i], minKE);
+       	      	  rate_log <- log_sum_exp(signal_log,  background_log);
+    	       } else {
+       	       	 rate_log <- background_log;
+	       }
     	   }
 	   return rate_log;  
 	}
@@ -158,7 +166,9 @@ data {
 
 //   Number of neutrinos and mixing parameters
 
-     real neutrino_mass_limit;
+     int nFamily;
+     vector[nFamily] m_nu;
+     simplex[nFamily] U_PMNS;
 
 //   Primary magnetic field (in Tesla)
 
@@ -184,7 +194,7 @@ data {
 
 //  Conditions of the experiment and measurement
 
-    real number_density;				//  Tritium number density (in meter^-3)
+    real number_density;			//  Tritium number density (in meter^-3)
     real temperature;				//  Temperature of gas (in Kelvin)
     real effective_volume;		        //  Effective volume (in meter^3)
     real measuring_time;			//  Measuring time (in seconds)
@@ -207,7 +217,6 @@ transformed data {
     real minFreq;
     real maxFreq;
     real fclock;
-    real activity;
 
     minFreq <- get_frequency(maxKE, BField);
     maxFreq <- get_frequency(minKE, BField);
@@ -219,28 +228,26 @@ transformed data {
        print("Consider enlarging energy region.");
     }
 
-    activity <- tritium_rate_per_eV() * pow(QValue - minKE,3) * number_density * effective_volume / (tritium_halflife() / log(2.) );
-    print("total activity = ",activity * measuring_time, " events over ",measuring_time," seconds.")
-
 }
 
 parameters {
 
-    real uQ;
     real uB;
-    real df;
+    real uQ;
+    real uF;
     real<lower=0.0> eDop;
     real<lower=0.0> duration;
     real<lower=minKE,upper=maxKE> KE;
-    real<lower=0.0, upper=neutrino_mass_limit> neutrino_mass;
 }
 
 transformed parameters{
 
+    real neutrino_mass;
     real signal_rate;
     real<lower=0> MainField;
     real beta;
     real Q;
+    real df;
     real frequency; 
 
     real xsec;
@@ -254,23 +261,23 @@ transformed parameters{
     real kDoppler;
     real KE_shift;
 
+    real activity;
     real signal_fraction;
     real total_rate;
-    real signal_log;
-    real background_log;
     real rate_log;
     real rate;
-    
-    beta <- get_velocity(KE);
 
-    signal_fraction <- activity/(activity + background_rate);
+// Determine effective mass to use from neutrino mass matrix
+
+   neutrino_mass <- sqrt(dot_self(U_PMNS .* m_nu));
 
 // Obtain magnetic field (with prior distribution)
 
     MainField <- vnormal_lp(uB, BField, BFieldError);
      
-//   Calculate scattering length, radiation width, and total width;
+// Calculate scattering length, radiation width, and total width;
 
+    beta <- get_velocity(KE);
     xsec <- xsection(KE,  xsec_avekin, xsec_bindkin, xsec_msq, xsec_Q);
     scatt_width <- number_density * c() * beta * xsec;
 
@@ -278,30 +285,34 @@ transformed parameters{
     tot_width <- (scatt_width + rad_width);
     sigma_freq <- (scatt_width + rad_width) / (4. * pi());    
 
-// Determine total rate from activity
-
-   total_rate <- activity * measuring_time;
-
 // Dispersion due to uncertainty in final states (with prior distribution)
 
     Q <- vnormal_lp(uQ, QValue, sigmaQ);
 
-//   Calculate frequency dispersion
+// Calculate frequency dispersion
 
     frequency <- get_frequency(KE, MainField);
 
+    df <- vnormal_lp(uF, 0.0, sigma_freq);
+    
     freq_recon <- frequency + df - fclock;
 
-//   Calculate Doppler effect from tritium atom/molecule motion
+// Calculate Doppler effect from tritium atom/molecule motion
 
     kDoppler <-  m_electron() * beta * sqrt(eDop / tritium_molecular_mass());
 
     KE_shift <- KE + kDoppler;
 
-//   Determine signal and background rates from beta function and background level
+// Determine total rate from activity
 
-     rate_log <- signal_to_noise_log(KE_shift, Q, neutrino_mass, minKE, maxKE, signal_fraction);
-     rate <- total_rate * exp(rate_log);
+    activity <- tritium_rate_per_eV() * beta_integral(Q, neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
+    total_rate <-activity * measuring_time;
+    signal_fraction <- activity/(activity + background_rate);
+
+// Determine signal and background rates from beta function and background level
+
+    rate_log <- signal_to_noise_log(KE_shift, Q, U_PMNS, m_nu, minKE, maxKE, signal_fraction);
+    rate <- total_rate * exp(rate_log);
 }
 
 model {
@@ -312,17 +323,16 @@ model {
 
 # Frequency broadening from collision and radiation
 
-    df ~ cauchy(0.0, sigma_freq);
-
     duration ~ exponential(scatt_width);
     
 # Effect of filter in cleaning data
 
     freq_recon ~ filter(0.0, fBandpass, fFilterN);
 
-# The Poisson distribution of the beta decay and background if desired, otherwise set to flat distribution
+# The Poisson distribution of the beta decay and background if desired
+# Otherwise set to flat distribution if nGenerate is negative
 
-    if (nGenerate <= 1) increment_log_prob(rate_log);    
+    if (nGenerate >= 0) increment_log_prob(rate_log);    
 
 }
 
@@ -350,7 +360,7 @@ generated quantities {
 
     rate_data <- rate;
     
-    events <- poisson_rng(rate / max(nGenerate,1) );
+    events <- poisson_rng(rate / max(abs(nGenerate),1) );
 
 # Tag events that are below DC in analysis
 

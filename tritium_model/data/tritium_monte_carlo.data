@@ -1,5 +1,8 @@
 
-neutrino_mass_limit <- 0.010
+nFamily <- 1
+U_PMNS <- c(1.0)
+m_nu <- c(0.0)
+neutrino_mass_limit <- 2.0
 
 minKE <- 18550.0
 maxKE <- 18575.0
@@ -10,7 +13,7 @@ sigmaQ <- 0.36
 
 temperature <- 32.0
 number_density <- 3.0e+18
-effective_volume <- 1.0e-00
+effective_volume <- 1.0e-01
 measuring_time <- 3.0e+07
 background_rate <- 25.0e-03
 

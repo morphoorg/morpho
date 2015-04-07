@@ -22,7 +22,7 @@
               ],
            "parameters": [
              {
-             "nGenerate" : 5000
+             "nGenerate" : -5000
              }
             ]
      },
@@ -48,7 +48,7 @@
              "name" : "./tritium_model/results/tritium_generator",
              "format" : "root",
              "tree" : "procTracks",
-             "branches_all" : [
+             "branches" : [
                      {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
                      {"variable" : "KE", "root_alias" : "KE"},
                      {"variable" : "beta", "root_alias" : "beta"},
@@ -67,10 +67,11 @@
                      {"variable" : "isOK", "root_alias" : "isOK"},
                      {"variable" : "time_data", "root_alias" : "time_data"},
                      {"variable" : "freq_data", "root_alias" : "freq_data"},
-                     {"variable" : "events", "root_alias" : "events"},
+                     {"variable" : "rate_data", "root_alias" : "rate_data"},
+                     {"variable" : "events", "root_alias" : "events", "type":"int"},
                      {"variable" : "lp__", "root_alias" : "LogLikelihood"}
                    ],
-             "branches" : [
+             "branches_data" : [
                      {"variable" : "isOK", "root_alias" : "isOK", "type":"int"},
                      {"variable" : "time_data", "root_alias" : "time_data"},
                      {"variable" : "freq_data", "root_alias" : "freq_data"},

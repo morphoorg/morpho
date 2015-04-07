@@ -41,9 +41,9 @@
       },
 
      "run": {
-            "algorithim": "HMC",
-            "iter": 1000,
-            "warmup": 500,
+            "algorithim": "NUTS",
+            "iter": 6000,
+            "warmup": 5000,
             "chain": 1,
             "init": [
             {"signal_fraction": 0.9999,
@@ -52,7 +52,7 @@
              "uQ" : 0.0,
              "uQ0" : 0.0,
              "uF" : 0.0,
-             "neutrino_mass" : 1.0,
+             "neutrino_mass" : 1.6,
              "mu_tot" : 1.0,
              "eDop":0.05}
              ]
@@ -70,6 +70,7 @@
                      {"variable" : "MainField", "root_alias" : "MainField"},
                      {"variable" : "scatt_width", "root_alias" : "scatt_width"},
                      {"variable" : "rad_width", "root_alias" : "rad_width"},
+                     {"variable" : "sigma_freq", "root_alias" : "sigma_freq"},
                      {"variable" : "df", "root_alias" : "df"},
                      {"variable" : "kDoppler", "root_alias" : "kDoppler"},
                      {"variable" : "Q", "root_alias" : "Q"},

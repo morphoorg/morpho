@@ -354,7 +354,7 @@ generated quantities {
 
     freq_data <- freq_recon;
 
-    KE_recon <- get_kinetic_energy(freq_recon, MainField);
+    KE_recon <- get_kinetic_energy(frequency + df, MainField);
     
 # Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
 

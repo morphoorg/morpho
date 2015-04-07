@@ -283,12 +283,12 @@ transformed parameters{
     activity <- tritium_rate_per_eV() * beta_integral(Q, neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
     total_rate <- mu_tot * activity * measuring_time / nData;
     
+    df <- vnormal_lp(uF, 0.0, sigma_freq);
+    
     for (i in 1:nData){
 
     	freq_recon[i] <- freq_data[i];
 	
-    	df <- vnormal_lp(uF, 0.0, sigma_freq);
-
     	frequency <- freq_data[i] - df + fclock;
 
 	KE <- get_kinetic_energy(frequency, BField);

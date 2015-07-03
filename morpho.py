@@ -9,7 +9,7 @@ import pystan
 import pystanLoad as pyL
 
 from pystan import stan
-#from h5py import File as HDF5
+from h5py import File as HDF5
 from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
@@ -176,6 +176,7 @@ def write_result_hdf5(conf, ofilename, stanres):
                 """.format(stan_parname)
                 print warning
             else:
+                print(var['output_name'])
                 g[var['output_name']] = fit[stan_parname]
                 
 if __name__ == '__main__':

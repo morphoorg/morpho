@@ -1,0 +1,24 @@
+
+meas_delta_m21 <- 7.53E-5
+meas_delta_m21_err <- 1.8E-6
+meas_delta_m32 <- 2.44E-3
+meas_delta_m32_err <- 6.0E-5
+
+meas_th12 <- 0.5843
+meas_th12_err <- 0.013
+meas_th13 <- 0.149
+meas_th13_err <- 0.0036
+
+minKE <- 18574
+maxKE <- 18576
+Q <- 18575
+signal_fraction <- 0.99
+
+chainnum <- 4
+iternum <- 2000
+nEvents <- 1
+numPts <- 4000
+norm <- 4000
+
+min_mass_fixed <- 0.005
+MH <- 0

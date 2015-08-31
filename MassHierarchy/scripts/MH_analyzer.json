@@ -1,0 +1,69 @@
+{
+    "stan": {
+        
+        "name": "MH_generator",
+        
+        "model":   {
+            "file": "./models/MH_analysis.stan",
+            "cache": "./cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./data/MH_analyze.data",
+                      "format":"R"
+                      },
+                      {
+                      "name" : "./results/MHtest_generator",
+                      "format" : "hdf5",
+                      "event_number" : 0,
+                      "datasets" : [
+                                    {"nm" : "KEout", "stan_alias" : "KEin"},
+                                    {"nm" : "Nout", "stan_alias" : "N", "data_format": "integer"}
+                                    ]
+                      }
+
+                      ],
+            "parameters": [
+                           {
+                           "chainnum" : 5,
+                           "iternum" : 300,
+                           "numPts" : 600,
+                           "norm" : 50000,
+                           "MH" : 0
+                           }
+                           ]
+        },
+        
+        "run": {
+            "algorithim": "NUTS",
+            "iter": 300,
+            "chain": 5},
+        
+        
+        "sample": "./results/MHtest_analyzer.out",
+        
+        "output":
+        {
+            "name" : "./results/MHtest_analyzer.h5",
+            "format": "hdf5",
+            "config": {"group": "/"},
+            "fit": "./results/stanresA.pkl",
+            "data": [
+                     {"stan_parameter": "nu_mass","output_name": "nu_masses"},
+                     {"stan_parameter": "th12","output_name": "th12"},
+                     {"stan_parameter": "th13","output_name": "th13"},
+                     {"stan_parameter": "delta_m21","output_name": "delta_m21"},
+                     {"stan_parameter": "delta_m32","output_name": "delta_m32"},
+                     {"stan_parameter": "m32_withsign","output_name": "m32_withsign"},
+                     {"stan_parameter": "min_mass","output_name": "min_mass"},
+                     {"stan_parameter": "mbeta","output_name": "mbeta"},
+                     {"stan_parameter": "lp__","output_name": "LogLikelihood"},
+                     ]
+        }
+        
+    }
+    
+}

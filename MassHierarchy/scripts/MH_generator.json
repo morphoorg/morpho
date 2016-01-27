@@ -5,6 +5,7 @@
         
         "model":   {
             "file": "./models/spectrum_generator.stan",
+            "function_file": "./models/MH_functions.stan",
             "cache": "./cache"
         },
         
@@ -18,9 +19,10 @@
                       ],
             "parameters": [
                            {
-                           "chainnum" : 4,
-                           "iternum" : 300,
-                           "numPts" : 600,
+                           "chainnum" : 14,
+                           "iternum" : 1200,
+                           "nEvents" : 1,
+                           "numPts" : 8400,
                            "norm" : 50000,
                            "MH" : 0
                            }
@@ -30,15 +32,20 @@
         
         "run": {
             "algorithim": "NUTS",
-            "iter": 300,
-            "chain": 4},
+            "iter": 1200,
+            "chain": 14},
+        
+        "plot": [
+                 {"variable": "KE"},
+                 {"variable": "N"},
+                 ],
         
         "sample": "./results/MHtest_generator.out",
         
-        "output":
-        {
-            "name" : "./results/MHtest_generator",
+        "output":{
+            "name": "./results/MHtest_generator",
             "format": "hdf5",
+            "fit": "./results/MHresults1.pkl",
             "config": {"group": "/"},
             "data": [
                      {"stan_parameter": "KE","output_name": "KEout"},

@@ -9,16 +9,16 @@ meas_th12_err <- 0.013
 meas_th13 <- 0.149
 meas_th13_err <- 0.0036
 
-minKE <- 18574
-maxKE <- 18576
-Q <- 18575
+minKE <- 18574.00
+maxKE <- 18575.05
+Q <- 18574.95
 signal_fraction <- 0.99
 
-chainnum <- 6
-iternum <- 1000
+chainnum <- 4
+iternum <- 2000
 nEvents <- 1
-numPts <- 3000
+numPts <- 4000
 norm <- 4000
 
 min_mass_fixed <- 0.005
-MH <- 0
+MH <- 1

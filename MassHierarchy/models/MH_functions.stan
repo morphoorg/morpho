@@ -36,14 +36,17 @@ vector[3] nu_mass_fixed;
 // Defining neutrino masses assuming NH is true
 if (MH==0){
 nu_mass_fixed[1] <- min_mass_fixed;
-nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)+square(meas_delta_m21));
-nu_mass_fixed[3] <- sqrt(square(min_mass_fixed)+square(meas_delta_m21)+square(meas_delta_m32));
+nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)+meas_delta_m32-meas_delta_m21);
+nu_mass_fixed[3] <- sqrt(square(min_mass_fixed)+meas_delta_m32);
+//nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)+meas_delta_m21);
+//nu_mass_fixed[3] <- sqrt(square(min_mass_fixed)+meas_delta_m21+meas_delta_m32);
 }
 // Defining neutrino masses assuming IH is true
 else if (MH==1){
 nu_mass_fixed[3] <- min_mass_fixed;
-nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)+square(meas_delta_m32));
-nu_mass_fixed[1] <- sqrt(square(min_mass_fixed)+square(meas_delta_m32)-square(meas_delta_m21));
+nu_mass_fixed[1] <- sqrt(square(min_mass_fixed)+meas_delta_m32-meas_delta_m21);
+nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)+meas_delta_m32);
+
 }
 else
 print ("MH=0 for normal hierarchy; MH=1 for inverted hierarchy");

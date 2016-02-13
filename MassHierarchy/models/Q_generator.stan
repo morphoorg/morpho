@@ -17,90 +17,120 @@ data{
     real minKE;             // Bounds of Q distribution in eV
     real maxKE;
 
-    real temp;      //Temperature of source gas in Kelvin
-//    real p_squared; //Norm squared of change in momentum in molecular system as a result of beta-decay
-    real lambda;    //Fraction of the T2 component of the source in the ortho (odd rotation) state
-    int num_J;     // Number of rotational states to be considered (10)
-    int num_iso;    //Number of isotopologs under consideration
+    real T_set;      //Average temperature of source gas in Kelvin
+    real deltaT_calibration;    //Temperature uncertainty due to calibration (K)
+    real deltaT_fluctuation;    //Temperature uncertainty due to fluctuations (K)
+    real deltaT_rot;    //Temperature uncertainty due to unaccounted for higher rotational states (K)
 
-    real composition[num_iso]; //Relative concentrations of (T2, HT, DT, T) - must sum to 1.0
-                               //Should be a simplex - that's causing problems at the moment, though
+    int num_J;     // Number of rotational states to be considered (10)
+    real lambda_set;    //Average fraction of T2 component of source in ortho (odd rotation) state
+    real delta_lambda; //Uncertainty in (lambda = sum(odd-rotation-state-coefficients))
+
+    int num_iso;    //Number of isotopologs under consideration
     real Q_values[num_iso];          // Best-estimate endpoint values for (T2, HT, DT, and T)
 
-    real delta_temp;  //Uncertainty in temperaturre (due to fluctuations and measurement precision) in Kelvin
-    real delta_lambda; //Uncertainty in (lambda = sum(odd-rotation-state-coefficients))
+    real epsilon_set;   // Average fractional activity of source gas compared to pure T_2
+    real kappa_set;     // Average ratio of HT to DT
+    real eta_set;       // Average composition fraction of non-T (eta = 1.0 --> no T, eta = 0.0 --> all T)
+
     real delta_epsilon; //Uncertainty in fractional activity of source gas compared to pure T_2
     real delta_kappa; //Uncertainty in ratio of HT to DT
-    real delta_eta; //Uncertainty in composition fraction of T (eta = f_T/(f_T2+f_HT+f_DT))
-}
-
-transformed data{
-    real Q_avg;             // Best estimate for value of Q (eV)
-    real p_squared;         // (Electron momentum)^2 at the endpoint
-    real epsilon;           // Fractional activity of source gas compared to pure T_2
-    real kappa;             // Ratio of HT to DT
-    real eta;               // Composition fraction of T (eta = f_T/(f_T2+f_HT+f_DT))
-
-    Q_avg <- 0;
-    for (s in 1:num_iso){
-        Q_avg <- Q_avg + composition[s]*Q_values[s];}
-
-    p_squared <- 2*Q_avg*m_electron();
-
-    epsilon <- (composition[1]+1.0)/2.0;
-
-    if (composition[3] != 0.0){
-        kappa <- composition[2]/composition[3];}
-    else{
-        kappa <- 0.0;}
-
-    if (composition[1] + composition[2] + composition[3] != 0.0){
-        eta <- composition[4]/(composition[1] + composition[2] + composition[3]);}
-    else{
-        kappa <- 0.0;}
+    real delta_eta; //Uncertainty in composition fraction of non-T (eta = 1.0 --> no T, eta = 0.0 --> all T)
 
 }
+
+
 
 
 parameters{
-    real<lower=0.0> dummy_parameter;
+
+    //Parameters sampled by vnormal_lp function
+
+    real Tparam1;
+    real Tparam2;
+    real lambda_param;
+    real epsilon_param;
+    real kappa_param;
+    real eta_param;
 }
+
 
 
 transformed parameters{
 
-    real<lower=0.0> sigma_avg;         // Best estimate, from theory, for standard deviation of Q distribution (eV)
-    real<lower=0.0> delta_sigma;       // Uncertainty (1 stdev) in estimate of sigma (sigma_avg), from theory
-//    real<lower=0.0> delta_sigma_squared_epsilon;
+    real<lower=25., upper=35.> T0;     // Average of temperature distribution, given temp calibration (K)
+    real<lower=25., upper=35.> temp;   // Temperature of source gas (K)
+    real<lower=0.0> deltaT_total;      // Used only for calculation of delta_sigma, as check (K)
 
-    sigma_avg <- find_sigma(temp, p_squared, composition, num_J, lambda);
+    real<lower=0.0> lambda;   // Fraction of T2 component of source in ortho (odd rotation) state
+    real<lower=0.0> epsilon;  // Fractional activity of source gas compared to pure T_2
+    real<lower=0.0> kappa;    // Ratio of HT to DT
+    real<lower=0.0> eta;      // Composition fraction of T (eta = f_T/(f_T2+f_HT+f_DT))
 
-//    delta_sigma_squared_epsilon <- find_delta_sigma_squared_epsilon(temp, p_squared, num_J, lambda, kappa, delta_epsilon);
+    real<lower=0.0> composition[num_iso]; //Simplex of fractional composition of each isotopolog: (f_T2,f_HT,f_DT, f_T)
+    real<lower=0.0> composition_set[num_iso]; //Used only for calculation of delta_sigma, as check
 
-    delta_sigma <- find_delta_sigma(temp, p_squared, delta_temp, num_J, delta_lambda, composition, lambda, epsilon, kappa, delta_epsilon, delta_kappa);
+    real<lower=0.0> Q_avg;             // Best estimate for value of Q (eV)
+    real<lower=0.0> p_squared;         // (Electron momentum)^2 at the endpoint
+    real<lower=0.0> sigma;
+    real delta_sigma;       // Uncertainty (1 stdev) in estimate of sigma (sigma_avg), from theory
+
+
+    // Create distribution for each parameter
+
+    T0 <- vnormal_lp(Tparam1, T_set, deltaT_calibration);
+    temp <- vnormal_lp(Tparam2, T0, deltaT_fluctuation);
+
+    lambda <- vnormal_lp(lambda_param, lambda_set, delta_lambda);
+    epsilon <- vnormal_lp(epsilon_param, epsilon_set, delta_epsilon);
+    kappa <- vnormal_lp(kappa_param, kappa_set, delta_kappa);
+    if (delta_eta != 0.0){
+        eta <- vnormal_lp(eta_param, eta_set, delta_eta);}
+
+    // Calculate inputs to find_sigma and find_delta_sigma
+
+    deltaT_total <- pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
+
+    composition <- find_composition(epsilon, kappa, eta, num_iso);
+    composition_set <- find_composition(epsilon_set, kappa_set, eta_set, num_iso);
+
+    Q_avg <- 0;
+    for (s in 1:num_iso){
+        Q_avg <- Q_avg + composition[s]*Q_values[s];}
+    p_squared <- 2*Q_avg*m_electron();
+
+
+    // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
+    sigma <- find_sigma(temp, p_squared, composition, num_J, lambda);
+
+
+    // DELTA_SIGMA CALCULATION REQUIRES REVISION DUE TO ERROR WHEN CALCULATING find_delta_sigma_squared_eta
+    // delta_sigma can be printed or outputted as a check. It should be very similar to the standard deviation of the generated sigma distribution.
+    // delta_sigma <- find_delta_sigma(T_set, p_squared, deltaT_total, num_J, delta_lambda, composition_set, lambda_set, epsilon_set, kappa_set, eta_set, delta_epsilon, delta_kappa, delta_eta);
 
 }
 
 
 
 model{
+
 }
 
 
+
 generated quantities {
-    real<lower=0.0> sigma;
+
     real<lower=minKE, upper=maxKE> Q;
-
-    // Generating endpoint (eV) and stdev of endpoint distribution (eV) from normal distribution
-    sigma <- normal_rng(sigma_avg, delta_sigma);
-
-    if (sigma <= 0.0){
-        print(sigma);
-        sigma <- 0.0001;}
 
     Q <- normal_rng(Q_avg, sigma);
 
-    //print(Q, " ", sigma, " ", delta_sigma);
+// THE OLDER VERSION:
+// Generating endpoint (eV) and stdev of endpoint distribution (eV) from normal distribution
+//    sigma <- normal_rng(sigma_avg, delta_sigma);
+
+//    if (sigma <= 0.0){
+//        print(sigma);
+//        sigma <- 0.0001;}
 
 }
 

@@ -1,5 +1,7 @@
 # Definitions for loading and using pystan for analysis using root or hdf5
 
+from ROOT import *
+
 import pystan
 import numpy as np
 import h5py

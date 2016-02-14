@@ -211,7 +211,7 @@ functions{
 
         else{
             Z_i <- 0.0;
-            for (j in 0:10000){
+            for (j in 0:100){
                 Z_i <- Z_i + f_heterogenous(j, temp, mass_s);}
                 P_J_i <- f_heterogenous(J, temp, mass_s)/Z_i;
             }
@@ -249,12 +249,16 @@ functions{
 
 // Finds total average standard deviation sigma_avg, accounting for translational and rotational effects
 
-    real find_sigma(real temp, real p_squared, real[] composition, int num_J, real lambda){       //composition is a simplex
-        real sigma_avg;
+    real find_sigma(real temp, real p_squared, vector composition, int num_J, real lambda){       //composition is a simplex
 
-        sigma_avg <- pow(find_total_sigma_squared_trans(temp, p_squared, composition) + find_total_sigma_squared_rot(num_J, p_squared, temp, composition, lambda), 0.5);
-
+    	real sigma_avg;
+	real f_i[4];
+	
+	for(i in 1:4) {f_i[i] <- composition[i];};
+	sigma_avg <- sqrt(find_total_sigma_squared_trans(temp, p_squared, f_i) + find_total_sigma_squared_rot(num_J, p_squared, temp, f_i, lambda));
+	
         return sigma_avg;
+	
         }
 
 
@@ -383,7 +387,7 @@ functions{
         for (m in 1:size(composition)){
             delta_sigma_squared <- delta_sigma_squared + composition[m]*(find_delta_sigma_squared_trans_i(temp, atomic_masses()[m], p_squared, delta_temp) + find_delta_sigma_squared_rot_i(temp, atomic_masses()[m], E_zp_values()[m], p_squared, delta_temp, lambda) + find_delta_sigma_squared_OP_i(num_J, atomic_masses()[m], E_zp_values()[m], p_squared, delta_lambda));
             }
-        delta_sigma <- pow(delta_sigma_squared, 0.5);
+        delta_sigma <- sqrt(delta_sigma_squared);
 
         return delta_sigma;
         }

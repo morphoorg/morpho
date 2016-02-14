@@ -19,4 +19,5 @@ eta_set <- 1.0
 
 delta_epsilon <- 0.0019
 delta_kappa <- 0.01
-delta_eta <- 0.05
+delta_eta <- 0.001
+delta_theory <- 0.01

@@ -5,8 +5,13 @@
 #
 # author: j.n. kofron <jared.kofron@gmail.com>
 #
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 import pystan
 import pystanLoad as pyL
+import json
 
 from pystan import stan
 from h5py import File as HDF5
@@ -51,6 +56,7 @@ class stan_args(object):
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
+            self.functions_code = self.read_param(yd, 'stan.model.function_file', None)
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
             # STAN data
@@ -80,10 +86,14 @@ class stan_args(object):
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
             self.out_vars = self.read_param(yd, 'stan.output.data', None)
+            
+            # Outputted pickled fit filename
+            self.out_fit = self.read_param(yd, 'stan.output.fit', None)
+            
         except Exception as err:
             raise err
 
-def stan_cache(model_code, model_name=None, cashe_dir='.',**kwargs):
+def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
     theData = open(model_code,'r+').read()
     code_hash = md5(theData.encode('ascii')).hexdigest()
@@ -94,7 +104,11 @@ def stan_cache(model_code, model_name=None, cashe_dir='.',**kwargs):
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
-        sm = pystan.StanModel(file=model_code)
+        if functions_code is None:
+            sm = pystan.StanModel(model_code=theData)
+        else:
+            StanFunctions = open(functions_code,'r+').read()
+            sm = pystan.StanModel(model_code=StanFunctions+theData)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:
@@ -155,12 +169,13 @@ def write_result(conf, stanres):
     if (args.job_id>0):
         ofilename = ofilename+'_'+args.job_id        
     if sa.out_format == 'hdf5':
-        ofilename = ofilename+'.h5'
+        #ofilename = ofilename+'.h5'
         write_result_hdf5(sa, ofilename, result)
 
     if sa.out_format == 'root':
         ofilename = ofilename+'.root'
         pyL.stan_write_root(sa, ofilename, result)
+    return stanres
 
 def write_result_hdf5(conf, ofilename, stanres):
     """
@@ -179,6 +194,10 @@ def write_result_hdf5(conf, ofilename, stanres):
                 print(var['output_name'])
                 g[var['output_name']] = fit[stan_parname]
                 
+def save_object(obj, filename):
+    with open(filename, 'wb') as output:
+        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+
 if __name__ == '__main__':
     args = parse_args()
     with open(args.config, 'r') as cfile:
@@ -188,8 +207,10 @@ if __name__ == '__main__':
 
             result = stan_cache(**(sa.gen_arg_dict()))
 
-            write_result(sa, result)
+            stanres = write_result(sa, result)
             plot_result(sa, result)
+        
+            save_object(stanres, sa.out_fit)
                                         
         except Exception as err:
             print(err)

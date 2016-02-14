@@ -29,7 +29,7 @@
                       ],
             "parameters": [
                            {
-                           "chainnum" : 4,
+                           "chainnum" : 1,
                            "iternum" : 2000,
                            "numPts" : 4000,
                            }
@@ -39,7 +39,7 @@
         "run": {
             "algorithm": "NUTS",
             "iter": 2000,
-            "chain": 4},
+            "chain": 1},
         
         
         "sample": "./results/Qtest_analyzer.out",

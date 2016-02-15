@@ -53,18 +53,17 @@ parameters{
 
 }
 
-
-
 transformed parameters{
 
     real<lower=0.0> sigmaT;     // Total temperature variation (K)
     real<lower=0.0> temperature;   // Temperature of source gas (K)
 
     real<lower=0.0> Q_avg;             // Best estimate for value of Q (eV)
+    real<lower=0.0> sigma_avg;         // Best estimate for value of sigmaQ (eV)
     real<lower=0.0> p_squared;         // (Electron momentum)^2 at the endpoint
     real<lower=0.0> sigma_0;
-    real<lower=0.0> sigma;
-    
+    vector<lower=0.0>[num_iso] sigma;
+
     real epsilon;
     real kappa;
     real eta;
@@ -92,10 +91,10 @@ transformed parameters{
     // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
     sigma_0 <- find_sigma(temperature, p_squared, composition, num_J, lambda);    
     sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
-    sigma <- sigma_0 * (1. + sigma_theory);
+    sigma <- rep_vector(sigma_0 * (1. + sigma_theory) , num_iso);
+    sigma_avg <- sum(composition .* sigma);
 
 }
-
 
 model{
 
@@ -109,10 +108,8 @@ model{
    kappa_set ~ normal(kappa, delta_kappa);
    eta_set ~ normal(eta, delta_eta);
 
-//  Find Q distribution
-
-   Q ~ normal(Q_avg, sigma);
-
+   Q ~ normal(Q_avg, sigma_avg);
+   
 }
 
 

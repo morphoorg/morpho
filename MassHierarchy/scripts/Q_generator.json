@@ -22,7 +22,7 @@
         "run": {
             "algorithm": "NUTS",
             "iter": 2000,
-            "chain": 1},
+            "chain": 4},
         
         "sample": "./results/Qtest_generator.out",
         
@@ -36,7 +36,7 @@
                      {"variable" : "epsilon", "root_alias" : "epsilon"},
                      {"variable" : "kappa", "root_alias" : "kappa"},
                      {"variable" : "eta", "root_alias" : "eta"},
-                     {"variable" : "sigma", "root_alias" : "sigma"},
+                     {"variable" : "sigma_avg", "root_alias" : "sigma_avg"},
                      {"variable" : "temperature", "root_alias" : "temperature"},
                      {"variable" : "composition", "root_alias" : "composition", "ndim":4},
                      {"variable" : "lp__", "root_alias" : "LogLikelihood"}

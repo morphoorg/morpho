@@ -1,84 +1,103 @@
 {
   "stan": {
 
-      "name": "tritium_analysis",
+    "name": "tritium_analysis",
 
-      "model":     {
-          "file": "./tritium_model/models/tritium_analysis.stan",
-          "cache": "./tritium_model/cache"
-          },
+    "model":     {
+      "file": "./tritium_model/models/tritium_analysis.stan",
+      "function_file": "./tritium_model/models/tritium_functions.stan",
+      "cache": "./tritium_model/cache"
+    },
 
-      "data": {
-           "type": "data",
-           "files": [
-              {
-               "name": "./tritium_model/data/tritium.header.data", 
-               "format":"R"
-              },
-              {
-               "name": "./tritium_model/data/tritium_monte_carlo.data", 
-               "format":"R"
-              },
-           {
-               "name" : "./tritium_model/results/tritium_generator.root", 
-               "format" : "root",
-               "tree" : "procTracks",
-               "cuts" : "isOK==1",
-               "branches" : [
-                     {"name" : "isOK", "stan_alias" : "isOK"},
-                     {"name" : "time_data", "stan_alias" : "time_data"},
-                     {"name" : "freq_data", "stan_alias" : "freq_data"},
-                     {"name" : "rate_data", "stan_alias" : "rate_data"},
-                     {"name" : "events", "stan_alias" : "events", "data_format":"integer"}
-                      ]
-               }
-            ],
-           "parameters": [
-             {
-             "neutrino_mass_limit" : 4.0
-             }
-            ]
+    "data": {
+      "type": "data",
+      "files": [
+        {
+          "name": "./tritium_model/data/tritium.header.data",
+          "format":"R"
+        },
+        {
+          "name": "./tritium_model/data/tritium_monte_carlo.data",
+          "format":"R"
+        },
+        {
+          "name": "./tritium_model/results/tritium_additionalData.txt",
+          "format":"R"
+        },
+        {
+          "name" : "./tritium_model/results/tritium_generator_reduced.root",
+          "format" : "root",
+          "tree" : "spectrum",
+          "branches" : [
+            {"name" : "freq_data", "stan_alias" : "freq_data"},
+            {"name" : "n_events", "stan_alias" : "n_events", "data_format" : "integer"},
+          ]
+        },
+        {
+          "name" : "./tritium_model/results/tritium_generator_reduced.root",
+          "format" : "root",
+          "tree" : "time",
+          "branches" : [
+            {"name" : "time_data", "stan_alias" : "time_data"},
+            {"name" : "n_time_data", "stan_alias" : "n_time_data", "data_format" : "integer"},
+          ]
+        }
+      ],
+
+      "parameters": [
+        {
+          "neutrino_mass" : 0.0
+        }
+      ]
+    },
+
+    "run": {
+      "algorithim": "NUTS",
+      "iter": 6000,
+      "warmup": 5000,
+      "chain": 1,
+      "init": [
+        {"signal_fraction": 0.9999,
+          "lightest_neutrino_mass": 1.0,
+          "scatt_width" : 7.3e+04,
+          "uB" : 0.,
+          "uQ0" : 0.,
+          "uQ" : 0.,
+          "uF" : 0.0,
+          "us12" : 0.,
+          "us13" : 0.,
+          "udm21" : 0.,
+          "udm32" : 0.,
+          "neutrino_mass" : 0.,
+          "mu_tot" : 1.0,
+          "eDop":0.05,
+          "n0_timeData":20000}
+        ]
       },
 
-     "run": {
-            "algorithim": "NUTS",
-            "iter": 6000,
-            "warmup": 5000,
-            "chain": 1,
-            "init": [
-            {"signal_fraction": 0.9999,
-             "scatt_width" : 7.3e+04,
-             "uB" : 0.0,
-             "uQ" : 0.0,
-             "uQ0" : 0.0,
-             "uF" : 0.0,
-             "neutrino_mass" : 1.6,
-             "mu_tot" : 1.0,
-             "eDop":0.05}
-             ]
-      },
+      "sample": "./tritium_model/results/tritium_analysis.out",
 
-     "sample": "./tritium_model/results/tritium_analysis.out",
-
-     "output": 
-            {
-             "name" : "./tritium_model/results/tritium_analysis",
-             "format" : "root",
-             "tree" : "stanAnalysis",
-             "branches" : [
-                     {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
-                     {"variable" : "MainField", "root_alias" : "MainField"},
-                     {"variable" : "scatt_width", "root_alias" : "scatt_width"},
-                     {"variable" : "rad_width", "root_alias" : "rad_width"},
-                     {"variable" : "sigma_freq", "root_alias" : "sigma_freq"},
-                     {"variable" : "df", "root_alias" : "df"},
-                     {"variable" : "kDoppler", "root_alias" : "kDoppler"},
-                     {"variable" : "Q", "root_alias" : "Q"},
-                     {"variable" : "mu_tot", "root_alias" : "mu_tot"},
-                     {"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
-                     {"variable" : "lp__", "root_alias" : "LogLikelihood"}
-                   ]
-            }
+      "output":
+      {
+        "name" : "./tritium_model/results/tritium_analysis",
+        "format" : "root",
+        "tree" : "stanAnalysis",
+        "branches" : [
+          {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
+          {"variable" : "MainField", "root_alias" : "MainField"},
+          {"variable" : "Q", "root_alias" : "Q"},
+          {"variable" : "total_rate", "root_alias" : "total_rate"},
+          {"variable" : "activity", "root_alias" : "activity"},
+          {"variable" : "mu_tot", "root_alias" : "mu_tot"},
+          {"variable" : "kDoppler", "root_alias" : "kDoppler"},
+          {"variable" : "s12", "root_alias" : "s12"},
+          {"variable" : "s13", "root_alias" : "s13"},
+          {"variable" : "dm21", "root_alias" : "dm21"},
+          {"variable" : "dm31", "root_alias" : "dm31"},
+          {"variable" : "scatt_width", "root_alias" : "scatt_width"},
+          {"variable" : "n0_timeData", "root_alias" : "n0_timeData"},
+          {"variable" : "lp__", "root_alias" : "LogLikelihood"}
+        ]
+      }
+    }
   }
-}
-

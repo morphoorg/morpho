@@ -1,0 +1,2 @@
+nBinEvents <- 99
+nBinTime <- 99

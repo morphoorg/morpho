@@ -4,366 +4,285 @@
 * Copyright: J. A. Formaggio <josephf@mit.edu>
 *
 * Date: 25 September 2014
+* Modified: Feb 17 2016 by MG
 *
-* Purpose: 
+* Purpose:
 *
 *		Program will generate a set of sampled data distributed according to the beta decay spectrum of tritium.
 *		Program assumes Project-8 measurement (frequency) and molecular tritium as the source.
 *		Spectrum includes simplified beta-function with final state distribution (assuming 0.36 eV gaussian model)
 *		Includes broadening due to magnetic field homogeneity, radiative energy loss, Doppler and scattering.
 *		T_2 scattering cross-section model implemented.
-*		Note that sample events are distributed according to true distribution.  
+*		Note that sample events are distributed according to true distribution.
 *
 *
 * Collaboration:  Project 8
 */
 
-functions{
-
-// Set up constants 
-
-	real m_electron() { return  510998.910;}				// Electron mass in eV
-	real c() { return  299792458.;}			   	   	 	// Speed of light in m/s
-	real omega_c() {return 1.758820088e+11;}		         	// Angular gyromagnetic ratio in rad Hz/Tesla
-	real freq_c() {return omega_c()/(2. * pi());}			 	// Gyromagnetic ratio in Hz/Tesla
-	real alpha() { return 7.29735257e-3;}               	   	 	// Fine structure constant
-	real bohr_radius() { return 5.2917721092e-11;}	 	 	 	// Bohr radius in meters
-	real k_boltzmann() {return  8.61733238e-5;}		         	// Boltzmann's constant in eV/Kelvin
-	real unit_mass() { return 931.494061e6;}			 	// Unit mass in eV
-	real r0_electron() { return square(alpha())*bohr_radius();}  	 	// Electron radius in meters
-	real ry_hydrogen() { return 13.60569253;}                    	    	// Rydberg energy in eV
-	real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * B);}    // Frequency damping constant (in units of Hz/Tesla^2)
-	real seconds_per_year() {return 365.25 * 86400.;}	        	// Seconds in a year
-
-//  Tritium-specific constants
-
-    	real tritium_rate_per_eV() {return 2.0e-13;}				 // fraction of rate in last 1 eV
-    	real tritium_molecular_mass() {return  2. * 3.016 * unit_mass();}   	 // Molecular tritium mass in eV
-	real tritium_halflife() {return 12.32 * seconds_per_year();}  // Halflife of tritium (in seconds)
-	
-// Method for converting kinetic energy (eV) to frequency (Hz).  
-// Depends on magnetic field (Tesla)
-
-   	real get_frequency(real kinetic_energy,real field) {
-	     real gamma;
-	     gamma <- 1. +  kinetic_energy/m_electron();
-	     return freq_c() / gamma * field;
-	}
-
-// Method for converting frequency (Hz) to kinetic energy (eV)
-// Depends on magnetic field (Tesla)
-
-   	real get_kinetic_energy(real frequency, real field) {
-	     real gamma;
-	     gamma <- freq_c() / frequency * field;
-	     return (gamma -1.) * m_electron();
-	}
-
-//  Create a centered normal distribution function for faster convergence on normal distributions
-
-	real vnormal_lp(real beta_raw, real mu, real sigma) {
-	       beta_raw ~ normal(0,1);
-	       return mu + beta_raw * sigma;
-	}
-
-//  Create a centered normal distribution function for faster convergence on cauchy distributions.
-//  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
-
-	real vcauchy_lp(real beta_raw, real mu, real sigma) {
-	       beta_raw ~ uniform(-pi()/2. , +pi()/2.);
-	       return mu +  tan(beta_raw) * sigma;
-	}
-
-//   Get relativistic velocity (beta)
-
-        real get_velocity(real kinetic_energy) {
-
-	      real gamma;
-	      real beta;
-
-      	      gamma <-1. +  kinetic_energy/m_electron();
-	      beta <- sqrt(square(gamma)-1.)/gamma;
-	      return beta;
-
-	}
-
-//  Beta decay function given an endpoint Q, and neutrino mass m, and a kinetic energy KE (valid only near the tail)
-
-	real beta_integral(real Q, real m_nu, real minKE) {
-	     return pow(square(Q - minKE) - square(m_nu),1.5);
-	}
-
-        real get_beta_function_log(real KE, real Q, real m_nu, real minKE) {
-
-	     real log_rate;
-	     real log_norm;
-	     
-	     log_norm <- log(beta_integral(Q, m_nu, minKE)); 
-	     log_rate <- log(3.) + log(Q - KE) + 0.5 * log(square(KE - Q) - square(m_nu));		
-
-	     return (log_rate-log_norm);
-	}
-
-//  Total cross-section (in 1/(meters)^2)
-//  Based on the paper Binary-encounter-dipole model for electron-impact ionization
-//  Yong-Ki Kim and M. Eugene Rudd, Phys. Rev. A 50, 3954
-
-        real xsection(real kinetic_energy, real ave_kinetic, real bind_energy, real msq, real Q) {
-	     real beta;
-	     real d_inf;
-	     real S;
-	     real xsec;
-	     real t_energy;
-	     real u_energy;
-	     real b_energy;
-
-	     beta <- get_velocity(kinetic_energy);
-	     b_energy <- bind_energy;
-	     t_energy <- (0.5 * m_electron() * beta * beta) / b_energy;
-	     u_energy <- ave_kinetic / b_energy;
-
-	     S <- 4.0 * pi() * square(bohr_radius()) / (t_energy + u_energy + 1) * square(ry_hydrogen()/b_energy);
-	     d_inf <- b_energy * msq / ry_hydrogen();
-	     xsec <- S * (d_inf * log(t_energy) + (2 - Q) * (1.0 - 1.0/t_energy - log(t_energy)/(1.0+t_energy)));
-	     
-	     return xsec;
-	}
-
-//  Butterworth-type filter.
-
-       real filter_log(real s, real s_min, real s_max, real n) {
-	     return -1./2. * ( log1p(pow(s_min/s,2.*n)) +log1p(pow(s/s_max,2.*n)) );
-       }
-
-       real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, real maxKE, real signal_fraction) {
-
-           int nFamily;
-       	   real background_log;
-	   real signal_log;
-	   real rate_log;
-
-	   nFamily <- num_elements(U);
-
-    	   background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
-	   
-	   for (i in 1:nFamily){
-	       if (KE < (Q-fabs(m_nu[i]))) {
-       	       	  signal_log <- log(signal_fraction) + log(U[i]) + get_beta_function_log(KE, Q, m_nu[i], minKE);
-       	      	  rate_log <- log_sum_exp(signal_log,  background_log);
-    	       } else {
-       	       	 rate_log <- background_log;
-	       }
-    	   }
-	   return rate_log;  
-	}
-}
-
 data {
 
-//   Number of samples to generate (to get event statistics correct)
+  //   Number of samples to generate (to get event statistics correct)
+  int nGenerate;
+  int nChains;
 
-     int nGenerate;
 
-//   Number of neutrinos and mixing parameters
+  //Mass ordering:
+  //if MassHierarchy = 1, normal hierarchy (delta_m31>0)
+  //if MassHierarchy = -1, inverted hierarchy (delta_m31<0)
+  int MassHierarchy;
 
-     int nFamily;
-     vector[nFamily] m_nu;
-     simplex[nFamily] U_PMNS;
+  //   Number of neutrinos and mixing parameters
+  int nFamily;
 
-//   Primary magnetic field (in Tesla)
+  // vector[nFamily] m_nu;
+  // simplex[nFamily] U_PMNS;
+  real meas_delta_m21;
+  real meas_delta_m32_NH;
+  real meas_delta_m32_IH;
 
-     real<lower=0> BField;
-     real BFieldError;
+  real meas_sin2_th12;
+  real meas_sin2_th13_NH;
+  real meas_sin2_th13_IH;
 
-//   Range for fits (in Hz)
+  real lightest_neutrino_mass;
 
-     real<lower=0 > minKE;
-     real<lower=minKE> maxKE;
+  //   Primary magnetic field (in Tesla)
 
-//   Endpoint of tritium, in eV
+  real<lower=0> BField;
+  real BFieldError;
 
-     real<lower=0> QValue;
-     real sigmaQ;
+  //   Range for fits (in Hz)
 
-//  Cross-section of e-T2 , in meter^-2
+  real<lower=0 > minKE;
+  real<lower=minKE> maxKE;
 
-    real xsec_avekin;
-    real xsec_bindkin;
-    real xsec_msq;
-    real xsec_Q;
+  //   Endpoint of tritium, in eV
 
-//  Conditions of the experiment and measurement
+  real<lower=minKE,upper=maxKE> QValue;
+  real<lower=0> sigmaQ;
 
-    real number_density;			//  Tritium number density (in meter^-3)
-    real temperature;				//  Temperature of gas (in Kelvin)
-    real effective_volume;		        //  Effective volume (in meter^3)
-    real measuring_time;			//  Measuring time (in seconds)
+  //  Cross-section of e-T2 , in meter^-2
 
-//  Background rate
+  real xsec_avekin;
+  real xsec_bindkin;
+  real xsec_msq;
+  real xsec_Q;
 
-    real background_rate;			//  Background rate in Hz
+  //  Conditions of the experiment and measurement
 
-//  Clock and filter information
+  real number_density;			//  Tritium number density (in meter^-3)
+  real temperature;				//  Temperature of gas (in Kelvin)
+  real effective_volume;		        //  Effective volume (in meter^3)
+  real measuring_time;			//  Measuring time (in seconds)
 
-    real fBandpass;
-    real fclockError;
-    int  fFilterN;
+  //  Background rate
+
+  real background_rate;			//  Background rate in Hz
+
+  //  Clock and filter information
+
+  real fBandpass;
+  real fclockError;
+  int  fFilterN;
+  // real fclock;
 
 }
 
 
 transformed data {
 
-    real minFreq;
-    real maxFreq;
-    real fclock;
 
-    minFreq <- get_frequency(maxKE, BField);
-    maxFreq <- get_frequency(minKE, BField);
 
-    fclock <- minFreq;
 
-    if (fBandpass > (maxFreq-minFreq)) {
-       print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
-       print("Consider enlarging energy region.");
-    }
+  real s12;
+  real s13;
+  real m1;
+  real m2;
+  real m3;
+  real dm21;
+  real dm31;
+  real dm32;
+  vector[nFamily] m_nu;
+  vector[nFamily] U_PMNS;
+
+
+  real minFreq;
+  real maxFreq;
+  real fclock;
+
+
+  dm21 <- meas_delta_m21;
+  s12 <- meas_sin2_th12;
+  if (MassHierarchy == 1)
+  {
+    dm32 <- meas_delta_m32_NH;
+    dm31 <- meas_delta_m32_NH + meas_delta_m21;
+    m_nu[1] <- lightest_neutrino_mass;
+    m_nu[2] <- sqrt(dm21 + square(m_nu[1]));
+    m_nu[3] <- sqrt(dm31 + square(m_nu[1]));
+    s13 <- meas_sin2_th13_NH;
+  }
+  else if (MassHierarchy == -1)
+  {
+    dm32 <- meas_delta_m32_IH;
+    dm31 <- meas_delta_m32_IH + meas_delta_m21;
+    m_nu[3] <- lightest_neutrino_mass;
+    m_nu[1] <- sqrt(-dm31 + square(m_nu[3]));
+    m_nu[2] <- sqrt(-dm32 + square(m_nu[3]));
+    s13 <- meas_sin2_th13_IH;
+  }
+  U_PMNS <- get_U_PMNS(nFamily,s12,s13);
+
+  minFreq <- get_frequency(maxKE, BField);
+  maxFreq <- get_frequency(minKE, BField);
+
+  fclock <- 0.;
+
+  if (fBandpass > (maxFreq-minFreq)) {
+    print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
+    print("Consider enlarging energy region.");
+  }
 
 }
 
 parameters {
 
-    real uB;
-    real uQ;
-    real uF;
-    real<lower=0.0> eDop;
-    real<lower=0.0> duration;
-    real<lower=minKE,upper=maxKE> KE;
+  real uB;
+  real uQ;
+  real uF;
+  real<lower=0.0> eDop;
+  real<lower=0.0> duration;
+  real<lower=minKE,upper=maxKE> KE;
 }
 
 transformed parameters{
 
-    real neutrino_mass;
-    real signal_rate;
-    real<lower=0> MainField;
-    real beta;
-    real Q;
-    real df;
-    real frequency; 
+  real neutrino_mass;
+  real signal_rate;
+  real<lower=0> MainField;
+  real beta;
+  real Q;
+  real df;
+  real frequency;
 
-    real xsec;
-    real<lower=0> scatt_width;
-    real rad_width;
-    real tot_width;
+  real xsec;
+  real<lower=0> scatt_width;
+  real rad_width;
+  real tot_width;
 
-    real sigma_freq;
-    real freq_recon;
-    
-    real kDoppler;
-    real KE_shift;
+  real sigma_freq;
+  real freq_recon;
+  // real freq_temp;
 
-    real activity;
-    real signal_fraction;
-    real total_rate;
-    real rate_log;
-    real rate;
+  real kDoppler;
+  real KE_shift;
 
-// Determine effective mass to use from neutrino mass matrix
+  real activity;
+  real signal_fraction;
+  real total_rate;
+  real rate_log;
+  real rate;
 
-   neutrino_mass <- sqrt(dot_self(U_PMNS .* m_nu));
+  // Determine effective mass to use from neutrino mass matrix
 
-// Obtain magnetic field (with prior distribution)
+  neutrino_mass <- sqrt(dot_self(U_PMNS .* m_nu));
 
-    MainField <- vnormal_lp(uB, BField, BFieldError);
-     
-// Calculate scattering length, radiation width, and total width;
+  // Obtain magnetic field (with prior distribution)
 
-    beta <- get_velocity(KE);
-    xsec <- xsection(KE,  xsec_avekin, xsec_bindkin, xsec_msq, xsec_Q);
-    scatt_width <- number_density * c() * beta * xsec;
+  MainField <- vnormal_lp(uB, BField, BFieldError);
 
-    rad_width <- cyclotron_rad(MainField);
-    tot_width <- (scatt_width + rad_width);
-    sigma_freq <- (scatt_width + rad_width) / (4. * pi());    
+  // Calculate scattering length, radiation width, and total width;
 
-// Dispersion due to uncertainty in final states (with prior distribution)
+  beta <- get_velocity(KE);
+  xsec <- xsection(KE,  xsec_avekin, xsec_bindkin, xsec_msq, xsec_Q);
+  scatt_width <- number_density * c() * beta * xsec;
 
-    Q <- vnormal_lp(uQ, QValue, sigmaQ);
+  rad_width <- cyclotron_rad(MainField);
+  tot_width <- (scatt_width + rad_width);
+  sigma_freq <- (scatt_width + rad_width) / (4. * pi());
 
-// Calculate frequency dispersion
+  // Dispersion due to uncertainty in final states (with prior distribution)
 
-    frequency <- get_frequency(KE, MainField);
+  Q <- vnormal_lp(uQ, QValue, sigmaQ);
 
-    df <- vnormal_lp(uF, 0.0, sigma_freq);
-    
-    freq_recon <- frequency + df - fclock;
+  // Calculate frequency dispersion
 
-// Calculate Doppler effect from tritium atom/molecule motion
+  frequency <- get_frequency(KE, MainField);
 
-    kDoppler <-  m_electron() * beta * sqrt(eDop / tritium_molecular_mass());
+  df <- vnormal_lp(uF, 0.0, sigma_freq);
 
-    KE_shift <- KE + kDoppler;
+  // freq_temp <- frequency-df;
+  freq_recon <- frequency + df - fclock;
 
-// Determine total rate from activity
+  // Calculate Doppler effect from tritium atom/molecule motion
 
-    activity <- tritium_rate_per_eV() * beta_integral(Q, neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
-    total_rate <-activity * measuring_time;
-    signal_fraction <- activity/(activity + background_rate);
+  kDoppler <-  m_electron() * beta * sqrt(eDop / tritium_molecular_mass());
 
-// Determine signal and background rates from beta function and background level
+  KE_shift <- KE + kDoppler;
 
-    rate_log <- signal_to_noise_log(KE_shift, Q, U_PMNS, m_nu, minKE, maxKE, signal_fraction);
-    rate <- total_rate * exp(rate_log);
+  // Determine total rate from activity
+
+  activity <- tritium_rate_per_eV() * beta_integral(Q, neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
+  total_rate <-activity * measuring_time;
+  signal_fraction <- activity/(activity + background_rate);
+
+  // Determine signal and background rates from beta function and background level
+
+  rate_log <- signal_to_noise_log(KE_shift, Q, U_PMNS, m_nu, minKE, maxKE, signal_fraction);
+  rate <- total_rate * exp(rate_log);
 }
 
 model {
 
-# Thermal Doppler broadening of the tritium source
+  // KE ~ uniform(minKE,maxKE);
+  # Thermal Doppler broadening of the tritium source
 
-    eDop ~ gamma(1.5,1./(k_boltzmann() * temperature));
+  eDop ~ gamma(1.5,1./(k_boltzmann() * temperature));
 
-# Frequency broadening from collision and radiation
+  # Frequency broadening from collision and radiation
 
-    duration ~ exponential(scatt_width);
-    
-# Effect of filter in cleaning data
+  duration ~ exponential(scatt_width);
 
-    freq_recon ~ filter(0.0, fBandpass, fFilterN);
+  # Effect of filter in cleaning data
 
-# The Poisson distribution of the beta decay and background if desired
-# Otherwise set to flat distribution if nGenerate is negative
+  // freq_recon ~ filter(0., fBandpass, fFilterN);
+  freq_recon ~ uniform(minFreq,maxFreq);
 
-    if (nGenerate >= 0) increment_log_prob(rate_log);    
+  # The Poisson distribution of the beta decay and background if desired
+  # Otherwise set to flat distribution if nGenerate is negative
+
+  if (nGenerate >= 0) increment_log_prob(rate_log);
 
 }
 
 generated quantities {
 
-    int isOK;
-    int nData;
-    int  events;
-    real freq_data;
-    real time_data;
-    real rate_data;
-    real KE_recon;
+  int isOK;
+  int nData;
+  int  events;
+  real freq_data;
+  real time_data;
+  real rate_data;
+  real KE_recon;
 
-    nData <- nGenerate;
+  nData <- nGenerate;
 
-#   Simulate duration of event and store frequency and reconstructed kinetic energy
+  #   Simulate duration of event and store frequency and reconstructed kinetic energy
 
-    time_data <- duration;
+  time_data <- duration;
 
-    freq_data <- freq_recon;
+  freq_data <- freq_recon;
 
-    KE_recon <- get_kinetic_energy(frequency + df, MainField);
-    
-# Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
+  KE_recon <- get_kinetic_energy(frequency+df, MainField);
 
-    rate_data <- rate;
-    
-    events <- poisson_rng(rate / max(abs(nGenerate),1) );
+  # Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
 
-# Tag events that are below DC in analysis
+  rate_data <- rate;
 
-    isOK <- (freq_data > 0.);
-    
+  events <- poisson_rng(rate / max(abs(nGenerate*nChains),nChains) );
+
+  # Tag events that are below DC in analysis
+
+  isOK <- (freq_data > 0.);
+
 }

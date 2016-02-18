@@ -1,0 +1,62 @@
+{
+    "stan": {
+        
+        "name": "Q_analysis",
+        
+        "model":   {
+            "file": "./models/Q_analyzer.stan",
+            "function_file": "./models/Q_functions.stan",
+            "cache": "./cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./data/Q_analyze.data",
+                      "format":"R"
+                      },
+                      {
+                      "name" : "./results/Qtest_generator",
+                      "format" : "hdf5",
+                      "event_number" : 0,
+                      "datasets" : [
+                                    {"nm" : "Q", "stan_alias" : "Q"},
+                                    {"nm" : "sigma", "stan_alias" : "sigma"}
+                                    ]
+                      }
+                      
+                      ],
+            "parameters": [
+                           {
+                           "chainnum" : 1,
+                           "iternum" : 2000,
+                           "numPts" : 4000,
+                           }
+                           ]
+        },
+        
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 2000,
+            "chain": 1},
+        
+        
+        "sample": "./results/Qtest_analyzer.out",
+        
+        "output":
+        {
+            "name" : "./results/Qtest_analyzer.h5",
+            "format": "hdf5",
+            "config": {"group": "/"},
+            "fit": "./results/Qresults2.pkl",
+            "data": [
+                     {"stan_parameter": "Q_extract","output_name": "Q_extract"},
+                     {"stan_parameter": "sigma_extract","output_name": "sigma_extract"},
+                     {"stan_parameter": "lp__","output_name": "LogLikelihood"},
+                     ]
+        }
+        
+    }
+    
+}

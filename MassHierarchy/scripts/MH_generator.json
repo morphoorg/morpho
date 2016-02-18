@@ -1,0 +1,60 @@
+{
+    "stan": {
+        
+        "name": "MH_generator",
+        
+        "model":   {
+            "file": "./models/spectrum_generator.stan",
+            "function_file": "./models/MH_functions.stan",
+            "cache": "./cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./data/MH_generate.data",
+                      "format":"R"
+                      }
+                      ],
+            "parameters": [
+                           {
+                           "chainnum" : 6,
+                           "iternum" : 2000,
+                           "nEvents" : 1,
+                           "numPts" : 6000,
+                           "norm" : 50000,
+                           "MH" : 1
+                           }
+                           ]
+
+        },
+        
+        "run": {
+            "algorithim": "NUTS",
+            "iter": 2000,
+            "chain": 6},
+        
+        "plot": [
+                 {"variable": "KE"},
+                 {"variable": "N"},
+                 ],
+        
+        "sample": "./results/MHtest_generator.out",
+        
+        "output":{
+            "name": "./results/MHtest_generator",
+            "format": "hdf5",
+            "fit": "./results/MHresults1.pkl",
+            "config": {"group": "/"},
+            "data": [
+                     {"stan_parameter": "KE","output_name": "KEout"},
+                     {"stan_parameter": "N","output_name": "Nout"},
+                     {"stan_parameter": "rate_log","output_name": "rate_log"},
+                     ]
+        }
+        
+    }
+    
+
+}

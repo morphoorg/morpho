@@ -4,16 +4,19 @@
         "name": "Q_generator",
         
         "model":   {
-            "file": "./models/Q_generator.stan",
-            "function_file": "./models/Q_functions.stan",
-            "cache": "./cache"
+            "file": "./MassHierarchy/models/Q_generator.stan",
+            "function_file": [
+                {"name" : "constants", "file" : "./functions/constants.functions"},
+                {"name" : "Q_Functions", "file" : "./functions/Q_functions.functions"}
+             ],
+            "cache": "./MassHierarchy/cache"
         },
         
         "data": {
             "type": "mc",
             "files": [
                       {
-                      "name": "./data/Q_generate.data",
+                      "name": "./MassHierarchy/data/Q_generate.data",
                       "format":"R"
                       }
                       ]
@@ -24,11 +27,11 @@
             "iter": 2000,
             "chain": 4},
         
-        "sample": "./results/Qtest_generator.out",
+        "sample": "./MassHierarchy/results/Qtest_generator.out",
         
      "output": 
             {
-             "name" : "./results/Qtest_generator",
+             "name" : "./MassHierarchy/results/Qtest_generator",
              "format" : "root",
              "tree" : "QTree",
              "branches" : [

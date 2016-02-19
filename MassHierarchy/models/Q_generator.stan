@@ -11,6 +11,13 @@
 *
 */
 
+functions{
+
+	include_functions<-constants
+	include_functions<-Q_Functions
+
+}
+
 
 data{
 
@@ -111,10 +118,6 @@ model{
    Q ~ normal(Q_avg, sigma_avg);
    
 }
-
-
-
-
 
 
 

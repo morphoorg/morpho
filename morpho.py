@@ -9,9 +9,11 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+import re
 import pystan
 import pystanLoad as pyL
 import json
+import fileinput
 
 from pystan import stan
 from h5py import File as HDF5
@@ -95,6 +97,7 @@ class stan_args(object):
 
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
+
     theData = open(model_code,'r+').read()
     code_hash = md5(theData.encode('ascii')).hexdigest()
     if model_name is None:
@@ -104,11 +107,16 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
-        if functions_code is None:
-            sm = pystan.StanModel(model_code=theData)
-        else:
-            StanFunctions = open(functions_code,'r+').read()
-            sm = pystan.StanModel(model_code=StanFunctions+theData)
+        theModel = theData
+        if functions_code:
+            match = re.findall(r"(?<=include_functions<-)\w+",theData, flags=re.IGNORECASE)
+            if match:
+                for matches in match:
+                    for key in functions_code:
+                        if (key['name']==matches):
+                            StanFunctions = open(key['file'],'r+').read()
+                            theModel = re.sub("include_functions<-"+matches, StanFunctions, theModel, flags=re.IGNORECASE)
+        sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:

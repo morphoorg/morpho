@@ -15,13 +15,13 @@ functions{
 
 // Load libraries
 
-	include_functions<-constants
-	include_functions<-func_routines
-	include_functions<-Q_Functions
+    include_functions<-constants
+    include_functions<-func_routines
+    include_functions<-Q_Functions
 
-// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT) given parameters epsilon and kappa
+// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
 
-    simplex find_composition(real epsilon, real kappa)
+    simplex find_composition(real epsilon, real kappa, real eta)
     {
         simplex[4] composition;
 
@@ -65,12 +65,12 @@ data{
 
 transformed data{
 
-    vector<lower=0.0>[num_iso] mass_s;
+    vector<lower=0.0>[num_iso] ;
 
-    atomic_masses[1] <- tritium_atomic_mass();
-    atomic_masses[2] <- hydrogen_atomic_mass();
-    atomic_masses[3] <- deuterium_atomic_mass();
-    atomic_masses[4] <- 0.0;
+    mass_s[1] <- tritium_atomic_mass();
+    mass_s[2] <- hydrogen_atomic_mass();
+    mass_s[3] <- deuterium_atomic_mass();
+    mass_s[4] <- 0.0;
     
 }
 
@@ -113,22 +113,22 @@ transformed parameters{
 
 // Composition and purity of gas system
 
-    epsilon <- 0.5 * (1.0 + composition[1] / (1. - composition[4]) );
-    kappa <- composition[3] / composition[2];
-    eta <- 1.0 - composition[4];
+    composition <- find_composition(epsilon, kappa, eta);
 
-//composition <- find_composition(epsilon, kappa, eta, num_iso);
-
-    Q_avg <- sum(composition .* Q_values);
-    p_squared <- 2.0 * Q_avg * m_electron();
-
-    // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
+// Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
+    
     for (i in 1:num_iso) {
+        p_squared <- 2.0 * Q_values[i] * m_electron();
     	sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda);
-    }   
+    }
+    
     sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
     sigma <- sigma_0 * (1. + sigma_theory);
+    
+//  Take averages of Q and sigma values
+
     sigma_avg <- sum(composition .* sigma);
+    Q_avg <- sum(composition .* Q_values);
 
 }
 
@@ -136,15 +136,17 @@ model{
 
 // Find lambda distribution
 
-   lambda_set ~ normal(lambda, delta_lambda);
+    lambda_set ~ normal(lambda, delta_lambda);
    
 // Find composition distribution
 
-   epsilon_set ~ normal(epsilon, delta_epsilon);
-   kappa_set ~ normal(kappa, delta_kappa);
-   eta_set ~ normal(eta, delta_eta);
+    epsilon_set ~ normal(epsilon, delta_epsilon);
+    kappa_set ~ normal(kappa, delta_kappa);
+    eta_set ~ normal(eta, delta_eta);
 
-   Q ~ normal(Q_avg, sigma_avg);
+//  Distribute Q value from average
+
+    Q ~ normal(Q_avg, sigma_avg);
    
 }
 

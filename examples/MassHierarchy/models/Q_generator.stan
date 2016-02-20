@@ -129,7 +129,7 @@ transformed parameters{
     
 //  Take averages of Q and sigma values
 
-    sigma_avg <- sum(composition .* sigma);
+    sigma_avg <- sqrt(sum(composition .* sigma .* sigma));
     Q_avg <- sum(composition .* Q_values);
 
 }

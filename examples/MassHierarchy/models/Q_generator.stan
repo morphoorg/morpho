@@ -21,9 +21,9 @@ functions{
 
 // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
 
-    simplex find_composition(real epsilon, real kappa, real eta)
+    vector find_composition(real epsilon, real kappa, real eta)
     {
-        simplex[4] composition;
+        vector[4] composition;
 
         composition[1] <- (2.0*epsilon - 1.0) * eta;
         composition[2] <- (2.0*(1.0-epsilon)*kappa * eta)/(1+kappa);
@@ -113,7 +113,9 @@ transformed parameters{
 
 // Composition and purity of gas system
 
-    composition <- find_composition(epsilon, kappa, eta);
+    epsilon <- 0.5 * (1.0 + composition[1] / (1. - composition[4]) );
+    kappa <- composition[3] / composition[2];
+    eta <- 1.0 - composition[4];
 
 // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
     

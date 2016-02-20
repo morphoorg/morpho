@@ -13,8 +13,24 @@
 
 functions{
 
+// Load libraries
+
 	include_functions<-constants
+	include_functions<-func_routines
 	include_functions<-Q_Functions
+
+// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT) given parameters epsilon and kappa
+
+    simplex find_composition(real epsilon, real kappa)
+    {
+        simplex[4] composition;
+
+        composition[1] <- (2.0*epsilon - 1.0) * eta;
+        composition[2] <- (2.0*(1.0-epsilon)*kappa * eta)/(1+kappa);
+        composition[3] <- (2.0*(1.0-epsilon) * eta)/(1+kappa);
+	composition[4] <- 1.- eta;
+        return composition;
+    }
 
 }
 
@@ -47,6 +63,17 @@ data{
 
 }
 
+transformed data{
+
+    vector<lower=0.0>[num_iso] mass_s;
+
+    atomic_masses[1] <- tritium_atomic_mass();
+    atomic_masses[2] <- hydrogen_atomic_mass();
+    atomic_masses[3] <- deuterium_atomic_mass();
+    atomic_masses[4] <- 0.0;
+    
+}
+
 parameters{
 
     //Parameters sampled by vnormal_lp function
@@ -68,7 +95,7 @@ transformed parameters{
     real<lower=0.0> Q_avg;             // Best estimate for value of Q (eV)
     real<lower=0.0> sigma_avg;         // Best estimate for value of sigmaQ (eV)
     real<lower=0.0> p_squared;         // (Electron momentum)^2 at the endpoint
-    real<lower=0.0> sigma_0;
+    vector<lower=0.0>[num_iso] sigma_0;
     vector<lower=0.0>[num_iso] sigma;
 
     real epsilon;
@@ -96,9 +123,11 @@ transformed parameters{
     p_squared <- 2.0 * Q_avg * m_electron();
 
     // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
-    sigma_0 <- find_sigma(temperature, p_squared, composition, num_J, lambda);    
+    for (i in 1:num_iso) {
+    	sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda);
+    }   
     sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
-    sigma <- rep_vector(sigma_0 * (1. + sigma_theory) , num_iso);
+    sigma <- sigma_0 * (1. + sigma_theory);
     sigma_avg <- sum(composition .* sigma);
 
 }

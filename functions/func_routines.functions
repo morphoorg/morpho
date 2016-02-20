@@ -1,0 +1,23 @@
+/*
+* Functions: Useful Generic functions
+* -----------------------------------------------------
+* Author: J. Formaggio <josephf@mit.edu>
+*
+* Date: 20 February 2016
+*
+* Purpose:
+*
+*   Defines shortcut functions.
+*
+*/
+
+
+// Create a centered normal distribution function for faster convergence on normal distributions
+
+    real vnormal_lp(real beta_raw, real mu, real sigma)
+    {
+        beta_raw ~ normal(0,1);
+        return mu + beta_raw * sigma;
+    }
+
+

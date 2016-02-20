@@ -14,5 +14,6 @@ priv/*.so
 build/*
 python/doc/_build/*
 *.egg
+*.root
 results/
 cache/

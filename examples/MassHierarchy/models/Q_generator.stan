@@ -65,7 +65,7 @@ data{
 
 transformed data{
 
-    vector<lower=0.0>[num_iso] ;
+    vector<lower=0.0>[num_iso] mass_s;
 
     mass_s[1] <- tritium_atomic_mass();
     mass_s[2] <- hydrogen_atomic_mass();

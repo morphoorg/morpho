@@ -148,12 +148,12 @@
     real find_sigma(real temperature, real p_squared, real mass_s, int num_J, real lambda)
     {       
 
-    	real sigma_rot;
-    	real sigma_trans;
+    	real sigma_sq_rot;
+    	real sigma_sq_trans;
 
-	sigma_rot <- find_sigma_squared_rotational(num_J, mass_s, p_squared, temperature, lambda);
-	sigma_trans <- find_sigma_squared_translational(temperature, mass_s, p_squared);
+	sigma_sq_rot <- find_sigma_squared_rotational(num_J, mass_s, p_squared, temperature, lambda);
+	sigma_sq_trans <- find_sigma_squared_translational(temperature, mass_s, p_squared);
 
-	return sqrt( square(sigma_rot) + square(sigma_trans) );
+	return sqrt(sigma_sq_rot + sigma_sq_trans);
 
     }

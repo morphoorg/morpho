@@ -1,3 +1,4 @@
+//
 /*
 * MC Beta Decay Spectrum Endpoint Model - Generator
 * -----------------------------------------------------
@@ -10,14 +11,15 @@
 * Generates endpoint (Q value) distribution.
 *
 */
+//
 
 functions{
 
 // Load libraries
 
-    include_functions<-constants
-    include_functions<-func_routines
-    include_functions<-Q_Functions
+   include <- constants;
+   include <- func_routines;
+   include <- Q_Functions;
 
 // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
 

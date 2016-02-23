@@ -1,3 +1,4 @@
+//
 /*
 * Functions: Useful Constants
 * -----------------------------------------------------
@@ -10,7 +11,7 @@
 *   Defines constants and functions to be used in endpoint generation and analysis models.
 *
 */
-
+//
 
 // Set up constants
 
@@ -45,15 +46,3 @@
 // Deuterium specific constants
 
     real deuterium_atomic_mass() {return  2.01410178 * unit_mass();}   	 // Atomic deuterium mass in eV
-
-// Mass of non-tritium atom in each molecule (eV). Values correspond to (T2, HT, DT, T)
-
-    real[] atomic_masses() {
-        real atomic_masses[4];
-
-        atomic_masses[1] <- tritium_atomic_mass();
-        atomic_masses[2] <- hydrogen_atomic_mass();
-        atomic_masses[3] <- deuterium_atomic_mass();
-        atomic_masses[4] <- 0.0;
-        return atomic_masses;}
-

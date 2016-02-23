@@ -25,8 +25,8 @@
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 10000,
-            "chain": 1},
+            "iter": 5000,
+            "chain": 8},
         
         "sample": "./MassHierarchy/results/Qtest_generator.out",
         
@@ -39,11 +39,11 @@
                      {"variable" : "Q", "root_alias" : "Q"},
                      {"variable" : "epsilon", "root_alias" : "epsilon"},
                      {"variable" : "kappa", "root_alias" : "kappa"},
-                     {"variable" : "eta", "root_alias" : "eta"},
-                     {"variable" : "sigma_avg", "root_alias" : "sigma_avg"},
+                     {"variable" : "sigma_0", "root_alias" : "sigma_mol_i", "ndim":3},
+                     {"variable" : "sigma_atom", "root_alias" : "sigma_atom"},
+                     {"variable" : "sigma_mol", "root_alias" : "sigma_mol"},
                      {"variable" : "temperature", "root_alias" : "temperature"},
-                     {"variable" : "composition", "root_alias" : "composition", "ndim":4},
-                     {"variable" : "sigma", "root_alias" : "sigma", "ndim":4},
+                     {"variable" : "composition", "root_alias" : "composition", "ndim":3},
                      {"variable" : "lp__", "root_alias" : "LogLikelihood"}
                       ]
              }        

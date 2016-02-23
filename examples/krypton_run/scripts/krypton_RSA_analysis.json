@@ -1,0 +1,82 @@
+{
+  "stan": {
+
+    "name": "krypton_RSA_analysis",
+
+    "job_id": "<job_id>",
+
+    "model":   {
+      "file": "./krypton_run/models/krypton_RSA_analysis.stan",
+      "cache": "./krypton_run/cache"
+      },
+
+    "data": {
+       "type": "data",
+      "files": [
+          {
+         "name": "./krypton_run/data/krypton_frequency_run.header.data", 
+         "format":"R"
+          },
+           {
+         "name" : "./krypton_run/data/RSAdatav3_20140903_30keV_fixed.data", 
+         "format" : "R"
+          }],
+      "parameters": [
+            {
+         "BField" : 0.95338,
+         "TrapCurrent" : 400,
+         "minFreq" : 25130000000.0,
+         "maxFreq" : 25200000000.0,
+         "eGamma" : 32151.7,
+         "nLevels" : 12,
+         "eParentLevel":  [14326.0, 1921.0, 1730.9, 1678.4, 292.8, 222.2, 214.5, 95.0, 93.8, 27.5, 14.1, 14.1],
+         "eProgenyLevel": [15200.0, 2065.0, 1864.0, 1804.0, 326.7, 248.7, 239.1,113.0,112.0, 30.5, 16.3, 15.3],
+         "eParentWidth":  [2.83, 5.3, 1.8, 1.4, 4.27, 1.99, 1.66, 0.19, 0.59, 1.0, 1.0, 1.0]
+            }
+          ]
+   },
+
+   "run": {
+          "algorithim": "NUTS",
+          "iter": 2000,
+          "warmup": 1000,
+          "chain": 32,
+          "init": "random",
+          "seed": 314159,
+          "init_off": [
+            {"uNormal": [0.0, 0.0],
+             "uCauchy": 0.0,
+             "zCauchy": [0.0, 0.0],
+             "GlobalWidth" : 15.0,
+             "SourceStrength" :[0.7, 0.3]
+            }
+             ]
+          },
+   "plot": [
+      {"variable": "MainField"},
+      {"variable": "TrappingField"},
+      {"variable": "TotalField"},
+      {"variable": "GlobalWidth"},
+      {"variable": "lp__"}            
+      ],
+
+   "output": 
+        {
+         "name" : "./krypton_run/results/RSA_30keV_analysis_batch",
+         "format" : "root",
+         "tree" : "stanAnalysis",
+         "branches" : [
+               {"variable" : "GlobalWidth", "root_alias" : "GlobalWidth"},
+               {"variable" : "freq_gen", "root_alias" : "freq_gen"},
+               {"variable" : "energy_gen", "root_alias" : "energy_gen"},
+               {"variable" : "MainField", "root_alias" : "MainField"},
+               {"variable" : "TrappingField", "root_alias" : "TrappingField"},
+               {"variable" : "TotalField", "root_alias" : "TotalField"},
+               {"variable" : "SourceStrength", "root_alias" : "SourceStrength", "ndim":3},
+               {"variable" : "theLines", "root_alias" : "SourceMean","ndim":3},
+               {"variable" : "lp__", "root_alias" : "LogLikelihood"}
+                ]
+         }      
+   }
+
+}

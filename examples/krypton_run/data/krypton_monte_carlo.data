@@ -1,0 +1,15 @@
+nSignals <- 4
+nBackgrounds <-0
+
+number_density <- 1.0e+16
+
+RunLivetime <- 100.
+SignalRate <- 0.95
+BackgroundRate <-0.05
+
+FunctionAmplitude <- c(0.360, 0.392, 0.581, 0.105)
+FunctionAmplitudeError <- c(0.01, 0.01, 0.01, 0.01)
+FunctionMean <- c(17830.0, 30424.4, 30477.2, 31941.9)
+FunctionMeanError <- c(1.0, 1.0, 1.0, 1.0)
+FunctionWidth <- c(2.83, 1.84, 1.40, 1.66)
+FunctionSkew <- c(1.00, 1.00, 1.00, 1.00)

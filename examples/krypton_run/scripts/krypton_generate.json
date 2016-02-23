@@ -1,0 +1,56 @@
+{
+  "stan": {
+
+      "name": "krypton_generator",
+
+    "model":   {
+       "file": "./krypton_run/models/krypton_generator.stan",
+      "cache": "./krypton_run/cache"
+      },
+
+    "data": {
+       "type": "mc",
+      "files": [
+          {
+         "name": "./krypton_run/data/krypton_run.header.data", 
+         "format":"R"
+          },
+          {
+         "name": "./krypton_run/data/krypton_monte_carlo.data", 
+         "format":"R"
+          }
+       ]
+   },
+
+   "run": {
+          "algorithim": "NUTS",
+          "iter": 1000,
+          "warmup": 900,
+          "chain": 4},
+
+   "plot": [
+      {"variable": "TotalField"},
+      {"variable": "KE"},
+      {"variable": "frequency"}
+      ],
+
+   "sample": "./krypton_run/results/test_generator.out",
+
+   "output": 
+        {
+         "name" : "./krypton_run/results/test_generator.h5",
+         "format": "hdf5",
+         "config": {"group": "/"},
+            "data": [
+              {"stan_parameter": "nData","output_name": "nData"},
+              {"stan_parameter": "frequency","output_name": "MinFrequency"},
+              {"stan_parameter": "KE","output_name": "KE"},
+              {"stan_parameter": "MainField","output_name": "MainField"},
+              {"stan_parameter": "LivetimeWeight","output_name": "LivetimeWeight"},
+              {"stan_parameter": "lp__","output_name": "LogLikelihood"},
+            ]
+         }      
+
+   }
+
+}

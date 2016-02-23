@@ -33,7 +33,7 @@ Running
 ======
 	A sample executible is shown in the main directory:
 
-	  	  python morpho.py --config <path/name_of_json_config_file>
+	  	  python morpho.py --config <path/name_of_json_config_file>.json
 
 		  Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 

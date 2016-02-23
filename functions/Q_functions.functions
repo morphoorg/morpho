@@ -1,3 +1,4 @@
+//
 /*
 * MC Beta Decay Spectrum Endpoint Model - Functions
 * -----------------------------------------------------
@@ -10,7 +11,7 @@
 *   Defines functions to be used in endpoint generation and analysis models.
 *
 */
-
+//
 
 //  Finds the reduced mass of a diatomic molecule
 

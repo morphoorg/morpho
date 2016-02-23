@@ -1,0 +1,54 @@
+{
+    "stan": {
+        
+        "name": "Q_generator",
+        
+        "model":   {
+            "file": "./MassHierarchy/models/Q_generator.stan",
+            "function_file": [
+                {"name" : "constants", "file" : "../functions/constants.functions"},
+                {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"}
+             ],
+            "cache": "./MassHierarchy/cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./MassHierarchy/data/Q_generate.data",
+                      "format":"R"
+                      }
+                      ]
+        },
+        
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 10000,
+            "chain": 1},
+        
+        "sample": "./MassHierarchy/results/Qtest_generator.out",
+        
+     "output": 
+            {
+             "name" : "./Qtest_generator",
+             "format" : "root",
+             "tree" : "QTree",
+             "branches" : [
+                     {"variable" : "Q", "root_alias" : "Q"},
+                     {"variable" : "epsilon", "root_alias" : "epsilon"},
+                     {"variable" : "kappa", "root_alias" : "kappa"},
+                     {"variable" : "eta", "root_alias" : "eta"},
+                     {"variable" : "sigma_avg", "root_alias" : "sigma_avg"},
+                     {"variable" : "temperature", "root_alias" : "temperature"},
+                     {"variable" : "composition", "root_alias" : "composition", "ndim":4},
+                     {"variable" : "sigma", "root_alias" : "sigma", "ndim":4},
+                     {"variable" : "lp__", "root_alias" : "LogLikelihood"}
+                      ]
+             }        
+
+   }
+    
+    
+}

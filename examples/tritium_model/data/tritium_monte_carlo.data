@@ -1,0 +1,39 @@
+MassHierarchy <- 1
+
+nFamily <- 3
+neutrino_mass_limit <- 2.0
+lightest_neutrino_mass <- 2.
+
+meas_delta_m21 <- 7.54e-5
+meas_delta_m21_err <- 2.4e-6
+meas_delta_m32_NH <- 2.39e-3
+meas_delta_m32_NH_err <- 6.0e-5
+meas_delta_m32_IH <- -2.42e-3
+meas_delta_m32_IH_err <- 6.0e-5
+
+meas_sin2_th12 <- 0.308
+meas_sin2_th12_err <- 0.017
+
+meas_sin2_th13_NH <- 0.0234
+meas_sin2_th13_NH_err <- 0.0020
+
+meas_sin2_th13_IH <- 0.0240
+meas_sin2_th13_IH_err <- 0.0020
+
+minKE <- 18550.
+maxKE <- 18575.0
+
+QValue <- 18565.0
+QValue_Error <- 2.
+sigmaQ <- 0.36
+
+temperature <- 32.0
+number_density <- 3.0e+18
+effective_volume <- 1.0e+01
+measuring_time <- 3.0e+07
+background_rate <- 25.0e-06
+
+xsec_avekin <- 2.568
+xsec_bindkin <- 21.0
+xsec_msq <- 1.598
+xsec_Q <- 1.173

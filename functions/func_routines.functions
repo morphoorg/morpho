@@ -22,3 +22,11 @@
     }
 
 
+//  Create a centered normal distribution function for faster convergence on cauchy distributions.
+//  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
+
+    real vcauchy_lp(real beta_raw, real mu, real sigma)
+    {
+    	 beta_raw ~ uniform(-pi()/2. , +pi()/2.);
+	 return mu +  tan(beta_raw) * sigma;
+    }

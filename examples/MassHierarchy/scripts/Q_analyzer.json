@@ -1,0 +1,58 @@
+{
+    "stan": {
+        
+        "name": "Q_analysis",
+        
+        "model":   {
+            "file": "./MassHierarchy/models/Q_analyzer.stan",
+            "function_file": [
+                {"name" : "constants", "file" : "../functions/constants.functions"},
+                {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"}
+             ],
+            "cache": "./MassHierarchy/cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./MassHierarchy/data/Q_generate.data",
+                      "format":"R"
+                      },
+                      {
+                      "name" : "./Qtest_generator.root",
+                      "format" : "root",
+                      "tree" :"QTree",
+                      "branches" : [
+                                    {"name" : "Q", "stan_alias" : "Q"}                                    ]
+                      }
+                      ]
+        },
+        
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 2000,
+            "chain": 1},
+        
+        
+        "sample": "./Qtest_analyzer.out",
+        
+        "output":
+        {
+            "name" : "./Qtest_analyzer",
+            "format": "root",
+            "tree": "QTreeResult",
+            "branches": [
+                     {"variable": "eta","root_alias": "eta"},
+                     {"variable": "Q_mol","root_alias": "Q_mol"},
+                     {"variable": "sigma_mol","root_alias": "sigma_mol"},
+                     {"variable": "Q_atom","root_alias": "Q_atom"},
+                     {"variable": "sigma_atom","root_alias": "sigma_atom"},
+                     {"variable": "lp__","root_alias": "LogLikelihood"},
+                     ]
+        }
+        
+    }
+    
+}

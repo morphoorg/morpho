@@ -4,36 +4,30 @@
         "name": "Q_analysis",
         
         "model":   {
-            "file": "./models/Q_analyzer.stan",
-            "function_file": "./models/Q_functions.stan",
-            "cache": "./cache"
+            "file": "./MassHierarchy/models/Q_analyzer.stan",
+            "function_file": [
+                {"name" : "constants", "file" : "../functions/constants.functions"},
+                {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"}
+             ],
+            "cache": "./MassHierarchy/cache"
         },
         
         "data": {
             "type": "mc",
             "files": [
                       {
-                      "name": "./data/Q_analyze.data",
+                      "name": "./MassHierarchy/data/Q_generate.data",
                       "format":"R"
                       },
                       {
-                      "name" : "./results/Qtest_generator",
-                      "format" : "hdf5",
-                      "event_number" : 0,
-                      "datasets" : [
-                                    {"nm" : "Q", "stan_alias" : "Q"},
-                                    {"nm" : "sigma", "stan_alias" : "sigma"}
-                                    ]
+                      "name" : "./Qtest_generator.root",
+                      "format" : "root",
+                      "tree" :"QTree",
+                      "branches" : [
+                                    {"name" : "Q", "stan_alias" : "Q"}                                    ]
                       }
-                      
-                      ],
-            "parameters": [
-                           {
-                           "chainnum" : 1,
-                           "iternum" : 2000,
-                           "numPts" : 4000,
-                           }
-                           ]
+                      ]
         },
         
         "run": {
@@ -42,18 +36,20 @@
             "chain": 1},
         
         
-        "sample": "./results/Qtest_analyzer.out",
+        "sample": "./Qtest_analyzer.out",
         
         "output":
         {
-            "name" : "./results/Qtest_analyzer.h5",
-            "format": "hdf5",
-            "config": {"group": "/"},
-            "fit": "./results/Qresults2.pkl",
-            "data": [
-                     {"stan_parameter": "Q_extract","output_name": "Q_extract"},
-                     {"stan_parameter": "sigma_extract","output_name": "sigma_extract"},
-                     {"stan_parameter": "lp__","output_name": "LogLikelihood"},
+            "name" : "./Qtest_analyzer",
+            "format": "root",
+            "tree": "QTreeResult",
+            "branches": [
+                     {"variable": "eta","root_alias": "eta"},
+                     {"variable": "Q_mol","root_alias": "Q_mol"},
+                     {"variable": "sigma_mol","root_alias": "sigma_mol"},
+                     {"variable": "Q_atom","root_alias": "Q_atom"},
+                     {"variable": "sigma_atom","root_alias": "sigma_atom"},
+                     {"variable": "lp__","root_alias": "LogLikelihood"},
                      ]
         }
         

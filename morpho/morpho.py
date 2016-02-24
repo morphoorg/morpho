@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 
 #
-# MH.py
+# morpho.py
 #
+# author: j.n. kofron <jared.kofron@gmail.com>
 #
-
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+import re
 import pystan
 import pystanLoad as pyL
 import json
+import fileinput
 
 from pystan import stan
 from h5py import File as HDF5
@@ -56,7 +58,7 @@ class stan_args(object):
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
-            self.functions_code = self.read_param(yd, 'stan.model.function_file', 'required')
+            self.functions_code = self.read_param(yd, 'stan.model.function_file', None)
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
             # STAN data
@@ -86,17 +88,25 @@ class stan_args(object):
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
             self.out_vars = self.read_param(yd, 'stan.output.data', None)
-        
+            
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
-        
+            
         except Exception as err:
             raise err
 
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
-    theData = open(model_code,'r+').read()
-    code_hash = md5(theData.encode('ascii')).hexdigest()
+
+    theModel = open(model_code,'r+').read()
+    match =  re.findall(r'\s*include\s*<-\s*(?P<function_name>\w+)\s*;*',theModel)
+    for matches in match:
+        for key in functions_code:
+            if (key['name']==matches):
+                StanFunctions = open(key['file'],'r+').read()
+                theModel = re.sub(r'\s*include\s*<-\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
+                
+    code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:
         cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
     else:
@@ -104,12 +114,7 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
-        #sm = pystan.StanModel(file=model_code)
-        if functions_code is None:
-            sm = pystan.StanModel(model_code=theData)
-        else:
-            StanFunctions = open(functions_code,'r+').read()
-            sm = pystan.StanModel(model_code=StanFunctions+theData)
+        sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:
@@ -184,23 +189,20 @@ def write_result_hdf5(conf, ofilename, stanres):
     """
     with HDF5(ofilename,'w') as ofile:
         g = open_or_create(ofile, conf.out_cfg['group'])
-        #g.create_dataset('MH', data=conf.data['MH'])
-        #g.create_dataset('norm', data=conf.data['norm'])
         fit = stanres.extract()
         for var in conf.out_vars:
             stan_parname = var['stan_parameter']
             if stan_parname not in fit:
                 warning = """WARNING: data {0} not found in fit!  Skipping...
-                    """.format(stan_parname)
+                """.format(stan_parname)
                 print warning
             else:
                 print(var['output_name'])
                 g[var['output_name']] = fit[stan_parname]
-
+                
 def save_object(obj, filename):
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
-
 
 if __name__ == '__main__':
     args = parse_args()

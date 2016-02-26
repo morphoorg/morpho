@@ -37,3 +37,24 @@ xsec_avekin <- 2.568
 xsec_bindkin <- 21.0
 xsec_msq <- 1.598
 xsec_Q <- 1.173
+
+T_set <- 30.
+deltaT_calibration <- 0.15
+deltaT_fluctuation <- 0.03
+deltaT_rot <- 0.
+
+num_J <- 10
+lambda_set <- 0.75
+delta_lambda <- 0.0225
+
+num_iso <- 4
+Q_values <- c(18574.95, 18574.96, 18574.95, 18566.66)
+
+epsilon_set <- 0.95
+kappa_set <- 0.1
+eta_set <- 1.0
+
+delta_epsilon <- 0.0019
+delta_kappa <- 0.01
+delta_eta <- 0.001
+delta_theory <- 0.01

@@ -4,8 +4,8 @@
         "name": "MH_generator",
         
         "model":   {
-            "file": "./models/spectrum_generator.stan",
-            "function_file": "./models/MH_functions.stan",
+            "file": "./examples/MassHierarchy/models/spectrum_generator.stan",
+            "function_file": "./examples/MassHierarchy/models/MH_functions.stan",
             "cache": "./cache"
         },
         
@@ -13,7 +13,7 @@
             "type": "mc",
             "files": [
                       {
-                      "name": "./data/MH_generate.data",
+                      "name": "./examples/MassHierarchy/data/MH_generate.data",
                       "format":"R"
                       }
                       ],
@@ -40,12 +40,12 @@
                  {"variable": "N"},
                  ],
         
-        "sample": "./results/MHtest_generator.out",
+        "sample": "./examples/MassHierarchy/results/MHtest_generator.out",
         
         "output":{
-            "name": "./results/MHtest_generator",
+            "name": "./examples/MassHierarchy/results/MHtest_generator",
             "format": "hdf5",
-            "fit": "./results/MHresults1.pkl",
+            "fit": "./examples/MassHierarchy/results/MHresults1.pkl",
             "config": {"group": "/"},
             "data": [
                      {"stan_parameter": "KE","output_name": "KEout"},

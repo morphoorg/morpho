@@ -98,8 +98,20 @@ class stan_args(object):
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
 
+<<<<<<< HEAD:morpho/morpho.py
     theData = open(model_code,'r+').read()
     code_hash = md5(theData.encode('ascii')).hexdigest()
+=======
+    theModel = open(model_code,'r+').read()
+    match =  re.findall(r'\s*include\s*<-\s*(?P<function_name>\w+)\s*;*',theModel)
+    for matches in match:
+        for key in functions_code:
+            if (key['name']==matches):
+                StanFunctions = open(key['file'],'r+').read()
+                theModel = re.sub(r'\s*include\s*<-\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
+                
+    code_hash = md5(theModel.encode('ascii')).hexdigest()
+>>>>>>> develop:morpho/morpho.py
     if model_name is None:
         cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
     else:
@@ -107,6 +119,7 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
+<<<<<<< HEAD:morpho/morpho.py
         theModel = theData
         if functions_code:
             match = re.findall(r"(?<=include_functions<-)\w+",theData, flags=re.IGNORECASE)
@@ -116,6 +129,8 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
                         if (key['name']==matches):
                             StanFunctions = open(key['file'],'r+').read()
                             theModel = re.sub("include_functions<-"+matches, StanFunctions, theModel, flags=re.IGNORECASE)
+=======
+>>>>>>> develop:morpho/morpho.py
         sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)

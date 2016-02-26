@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+//
+>>>>>>> develop
 /*
 * Functions: Useful Generic functions
 * -----------------------------------------------------
@@ -10,7 +14,11 @@
 *   Defines shortcut functions.
 *
 */
+<<<<<<< HEAD
 
+=======
+//
+>>>>>>> develop
 
 // Create a centered normal distribution function for faster convergence on normal distributions
 
@@ -20,6 +28,7 @@
         return mu + beta_raw * sigma;
     }
 
+<<<<<<< HEAD
     //  Create a centered normal distribution function for faster convergence on cauchy distributions.
   	//  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
 
@@ -27,3 +36,14 @@
   		beta_raw ~ uniform(-pi()/2. , +pi()/2.);
   		return mu +  tan(beta_raw) * sigma;
   	}
+=======
+
+//  Create a centered normal distribution function for faster convergence on cauchy distributions.
+//  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
+
+    real vcauchy_lp(real beta_raw, real mu, real sigma)
+    {
+    	 beta_raw ~ uniform(-pi()/2. , +pi()/2.);
+	 return mu +  tan(beta_raw) * sigma;
+    }
+>>>>>>> develop

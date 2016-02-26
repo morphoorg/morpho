@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+//
+>>>>>>> develop
 /*
 * Functions: Useful Constants
 * -----------------------------------------------------
@@ -10,6 +14,7 @@
 *   Defines constants and functions to be used in endpoint generation and analysis models.
 *
 */
+<<<<<<< HEAD
 
 
 // Set up constants
@@ -57,3 +62,40 @@ real[] atomic_masses() {
   atomic_masses[3] <- deuterium_atomic_mass();
   atomic_masses[4] <- 0.0;
   return atomic_masses;}
+=======
+//
+
+// Set up constants
+
+    real m_electron() {return  510998.910;}			// Electron mass in eV
+    real hbar() {return 6.582119514e-16;}               // Reduced Planck's constant in eV*s
+    real c() { return  299792458.;}			   	   	 	// Speed of light in m/s
+    real hbarc() {return hbar() * c();}						// hbar * c
+    real omega_c() {return 1.758820088e+11;}		     // Angular gyromagnetic ratio in rad Hz/Tesla
+    real freq_c() {return omega_c()/(2. * pi());}			 // Gyromagnetic ratio in Hz/Tesla
+    real alpha() { return 7.29735257e-3;}               	   	 // Fine structure constant
+    real bohr_radius() { return 5.2917721092e-11;}	 	 	 	// Bohr radius in meters
+    real k_boltzmann() {return  8.61733238e-5;}		         	// Boltzmann's constant in eV/Kelvin
+    real unit_mass() { return 931.494061e6;}			 	// Unit mass in eV
+    real r0_electron() { return square(alpha())*bohr_radius();}  	 	// Electron radius in meters
+    //Frequency damping constant (in units of Hz/Tesla^2)
+    real seconds_per_year() {return 365.25 * 86400.;}	        	// Seconds in a year
+
+    real kH2() {return 3.0393615525526027e+38;}     //Molecular force constant for H2 from fitting to Dieke (1958) vibrational levels
+    real aH2() {return -0.0508447080033;}  //Coefficient of anharmonic term in H2 vibrations from fitting to Dieke (1958)
+    real bond_length_H2() {return 7.42e-11;} //In meters
+
+//  Tritium-specific constants
+
+    real tritium_rate_per_eV() {return 2.0e-13;}				 // fraction of rate in last 1 eV
+    real tritium_atomic_mass() {return  3.016 * unit_mass();}   	 // Atomic tritium mass in eV
+    real tritium_halflife() {return 12.32 * seconds_per_year();}  // Halflife of tritium (in seconds)
+
+// Hydrogen-specific constants
+
+    real hydrogen_atomic_mass() {return  1.00794 * unit_mass();}   	 // Atomic hydrogen mass in eV
+
+// Deuterium specific constants
+
+    real deuterium_atomic_mass() {return  2.01410178 * unit_mass();}   	 // Atomic deuterium mass in eV
+>>>>>>> develop

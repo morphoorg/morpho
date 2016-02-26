@@ -1,0 +1,23 @@
+{"variable" : "eDop", "root_alias" : "eDop"},
+{"variable" : "kDoppler", "root_alias" : "kDoppler"},
+{"variable" : "Q", "root_alias" : "Q"},
+{"variable" : "df", "root_alias" : "df"},
+{"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
+{"variable" : "sigma_freq", "root_alias" : "sigma_freq"},
+{"variable" : "freq_recon", "root_alias" : "freq_recon"},
+{"variable" : "KE_recon", "root_alias" : "KE_recon"},
+{"variable" : "isOK", "root_alias" : "isOK"},
+{"variable" : "time_data", "root_alias" : "time_data"},
+{"variable" : "freq_data", "root_alias" : "freq_data"},
+{"variable" : "rate_data", "root_alias" : "rate_data"},
+{"variable" : "events", "root_alias" : "events", "type":"int"},
+{"variable" : "lp__", "root_alias" : "LogLikelihood"}
+],
+"branches_data" :
+[
+{"variable" : "isOK", "root_alias" : "isOK", "type":"int"},
+{"variable" : "time_data", "root_alias" : "time_data"},
+{"variable" : "freq_data", "root_alias" : "freq_data"},
+{"variable" : "rate_data", "root_alias" : "rate_data"},
+{"variable" : "events", "root_alias" : "events", "type":"int"},
+{"variable" : "lp__", "root_alias" : "LogLikelihood"}

@@ -4,8 +4,8 @@
         "name": "MH_analyzer",
         
         "model":   {
-            "file": "./models/MH_analysis.stan",
-            "function_file": "./models/MH_functions.stan",
+            "file": "./examples/MassHierarchy/models/MH_analysis.stan",
+            "function_file": "./examples/MassHierarchy/models/MH_functions.stan",
             "cache": "./cache"
         },
         
@@ -13,11 +13,11 @@
             "type": "mc",
             "files": [
                       {
-                      "name": "./data/MH_analyze.data",
+                      "name": "./examples/MassHierarchy/data/MH_analyze.data",
                       "format":"R"
                       },
                       {
-                      "name" : "./results/MHtest_generator",
+                      "name" : "./examples/MassHierarchy/results/MHtest_generator",
                       "format" : "hdf5",
                       "event_number" : 0,
                       "datasets" : [
@@ -45,14 +45,14 @@
             "chain": 6},
         
         
-        "sample": "./results/MHtest_analyzer.out",
+        "sample": "./examples/MassHierarchy/results/MHtest_analyzer.out",
         
         "output":
         {
-            "name" : "./results/MHtest_analyzer.h5",
+            "name" : "./examples/MassHierarchy/results/MHtest_analyzer.h5",
             "format": "hdf5",
             "config": {"group": "/"},
-            "fit": "./results/MHresults2.pkl",
+            "fit": "./examples/MassHierarchy/results/MHresults2.pkl",
             "data": [
                      {"stan_parameter": "nu_mass","output_name": "nu_masses"},
                      {"stan_parameter": "th12","output_name": "th12"},

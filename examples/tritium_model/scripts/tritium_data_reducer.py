@@ -66,6 +66,7 @@ print "Reducing the generated data!"
 time_data, freq_data, rate_data, KE_recon, events, isOK = readTTree("tritium_model/results/tritium_generator.root")
 
 can = ROOT.TCanvas("can","can",200,10,600,400)
+can.SetLogy();
 
 h = ROOT.TH1F("h","",100,int(min(freq_data)),int(max(freq_data)+1))#KE_min and KE_max
 list_freq_data = []

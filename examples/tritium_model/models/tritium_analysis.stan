@@ -19,6 +19,30 @@
 * Collaboration:  Project 8
 */
 
+
+functions{
+
+  // Load libraries
+
+  include<-constants;
+  include<-func_routines;
+  include<-Q_Functions;
+  include<-tritium_functions;
+
+  // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
+
+  vector find_composition(real epsilon, real kappa)
+  {
+    vector[3] composition;
+
+    composition[1] <- (2.0*epsilon - 1.0);
+    composition[2] <- (2.0*(1.0-epsilon)*kappa)/(1+kappa);
+    composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
+    return composition;
+  }
+
+}
+
 data {
 
   //   Number of neutrinos and mixing parameters

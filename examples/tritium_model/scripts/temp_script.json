@@ -11,7 +11,15 @@
 {"variable" : "freq_data", "root_alias" : "freq_data"},
 {"variable" : "rate_data", "root_alias" : "rate_data"},
 {"variable" : "events", "root_alias" : "events", "type":"int"},
-{"variable" : "lp__", "root_alias" : "LogLikelihood"}
+{"variable" : "lp__", "root_alias" : "LogLikelihood"},
+{"variable" : "frequency", "root_alias" : "frequency"},
+{"variable" : "xsec", "root_alias" : "xsec"},
+{"variable" : "scatt_width", "root_alias" : "scatt_width"},
+{"variable" : "rad_width", "root_alias" : "rad_width"},
+{"variable" : "eta", "root_alias" : "eta"},
+{"variable" : "kappa", "root_alias" : "kappa"},
+{"variable" : "epsilon", "root_alias" : "epsilon"},
+{"variable" : "composition", "root_alias" : "composition", "ndim":3},
 ],
 "branches_data" :
 [

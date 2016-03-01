@@ -31,9 +31,9 @@ Install
 
 Running
 ======
-	A sample executible is shown in the main directory:
+	A sample executible is shown in the examples directory:
 
-	  	  python run_krypton_analysis.py  <name_of_json_config_file>
+	  	  python ../morpho/morpho.py --config  model_folder/scripts/<name_of_json_config_file>
 		  
 		  Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 

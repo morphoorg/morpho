@@ -66,32 +66,48 @@ print "Reducing the generated data!"
 time_data, freq_data, rate_data, KE_recon, events, isOK = readTTree("tritium_model/results/tritium_generator.root")
 
 can = ROOT.TCanvas("can","can",200,10,600,400)
-can.SetLogy();
+# can.SetLogy();
 
-h = ROOT.TH1F("h","",100,int(min(freq_data)),int(max(freq_data)+1))#KE_min and KE_max
+nBinHisto = 100
+
+h = ROOT.TH1F("h","",100,min(freq_data),max(freq_data))#KE_min and KE_max
+hw = ROOT.TH1F("hw","",100,min(freq_data),max(freq_data))#KE_min and KE_max
+havg = ROOT.TH1F("hw","",100,min(freq_data),max(freq_data))#KE_min and KE_max
 list_freq_data = []
 list_events = []
-for i in range(0,len(rate_data)):
+for i in range(0,len(events)):
     if (isOK[i]==1):
-        h.Fill(freq_data[i],events[i])
-for i in range(1,h.GetNbinsX()):
+        h.Fill(freq_data[i],rate_data[i])
+        hw.Fill(freq_data[i],1)
+for i in range(0,h.GetNbinsX()):
     list_freq_data.append(h.GetBinCenter(i))
-    list_events.append(h.GetBinContent(i))
-h.Draw()
-can.SaveAs("tritium_model/ploting_scripts/" + "events_vs_freq_data_average.pdf")
+    list_events.append(h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
+    havg.Fill(h.GetBinCenter(i),h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
+havg.Draw()
+print 'Number of total event for a year : ', havg.Integral()
+can.SaveAs("tritium_model/ploting_scripts/" + "rate_data_vs_freq_data_average.pdf")
+can.SetLogy()
+can.Update()
+can.SaveAs("tritium_model/ploting_scripts/" + "rate_data_vs_freq_data_average_logy.pdf")
 
 cant = ROOT.TCanvas("cant","cant",200,10,600,400)
 
 htime = ROOT.TH1F("htime","",100,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
+htimew = ROOT.TH1F("htimew","",100,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
+htimeavg = ROOT.TH1F("htimeavg","",100,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
 list_time = []
 list_Time_events = []
 for i in range(0,len(time_data)):
     if (isOK[i]==1):
-        htime.Fill(time_data[i])
-for i in range(1,htime.GetNbinsX()):
+        htime.Fill(time_data[i],1)
+        # htimew.Fill(time_data[i],1)
+for i in range(0,htime.GetNbinsX()):
     list_time.append(htime.GetBinCenter(i))
-    list_Time_events.append(htime.GetBinContent(i))
-    print htime.GetBinCenter(i),  htime.GetBinContent(i)
+    list_Time_events.append(htime.GetBinContent(i))#/max(1,htimew.GetBinContent(i)))
+    # list_events.append(h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
+    # htimeavg.Fill(htime.GetBinCenter(i),htime.GetBinContent(i)/max(1,htimew.GetBinContent(i)))
+    # print htime.GetBinCenter(i),  htime.GetBinContent(i)
+print 'Number of total event for a year : ', htime.Integral()
 htime.Draw();
 cant.SaveAs("tritium_model/ploting_scripts/" + "n_time_vs_time_data_average.pdf")
 

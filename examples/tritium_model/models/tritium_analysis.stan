@@ -78,18 +78,23 @@ data {
   real<lower=0 > minKE;
   real<lower=minKE> maxKE;
 
-  //   Endpoint of tritium, in eV
+  //  Cross-section of e-T2 , in meter^-2
 
-  real QValue;
-  real QValue_Error;
-  real sigmaQ;
+  real xsec_avekin;
+  vector[2] xsec_bindkin;
+  vector[2] xsec_msq;
+  vector[2] xsec_Q
 
   //  Conditions of the experiment and measurement
 
-  real number_density;				//  Tritium number density (in meter^-3)
-  real temperature;				//  Temperature of gas (in Kelvin)
+
+  real number_density;			//  Tritium number density (in meter^-3)
   real effective_volume;		        //  Effective volume (in meter^3)
   real measuring_time;			//  Measuring time (in seconds)
+
+  //  Background rate
+
+  real background_rate;			//  Background rate in Hz/eV
 
   //  Clock and filter information
 
@@ -97,15 +102,29 @@ data {
   real fclockError;
   int  fFilterN;
 
-  //  Input data from generated sample
-  //
-  int nBinTime;
-  vector[nBinTime] time_data;
-  int n_time_data[nBinTime];
-  int nBinEvents;
-  vector[nBinEvents] freq_data;
-  int n_events[nBinEvents];
+  // Endpoint model input from feature/MH_Talia (Q_generator.stan)
 
+  real T_set;      //Average temperature of source gas in Kelvin
+  real deltaT_calibration;    //Temperature uncertainty due to calibration (K)
+  real deltaT_fluctuation;    //Temperature uncertainty due to fluctuations (K)
+  real deltaT_rot;    //Temperature uncertainty due to unaccounted for higher rotational states (K)
+
+  int num_J;     // Number of rotational states to be considered (10)
+  real lambda_set;    //Average fraction of T2 component of source in ortho (odd rotation) state
+  real delta_lambda; //Uncertainty in (lambda = sum(odd-rotation-state-coefficients))
+
+  int num_iso;    //Number of isotopologs under consideration
+  vector[num_iso] Q_T_molecule;          // Best-estimate endpoint values for tritium molecule (T2, HT, DT)
+  vector[num_iso] eQ_T_molecule;
+  real Q_T_atom;          // Best-estimate endpoint values for atomic tritium
+  real eQ_T_atom;          // Best-estimate endpoint values for atomic tritium
+
+  real epsilon_set;   // Average fractional activity of source gas compared to pure T_2
+  real kappa_set;     // Average ratio of HT to DT
+  real eta_set;       // Average proportion of atomic tritium
+  real err_epsilon_set;   // Average fractional activity of source gas compared to pure T_2
+  real err_kappa_set;     // Average ratio of HT to DT
+  real err_eta_set;       // Average proportion of atomic tritium
 }
 
 transformed data {
@@ -149,6 +168,13 @@ parameters {
   real<lower=0.0> eDop;
   real<lower=3.5e4,upper=10e4> scatt_width;
   real<lower=10000, upper=30000> n0_timeData;
+
+  real Tparam1;
+  real Tparam2;
+  real lambda_param;
+  real epsilon_param;
+  real kappa_param;
+  real eta_param;
 }
 
 transformed parameters{
@@ -185,7 +211,22 @@ transformed parameters{
   vector[nFamily] U_PMNS;
   real<lower = 0.> neutrino_mass;
 
-    // Priors on the neutrino mixin parameters and mass differences
+  real<lower=25., upper=35.> T0;     // Average of temperature distribution, given temp calibration (K)
+  real<lower=25., upper=35.> temp;   // Temperature of source gas (K)
+  real<lower=0.0> deltaT_total;      // Used only for calculation of delta_sigma, as check (K)
+
+
+  real<lower=0.0> lambda;   // Fraction of T2 component of source in ortho (odd rotation) state
+  real<lower=0.0> epsilon;  // Fractional activity of source gas compared to pure T_2
+  real<lower=0.0> kappa;    // Ratio of HT to DT
+  real<lower=0.0> eta;      // Composition fraction of T (eta = f_T/(f_T2+f_HT+f_DT))
+
+  real<lower=0.0> composition[num_iso]; //Simplex of fractional composition of each isotopolog: (f_T2,f_HT,f_DT, f_T)
+
+  real<lower=0.0> sigma_floating;         // Best estimate, from theory, for standard deviation of Q distribution (eV)
+  real delta_sigma;       // Uncertainty (1 stdev) in estimate of sigma (sigma_avg), from theory
+
+  // Priors on the neutrino mixin parameters and mass differences
 
   dm21 <- vnormal_lp(udm21,meas_delta_m21,meas_delta_m21_err);
   s12 <- fabs(vnormal_lp(us12, meas_sin2_th12,meas_sin2_th12_err));
@@ -225,59 +266,70 @@ transformed parameters{
   #  Determining endpoint
   # Here is where the model from Talia should be added
 
-  Q0 <- vnormal_lp(uQ0, QValue, QValue_Error);
-  Q <- vnormal_lp(uQ, Q0, sigmaQ);
+  T0 <- vnormal_lp(Tparam1, T_set, deltaT_calibration);
+  temp <- vnormal_lp(Tparam2, T0, deltaT_fluctuation);
 
-  // Determine total rate from activity
-  activity <- tritium_rate_per_eV() * beta_integral(Q, neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
-  total_rate <- mu_tot * activity * measuring_time;
+  lambda <- vnormal_lp(lambda_param, lambda_set, delta_lambda);
+  epsilon <- vnormal_lp(epsilon_param, epsilon_set, delta_epsilon);
+  kappa <- vnormal_lp(kappa_param, kappa_set, delta_kappa);
 
-  df <- vnormal_lp(uF, 0.0, sigma_freq);
-  for (i in 1:nBinEvents){
-    frequency <- freq_data[i] - df + fclock;
+  if (delta_eta != 0.0){
+    eta <- vnormal_lp(eta_param, eta_set, delta_eta);}
 
-    KE <- get_kinetic_energy(frequency, MainField);
+    deltaT_total <- pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
 
-    kDoppler <-  m_electron() * get_velocity(QValue) * sqrt(eDop / tritium_molecular_mass());
+    composition <- find_composition(epsilon, kappa, eta, num_iso);
+    composition_set <- find_composition(epsilon_set, kappa_set, eta_set, num_iso);
 
-    KE_shift <- KE - kDoppler;
+    // Determine total rate from activity
+    for (j in 1:num_iso){
+      activity <- tritium_rate_per_eV() * beta_integral(Q_T_molecule[i], neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
+      total_rate <- mu_tot * activity * measuring_time;
 
-    //   Determine signal and background rates from beta function and background level
-    rate_log <- signal_to_noise_log(KE_shift, Q, U_PMNS, m_nu , minKE, maxKE, signal_fraction);
-    rate[i] <- total_rate * exp(rate_log);
-  }
+      df <- vnormal_lp(uF, 0.0, sigma_freq);
+      for (i in 1:nBinEvents){
+        frequency <- freq_data[i] - df + fclock;
 
-  // Print the parameters of interest (for debug only...)
-  // print(lightest_neutrino_mass, "  ", signal_fraction, "  ", mu_tot, "  ", eDop, "  ",scatt_width, "  ", n0_timeData);
+        KE <- get_kinetic_energy(frequency, MainField);
 
-}
+        kDoppler <-  m_electron() * get_velocity(QValue) * sqrt(eDop / tritium_molecular_mass());
 
-model {
+        KE_shift <- KE - kDoppler;
 
-  #  Thermal Doppler broadening of the tritium source
-
-  eDop ~ gamma(1.5,1./(k_boltzmann() * temperature));
-
-  for (i in 1:nBinTime)
-  {
-    if(n_time_data[i]!=0)
-    {
-      n_time_data[i] ~ normal( n0_timeData * exp( - time_data[i] * scatt_width ) , sqrt( n_time_data[i]*1. ) );
+        //   Determine signal and background rates from beta function and background level
+        rate_log <- signal_to_noise_log(KE_shift, Q, U_PMNS, m_nu , minKE, maxKE, signal_fraction);
+        rate[i] <- total_rate * exp(rate_log);
+      }
     }
+
   }
 
-  mu_tot ~ uniform(0.5 ,1.5);
-  for (i in 1:nBinEvents)
-  {
-    if(rate[i]!=0)
+  model {
+
+    #  Thermal Doppler broadening of the tritium source
+
+    eDop ~ gamma(1.5,1./(k_boltzmann() * temperature));
+
+    for (i in 1:nBinTime)
     {
-      n_events[i] ~ poisson(rate[i]);
+      if(n_time_data[i]!=0)
+      {
+        n_time_data[i] ~ normal( n0_timeData * exp( - time_data[i] * scatt_width ) , sqrt( n_time_data[i]*1. ) );
+      }
     }
+
+    mu_tot ~ uniform(0.5 ,1.5);
+    for (i in 1:nBinEvents)
+    {
+      if(rate[i]!=0)
+      {
+        n_events[i] ~ poisson(rate[i]);
+      }
+    }
+
+
   }
 
+  generated quantities {
 
-}
-
-generated quantities {
-
-}
+  }

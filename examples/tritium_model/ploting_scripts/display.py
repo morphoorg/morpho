@@ -96,10 +96,10 @@ def displayHisto(list, title, option):
         print colored('Error:','red') + 'Number of options != 3: (%d)' % len(option)
         return
     else :
-        if isinstance(option[2][0],float ) == True & isinstance(option[2][1],basestring) == True:
+        if isinstance(option[2][0],float ) == True and isinstance(option[2][1],basestring) == True:
             xmin, xmax = autorange(list)
             xmin = option[2][0]
-        elif isinstance(option[2][0],basestring) == True & isinstance(option[2][1],float ) == True:
+        elif isinstance(option[2][0],basestring) == True and isinstance(option[2][1],float ) == True:
             xmin, xmax = autorange(list)
             xmax = option[2][1]
         elif option[2][0] < option[2][1]:
@@ -204,10 +204,10 @@ def displayGraph(list, title, option):
             print 'Range x is: %d, %d' % (xmin, xmax)
             print 'Range y is: %d, %d' % (ymin, ymax)
         else:
-            if isinstance(option[1][0],float ) == True & isinstance(option[1][1],basestring) == True:
+            if isinstance(option[1][0],float ) == True and isinstance(option[1][1],basestring) == True:
                 xmin, xmax = autorange(list[0])
                 xmin = option[1][0]
-            elif isinstance(option[1][0],basestring) == True & isinstance(option[1][1],float ) == True:
+            elif isinstance(option[1][0],basestring) == True and isinstance(option[1][1],float ) == True:
                 xmin, xmax = autorange(list[0])
                 xmax = option[1][1]
             elif option[1][0] < option[1][1]:
@@ -216,21 +216,27 @@ def displayGraph(list, title, option):
             else:
                 print colored('Warning:','yellow') + 'Invalid range for x-> Setting automatic range!'
                 xmin, xmax = autorange(list[0])
-                print 'Range x is: %d, %d' % (xmin, xmax)
+            print 'Range x is: %d, %d' % (xmin, xmax)
 
-            if isinstance(option[1][2],float ) == True & isinstance(option[1][3],basestring) == True:
+            if isinstance(option[1][2],float ) == True and isinstance(option[1][3],basestring) == True:
+                print "ici"
                 ymin, ymax = autorange(list[1])
                 ymin = option[1][2]
-                print option[1][2]
-                print option[1][3]
-            elif isinstance(option[1][2],basestring) == True & isinstance(option[1][3],float ) == True:
+                # print option[1][2]
+                # print option[1][3]
+            elif isinstance(option[1][2],basestring) == True and isinstance(option[1][3],float ) == True:
+                print "ou ici"
                 ymin, ymax = autorange(list[1])
                 ymax = option[1][3]
-            elif option[1][2] < option[1][3]:
+            elif (isinstance(option[1][2],float) == True and isinstance(option[1][3],float) == True and (option[1][2] < option[1][3])):
+                print "ou bien ici"
                 ymin = option[1][2]
                 ymax = option[1][3]
+                print ymin
+                print ymax
             else:
                 print colored('Warning:','yellow') + 'Invalid range -> Setting automatic range!'
+                print "ou encore ici"
                 ymin, ymax = autorange(list[1])
                 print 'Range y is: %d, %d' % (ymin, ymax)
 
@@ -241,17 +247,17 @@ def displayGraph(list, title, option):
 
     # Setting logScales
     if "logx" in option[0]:
-        if xmin > 0:
-            can.SetLogx()
-        else:
-            print colored('Error:','red') + 'xmin negative or null -> Cannot have logx axis!'
-            return
+        if xmin <= 0:
+            # print colored('Error:','red') + 'xmin negative or null -> Cannot have logx axis!'
+            print colored('Warning:','yellow') + 'xmin negative or null -> Setting xmin to 1!'
+            xmin=1.
+            # return
     if "logy" in option[0]:
-        if ymin > 0:
-            can.SetLogy()
-        else:
-            print colored('Error:','red') + 'xmin negative or null -> Cannot have logx axis!'
-            return
+        if ymin <= 0:
+            # print colored('Error:','red') + 'ymin negative or null -> Cannot have logy axis!'
+            print colored('Warning:','yellow') + 'ymin negative or null -> Setting ymin to 1!'
+            ymin = 1.
+            # return
 
     if len(list[0])!=len(list[1]):
         print colored('Error:','red') + 'Not the same number of X and Y'
@@ -273,16 +279,23 @@ def displayGraph(list, title, option):
 
 
     can.cd()
-    print ymin
-    print ymax
-    print xmin
-    print xmax
+    # print ymin
+    # print ymax
+    # print xmin
+    # print xmax
     g.GetXaxis().SetRangeUser(xmin,xmax)
     g.GetYaxis().SetRangeUser(ymin,ymax)
+    if "logx" in option[0]:
+        can.SetLogx()
+    if "logy" in option[0]:
+        can.SetLogy()
     # print 'a'
     g.GetXaxis().SetTitle(xtitle)
     g.GetYaxis().SetTitle(ytitle)
-    g.Draw("AP")
-    # print 'a'
+    if "PL" in option[0]:
+        g.Draw("ALP")
+    else:
+        g.Draw("AP")
+    # print pdfname
     can.SaveAs( "tritium_model/ploting_scripts/" + pdfname + ".pdf")
     return can

@@ -84,7 +84,7 @@ data {
 
   //  Cross-section of e-T2 , in meter^-2
 
-  real xsec_avekin;
+  vector[2] xsec_avekin;
   vector[2] xsec_bindkin;
   vector[2] xsec_msq;
   vector[2] xsec_Q;
@@ -110,7 +110,7 @@ data {
   // Endpoint model input from feature/MH_Talia (Q_generator.stan)
 
   real T_set;      //Average temperature of source gas in Kelvin
-  real deltaT_calibration;    //Temperature uncertainty due to calibration (K)
+  // real deltaT_calibration;    //Temperature uncertainty due to calibration (K)
   real deltaT_fluctuation;    //Temperature uncertainty due to fluctuations (K)
   real deltaT_rot;    //Temperature uncertainty due to unaccounted for higher rotational states (K)
 
@@ -291,7 +291,7 @@ transformed parameters{
 
   // Temperature of system
   // sigmaT <- sqrt(square(deltaT_calibration) + square(deltaT_fluctuation));
-  sigmaT <- deltaT_calibration;
+  sigmaT <- deltaT_fluctuation;
   temperature <- vnormal_lp(uT, T_set, sigmaT);
 
   // Calculate scattering length, radiation width, and total width;
@@ -299,19 +299,13 @@ transformed parameters{
   // Here we are considering that the ionization cross-section for each molecular tritium {HT, DT, TT} is the same.
   beta <- get_velocity(KE);
   xsec <- 0.; //initialize cross section
-  xsec <- xsec + (1-eta_set) * xsection(KE,  xsec_avekin, xsec_bindkin[1], xsec_msq[1], xsec_Q[1]);//adding the cross-section with modelucar tritium
-  xsec <- xsec + (eta_set) * xsection(KE,  xsec_avekin, xsec_bindkin[2], xsec_msq[2], xsec_Q[2]);//adding the cross-section with atomic tritium
+  xsec <- xsec + (1-eta_set) * xsection(KE,  xsec_avekin[1], xsec_bindkin[1], xsec_msq[1], xsec_Q[1]);//adding the cross-section with modelucar tritium
+  xsec <- xsec + (eta_set) * xsection(KE,  xsec_avekin[2], xsec_bindkin[2], xsec_msq[2], xsec_Q[2]);//adding the cross-section with atomic tritium
   scatt_width <- number_density * c() * beta * xsec;
   //
   rad_width <- cyclotron_rad(MainField);
   tot_width <- (scatt_width + rad_width);
   sigma_freq <- (scatt_width + rad_width) / (4. * pi());//LOOK!
-
-  // Dispersion due to uncertainty in final states (with prior distribution)
-
-  // Q <- vnormal_lp(uQ, QValue, sigmaQ);
-
-
 
   // Composition and purity of gas system
   // epsilon_set <- 0.5 * (1.0 + composition[1]);
@@ -336,6 +330,13 @@ transformed parameters{
 
   sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom * m_electron(), 0., 0, 0.);
 
+  // Calculate frequency dispersion
+
+  frequency <- get_frequency(KE, MainField);
+
+  df <- vnormal_lp(uF, 0.0, sigma_freq);
+
+  freq_recon <- frequency + df - fclock;
 
   // Calculate Doppler effect from tritium atom/molecule motion
 
@@ -346,15 +347,6 @@ transformed parameters{
     kDoppler <-  m_electron() * beta * sqrt(eDop / mass_s[i]);
     KE_shift <- KE + kDoppler;
 
-
-    // Calculate frequency dispersion
-    frequency <- get_frequency(KE_shift, MainField);
-
-    df <- vnormal_lp(uF, 0.0, sigma_freq);
-
-    // freq_temp <- frequency-df;
-    freq_recon <- frequency + df - fclock;
-
     //  Distribute Q value from average
 
     activity <- tritium_rate_per_eV() * beta_integral(Q_T_molecule[i], neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
@@ -363,7 +355,7 @@ transformed parameters{
 
     // Determine signal and background rates from beta function and background level
 
-    rate_log <- signal_to_noise_log(KE_shift, Q_T_molecule[i], U_PMNS, m_nu, minKE, maxKE, signal_fraction);
+    rate_log <- signal_to_noise_log(KE, Q_T_molecule[i], U_PMNS, m_nu, minKE, maxKE, signal_fraction);
     rate <- rate + (1.- eta_set) * composition[i] * total_rate * exp(rate_log);
   }
 

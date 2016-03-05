@@ -136,3 +136,22 @@ real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * 
 		rate_log <- log(signal + exp(background_log)); //we add the background to the signal
 		return rate_log;
 	}
+
+	// spectrum shaper
+	real spectral_shape(real KE, real Q, vector U, vector m_nu) {
+		int nFamily;           // Number of neutrino species
+		real rate_log;         // Log of event rate (beta decay spectrum) --> log sum of signal and background
+		real spectrum;         // spectral shape
+
+
+		nFamily <- num_elements(U);
+
+		spectrum <- 0.;
+		for (i in 1:nFamily){
+			if (KE < (Q-fabs(m_nu[i]))) {
+				spectrum <-spectrum + U[i]*(Q-KE)*sqrt(square(KE-Q)-square(m_nu[i]));
+			}
+		}
+		return spectrum;
+
+	}

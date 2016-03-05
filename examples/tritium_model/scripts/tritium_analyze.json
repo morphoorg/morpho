@@ -5,7 +5,12 @@
 
     "model":     {
       "file": "./tritium_model/models/tritium_analysis.stan",
-      "function_file": "./tritium_model/models/tritium_functions.stan",
+      "function_file": [
+        {"name" : "constants", "file" : "../functions/constants.functions"},
+        {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+        {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"},
+        {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
+      ],
       "cache": "./tritium_model/cache"
     },
 
@@ -17,7 +22,15 @@
           "format":"R"
         },
         {
-          "name": "./tritium_model/data/tritium_monte_carlo.data",
+          "name": "./tritium_model/data/tritium_neutrino_parameters.data",
+          "format":"R"
+        },
+        {
+          "name": "./tritium_model/data/tritium_endpoint.data",
+          "format":"R"
+        },
+        {
+          "name": "./tritium_model/data/tritium_gas.data",
           "format":"R"
         },
         {
@@ -42,36 +55,34 @@
             {"name" : "n_time_data", "stan_alias" : "n_time_data", "data_format" : "integer"},
           ]
         }
-      ],
-
-      "parameters": [
-        {
-          "neutrino_mass" : 0.0
-        }
       ]
     },
 
     "run": {
       "algorithim": "NUTS",
-      "iter": 6000,
-      "warmup": 5000,
+      "iter": 200,
+      "warmup": 100,
       "chain": 1,
       "init": [
-        {"signal_fraction": 0.9999,
-          "lightest_neutrino_mass": 1.0,
+        { "lightest_neutrino_mass": 1.0,
           "scatt_width" : 7.3e+04,
-          "uB" : 0.,
-          "uQ0" : 0.,
-          "uQ" : 0.,
+          "background_rate" : 25.e-6,
+          "uB" : 1.0,
+          "uQ" : 18575.,
           "uF" : 0.0,
+          "uS" : 0.0,
+          "Tparam1" : 30.0,
+          "lambda_param" : 0.75,
+          "kappa_param" : 0.2,
+          "epsilon_param" : 0.95,
+          "eta_param" : 0.5,
           "us12" : 0.,
           "us13" : 0.,
           "udm21" : 0.,
           "udm32" : 0.,
-          "neutrino_mass" : 0.,
           "mu_tot" : 1.0,
           "eDop":0.05,
-          "n0_timeData":20000}
+          "n0_timeData":800}
         ]
       },
 
@@ -85,17 +96,18 @@
         "branches" : [
           {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
           {"variable" : "MainField", "root_alias" : "MainField"},
-          {"variable" : "Q", "root_alias" : "Q"},
-          {"variable" : "total_rate", "root_alias" : "total_rate"},
-          {"variable" : "activity", "root_alias" : "activity"},
-          {"variable" : "mu_tot", "root_alias" : "mu_tot"},
-          {"variable" : "kDoppler", "root_alias" : "kDoppler"},
-          {"variable" : "s12", "root_alias" : "s12"},
-          {"variable" : "s13", "root_alias" : "s13"},
-          {"variable" : "dm21", "root_alias" : "dm21"},
-          {"variable" : "dm31", "root_alias" : "dm31"},
           {"variable" : "scatt_width", "root_alias" : "scatt_width"},
           {"variable" : "n0_timeData", "root_alias" : "n0_timeData"},
+          {"variable" : "composition", "root_alias" : "composition", "ndim":3},
+          {"variable" : "eta", "root_alias" : "eta"},
+          {"variable" : "Q_mol", "root_alias" : "Q_mol"},
+          {"variable" : "Q_T_atom", "root_alias" : "Q_T_atom"},
+          {"variable" : "rate", "root_alias" : "rate", "ndim":100},
+          {"variable" : "frequency", "root_alias" : "frequency", "ndim":100},
+          {"variable" : "mu_tot", "root_alias" : "mu_tot"},
+          {"variable" : "activity", "root_alias" : "activity"},
+          {"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
+          {"variable" : "total_rate", "root_alias" : "total_rate"},
           {"variable" : "lp__", "root_alias" : "LogLikelihood"}
         ]
       }

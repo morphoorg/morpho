@@ -31,6 +31,7 @@ def readTTree(tree_path):
     rate_data = []
     KE_recon = []
     events = []
+    Q = []
     for i in range(0,n):
         tree.GetEntry(i)
     	time_data.append(tree.time_data)
@@ -38,8 +39,9 @@ def readTTree(tree_path):
         rate_data.append(tree.rate_data)
         KE_recon.append(tree.KE_recon)
         events.append(tree.events)
+        Q.append(tree.Q)
 
-    return time_data, freq_data, rate_data, KE_recon, events
+    return time_data, freq_data, rate_data, KE_recon, events,Q
 
 
 print "I am doing nice plots"
@@ -50,13 +52,14 @@ botMargin = 0.11
 
 set_style_options(rightMargin, leftMargin, topMargin, botMargin)
 
-time_data, freq_data, rate_data, KE_recon, events = readTTree("tritium_model/results/tritium_generator.root")
+time_data, freq_data, rate_data, KE_recon, events, Q = readTTree("tritium_model/results/tritium_generator.root")
 
 can_time = displayHisto(time_data,["time_data","","time_data"],["",100,[0,-1]])
 can_freq = displayHisto(freq_data,["freq_data","","freq_data"],["",100,[0,-1]])
 can_rate = displayHisto(rate_data,["rate_data","","rate_data"],["",100,[0,-1]])
 can_KE = displayHisto(KE_recon,["KE_recon","","KE_recon"],["",100,[0,-1]])
 can_events = displayHisto(events,["events","","events"],["",100,[0,-1]])
+can_Q = displayHisto(Q,["Q","","Q"],["",100,[0,-1]])
 
 # plot_average(KE_recon,events)
 

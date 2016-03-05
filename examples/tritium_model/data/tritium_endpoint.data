@@ -1,9 +1,11 @@
-minKE <- 18550.
+minKE <- 18500.
 maxKE <- 18590.0
 
 num_iso <- 3
-Q_T_molecule <- c(18574.95, 18574.96, 18574.95)
-Q_T_atom <- 18566.66
+Q_T_molecule_set <- c(18574.95, 18574.96, 18574.95)
+eQ_T_molecule_set <- c(.01, .01, .01)
+Q_T_atom_set <- 18566.66
+eQ_T_atom_set <- 0.01
 
 num_J <- 10
 lambda_set <- 0.75
@@ -11,8 +13,9 @@ delta_lambda <- 0.0225
 
 epsilon_set <- 0.95
 kappa_set <- 0.2
-eta_set <- 0.50
+eta_set <- 0.5
 
-delta_epsilon <- 0.0019
-delta_kappa <- 0.01
+err_epsilon_set <- 0.0019
+err_kappa_set <- 0.01
+err_eta_set <- 0.0
 delta_theory <- 0.01

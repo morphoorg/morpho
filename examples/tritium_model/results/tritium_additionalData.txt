@@ -1,2 +1,2 @@
-nBinEvents <- 99
-nBinTime <- 99
+nBinEvents <- 100
+nBinTime <- 100

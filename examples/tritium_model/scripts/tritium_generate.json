@@ -6,11 +6,11 @@
     "model":     {
       "file": "./tritium_model/models/tritium_generator.stan",
       "function_file": [
-          {"name" : "constants", "file" : "../functions/constants.functions"},
-          {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
-          {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"},
-          {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
-        ],
+        {"name" : "constants", "file" : "../functions/constants.functions"},
+        {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+        {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"},
+        {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
+      ],
       "cache": "./tritium_model/cache"
     },
 
@@ -21,18 +21,18 @@
           "name": "./tritium_model/data/tritium.header.data",
           "format":"R"
         },
-          {
-            "name": "./tritium_model/data/tritium_neutrino_parameters.data",
-            "format":"R"
-          },
+        {
+          "name": "./tritium_model/data/tritium_neutrino_parameters.data",
+          "format":"R"
+        },
         {
           "name": "./tritium_model/data/tritium_endpoint.data",
           "format":"R"
         },
-      {
-        "name": "./tritium_model/data/tritium_gas.data",
-        "format":"R"
-      }
+        {
+          "name": "./tritium_model/data/tritium_gas.data",
+          "format":"R"
+        }
       ],
       "parameters": [
         {
@@ -43,12 +43,13 @@
     },
     "run": {
       "algorithim": "NUTS",
-      "iter": 5500,
-      "warmup": 5000,
-      "chain": 20,
+      "iter": 55000,
+      "warmup": 50000,
+      "chain": 4,
       "init_off": [
         {"uB" : 0.0,
-          "uQ" : 0.0,
+          "uQ1" : 0.0,
+          "uQ2" : 0.0,
           "df" : 0.0,
           "uF" : 0.0,
           "uT" : 1.0,
@@ -74,13 +75,13 @@
           {"variable" : "temperature", "root_alias" : "temperature"},
           {"variable" : "sigma_freq", "root_alias" : "sigma_freq"},
           {"variable" : "Q", "root_alias" : "Q"},
-          {"variable" : "frequency", "root_alias" : "frequency"},
-          {"variable" : "isOK", "root_alias" : "isOK", "type" : "int"},
+          {"variable" : "nData", "root_alias" : "nData", "type" : "int"},
           {"variable" : "time_data", "root_alias" : "time_data"},
           {"variable" : "freq_data", "root_alias" : "freq_data"},
           {"variable" : "KE_recon", "root_alias" : "KE_recon"},
-          {"variable" : "rate_data", "root_alias" : "rate_data"},
-          {"variable" : "events", "root_alias" : "events", "type":"int"},
+          {"variable" : "spectrum_data", "root_alias" : "spectrum_data"},
+          {"variable" : "Q_atom_random", "root_alias" : "Q_atom_random"},
+          {"variable" : "Q_mol_random", "root_alias" : "Q_mol_random"},
           {"variable" : "lp__", "root_alias" : "LogLikelihood"}
         ]
       }

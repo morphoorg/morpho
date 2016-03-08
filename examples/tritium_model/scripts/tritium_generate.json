@@ -43,8 +43,8 @@
     },
     "run": {
       "algorithim": "NUTS",
-      "iter": 55000,
-      "warmup": 50000,
+      "iter": 5500,
+      "warmup": 5000,
       "chain": 4,
       "init_off": [
         {"uB" : 0.0,
@@ -74,7 +74,9 @@
           {"variable" : "MainField", "root_alias" : "MainField"},
           {"variable" : "temperature", "root_alias" : "temperature"},
           {"variable" : "sigma_freq", "root_alias" : "sigma_freq"},
+          {"variable" : "scatt_width", "root_alias" : "scatt_width"},
           {"variable" : "Q", "root_alias" : "Q"},
+          {"variable" : "norm_spectrum", "root_alias" : "norm_spectrum"},
           {"variable" : "nData", "root_alias" : "nData", "type" : "int"},
           {"variable" : "time_data", "root_alias" : "time_data"},
           {"variable" : "freq_data", "root_alias" : "freq_data"},

@@ -287,15 +287,17 @@ transformed parameters{
 
   // Determine effective mass to use from neutrino mass matrix
 
-  neutrino_mass <- sqrt(dot_self(U_PMNS .* m_nu));
+  // neutrino_mass <- sqrt(dot_self(U_PMNS .* m_nu.* m_nu));
+  neutrino_mass <- sqrt(U_PMNS[1] * pow(m_nu[1],2) +U_PMNS[2] * pow(m_nu[2],2) +U_PMNS[3] * pow(m_nu[3],2) );
+
 
   // Obtain magnetic field (with prior distribution)
-  MainField <- vnormal_lp(uB, BField, BFieldError_fluct);
+  MainField <- BField + vnormal_lp(uB, 0. , BFieldError_fluct);
 
   // Temperature of system
   // sigmaT <- sqrt(square(deltaT_calibration) + square(deltaT_fluctuation));
   sigmaT <- deltaT_fluctuation;
-  temperature <- vnormal_lp(uT, T_set, sigmaT);
+  temperature <- T_set + vnormal_lp(uT, 0. , sigmaT);
 
   // Calculate scattering length, radiation width, and total width;
   //The total cross-section is equal to the cross-section of each species, weighted by their relative composition
@@ -410,20 +412,6 @@ model {
   //
   // // freq_recon ~ filter(0., fBandpass, fFilterN);
   // freq_recon ~ uniform(minFreq,maxFreq);
-
-
-
-  // print("lambda");
-  // Find lambda distribution
-  // lambda ~ normal(lambda_set, delta_lambda);
-  // Find composition distribution
-  // epsilon ~ normal(epsilon_set, delta_epsilon);
-  // kappa ~ normal(kappa_set, delta_kappa);
-
-  // Q ~ normal(Q_values, sigma);
-
-  // # Otherwise set to flat distribution if nGenerate is negative
-  // if (nGenerate >= 0) increment_log_prob(rate_log);
 
   // Set mixture of molecular and atomic tritium, if needed
   //

@@ -17,5 +17,5 @@ eta_set <- 0.5
 
 err_epsilon_set <- 0.0019
 err_kappa_set <- 0.01
-err_eta_set <- 0.0
+err_eta_set <- 0.01
 delta_theory <- 0.01

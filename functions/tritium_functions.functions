@@ -152,6 +152,13 @@ real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * 
 				spectrum <-spectrum + U[i]*(Q-KE)*sqrt(square(KE-Q)-square(m_nu[i]));
 			}
 		}
+		// if (spectrum <0)
+		// {
+		// print(spectrum);
+		// for (i in 1:nFamily){
+		//  print(U[i], "   ", (Q-KE), "   ", sqrt(square(KE-Q)-square(m_nu[i])));
+		// }
+		// }
 		return spectrum;
 
 	}

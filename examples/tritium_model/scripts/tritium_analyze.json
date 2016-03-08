@@ -38,16 +38,16 @@
           "format":"R"
         },
         {
-          "name" : "./tritium_model/results/tritium_generator_reduced.root",
+          "name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
           "format" : "root",
           "tree" : "spectrum",
           "branches" : [
             {"name" : "freq_data", "stan_alias" : "freq_data"},
-            {"name" : "n_events", "stan_alias" : "n_events", "data_format" : "integer"},
+            {"name" : "n_spectrum_data", "stan_alias" : "n_spectrum_data", "data_format" : "integer"},
           ]
         },
         {
-          "name" : "./tritium_model/results/tritium_generator_reduced.root",
+          "name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
           "format" : "root",
           "tree" : "time",
           "branches" : [
@@ -60,15 +60,17 @@
 
     "run": {
       "algorithim": "NUTS",
-      "iter": 200,
-      "warmup": 100,
+      "iter": 6000,
+      "warmup": 5500,
       "chain": 1,
       "init": [
-        { "lightest_neutrino_mass": 1.0,
+        { "lightest_neutrino_mass": 50.0,
           "scatt_width" : 7.3e+04,
-          "background_rate" : 25.e-6,
-          "uB" : 1.0,
-          "uQ" : 18575.,
+          "background_rate" : 1.e-6,
+          "uB" : 0.0,
+          "uBG" : 0.,
+          "uQ1" : 0.,
+          "uQ2" : 0.,
           "uF" : 0.0,
           "uS" : 0.0,
           "Tparam1" : 30.0,
@@ -76,7 +78,7 @@
           "kappa_param" : 0.2,
           "epsilon_param" : 0.95,
           "eta_param" : 0.5,
-          "us12" : 0.,
+          "us12" : 0.0,
           "us13" : 0.,
           "udm21" : 0.,
           "udm32" : 0.,
@@ -94,20 +96,26 @@
         "format" : "root",
         "tree" : "stanAnalysis",
         "branches" : [
-          {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
-          {"variable" : "MainField", "root_alias" : "MainField"},
+
           {"variable" : "scatt_width", "root_alias" : "scatt_width"},
           {"variable" : "n0_timeData", "root_alias" : "n0_timeData"},
+          {"variable" : "widthBin", "root_alias" : "widthBin"},
+          {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
+          {"variable" : "m_nu", "root_alias" : "m_nu", "ndim" : 3},
+          {"variable" : "s12", "root_alias" : "s12"},
+          {"variable" : "s13", "root_alias" : "s13"},
+          {"variable" : "MainField", "root_alias" : "MainField"},
           {"variable" : "composition", "root_alias" : "composition", "ndim":3},
           {"variable" : "eta", "root_alias" : "eta"},
           {"variable" : "Q_mol", "root_alias" : "Q_mol"},
           {"variable" : "Q_T_atom", "root_alias" : "Q_T_atom"},
-          {"variable" : "rate", "root_alias" : "rate", "ndim":100},
-          {"variable" : "frequency", "root_alias" : "frequency", "ndim":100},
-          {"variable" : "mu_tot", "root_alias" : "mu_tot"},
-          {"variable" : "activity", "root_alias" : "activity"},
           {"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
-          {"variable" : "total_rate", "root_alias" : "total_rate"},
+          {"variable" : "mu_tot", "root_alias" : "mu_tot"},
+          {"variable" : "n_spectrum_recon", "root_alias" : "n_spectrum_recon","ndim":100},
+          {"variable" : "frequency", "root_alias" : "frequency","ndim":100},
+          {"variable" : "norm_density", "root_alias" : "norm_density"},
+          {"variable" : "activity", "root_alias" : "activity"},
+          {"variable" : "background_rate", "root_alias" : "background_rate"},
           {"variable" : "lp__", "root_alias" : "LogLikelihood"}
         ]
       }

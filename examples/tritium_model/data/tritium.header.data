@@ -1,5 +1,6 @@
 BField <- 1.0000
-BFieldError <- 1.0e-06
+BFieldError_calib <- 1.0e-06
+BFieldError_fluct <- 1.0e-07
 
 fclock <- 0.
 fFilterN <- 20

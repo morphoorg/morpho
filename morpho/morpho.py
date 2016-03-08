@@ -50,7 +50,7 @@ class stan_args(object):
 
     def init_function(self):
         return self.init_per_chain
-    
+
     def __init__(self, yd):
         try:
             # Identifications
@@ -74,7 +74,7 @@ class stan_args(object):
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
             self.init = self.init_function();
-                        
+
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
 
@@ -88,20 +88,16 @@ class stan_args(object):
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
             self.out_vars = self.read_param(yd, 'stan.output.data', None)
-            
+
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
-            
+
         except Exception as err:
             raise err
 
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
 
-<<<<<<< HEAD:morpho/morpho.py
-    theData = open(model_code,'r+').read()
-    code_hash = md5(theData.encode('ascii')).hexdigest()
-=======
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*<-\s*(?P<function_name>\w+)\s*;*',theModel)
     for matches in match:
@@ -109,9 +105,8 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
             if (key['name']==matches):
                 StanFunctions = open(key['file'],'r+').read()
                 theModel = re.sub(r'\s*include\s*<-\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
-                
+
     code_hash = md5(theModel.encode('ascii')).hexdigest()
->>>>>>> develop:morpho/morpho.py
     if model_name is None:
         cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
     else:
@@ -119,18 +114,6 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
-<<<<<<< HEAD:morpho/morpho.py
-        theModel = theData
-        if functions_code:
-            match = re.findall(r"(?<=include_functions<-)\w+",theData, flags=re.IGNORECASE)
-            if match:
-                for matches in match:
-                    for key in functions_code:
-                        if (key['name']==matches):
-                            StanFunctions = open(key['file'],'r+').read()
-                            theModel = re.sub("include_functions<-"+matches, StanFunctions, theModel, flags=re.IGNORECASE)
-=======
->>>>>>> develop:morpho/morpho.py
         sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
@@ -156,7 +139,7 @@ def parse_args():
     p.add_argument('--seed',
                    metavar='<seed>',
                    help='Add random seed number to file',
-                   required=False)                   
+                   required=False)
 
     return p.parse_args()
 
@@ -190,7 +173,7 @@ def write_result(conf, stanres):
 
     ofilename = sa.out_fname
     if (args.job_id>0):
-        ofilename = ofilename+'_'+args.job_id        
+        ofilename = ofilename+'_'+args.job_id
     if sa.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
         write_result_hdf5(sa, ofilename, result)
@@ -216,7 +199,7 @@ def write_result_hdf5(conf, ofilename, stanres):
             else:
                 print(var['output_name'])
                 g[var['output_name']] = fit[stan_parname]
-                
+
 def save_object(obj, filename):
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
@@ -232,8 +215,8 @@ if __name__ == '__main__':
 
             stanres = write_result(sa, result)
             plot_result(sa, result)
-        
+
             save_object(stanres, sa.out_fit)
-                                        
+
         except Exception as err:
             print(err)

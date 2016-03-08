@@ -71,7 +71,7 @@ data {
   //   Primary magnetic field (in Tesla)
 
   real<lower=0> BField;
-  real BFieldError;
+  real BFieldError_fluct;
 
   //   Range for fits (in eV)
   real<lower=0 > minKE;
@@ -290,7 +290,7 @@ transformed parameters{
   neutrino_mass <- sqrt(dot_self(U_PMNS .* m_nu));
 
   // Obtain magnetic field (with prior distribution)
-  MainField <- vnormal_lp(uB, BField, BFieldError);
+  MainField <- vnormal_lp(uB, BField, BFieldError_fluct);
 
   // Temperature of system
   // sigmaT <- sqrt(square(deltaT_calibration) + square(deltaT_fluctuation));

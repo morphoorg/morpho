@@ -13,8 +13,6 @@
 */
 
 
-functions{
-
 // Finds vector of squares of PMNS matrix elements U_e
 
 vector matrix_elements(real sin_sq_2th12, real sin_sq_2th13) {
@@ -22,12 +20,12 @@ vector matrix_elements(real sin_sq_2th12, real sin_sq_2th13) {
     real cos_2th13;
     vector[3] sUe_fixed;
 
-    cos_2th12 <- pow((1 - pow(sin_sq_2th12, 2)), 1/2);
-    cos_2th13 <- pow((1 - pow(sin_sq_2th13, 2)), 1/2);
+    cos_2th12 <- pow((1 - pow(sin_sq_2th12, 2)), 0.5);
+    cos_2th13 <- pow((1 - pow(sin_sq_2th13, 2)), 0.5);
 
-    sUe_fixed[1] <- 1/4*(1+cos_2th12)(1+cos_2th13);
-    sUe_fixed[2] <- 1/4*(1-cos_2th12)(1+cos_2th13);
-    sUe_fixed[3] <- 1/2*(1-cos_2th12);
+    sUe_fixed[1] <- 0.25*(1+cos_2th12)*(1+cos_2th13);
+    sUe_fixed[2] <- 0.25*(1-cos_2th12)*(1+cos_2th13);
+    sUe_fixed[3] <- 0.5*(1-cos_2th12);
 
     return sUe_fixed;
 }
@@ -90,17 +88,16 @@ real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, rea
 
     background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
 
-    signal_log <- 0.0
+    signal_log <- 0.0;
     for (i in 1:nFamily){
         if (KE < (Q-fabs(m_nu[i]))) {
-                signal_log <- signal_log + log(signal_fraction) + log(U[i]) + get_beta_function_log(KE, Q, m_nu[i], minKE);
+            signal_log <- signal_log + log(signal_fraction) + log(U[i]) + get_beta_function_log(KE, Q, m_nu[i], minKE);
                     }
-            rate_log <- log_sum_exp(signal_log,  background_log);
+        rate_log <- log_sum_exp(signal_log,  background_log);
 
-        else {
-            rate_log <- background_log;     // Once KE >= the endpoint, spectrum only consists of background
-            }
+        //else {
+        //   rate_log <- background_log;     // Once KE >= the endpoint, spectrum only consists of background
+        //    }
         }
     return rate_log;
     }
-}

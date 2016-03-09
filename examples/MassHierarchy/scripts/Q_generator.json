@@ -4,20 +4,20 @@
         "name": "Q_generator",
         
         "model":   {
-            "file": "./MassHierarchy/models/Q_generator.stan",
+            "file": "./examples/MassHierarchy/models/Q_generator.stan",
             "function_file": [
-                {"name" : "constants", "file" : "../functions/constants.functions"},
-                {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
-                {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"}
+                {"name" : "constants", "file" : "./functions/constants.functions"},
+                {"name" : "func_routines", "file" : "./functions/func_routines.functions"},
+                {"name" : "Q_Functions", "file" : "./functions/Q_functions.functions"}
              ],
-            "cache": "./MassHierarchy/cache"
+            "cache": "./examples/MassHierarchy/cache"
         },
         
         "data": {
             "type": "mc",
             "files": [
                       {
-                      "name": "./MassHierarchy/data/Q_generate.data",
+                      "name": "./examples/MassHierarchy/data/Q_generate.data",
                       "format":"R"
                       }
                       ]
@@ -26,26 +26,28 @@
         "run": {
             "algorithm": "NUTS",
             "iter": 10000,
-            "chain": 1},
+            "chain": 5},
         
-        "sample": "./MassHierarchy/results/Qtest_generator.out",
+        "sample": "./examples/MassHierarchy/results/Qtest_generator_T.out",
         
-     "output": 
+        "output": 
             {
-             "name" : "./Qtest_generator",
-             "format" : "root",
-             "tree" : "QTree",
-             "branches" : [
-                     {"variable" : "Q", "root_alias" : "Q"},
-                     {"variable" : "epsilon", "root_alias" : "epsilon"},
-                     {"variable" : "kappa", "root_alias" : "kappa"},
-                     {"variable" : "eta", "root_alias" : "eta"},
-                     {"variable" : "sigma_avg", "root_alias" : "sigma_avg"},
-                     {"variable" : "temperature", "root_alias" : "temperature"},
-                     {"variable" : "composition", "root_alias" : "composition", "ndim":4},
-                     {"variable" : "sigma", "root_alias" : "sigma", "ndim":4},
-                     {"variable" : "lp__", "root_alias" : "LogLikelihood"}
-                      ]
+
+            "name" : "./examples/MassHierarchy/results/Qtest_generator_T",
+            "format": "hdf5",
+            "fit": "./examples/MassHierarchy/results/Qresults_T.pkl",
+            "config": {"group": "/"},
+            "data": [
+                     {"stan_parameter": "Q","output_name": "Q"},
+                     {"stan_parameter" : "epsilon", "output_name" : "epsilon"},
+                     {"stan_parameter" : "kappa", "output_name" : "kappa"},
+                     {"stan_parameter" : "eta", "output_name" : "eta"},
+                     {"stan_parameter" : "sigma_avg", "output_name" : "sigma_avg"},
+                     {"stan_parameter" : "temperature", "output_name" : "temperature"},
+                     {"stan_parameter" : "composition", "output_name" : "composition", "ndim":4},
+                     {"stan_parameter" : "sigma", "output_name" : "sigma", "ndim":4},
+                     {"stan_parameter" : "lp__", "output_name" : "LogLikelihood"}
+                     ]
              }        
 
    }

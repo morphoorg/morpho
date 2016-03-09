@@ -1,9 +1,9 @@
 minKE <- 18550.
 maxKE <- 18580.
 
-T_set <- 30.
-deltaT_calibration <- 0.15
-deltaT_fluctuation <- 0.03
+T_set <- 0.3
+deltaT_calibration <- 0.0015
+deltaT_fluctuation <- 0.0003
 deltaT_rot <- 0.
 
 num_J <- 10
@@ -15,9 +15,9 @@ Q_values <- c(18574.95, 18574.96, 18574.95, 18566.66)
 
 epsilon_set <- 0.95
 kappa_set <- 0.1
-eta_set <- 1.0
+eta_set <- 0.0
 
-delta_epsilon <- 0.0019
+delta_epsilon <- 0.0285
 delta_kappa <- 0.01
 delta_eta <- 0.001
 delta_theory <- 0.01

@@ -13,6 +13,15 @@
 */
 
 
+functions{
+
+    // Load libraries
+
+    include_functions<-func_routines
+    include_functions<-MH_Functions
+
+}
+
 data{
 
     // Neutrino mixing parameters

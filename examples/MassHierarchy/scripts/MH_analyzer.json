@@ -5,8 +5,11 @@
         
         "model":   {
             "file": "./examples/MassHierarchy/models/MH_analysis.stan",
-            "function_file": "./examples/MassHierarchy/models/MH_functions.stan",
-            "cache": "./cache"
+            "function_file": [
+                              {"name" : "func_routines", "file" : "./functions/func_routines.functions"},
+                              {"name" : "MH_Functions", "file" : "./functions/MH_functions.functions"}
+                              ],
+            "cache": "./examples/MassHierarchy/cache"
         },
         
         "data": {
@@ -29,10 +32,10 @@
                       ],
             "parameters": [
                            {
-                           "chainnum" : 6,
-                           "iternum" : 2000,
+                           "chainnum" : 3,
+                           "iternum" : 3000,
                            "nEvents" : 1,
-                           "numPts" : 6000,
+                           "numPts" : 4500,
                            "norm" : 50000,
                            "MH" : 0
                            }
@@ -41,8 +44,8 @@
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 2000,
-            "chain": 6},
+            "iter": 3000,
+            "chain": 3},
         
         
         "sample": "./examples/MassHierarchy/results/MHtest_analyzer.out",

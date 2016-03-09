@@ -319,12 +319,12 @@ transformed parameters{
   deltaT_total <- pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
   temperature <- T_set + vnormal_lp(Tparam1, 0. , deltaT_total);
   //
-  lambda <- vnormal_lp(lambda_param, lambda_set, delta_lambda);
-  epsilon <- vnormal_lp(epsilon_param, epsilon_set, err_epsilon_set);
-  kappa <- vnormal_lp(kappa_param, kappa_set, err_kappa_set);
+  lambda <- lambda_set + vnormal_lp(lambda_param, 0. , delta_lambda);
+  epsilon <- epsilon_set + vnormal_lp(epsilon_param, 0. , err_epsilon_set);
+  kappa <- kappa_set + vnormal_lp(kappa_param, 0. , err_kappa_set);
   //
   if (err_eta_set != 0.0){
-    eta <- vnormal_lp(eta_param, eta_set, err_eta_set);
+    eta <- eta_set + vnormal_lp(eta_param, 0., err_eta_set);
     // eta <- eta_set;
   }
   else eta <- eta_set;

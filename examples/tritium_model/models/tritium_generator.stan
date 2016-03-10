@@ -56,8 +56,6 @@ data {
   //   Number of neutrinos and mixing parameters
   int nFamily;
 
-  // vector[nFamily] m_nu;
-  // simplex[nFamily] U_PMNS;
   real meas_delta_m21;
   real meas_delta_m32_NH;
   real meas_delta_m32_IH;
@@ -77,11 +75,6 @@ data {
   real<lower=0 > minKE;
   real<lower=minKE> maxKE;
 
-  // //   Endpoint of tritium, in eV
-  //
-  // real<lower=minKE,upper=maxKE> QValue;
-  // real<lower=0> sigmaQ;
-
   //  Cross-section of e-T2 , in meter^-2
 
   vector[2] xsec_avekin;
@@ -92,7 +85,6 @@ data {
   //  Conditions of the experiment and measurement
 
   real number_density;			//  Tritium number density (in meter^-3)
-  // real temperature;				//  Temperature of gas (in Kelvin)
   real effective_volume;		        //  Effective volume (in meter^3)
   real measuring_time;			//  Measuring time (in seconds)
 
@@ -110,7 +102,6 @@ data {
   // Endpoint model input from feature/MH_Talia (Q_generator.stan)
 
   real T_set;      //Average temperature of source gas in Kelvin
-  // real deltaT_calibration;    //Temperature uncertainty due to calibration (K)
   real deltaT_fluctuation;    //Temperature uncertainty due to fluctuations (K)
   real deltaT_rot;    //Temperature uncertainty due to unaccounted for higher rotational states (K)
 
@@ -125,11 +116,6 @@ data {
   real epsilon_set;   // Average fractional activity of source gas compared to pure T_2
   real kappa_set;     // Average ratio of HT to DT
   real eta_set;       // Average proportion of atomic tritium
-
-  // real delta_epsilon; //Uncertainty in fractional activity of source gas compared to pure T_2
-  // real delta_kappa; //Uncertainty in ratio of HT to DT
-  // real delta_theory; //Uncertainty in composition fraction of non-T (eta = 1.0 --> no T, eta = 0.0 --> all T)
-
 
 }
 
@@ -153,10 +139,10 @@ transformed data {
   real fclock;
 
 
-  //Composition of the gas
-  simplex[num_iso] composition;
 
-  vector<lower=0.0>[num_iso] mass_s;
+  simplex[num_iso] composition; //Composition of the gas
+
+  vector<lower=0.0>[num_iso] mass_s; //mass of tritium species
 
   dm21 <- meas_delta_m21;
   s12 <- meas_sin2_th12;
@@ -209,9 +195,7 @@ parameters {
   real uQ1;
   real uQ2;
   real uF;
-  // //Parameters for Q_generator
   real uT;
-  // real uS;
 
   //Physical parameters
   real<lower=0.0> eDop;
@@ -239,55 +223,35 @@ transformed parameters{
   real<lower=0.0> sigmaT;     // Total temperature variation (K)
   real<lower=0.0> temperature;   // Temperature of source gas (K)
 
-  // real epsilon;
-  // real kappa;
-  // real eta;
-
-  // vector[num_iso] Q;
   real df;
   real frequency;
-  //
 
-  //
   real freq_recon;
-  // // real freq_temp;
-  //
   real kDoppler;
   real KE_shift;
-  //
+
   real activity;
   real signal_fraction;
   real norm_spectrum;
   real spectrum_shape;
   real spectrum;
-  //
-  // // Q_generator from feature/MH_Talia
-  //
-  //
-  // real<lower=0.0> Q_avg;             // Best estimate for value of Q (eV)
-  // real<lower=0.0> sigma_avg;         // Best estimate for value of sigmaQ (eV)
+
+  // Q_generator from feature/MH_Talia
+
+
   real<lower=0.0> p_squared;         // (Electron momentum)^2 at the endpoint
   vector<lower=0.0>[num_iso] sigma_0;
-  // // // vector<lower=0.0>[num_iso] sigma;
-  // //
   real<lower=0> Q_mol;
   real<lower=0> sigma_mol;
   real<lower=0> sigma_atom;
-  //
   real<lower=0> Q_mol_random;
   real<lower=0> Q_atom_random;
 
 
   real sigma_theory;
 
-  // real signal_rate;
-
-
-
-
   // Determine effective mass to use from neutrino mass matrix
 
-  // neutrino_mass <- sqrt(dot_self(U_PMNS .* m_nu.* m_nu));
   neutrino_mass <- sqrt(U_PMNS[1] * pow(m_nu[1],2) +U_PMNS[2] * pow(m_nu[2],2) +U_PMNS[3] * pow(m_nu[3],2) );
 
 
@@ -295,7 +259,6 @@ transformed parameters{
   MainField <- BField + vnormal_lp(uB, 0. , BFieldError_fluct);
 
   // Temperature of system
-  // sigmaT <- sqrt(square(deltaT_calibration) + square(deltaT_fluctuation));
   sigmaT <- deltaT_fluctuation;
   temperature <- T_set + vnormal_lp(uT, 0. , sigmaT);
 
@@ -308,16 +271,10 @@ transformed parameters{
   xsec <- xsec + (1-eta_set) * xsection(KE,  xsec_avekin[1], xsec_bindkin[1], xsec_msq[1], xsec_Q[1]);//adding the cross-section with modelucar tritium
   xsec <- xsec + (eta_set) * xsection(KE,  xsec_avekin[2], xsec_bindkin[2], xsec_msq[2], xsec_Q[2]);//adding the cross-section with atomic tritium
   scatt_width <- number_density * c() * beta * xsec;
-  // print(scatt_width, number_density , c() , beta , xsec);
 
   rad_width <- cyclotron_rad(MainField);
   tot_width <- (scatt_width + rad_width);
   sigma_freq <- (scatt_width + rad_width) / (4. * pi());//LOOK!
-
-  // Composition and purity of gas system
-  // epsilon_set <- 0.5 * (1.0 + composition[1]);
-  // kappa_set <- composition[3] / composition[2];
-  // composition <- find_composition(epsilon,kappa); //cannot use this since composition is a parameter
 
   // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
 
@@ -325,8 +282,6 @@ transformed parameters{
     p_squared <- 2.0 * Q_T_molecule_set[i] * m_electron();
     sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
   }
-
-  // sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
 
   //  Take averages of Q and sigma values of molecule
 
@@ -354,33 +309,21 @@ transformed parameters{
   // Calculate Doppler effect from tritium atom/molecule motion
 
   // Determine total rate from activity for the molecular tritium
-  // activity <- 0.;
-  // for (j in 1:num_iso){
-  //   activity <- activity + (1-eta_set)*composition[j] * tritium_rate_per_eV() * beta_integral(Q_T_molecule_set[j], neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
-  // }
-  // activity <- activity + (eta_set) * tritium_rate_per_eV() * beta_integral(Q_T_atom_set, neutrino_mass, minKE) * number_density * effective_volume / (tritium_halflife() / log(2.) );
-  activity <-  tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
+  activity <-  3 * tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
   norm_spectrum <-activity * measuring_time;
   signal_fraction <- activity/(activity + background_rate_mean);
-
-
 
   spectrum <- 0;
   for (i in 1:num_iso){
 
     kDoppler <-  m_electron() * beta * sqrt(eDop / mass_s[i]);
     KE_shift <- KE + kDoppler;
-    //
-    // //  Distribute Q value from average
-    //
-    // // Determine signal and background rates from beta function and background level
-    //
+
+    // Determine signal from beta function
+
     spectrum_shape <- spectral_shape(KE, Q_mol_random, U_PMNS, m_nu);
     spectrum <- spectrum + (1.- eta_set) * composition[i] * norm_spectrum * spectrum_shape;
-    // print(spectrum , (1.- eta_set) , composition[i] , norm_spectrum , spectrum_shape);
   }
-
-
 
   // Determine signal and background rates from beta function and background level
 
@@ -396,25 +339,23 @@ transformed parameters{
 
 model {
 
-  // print(minKE, maxKE,lambda_set,epsilon_set,kappa_set,eta_set);
-  // print("KE");
   KE ~ uniform(minKE,maxKE);
 
   # Thermal Doppler broadening of the tritium source
-  //
+
   eDop ~ gamma(1.5,1./(k_boltzmann() * temperature));
-  //
-  // # Frequency broadening from collision and radiation
+
+  # Frequency broadening from collision and radiation
 
   duration ~ exponential(scatt_width);
 
-  // # Effect of filter in cleaning data
-  //
-  // // freq_recon ~ filter(0., fBandpass, fFilterN);
+  # Effect of filter in cleaning data
+
+  // freq_recon ~ filter(0., fBandpass, fFilterN);
   // freq_recon ~ uniform(minFreq,maxFreq);
 
   // Set mixture of molecular and atomic tritium, if needed
-  //
+
   increment_log_prob(log_sum_exp(log(eta_set) + normal_log(Q, Q_mol, sigma_mol),
                                  log1m(eta_set) + normal_log(Q, Q_T_atom_set, sigma_atom)));
 
@@ -422,32 +363,27 @@ model {
 
 generated quantities {
 
-  // int isOK;
+  int isOK;
   int nData;
-  // int  events;
   real freq_data;
   real time_data;
   real spectrum_data;
   real KE_recon;
 
   nData <- nGenerate;
-  //
-  // #   Simulate duration of event and store frequency and reconstructed kinetic energy
-  //
+
+  #   Simulate duration of event and store frequency and reconstructed kinetic energy
+
   time_data <- duration;
-  //
   freq_data <- freq_recon;
-  //
   KE_recon <- get_kinetic_energy(frequency+df, MainField);
-  //
-  // # Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
-  //
+
+  # Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
+
   spectrum_data <- spectrum;
-  //
-  // events <- poisson_rng(spectrum_data / max(abs(nGenerate*nChains),nChains) );
 
   # Tag events that are below DC in analysis
 
-  // isOK <- (freq_data > 0.);
+  isOK <- (freq_data > 0.);
 
 }

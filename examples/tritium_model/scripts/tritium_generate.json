@@ -42,17 +42,17 @@
       ]
     },
     "run": {
-      "algorithim": "NUTS",
+      "algorithm": "HMC",
       "iter": 5500,
       "warmup": 5000,
-      "chain": 4,
+      "chain": 40,
       "init_off": [
         {"uB" : 0.0,
           "uQ1" : 0.0,
           "uQ2" : 0.0,
           "df" : 0.0,
           "uF" : 0.0,
-          "uT" : 1.0,
+          "uT" : 0.0,
           "uS" : 0.0,
           "eDop":0.05,
           "duration" : 1.0e-05,

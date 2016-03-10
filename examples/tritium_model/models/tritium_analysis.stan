@@ -307,11 +307,6 @@ transformed parameters{
   // Determine the deltaE of the bin
   widthBin <- fabs((get_kinetic_energy(freq_data[1],MainField) - get_kinetic_energy(freq_data[nBinSpectrum],MainField))/nBinSpectrum);
 
-  //   Calculate scattering length, radiation width, and total width;
-
-  rad_width <- cyclotron_rad(MainField);
-  tot_width <- (scatt_width + rad_width);
-  sigma_freq <- (scatt_width + rad_width) / (4. * pi());
 
   #  Determining endpoint
   # Here is where the model from Talia comes
@@ -353,20 +348,17 @@ transformed parameters{
   sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom_set * m_electron(), 0., 0, 0.);
   Q_T_atom <- Q_T_atom_set + vnormal_lp(uQ2 , 0. , sigma_atom);
 
-  //////////////////
-  // Determine total rate from activity
-  // [faux]
-  // activity <-  tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
-  // norm_spectrum <-activity * measuring_time;
-  // signal_fraction <- activity/(activity + background_rate_mean);
-  // [/faux]
-  //////////////
+  //   Calculate scattering length, radiation width, and total width;
 
+  rad_width <- cyclotron_rad(MainField);
+  tot_width <- (scatt_width + rad_width);
+  sigma_freq <- (scatt_width + rad_width) / (4. * pi());
 
+  // Frequency spread
   df <- vnormal_lp(uF, 0.0, sigma_freq);
 
   // Determine signal from beta function and background level
-  activity <- tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
+  activity <- 3 * tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
 
 
   norm_density <-  mu_tot * activity * measuring_time;

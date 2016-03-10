@@ -49,7 +49,26 @@ class stan_args(object):
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_function(self):
-        return self.init_per_chain
+        if isinstance(self.init_per_chain,list): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)):
+            # init_per_chain is a list of dictionaries
+            if self.chains >1 and len(self.init_per_chain)==1:
+                dict_list = [self.init_per_chain[0]] * self.chains
+                return dict_list
+            elif len(self.init_per_chain)==self.chains :
+                return self.init_per_chain
+            else:
+                print('ERROR: number of chains is not equal to the size of the list of dictionaries')
+                return self.init_per_chain
+        elif isinstance(self.init_per_chain,dict): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)):
+            # init_per_chain is a dictionary
+            if self.chains >1:
+                dict_list = [self.init_per_chain] * self.chains
+                return dict_list
+            else:
+                return self.init_per_chain
+        else:
+            print('WARNING: init is not a list or a dictionary')
+            return self.init_per_chain
 
     def __init__(self, yd):
         try:

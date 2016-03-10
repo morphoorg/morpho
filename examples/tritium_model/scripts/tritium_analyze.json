@@ -59,11 +59,11 @@
     },
 
     "run": {
-      "algorithim": "NUTS",
+      "algorithm": "HMC",
       "iter": 6000,
       "warmup": 5500,
-      "chain": 1,
-      "init": [
+      "chain": 4,
+      "init":
         { "lightest_neutrino_mass": 50.0,
           "scatt_width" : 7.3e+04,
           "background_rate" : 1.e-6,
@@ -85,7 +85,6 @@
           "mu_tot" : 1.0,
           "eDop":0.05,
           "n0_timeData":800}
-        ]
       },
 
       "sample": "./tritium_model/results/tritium_analysis.out",

@@ -10,7 +10,7 @@ xsec_bindkin <- c(15.43 , 13.6057)
 xsec_msq <- c(0.680 , 0.284)
 xsec_Q <- c(0.585 , 0.4343)
 
-T_set <- 30.
+T_set <- 0.3
 deltaT_calibration <- 0.15
 deltaT_fluctuation <- 0.03
 deltaT_rot <- 0.

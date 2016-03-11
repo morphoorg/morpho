@@ -24,7 +24,7 @@ real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * 
 		vector[nFamily] U;
 		U[1] <- (1. - sin2_th13) * (1. - sin2_th12);
 		U[2] <- (1. - sin2_th13) * sin2_th12;
-		U[3] <- sin2_th13 * sin2_th12;
+		U[3] <- sin2_th13;
 		return U;
 	}
 

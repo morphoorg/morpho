@@ -42,7 +42,7 @@
       ]
     },
     "run": {
-      "algorithm": "HMC",
+      "algorithm": "NUTS",
       "iter": 5500,
       "warmup": 5000,
       "chain": 40,

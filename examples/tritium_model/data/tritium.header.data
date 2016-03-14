@@ -1,8 +1,8 @@
-BField <- 0.9583
-BFieldError_calib <- 6e-06
+BField <- 0.91265
+BFieldError_calib <- 6.0e-06
 BFieldError_fluct <- 1.0e-07
 
 fclock <- 0.
-fFilterN <- 20
+fBandpassMin <- 24.6e9
 fclockError <- 10.0
-fBandpass <- 1e9
+fBandpass <- 1.0e9

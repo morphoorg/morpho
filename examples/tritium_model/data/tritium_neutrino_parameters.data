@@ -2,7 +2,7 @@ MassHierarchy <- 1
 
 nFamily <- 3
 neutrino_mass_limit <- 2.0
-lightest_neutrino_mass <- 50.
+lightest_neutrino_mass <- 0.
 
 meas_delta_m21 <- 7.54e-5
 meas_delta_m21_err <- 2.4e-6

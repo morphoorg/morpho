@@ -95,8 +95,9 @@ data {
   //  Clock and filter information
 
   real fBandpass;
+  real fBandpassMin;
   real fclockError;
-  int  fFilterN;
+  // int  fFilterN;
   // real fclock;
 
   // Endpoint model input from feature/MH_Talia (Q_generator.stan)
@@ -171,10 +172,10 @@ transformed data {
 
   fclock <- 0.;
 
-  if (fBandpass > (maxFreq-minFreq)) {
-    print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
-    print("Consider enlarging energy region.");
-  }
+  // if (fBandpass > (maxFreq-minFreq)) {
+  //   print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
+  //   print("Consider enlarging energy region.");
+  // }
 
   //Transformed Data from feature/MH_Talia (Q_generator.stan)
   // Setting the masses of the tritium species
@@ -332,6 +333,10 @@ transformed parameters{
 
   // Adding the background to the spectrum
   spectrum <- spectrum + background_rate_mean * measuring_time;
+
+  //Filtering
+  // spectrum <- spectrum *filter_log;
+
 
 
 

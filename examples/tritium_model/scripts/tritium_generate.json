@@ -37,7 +37,7 @@
       "parameters": [
         {
           "nGenerate" : -500,
-          "nChains" : 1
+          "nChains" : 40
         }
       ]
     },
@@ -64,7 +64,7 @@
 
       "output":
       {
-        "name" : "./tritium_model/results/tritium_generator",
+        "name" : "./tritium_model/results/tritium_generator_zero",
         "format" : "root",
         "tree" : "procTracks",
         "branches" : [

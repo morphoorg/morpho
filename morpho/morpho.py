@@ -67,7 +67,7 @@ class stan_args(object):
             else:
                 return self.init_per_chain
         else:
-            print('WARNING: init is not a list or a dictionary')
+            # print('WARNING: init is not a list or a dictionary')
             return self.init_per_chain
 
     def __init__(self, yd):

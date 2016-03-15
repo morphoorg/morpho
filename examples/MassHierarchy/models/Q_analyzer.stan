@@ -11,27 +11,6 @@
 *
 */
 
-functions{
-
-// Load libraries
-
-   include <- constants;
-   include <- func_routines;
-   include <- Q_Functions;
-
-// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT) given parameters epsilon and kappa
-
-    vector find_composition(real epsilon, real kappa)
-    {
-        vector[3] composition;
-
-        composition[1] <- (2.0*epsilon - 1.0);
-        composition[2] <- (2.0*(1.0-epsilon)*kappa)/(1+kappa);
-        composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
-        return composition;
-    }
-
-}
 
 data{
 
@@ -48,8 +27,8 @@ data{
     real delta_lambda; //Uncertainty in (lambda = sum(odd-rotation-state-coefficients))
 
     int num_iso;    //Number of isotopologs under consideration
-    vector[num_iso] Q_T_molecule;          // Best-estimate endpoint values for tritium molecule (T2, HT, DT)
-    real Q_T_atom;          // Best-estimate endpoint values for atomic tritium
+    //real composition[num_iso]; //Relative concentrations of (T2, HT, DT, T) - must sum to 1.0
+    real Q_values[num_iso];          // Best-estimate endpoint values for (T2, HT, DT, and T)
 
     real epsilon_set;   // Average fractional activity of source gas compared to pure T_2
     real kappa_set;     // Average ratio of HT to DT
@@ -57,61 +36,99 @@ data{
 
     real delta_epsilon; //Uncertainty in fractional activity of source gas compared to pure T_2
     real delta_kappa; //Uncertainty in ratio of HT to DT
+    real delta_eta; //Uncertainty in composition fraction of non-T (eta = 1.0 --> no T, eta = 0.0 --> all T)
 
-    int nData;     // Number of data points to be generated
-    vector[nData] Q;        // Generated data: corresponding Q values (eV)
+    int numPts;     // Number of data points to be generated
+    vector[numPts] sigma;              // Generated data: number of each Q value
+    vector[numPts] Q;        // Generated data: corresponding Q values (eV)
 }
 
-transformed data{
-
-    vector<lower=0.0>[num_iso] mass_s;
-
-    mass_s[1] <- tritium_atomic_mass();
-    mass_s[2] <- hydrogen_atomic_mass();
-    mass_s[3] <- deuterium_atomic_mass();
-    
-}
 
 parameters{
 
-    real<lower=0.,upper=1.> eta;
-    
-    real<lower=minKE,upper=maxKE> Q_mol;
-    real<lower=minKE,upper=maxKE> Q_atom;
-    
+    //Parameters sampled by vnormal_lp function
+
+    real Tparam1;
+    real Tparam2;
+    real lambda_param;
+    real epsilon_param;
+    real kappa_param;
+    real eta_param;
+
+    real<lower=minKE, upper=maxKE> Q_extract;   // Extracted (incorrect) endpoint (eV)
+    real<lower=0.0, upper=1.5> sigma_extract;     // Extracted (incorrect) standard deviation
+
+
 }
+
+
 
 transformed parameters{
 
-    real temperature;
-    real p_squared;
-    vector[num_iso] sigma_0;
-    vector[num_iso] composition;
+    real<lower=25., upper=35.> T0;     // Average of temperature distribution, given temp calibration (K)
+    real<lower=25., upper=35.> temp;   // Temperature of source gas (K)
+    real<lower=0.0> deltaT_total;      // Used only for calculation of delta_sigma, as check (K)
 
-    real sigma_mol;
-    real sigma_atom;
+    real<lower=0.0> lambda;   // Fraction of T2 component of source in ortho (odd rotation) state
+    real<lower=0.0> epsilon;  // Fractional activity of source gas compared to pure T_2
+    real<lower=0.0> kappa;    // Ratio of HT to DT
+    real<lower=0.0> eta;      // Composition fraction of T (eta = f_T/(f_T2+f_HT+f_DT))
 
-    temperature <- T_set;
-    composition <- find_composition(epsilon_set, kappa_set);
+    real<lower=0.0> composition[num_iso]; //Simplex of fractional composition of each isotopolog: (f_T2,f_HT,f_DT, f_T)
+    real<lower=0.0> composition_set[num_iso]; //Used only for calculation of delta_sigma, as check
 
-//  Take averages of Q and sigma values of molecule
-    
-    for (i in 1:num_iso) {
-        p_squared <- 2.0 * Q_T_molecule[i] * m_electron();
-    	sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda_set);
-    }
-    sigma_mol <- sqrt(sum(composition .* sigma_0 .* sigma_0));
+    real<lower=0.0> Q_avg;             // Best estimate for value of Q (eV)
+    real p_squared;         // (Electron momentum)^2 at the endpoint
 
-//  Find sigma of atomic tritium
+    real<lower=0.0> sigma_floating;         // Best estimate, from theory, for standard deviation of Q distribution (eV)
+    real delta_sigma;       // Uncertainty (1 stdev) in estimate of sigma (sigma_avg), from theory
 
-    sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom * m_electron(), 0., 0, 0.);
+
+    // Create distribution for each parameter
+
+    T0 <- vnormal_lp(Tparam1, T_set, deltaT_calibration);
+    temp <- vnormal_lp(Tparam2, T0, deltaT_fluctuation);
+
+    lambda <- vnormal_lp(lambda_param, lambda_set, delta_lambda);
+    epsilon <- vnormal_lp(epsilon_param, epsilon_set, delta_epsilon);
+    kappa <- vnormal_lp(kappa_param, kappa_set, delta_kappa);
+    if (delta_eta != 0.0){
+        eta <- vnormal_lp(eta_param, eta_set, delta_eta);}
+
+    deltaT_total <- pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
+
+    composition <- find_composition(epsilon, kappa, eta, num_iso);
+    composition_set <- find_composition(epsilon_set, kappa_set, eta_set, num_iso);
+
+    Q_avg <- 0;
+    for (s in 1:num_iso){
+        Q_avg <- Q_avg + composition[s]*Q_values[s];}
+    p_squared <- 2*Q_avg*m_electron();
+
+    //Calculating sigma given normally distributed parameters (temp, lambda, composition)
+    sigma_floating <- find_sigma(temp, p_squared, composition, num_J, lambda);
+    print ("temp: ", temp);
+    print ("sigma: ", sigma_floating);
+
+
+    //DELTA_SIGMA CALCULATION REQUIRES REVISION DUE TO ERROR WHEN CALCULATING find_delta_sigma_squared_eta
+    // delta_sigma can be printed or outputted as a check. It should be very similar to the standard deviation of the generated sigma distribution.
+    // delta_sigma <- find_delta_sigma(T_set, p_squared, deltaT_total, num_J, delta_lambda, composition_set, lambda_set, epsilon_set, kappa_set, eta_set, delta_epsilon, delta_kappa, delta_eta);
+
+
+    // Extracting sigma_extract using calculated delta_sigma and inputted data (as check)
+    // sigma <- vnormal_lp(sigma_param, sigma_extract, delta_sigma);
+}
+
+
+
+model {
+
+    //Extracting average of Q distribution
+    Q ~ normal(Q_extract, sigma_floating);
+
 
 }
 
-model{
 
-    for (n in 1:nData) {
-    	increment_log_prob(log_sum_exp(log(eta) + normal_log(Q[n], Q_mol, sigma_mol),
-                                   log1m(eta) + normal_log(Q[n], Q_atom, sigma_atom)));
-    }
-}
+

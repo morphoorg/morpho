@@ -18,37 +18,13 @@
 *
 * Collaboration:  Project 8
 */
-
-functions{
-
-	// Set up constants
-
-	real m_electron() { return  510998.910;}				// Electron mass in eV
-	real c() { return  299792458.;}			   	   	 	// Speed of light in m/s
-	real omega_c() {return 1.758820088e+11;}		         	// Angular gyromagnetic ratio in rad Hz/Tesla
-	real freq_c() {return omega_c()/(2. * pi());}			 	// Gyromagnetic ratio in Hz/Tesla
-	real alpha() { return 7.29735257e-3;}               	   	 	// Fine structure constant
-	real bohr_radius() { return 5.2917721092e-11;}	 	 	 	// Bohr radius in meters
-	real k_boltzmann() {return  8.61733238e-5;}		         	// Boltzmann's constant in eV/Kelvin
-	real unit_mass() { return 931.494061e6;}			 	// Unit mass in eV
-	real r0_electron() { return square(alpha())*bohr_radius();}  	 	// Electron radius in meters
-	real ry_hydrogen() { return 13.60569253;}                    	    	// Rydberg energy in eV
-	real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * B);}    // Frequency damping constant (in units of Hz/Tesla^2)
-	real seconds_per_year() {return 365.25 * 86400.;}	        	// Seconds in a year
-
-	//  Tritium-specific constants
-
-	real tritium_rate_per_eV() {return 1.5e-13;}				 // fraction of rate in last 1 eV
-	real tritium_molecular_mass() {return  2. * 3.016 * unit_mass();}   	 // Molecular tritium mass in eV
-	real tritium_halflife() {return 12.32 * seconds_per_year();}  // Halflife of tritium (in seconds)
-
-	// Method to fill the first line of the U_PMNS with the mean value of the sin(theta)
+real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * B);}    // Frequency damping constant (in units of Hz/Tesla^2)
 
 	vector get_U_PMNS(int nFamily, real sin2_th12, real sin2_th13) {
 		vector[nFamily] U;
 		U[1] <- (1. - sin2_th13) * (1. - sin2_th12);
 		U[2] <- (1. - sin2_th13) * sin2_th12;
-		U[3] <- sin2_th13 * sin2_th12;
+		U[3] <- sin2_th13;
 		return U;
 	}
 
@@ -68,21 +44,6 @@ functions{
 		real gamma;
 		gamma <- freq_c() / frequency * field;
 		return (gamma -1.) * m_electron();
-	}
-
-	//  Create a centered normal distribution function for faster convergence on normal distributions
-
-	real vnormal_lp(real beta_raw, real mu, real sigma) {
-		beta_raw ~ normal(0,1);
-		return mu + beta_raw * sigma;
-	}
-
-	//  Create a centered normal distribution function for faster convergence on cauchy distributions.
-	//  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
-
-	real vcauchy_lp(real beta_raw, real mu, real sigma) {
-		beta_raw ~ uniform(-pi()/2. , +pi()/2.);
-		return mu +  tan(beta_raw) * sigma;
 	}
 
 	//   Get relativistic velocity (beta)
@@ -175,4 +136,29 @@ functions{
 		rate_log <- log(signal + exp(background_log)); //we add the background to the signal
 		return rate_log;
 	}
-}
+
+	// spectrum shaper
+	real spectral_shape(real KE, real Q, vector U, vector m_nu) {
+		int nFamily;           // Number of neutrino species
+		real rate_log;         // Log of event rate (beta decay spectrum) --> log sum of signal and background
+		real spectrum;         // spectral shape
+
+
+		nFamily <- num_elements(U);
+
+		spectrum <- 0.;
+		for (i in 1:nFamily){
+			if (KE < (Q-fabs(m_nu[i]))) {
+				spectrum <-spectrum + U[i]*(Q-KE)*sqrt(square(KE-Q)-square(m_nu[i]));
+			}
+		}
+		// if (spectrum <0)
+		// {
+		// print(spectrum);
+		// for (i in 1:nFamily){
+		//  print(U[i], "   ", (Q-KE), "   ", sqrt(square(KE-Q)-square(m_nu[i])));
+		// }
+		// }
+		return spectrum;
+
+	}

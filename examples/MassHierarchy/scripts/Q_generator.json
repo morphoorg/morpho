@@ -1,9 +1,18 @@
 {
     "stan": {
-        
+
         "name": "Q_generator",
-        
+
         "model":   {
+<<<<<<< HEAD:examples/MassHierarchy/scripts/Q_generator.json
+            "file": "./examples/MassHierarchy/models/Q_generator.stan",
+            "function_file": [
+                {"name" : "constants", "file" : "./functions/constants.functions"},
+                {"name" : "func_routines", "file" : "./functions/func_routines.functions"},
+                {"name" : "Q_Functions", "file" : "./functions/Q_functions.functions"}
+             ],
+            "cache": "./examples/MassHierarchy/cache"
+=======
             "file": "./MassHierarchy/models/Q_generator.stan",
             "function_file": [
                 {"name" : "constants", "file" : "../functions/constants.functions"},
@@ -11,20 +20,35 @@
                 {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"}
              ],
             "cache": "./MassHierarchy/cache"
+>>>>>>> develop:examples/MassHierarchy/scripts/Q_generator.json
         },
-        
+
         "data": {
             "type": "mc",
             "files": [
                       {
+<<<<<<< HEAD:examples/MassHierarchy/scripts/Q_generator.json
+                      "name": "./examples/MassHierarchy/data/Q_generate.data",
+=======
                       "name": "./MassHierarchy/data/Q_generate.data",
+>>>>>>> develop:examples/MassHierarchy/scripts/Q_generator.json
                       "format":"R"
                       }
                       ]
         },
-        
+
         "run": {
             "algorithm": "NUTS",
+<<<<<<< HEAD:examples/MassHierarchy/scripts/Q_generator.json
+            "iter": 10000,
+            "chain": 1},
+
+        "sample": "./examples/MassHierarchy/results/Qtest_generator.out",
+
+     "output":
+            {
+             "name" : "./examples/MassHierarchy/results/Qtest_generator",
+=======
             "iter": 5000,
             "chain": 4},
         
@@ -33,6 +57,7 @@
      "output": 
             {
              "name" : "./Qtest_generator",
+>>>>>>> develop:examples/MassHierarchy/scripts/Q_generator.json
              "format" : "root",
              "tree" : "QTree",
              "branches" : [
@@ -43,12 +68,17 @@
                      {"variable" : "sigma_atom", "root_alias" : "sigma_atom"},
                      {"variable" : "sigma_mol", "root_alias" : "sigma_mol"},
                      {"variable" : "temperature", "root_alias" : "temperature"},
+<<<<<<< HEAD:examples/MassHierarchy/scripts/Q_generator.json
+                     {"variable" : "composition", "root_alias" : "composition", "ndim":4},
+                     {"variable" : "sigma", "root_alias" : "sigma", "ndim":4},
+=======
                      {"variable" : "composition", "root_alias" : "composition", "ndim":3},
+>>>>>>> develop:examples/MassHierarchy/scripts/Q_generator.json
                      {"variable" : "lp__", "root_alias" : "LogLikelihood"}
                       ]
-             }        
+             }
 
    }
-    
-    
+
+
 }

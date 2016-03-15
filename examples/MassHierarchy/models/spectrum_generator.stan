@@ -20,10 +20,10 @@ data{
     real  meas_delta_m21_err;   // Error on delta_m2^2-delta_m1^2 in eV^2
     real  meas_delta_m32;       // Best known value of delta_m3^2-delta_m2^2 in eV^2
     real  meas_delta_m32_err;   // Error on delta_m3^2-delta_m2^2 in eV^2
-    real  meas_th12;            // Best known value of sin^2(2*theta_12) (radians)
-    real  meas_th12_err;        // Error on sin^2(2*theta_12)
-    real  meas_th13;            // Best known value of sin^2(2*theta_13)
-    real  meas_th13_err;        // Error on sin^2(2*theta_13)
+    real  sin_sq_2meas_th12;    // Best known value of sin squared of 2*theta_12 (radians)
+    real  sin_sq_2meas_th12_err;// Error on sin squared of 2*theta_12
+    real  sin_sq_2meas_th13;    // Best known value of sin squared of 2*theta_13
+    real  sin_sq_2meas_th13_err;// Error on sin squared of 2*theta_13
 
     real  min_mass_fixed;       // Inputted value chosen as lightest mass (between 0.0 and 0.5 eV)
 
@@ -51,7 +51,7 @@ transformed parameters {
     real rate_log;                // Beta decay spectrum generated assuming one MH
 
 
-    sUe_fixed <- matrix_elements(meas_th12, meas_th13);
+    sUe_fixed <- matrix_elements(sin_sq_2meas_th12, sin_sq_2meas_th13);
     nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21, meas_delta_m32, MH);
 
     rate_log <- signal_to_noise_log(KE, Q, sUe_fixed, nu_mass_fixed, minKE, maxKE, signal_fraction);

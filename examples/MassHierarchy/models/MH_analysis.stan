@@ -16,14 +16,14 @@
 data{
 
     // Neutrino mixing parameters
-    real meas_delta_m21;       // Best known value of delta_m2^2-delta_m1^2 in eV^2
+    real  meas_delta_m21;       // Best known value of delta_m2^2-delta_m1^2 in eV^2
     real  meas_delta_m21_err;   // Error on delta_m2^2-delta_m1^2 in eV^2
     real  meas_delta_m32;       // Best known value of delta_m3^2-delta_m2^2 in eV^2
     real  meas_delta_m32_err;   // Error on delta_m3^2-delta_m2^2 in eV^2
-    real  meas_th12;            // Best known value of theta_12 (radians)
-    real  meas_th12_err;        // Error on theta_12
-    real  meas_th13;            // Best known value of theta_13
-    real  meas_th13_err;        // Error on theta_13
+    real  sin_sq_2meas_th12;    // Best known value of sin squared of 2*theta_12 (radians)
+    real  sin_sq_2meas_th12_err;// Error on sin squared of 2*theta_12
+    real  sin_sq_2meas_th13;    // Best known value of sin squared of 2*theta_13
+    real  sin_sq_2meas_th13_err;// Error on sin squared of 2*theta_13
 
     real minKE;                 // Bounds on possible beta-decay spectrum kinetic energies in eV
     real maxKE;
@@ -73,8 +73,8 @@ model {
 
 // Create distribution for each parameter (below)
 
-    th12 ~ normal(meas_th12, meas_th12_err);
-    th13 ~ normal(meas_th13, meas_th13_err);
+    th12 ~ normal(sin_sq_2meas_th12, sin_sq_2meas_th12_err);
+    th13 ~ normal(sin_sq_2meas_th13, sin_sq_2meas_th13_err);
     delta_m21 ~ normal(meas_delta_m21, meas_delta_m21_err);
     delta_m32 ~ normal(meas_delta_m32, meas_delta_m32_err);
 

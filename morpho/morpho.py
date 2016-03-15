@@ -49,8 +49,27 @@ class stan_args(object):
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_function(self):
-        return self.init_per_chain
-    
+        if isinstance(self.init_per_chain,list): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)):
+            # init_per_chain is a list of dictionaries
+            if self.chains >1 and len(self.init_per_chain)==1:
+                dict_list = [self.init_per_chain[0]] * self.chains
+                return dict_list
+            elif len(self.init_per_chain)==self.chains :
+                return self.init_per_chain
+            else:
+                print('ERROR: number of chains is not equal to the size of the list of dictionaries')
+                return self.init_per_chain
+        elif isinstance(self.init_per_chain,dict): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)):
+            # init_per_chain is a dictionary
+            if self.chains >1:
+                dict_list = [self.init_per_chain] * self.chains
+                return dict_list
+            else:
+                return self.init_per_chain
+        else:
+            # print('WARNING: init is not a list or a dictionary')
+            return self.init_per_chain
+
     def __init__(self, yd):
         try:
             # Identifications
@@ -74,7 +93,7 @@ class stan_args(object):
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
             self.init = self.init_function();
-                        
+
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
 
@@ -88,10 +107,10 @@ class stan_args(object):
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
             self.out_vars = self.read_param(yd, 'stan.output.data', None)
-            
+
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
-            
+
         except Exception as err:
             raise err
 
@@ -105,7 +124,7 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
             if (key['name']==matches):
                 StanFunctions = open(key['file'],'r+').read()
                 theModel = re.sub(r'\s*include\s*<-\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
-                
+
     code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:
         cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
@@ -139,7 +158,7 @@ def parse_args():
     p.add_argument('--seed',
                    metavar='<seed>',
                    help='Add random seed number to file',
-                   required=False)                   
+                   required=False)
 
     return p.parse_args()
 
@@ -173,7 +192,7 @@ def write_result(conf, stanres):
 
     ofilename = sa.out_fname
     if (args.job_id>0):
-        ofilename = ofilename+'_'+args.job_id        
+        ofilename = ofilename+'_'+args.job_id
     if sa.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
         write_result_hdf5(sa, ofilename, result)
@@ -199,7 +218,7 @@ def write_result_hdf5(conf, ofilename, stanres):
             else:
                 print(var['output_name'])
                 g[var['output_name']] = fit[stan_parname]
-                
+
 def save_object(obj, filename):
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
@@ -215,8 +234,8 @@ if __name__ == '__main__':
 
             stanres = write_result(sa, result)
             plot_result(sa, result)
-        
+
             save_object(stanres, sa.out_fit)
-                                        
+
         except Exception as err:
             print(err)

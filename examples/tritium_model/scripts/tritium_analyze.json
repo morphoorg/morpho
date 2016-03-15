@@ -59,7 +59,7 @@
     },
 
     "run": {
-      "algorithm": "HMC",
+      "algorithm": "NUTS",
       "iter": 6000,
       "warmup": 5500,
       "chain": 4,
@@ -69,7 +69,7 @@
           "background_rate" : 1.e-6,
           "uB" : 0.0,
           "uBG" : 0.,
-          "uQ1" : 0.,
+          "uQ" : [0.,0.,0.],
           "uQ2" : 0.,
           "uF" : 0.0,
           "uS" : 0.0,

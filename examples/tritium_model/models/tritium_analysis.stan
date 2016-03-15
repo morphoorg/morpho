@@ -102,7 +102,7 @@ data {
 
   real fBandpass;
   real fclockError;
-  int  fFilterN;
+  // int  fFilterN;
 
   //  Input data (from generated sample)
 
@@ -156,10 +156,10 @@ transformed data {
 
   fclock <- 0.;
 
-  if (fBandpass > (maxFreq-minFreq)) {
-    print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
-    print("Consider enlarging energy region.");
-  }
+  // if (fBandpass > (maxFreq-minFreq)) {
+  //   print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
+  //   print("Consider enlarging energy region.");
+  // }
 
   // print("Approximate activity = ",tritium_rate_per_eV() * beta_integral(KE, 0., minKE) * number_density * effective_volume / tritium_halflife() / log(2.) * measuring_time);
 
@@ -179,8 +179,8 @@ parameters {
   real uB;
   real uBG;
   real uF;
-  real uQ1;
-  real uQ2;
+  vector<lower=-10,upper=10>[num_iso] uQ;
+  real<lower=-10,upper=10> uQ2;
   real uS;
 
 
@@ -192,7 +192,7 @@ parameters {
   real<lower=1e4,upper=10e4> scatt_width;
   real<lower=100, upper=1000> n0_timeData;
 
-  real<lower=20,upper=40> Tparam1;
+  real<lower=0.> Tparam1;
   // real Tparam2;
   real<lower=0, upper=1> lambda_param;
   real<lower=0, upper=1> epsilon_param;
@@ -229,7 +229,7 @@ transformed parameters{
 
   // temperature
   // real<lower=20., upper=40.> T0;     // Average of temperature distribution, given temp calibration (K)
-  real<lower=20., upper=40.> temperature;   // Temperature of source gas (K)
+  real<lower=0.> temperature;   // Temperature of source gas (K)
   real<lower=0.0> deltaT_total;      // Used only for calculation of delta_sigma, as check (K)
   //
   //   //gas composition parameters
@@ -242,7 +242,7 @@ transformed parameters{
   //
   //   // Q values uncertainty and definitions
   real<lower=0.0> p_squared;         // (Electron momentum)^2 at the endpoint
-  real<lower=minKE,upper=maxKE> Q_mol; //average Q molecular
+  real<lower=0> Q_mol; //average Q molecular
   real<lower=0.0> sigma_mol; //
   vector<lower=0.0>[num_iso] sigma_0; //Fluctuations on Q molecular
   real<lower=0.0> sigma_atom;     //Fluctuations on Q atomic
@@ -333,14 +333,17 @@ transformed parameters{
   for (i in 1:num_iso) {
     p_squared <- 2.0 * Q_T_molecule_set[i] * m_electron();
     sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
-    Q_T_molecule[i] <- Q_T_molecule_set[i] + vnormal_lp(uQ1 , 0. , sigma_0[i]);
+    Q_T_molecule[i] <- Q_T_molecule_set[i] + vnormal_lp(uQ[i] , 0. , sigma_0[i]);
+    // print(uQ1,"   ", sigma_0[i]);
+
   }
 
   sigma_theory <-  vnormal_lp(uS, 0. , delta_theory);
 
   //  Take averages of Q and sigma values of molecule
-
+  // print(composition[1],"  ",Q_T_molecule[1],"  ",composition[2],"    ",Q_T_molecule[2],"  ",Q_T_molecule[3],"  ",composition[3]);
   Q_mol <- sum(composition .* Q_T_molecule);
+  // print(Q_mol);
   sigma_mol <- sqrt(sum(composition .* sigma_0 .* sigma_0)) * (1. + sigma_theory);
 
   //  Find sigma of atomic tritium

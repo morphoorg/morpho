@@ -65,7 +65,7 @@ class stan_args(object):
                 dict_list = [self.init_per_chain] * self.chains
                 return dict_list
             else:
-                return self.init_per_chain
+                return [self.init_per_chain]
         else:
             # print('WARNING: init is not a list or a dictionary')
             return self.init_per_chain

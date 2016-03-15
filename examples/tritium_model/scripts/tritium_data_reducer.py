@@ -90,8 +90,10 @@ def writeTTree(tree_path,title,branches_names,branches):
     return 0
 
 print "Reducing the generated data!"
+file_path = "tritium_model/results/tritium_generator_10.root"
+print file_path
 
-time_data, freq_data, spectrum_data, KE_recon = readTTree("tritium_model/results/tritium_generator.root")
+time_data, freq_data, spectrum_data, KE_recon = readTTree(file_path)
 
 can = ROOT.TCanvas("can","can",200,10,600,400)
 
@@ -99,7 +101,7 @@ minKE, maxKE = get_min_max_KE("tritium_model/data/tritium_endpoint.data")
 
 # can.SetLogy();
 
-nBinHisto = 100
+nBinHisto = 200
 dKE = (maxKE - minKE)/nBinHisto
 # events vs freq
 h = ROOT.TH1F("h","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max

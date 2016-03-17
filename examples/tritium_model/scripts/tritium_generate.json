@@ -65,7 +65,7 @@
 
       "output":
       {
-        "name" : "./tritium_model/results/tritium_generator_zero",
+        "name" : "./tritium_model/results/tritium_generator",
         "format" : "root",
         "tree" : "procTracks",
         "branches" : [

@@ -26,6 +26,7 @@ functions{
   include<-constants;
   include<-func_routines;
   include<-Q_Functions;
+  include<-neutrino_mass_functions;
   include<-tritium_functions;
 
   // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
@@ -139,32 +140,18 @@ transformed data {
   real maxFreq;
   real fclock;
 
-
-
   simplex[num_iso] composition; //Composition of the gas
 
   vector<lower=0.0>[num_iso] mass_s; //mass of tritium species
 
-  dm21 <- meas_delta_m21;
-  s12 <- meas_sin2_th12;
-  if (MassHierarchy == 1)
-  {
-    dm32 <- meas_delta_m32_NH;
-    dm31 <- meas_delta_m32_NH + meas_delta_m21;
-    m_nu[1] <- lightest_neutrino_mass;
-    m_nu[2] <- sqrt(dm21 + square(m_nu[1]));
-    m_nu[3] <- sqrt(dm31 + square(m_nu[1]));
+  if (MassHierarchy == 1){
+    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21, meas_delta_m32_NH, MassHierarchy);
     s13 <- meas_sin2_th13_NH;
-  }
-  else if (MassHierarchy == -1)
-  {
-    dm32 <- meas_delta_m32_IH;
-    dm31 <- meas_delta_m32_IH + meas_delta_m21;
-    m_nu[3] <- lightest_neutrino_mass;
-    m_nu[1] <- sqrt(-dm31 + square(m_nu[3]));
-    m_nu[2] <- sqrt(-dm32 + square(m_nu[3]));
+  }  else {
+    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21, meas_delta_m32_IH, MassHierarchy);
     s13 <- meas_sin2_th13_IH;
-  }
+  }  
+  s12 <- meas_sin2_th12;  
   U_PMNS <- get_U_PMNS(nFamily,s12,s13);
 
   minFreq <- get_frequency(maxKE, BField);
@@ -253,8 +240,7 @@ transformed parameters{
 
   // Determine effective mass to use from neutrino mass matrix
 
-  neutrino_mass <- sqrt(U_PMNS[1] * pow(m_nu[1],2) +U_PMNS[2] * pow(m_nu[2],2) +U_PMNS[3] * pow(m_nu[3],2) );
-
+  neutrino_mass <- get_effective_mass(U_PMNS, m_nu);
 
   // Obtain magnetic field (with prior distribution)
   MainField <- BField + vnormal_lp(uB, 0. , BFieldError_fluct);
@@ -336,9 +322,6 @@ transformed parameters{
 
   //Filtering
   // spectrum <- spectrum *filter_log;
-
-
-
 
 }
 

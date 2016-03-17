@@ -90,7 +90,7 @@ def writeTTree(tree_path,title,branches_names,branches):
     return 0
 
 print "Reducing the generated data!"
-file_path = "tritium_model/results/tritium_generator_10.root"
+file_path = "tritium_model/results/tritium_generator.root"
 print file_path
 
 time_data, freq_data, spectrum_data, KE_recon = readTTree(file_path)

@@ -1,5 +1,5 @@
 BField <- 0.91265
-BFieldError_calib <- 6.0e-06
+BFieldError_calib <- 3.0e-04
 BFieldError_fluct <- 1.0e-07
 
 fclock <- 0.

@@ -152,7 +152,7 @@ transformed data {
   dFreq_bin <- (freq_data[nBinSpectrum] - freq_data[1])/nBinSpectrum;
   minFreq <- freq_data[1];
   maxFreq <- freq_data[nBinSpectrum];
-
+  // print(minFreq,"   ", maxFreq);
 
   fclock <- 0.;
 
@@ -176,28 +176,28 @@ parameters {
   real<lower=0.5, upper=1.5> mu_tot;
   real<lower=0.,upper=100.> lightest_neutrino_mass;
 
-  real uB;
-  real uBG;
+  real<lower=-0.01,upper=0.01> uB;
+  real<lower=-background_rate_mean,upper=background_rate_mean> uBG;
   real uF;
   vector<lower=-10,upper=10>[num_iso] uQ;
   real<lower=-10,upper=10> uQ2;
-  real uS;
+  real<lower=-1,upper=1> uS;
 
 
-  real udm21;
-  real udm32;
-  real us12;
-  real us13;
+  real<lower=-meas_delta_m21,upper=meas_delta_m21> udm21;
+  real<lower=-meas_delta_m32_NH,upper=meas_delta_m32_NH> udm32;
+  real<lower=-meas_sin2_th12,upper=meas_sin2_th12> us12;
+  real<lower=-meas_sin2_th13_NH,upper=meas_sin2_th13_NH> us13;
   real<lower=0.0> eDop;
   real<lower=1e4,upper=10e4> scatt_width;
-  real<lower=100, upper=1000> n0_timeData;
+  real<lower=100,upper=1000> n0_timeData;
 
-  real<lower=0.> Tparam1;
+  real<lower=-3,upper=3> Tparam1;
   // real Tparam2;
-  real<lower=0, upper=1> lambda_param;
-  real<lower=0, upper=1> epsilon_param;
-  real<lower=0, upper=1> kappa_param;
-  real<lower=0, upper=1> eta_param;
+  real<lower=-1,upper=1> lambda_param;
+  real<lower=-1,upper=1> epsilon_param;
+  real<lower=-1,upper=1> kappa_param;
+  real<lower=-1,upper=1> eta_param;
 }
 
 transformed parameters{
@@ -261,7 +261,7 @@ transformed parameters{
   real beta;
 
   //
-  real KE;
+  vector[nBinSpectrum] KE;
   vector[nBinSpectrum] frequency;
   real df;
 
@@ -281,7 +281,7 @@ transformed parameters{
   {
     dm32 <- meas_delta_m32_NH + vnormal_lp(udm32, 0. ,meas_delta_m32_NH_err);
     s13 <- fabs(meas_sin2_th13_NH + vnormal_lp(us13,0.,meas_sin2_th13_NH_err));
-    dm31 <- meas_delta_m32_NH + meas_delta_m21;
+    dm31 <- dm32 + dm21;
     m_nu[1] <- lightest_neutrino_mass;
     m_nu[2] <- sqrt(fabs(dm21 + square(m_nu[1])));
     m_nu[3] <- sqrt(fabs(dm31 + square(m_nu[1])));
@@ -302,6 +302,7 @@ transformed parameters{
   //   Obtain magnetic field (with prior distribution)
   BFieldError_tot <- pow(pow(BFieldError_calib,2)+pow(BFieldError_fluct,2),0.5);
   MainField <- BField + vnormal_lp(uB, 0. , BFieldError_tot);
+  // print(BFieldError_tot,"  ",uB);
 
 
   // Determine the deltaE of the bin
@@ -370,20 +371,20 @@ transformed parameters{
 
   for (j in 1:nBinSpectrum){
     frequency[j] <- freq_data[j] - df + fclock;
-    KE <- get_kinetic_energy(frequency[j], MainField);
-    beta <- get_velocity(KE);
+    KE[j] <- get_kinetic_energy(frequency[j], MainField);
+    beta <- get_velocity(KE[j]);
 
     spectrum <- 0;
     for (i in 1:num_iso){
 
       kDoppler <-  m_electron() * beta * sqrt(eDop / mass_s[i]);
-      KE_shift <- KE + kDoppler;
+      KE_shift <- KE[j] + kDoppler;
       //
       // //  Distribute Q value from average
       //
       // // Determine signal and background rates from beta function and background level
       //
-      spectrum_shape <- spectral_shape(KE, Q_mol, U_PMNS, m_nu);
+      spectrum_shape <- spectral_shape(KE[j], Q_mol, U_PMNS, m_nu);
       spectrum <- spectrum + (1.- eta) * composition[i] * norm_density * spectrum_shape;
     }
 
@@ -391,7 +392,7 @@ transformed parameters{
 
     // Determine signal and background rates from beta function and background level
 
-    spectrum_shape <- spectral_shape(KE, Q_T_atom, U_PMNS, m_nu);
+    spectrum_shape <- spectral_shape(KE[j], Q_T_atom, U_PMNS, m_nu);
     spectrum <- spectrum + eta * norm_density * spectrum_shape;
 
     // Adding the background to the spectrum

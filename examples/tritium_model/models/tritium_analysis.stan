@@ -176,9 +176,9 @@ parameters {
   real<lower=0.5, upper=1.5> mu_tot;
   real<lower=0.,upper=100.> lightest_neutrino_mass;
 
-  real<lower=-0.01,upper=0.01> uB;
   real<lower=-background_rate_mean,upper=background_rate_mean> uBG;
-  real uF;
+  real<lower=-0.01,upper=0.01> uB;
+  real<lower=-1.0e9,upper=1.0e9> uF;
   vector<lower=-10,upper=10>[num_iso] uQ;
   real<lower=-10,upper=10> uQ2;
   real<lower=-1,upper=1> uS;
@@ -189,8 +189,8 @@ parameters {
   real<lower=-meas_sin2_th12,upper=meas_sin2_th12> us12;
   real<lower=-meas_sin2_th13_NH,upper=meas_sin2_th13_NH> us13;
   real<lower=0.0> eDop;
-  real<lower=1e4,upper=10e4> scatt_width;
-  real<lower=100,upper=1000> n0_timeData;
+  real<lower=0.5e4,upper=1.0e4> scatt_width;
+  real<lower=100,upper=10000> n0_timeData;
 
   real<lower=-3,upper=3> Tparam1;
   // real Tparam2;
@@ -301,6 +301,7 @@ transformed parameters{
 
   //   Obtain magnetic field (with prior distribution)
   BFieldError_tot <- pow(pow(BFieldError_calib,2)+pow(BFieldError_fluct,2),0.5);
+  // MainField <- BField + uB;
   MainField <- BField + vnormal_lp(uB, 0. , BFieldError_tot);
   // print(BFieldError_tot,"  ",uB);
 
@@ -309,51 +310,41 @@ transformed parameters{
   widthBin <- fabs((get_kinetic_energy(freq_data[1],MainField) - get_kinetic_energy(freq_data[nBinSpectrum],MainField))/nBinSpectrum);
 
 
-  #  Determining endpoint
-  # Here is where the model from Talia comes
-
+  //  Determining endpoint
   deltaT_total <- pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
   temperature <- T_set + vnormal_lp(Tparam1, 0. , deltaT_total);
-  //
+
   lambda <- lambda_set + vnormal_lp(lambda_param, 0. , delta_lambda);
   epsilon <- epsilon_set + vnormal_lp(epsilon_param, 0. , err_epsilon_set);
   kappa <- kappa_set + vnormal_lp(kappa_param, 0. , err_kappa_set);
-  //
+
   if (err_eta_set != 0.0){
     eta <- eta_set + vnormal_lp(eta_param, 0., err_eta_set);
-    // eta <- eta_set;
   }
   else eta <- eta_set;
-  //
+
   composition <- find_composition(epsilon, kappa);
   composition_set <- find_composition(epsilon_set, kappa_set);
-  //
-  //
-  // // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
-  //
+
+  // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
   for (i in 1:num_iso) {
     p_squared <- 2.0 * Q_T_molecule_set[i] * m_electron();
     sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
     Q_T_molecule[i] <- Q_T_molecule_set[i] + vnormal_lp(uQ[i] , 0. , sigma_0[i]);
-    // print(uQ1,"   ", sigma_0[i]);
 
   }
 
   sigma_theory <-  vnormal_lp(uS, 0. , delta_theory);
 
   //  Take averages of Q and sigma values of molecule
-  // print(composition[1],"  ",Q_T_molecule[1],"  ",composition[2],"    ",Q_T_molecule[2],"  ",Q_T_molecule[3],"  ",composition[3]);
   Q_mol <- sum(composition .* Q_T_molecule);
-  // print(Q_mol);
   sigma_mol <- sqrt(sum(composition .* sigma_0 .* sigma_0)) * (1. + sigma_theory);
 
   //  Find sigma of atomic tritium
-
   sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom_set * m_electron(), 0., 0, 0.);
   Q_T_atom <- Q_T_atom_set + vnormal_lp(uQ2 , 0. , sigma_atom);
 
   //   Calculate scattering length, radiation width, and total width;
-
   rad_width <- cyclotron_rad(MainField);
   tot_width <- (scatt_width + rad_width);
   sigma_freq <- (scatt_width + rad_width) / (4. * pi());
@@ -379,18 +370,15 @@ transformed parameters{
 
       kDoppler <-  m_electron() * beta * sqrt(eDop / mass_s[i]);
       KE_shift <- KE[j] + kDoppler;
-      //
-      // //  Distribute Q value from average
-      //
-      // // Determine signal and background rates from beta function and background level
-      //
+
+      // Determine signal from the spectral shape
       spectrum_shape <- spectral_shape(KE[j], Q_mol, U_PMNS, m_nu);
       spectrum <- spectrum + (1.- eta) * composition[i] * norm_density * spectrum_shape;
     }
 
 
 
-    // Determine signal and background rates from beta function and background level
+    // Determine signal from the spectral shape
 
     spectrum_shape <- spectral_shape(KE[j], Q_T_atom, U_PMNS, m_nu);
     spectrum <- spectrum + eta * norm_density * spectrum_shape;
@@ -417,10 +405,7 @@ transformed parameters{
 model {
 
 
-  // MainField ~ normal(BField, BFieldError_tot);
-  // mu_tot ~ uniform(0.5,1.);
-
-  // background_rate ~ normal(background_rate_mean,)
+  // uB ~ normal(0.,BFieldError_tot);
 
   #  Thermal Doppler broadening of the tritium source
 
@@ -431,7 +416,6 @@ model {
     if(n_time_data[i]>0)
     {
       increment_log_prob(poisson_log(n_time_data[i], n0_timeData * exp( - time_data[i] * scatt_width )));
-      // print(time_data[i],"  ",n_time_data[i]);
     }
   }
   //
@@ -442,7 +426,6 @@ model {
     if(n_spectrum_data[i]>0 )
     {
       increment_log_prob(poisson_log(n_spectrum_data[i],n_spectrum_recon[i]));
-      // n_events[i] ~ poisson(rate[i]);
     }
   }
 

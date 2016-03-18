@@ -20,13 +20,6 @@
 */
 real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * B);}    // Frequency damping constant (in units of Hz/Tesla^2)
 
-	vector get_U_PMNS(int nFamily, real sin2_th12, real sin2_th13) {
-		vector[nFamily] U;
-		U[1] <- (1. - sin2_th13) * (1. - sin2_th12);
-		U[2] <- (1. - sin2_th13) * sin2_th12;
-		U[3] <- sin2_th13;
-		return U;
-	}
 
 	// Method for converting kinetic energy (eV) to frequency (Hz).
 	// Depends on magnetic field (Tesla)

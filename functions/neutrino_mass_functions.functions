@@ -1,0 +1,68 @@
+/*
+* MC Neutrino Mass Functions 
+* -----------------------------------------------------
+* Authors: Talia Weiss <tweiss@mit.edu>
+*          J. A. Formaggio <josephf@mit.edu>
+*
+* Date: 9 July 2015
+*
+* Purpose:
+*
+* Defines functions and constants used in neutrino mass generation and analysis models.
+*
+*/
+
+
+// Finds vector of squares of PMNS matrix elements U_e
+
+vector matrix_elements(real meas_th12, real meas_th13)
+{
+   vector[3] sUe_fixed;
+
+   sUe_fixed[1] <- square(cos(meas_th12)*cos(meas_th13));
+   sUe_fixed[2] <- square(sin(meas_th12)*cos(meas_th13));
+   sUe_fixed[3] <- square(sin(meas_th13));
+
+   return sUe_fixed;
+}
+
+// Finds vector of neutrino masses (m1, m2, m3) assuming one mass hierarchy with fixed minimum mass
+
+vector MH_masses(real min_mass_fixed, real meas_delta_m21, real meas_delta_m32, int MH)
+{
+   vector[3] nu_mass_fixed;
+
+// Defining neutrino masses assuming NH is true
+   if (MH==0){
+      nu_mass_fixed[1] <- min_mass_fixed;
+      nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)+meas_delta_m32-meas_delta_m21);
+      nu_mass_fixed[3] <- sqrt(square(min_mass_fixed)+meas_delta_m32);
+   }
+   // Defining neutrino masses assuming IH is true
+   else if (MH==1){
+      nu_mass_fixed[3] <- min_mass_fixed;
+      nu_mass_fixed[1] <- sqrt(square(min_mass_fixed)+meas_delta_m32-meas_delta_m21);
+      nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)+meas_delta_m32);
+   }
+   else print ("MH=0 for normal hierarchy; MH=1 for inverted hierarchy");
+
+   return nu_mass_fixed;
+   
+}
+
+vector get_U_PMNS(int nFamily, real sin2_th12, real sin2_th13)
+{
+   vector[nFamily] U;
+   
+   U[1] <- (1. - sin2_th13) * (1. - sin2_th12);
+   U[2] <- (1. - sin2_th13) * sin2_th12;
+   U[3] <- sin2_th13;
+   
+   return U;
+}
+
+real get_effective_mass(vector U, vector mass){
+
+     return sqrt(sum(U .* mass .* mass));
+
+}

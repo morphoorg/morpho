@@ -44,8 +44,8 @@
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 5500,
-      "warmup": 5000,
+      "iter": 10000,
+      "warmup": 8000,
       "chain": 40,
       "init_off": [
         {"uB" : 0.0,

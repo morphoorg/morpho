@@ -9,7 +9,8 @@
         {"name" : "constants", "file" : "../functions/constants.functions"},
         {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
         {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"},
-        {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
+        {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"},
+        {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"}
       ],
       "cache": "./tritium_model/cache"
     },
@@ -64,8 +65,8 @@
       "warmup": 5500,
       "chain": 4,
       "init":
-        { "lightest_neutrino_mass": 2.0,
-          "scatt_width" : 7.3e+04,
+        { "lightest_neutrino_mass": 10.0,
+          "scatt_width" : 1.0e+06,
           "uB" : 0.0,
           "uBG" : 0.,
           "uQ" : [0.,0.,0.],
@@ -83,7 +84,7 @@
           "udm32" : 0.,
           "mu_tot" : 1.0,
           "eDop":0.05,
-          "n0_timeData":800}
+          "n0_timeData":900}
       },
 
       "sample": "./tritium_model/results/tritium_analysis.out",

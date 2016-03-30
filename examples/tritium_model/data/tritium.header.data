@@ -1,6 +1,6 @@
 BField <- 0.91265
 BFieldError_calib <- 3.0e-04
-BFieldError_fluct <- 1.0e-07
+BFieldError_fluct <- 1.0e-05
 
 fclock <- 0.
 fBandpassMin <- 24.6e9

@@ -199,7 +199,7 @@ canres.Update()
 canres.SaveAs("tritium_model/ploting_scripts/" + "Poisson_residus.pdf")
 
 # Saving the additional data (aka the number of bin for each tree)
-f = open('tritium_model/results/tritium_additionalData.txt','w')
+f = open('tritium_model/results/tritium_additionalData.out','w')
 value =(str(h.GetNbinsX()))
 s=str(value)
 f.write('nBinSpectrum <- ' + s + '\n')

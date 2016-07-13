@@ -18,16 +18,16 @@
 vector matrix_elements(real sin_sq_2th12, real sin_sq_2th13) {
     real cos_2th12;
     real cos_2th13;
-    vector[3] sUe_fixed;
+    vector[3] Ue_squared;
 
-    cos_2th12 <- pow((1 - pow(sin_sq_2th12, 2)), 0.5);
-    cos_2th13 <- pow((1 - pow(sin_sq_2th13, 2)), 0.5);
+    cos_2th12 <- pow((1. - pow(sin_sq_2th12, 2)), 0.5);
+    cos_2th13 <- pow((1. - pow(sin_sq_2th13, 2)), 0.5);
 
-    sUe_fixed[1] <- 0.25*(1+cos_2th12)*(1+cos_2th13);
-    sUe_fixed[2] <- 0.25*(1-cos_2th12)*(1+cos_2th13);
-    sUe_fixed[3] <- 0.5*(1-cos_2th12);
+    Ue_squared[1] <- 0.25*(1.+cos_2th12)*(1.+cos_2th13);
+    Ue_squared[2] <- 0.25*(1.-cos_2th12)*(1.+cos_2th13);
+    Ue_squared[3] <- 0.5*(1.-cos_2th13);
 
-    return sUe_fixed;
+    return Ue_squared;
 }
 
 // Finds vector of neutrino masses (m1, m2, m3) assuming one mass hierarchy with fixed minimum mass

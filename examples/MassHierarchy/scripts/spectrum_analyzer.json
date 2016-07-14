@@ -4,23 +4,27 @@
         "name": "spectrum_analyzer",
         
         "model":   {
-            "file": "./examples/MassHierarchy/models/spectrum_analyzer.stan",
+            "file": "./MassHierarchy/models/spectrum_analyzer.stan",
             "function_file": [
                               {"name" : "func_routines", "file" : "./functions/func_routines.functions"},
                               {"name" : "MH_Functions", "file" : "./functions/MH_functions.functions"}
                               ],
-            "cache": "./examples/MassHierarchy/cache"
+            "cache": "./MassHierarchy/cache"
         },
         
         "data": {
             "type": "mc",
             "files": [
                       {
-                      "name": "./examples/MassHierarchy/data/MH_analyze.data",
+                      "name": "./MassHierarchy/data/MH_analyze.data",
                       "format":"R"
                       },
                       {
-                      "name" : "./examples/MassHierarchy/results/generator_reduced.root",
+                      "name": "./MassHierarchy/results/spectrum_additionalData.txt",
+                      "format":"R"
+                      },
+                      {
+                      "name" : "./MassHierarchy/results/generator_reduced.root",
                       "format" : "root",
                       "tree" : "spectrum",
                       "branches" : [
@@ -39,11 +43,11 @@
             "chain": 4},
         
         
-        "sample": "./examples/MassHierarchy/results/MHtest_analyzer.out",
+        "sample": "./MassHierarchy/results/MHtest_analyzer.out",
         
         "output":
         {
-            "name" : "./examples/MassHierarchy/results/MHtest_analyzer.h5",
+            "name" : "./MassHierarchy/results/MHtest_analyzer.h5",
             "format": "hdf5",
             "config": {"group": "/"},
             "data": [

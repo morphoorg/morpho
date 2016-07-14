@@ -4,6 +4,7 @@
     "name": "tritium_generator",
 
     "model":     {
+      "model_name": "tritium_generator",
       "file": "./tritium_model/models/tritium_generator.stan",
       "function_file": [
         {"name" : "constants", "file" : "../functions/constants.functions"},
@@ -44,8 +45,8 @@
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 1000,
-      "warmup": 800,
+      "iter": 100,
+      "warmup": 80,
       "chain": 4,
       "init_off": [
         {"uB" : 0.0,
@@ -92,3 +93,19 @@
     }
 
   }
+{
+  "postprocessing": {
+    "output": {
+      "name" : "./tritium_model/results/tritium_generator.root",
+      "format": "root",
+      "tree": "spectrum",
+    },
+    "which_pp":[
+      {
+        "name": "data_reducer"
+      }
+
+    ]
+  }
+
+}

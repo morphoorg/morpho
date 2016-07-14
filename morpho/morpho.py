@@ -209,6 +209,9 @@ def write_result(conf, stanres):
         pyL.stan_write_root(sa, ofilename, result)
     return stanres
 
+def postprocessing(stanres,sa):
+    # Generic function for creating the PostProcessing class
+
 def save_object(obj, filename):
     print("Saving into pickle file: {}".format(filename))
     with open(filename, 'wb') as output:

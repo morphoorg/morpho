@@ -35,14 +35,14 @@ data{
     real  sin_sq_2meas_th13_err;// Error on sin squared of 2*theta_13
 
     real  min_mass_fixed;       // Inputted value chosen as lightest mass (between 0.0 and 0.5 eV)
-
-    real minKE;                 // Bounds on possible beta-decay spectrum kinetic energies in eV
-    real maxKE;
+    
+    real<lower=0 > minKE;       // Bounds on possible beta-decay spectrum kinetic energies in eV
+    real<lower=minKE> maxKE;
     real Q;                     // Endpoint of beta-decay spectrum in eV - should be between minKE and maxKE
     real signal_fraction;       // Fraction of events that can be described as signal (as opposed to background)
 
-    int numPts;                 // Number of points to be generated
-    real norm;                  // Temporary normalization for Poisson distribution of spectrum
+    int nGenerate;                 // Number of points to be generated
+    //real norm;                  // Temporary normalization for Poisson distribution of spectrum
 
     int MH;                     // Either 0 (normal hierarchy) or 1 (inverted hierarchy)
 
@@ -68,13 +68,19 @@ transformed parameters {
 }
 
 model{
+
+    KE ~ uniform(minKE,maxKE);
+
 }
 
 generated quantities {
 
-    int N;      //For each sampling iteration, generating a point based on poisson spread of rate log function
+    int nData;
+    real KE_data;
+    real spectrum_data;
 
-    N <- poisson_rng(exp(rate_log)*norm);
-    //print(N);
+    nData <- nGenerate;
+    KE_data <- KE;
+    spectrum_data <- rate_log;
 
 }

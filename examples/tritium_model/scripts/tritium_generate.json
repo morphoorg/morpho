@@ -45,8 +45,8 @@
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 100,
-      "warmup": 80,
+      "iter": 1000,
+      "warmup": 800,
       "chain": 4,
       "init_off": [
         {"uB" : 0.0,
@@ -89,23 +89,5 @@
           {"variable" : "lp__", "root_alias" : "LogLikelihood"}
         ]
       }
-
     }
-
   }
-{
-  "postprocessing": {
-    "output": {
-      "name" : "./tritium_model/results/tritium_generator.root",
-      "format": "root",
-      "tree": "spectrum",
-    },
-    "which_pp":[
-      {
-        "name": "data_reducer"
-      }
-
-    ]
-  }
-
-}

@@ -16,7 +16,7 @@
             "type": "mc",
             "files": [
                       {
-                      "name": "./MassHierarchy/data/MH_analyze.data",
+                      "name": "./MassHierarchy/data/spectrum_information.data",
                       "format":"R"
                       },
                       {

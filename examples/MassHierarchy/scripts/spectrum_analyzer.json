@@ -6,8 +6,8 @@
         "model":   {
             "file": "./MassHierarchy/models/spectrum_analyzer.stan",
             "function_file": [
-                              {"name" : "func_routines", "file" : "./functions/func_routines.functions"},
-                              {"name" : "MH_Functions", "file" : "./functions/MH_functions.functions"}
+                              {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                              {"name" : "MH_Functions", "file" : "../functions/MH_functions.functions"}
                               ],
             "cache": "./MassHierarchy/cache"
         },

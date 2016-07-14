@@ -4,19 +4,19 @@
         "name": "spectrum_generator",
         
         "model":   {
-            "file": "./examples/MassHierarchy/models/spectrum_generator.stan",
+            "file": "./MassHierarchy/models/spectrum_generator.stan",
             "function_file": [
-                              {"name" : "func_routines", "file" : "./functions/func_routines.functions"},
-                              {"name" : "MH_Functions", "file" : "./functions/MH_functions.functions"}
+                              {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                              {"name" : "MH_Functions", "file" : "../functions/MH_functions.functions"}
                               ],
-            "cache": "./examples/MassHierarchy/cache"
+            "cache": "./MassHierarchy/cache"
         },
         
         "data": {
             "type": "mc",
             "files": [
                       {
-                      "name": "./examples/MassHierarchy/data/MH_generate.data",
+                      "name": "./MassHierarchy/data/MH_generate.data",
                       "format":"R"
                       }
                       ],
@@ -41,10 +41,10 @@
                  {"variable": "spectrum_data"},
                  ],
         
-        "sample": "./examples/MassHierarchy/results/MHtest_generator.out",
+        "sample": "./MassHierarchy/results/MHtest_generator.out",
         
         "output":{
-            "name": "./examples/MassHierarchy/results/MHtest_generator.root",
+            "name": "./MassHierarchy/results/MHtest_generator.root",
             "format": "root",
             "tree" : "generated",
             "branches" : [

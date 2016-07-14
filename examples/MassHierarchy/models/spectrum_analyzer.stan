@@ -39,11 +39,12 @@ data{
     real Q;                     // Endpoint of beta-decay spectrum in eV - should be between minKE and maxKE
     real signal_fraction;       // Fraction of events that can be described as signal (as opposed to background)
 
-    int numPts;                 // Number of data points generated previously
-    real norm;                  // Temporary normalization for Poisson distribution of spectrum
+    //int numPts;                 // Number of data points generated previously
+    //real norm;                  // Temporary normalization for Poisson distribution of spectrum
 
-    int N[numPts];              // Log rates from generated beta decay spectrum
-    vector[numPts] KEin;        // Kinetic energies (eV) corresponding to rates from spectrum
+    int nBinSpectrum;           // Number of spectral bins
+    vector[nBinSpectrum] KE_data;        // Kinetic energies (eV) corresponding to rates from spectrum
+    int n_spectrum_data[nBinSpctrum];    // List of number of events in each bin
 }
 
 parameters{
@@ -63,7 +64,7 @@ transformed parameters {
     vector<lower=0.0>[3] sUe;   // Squares of PMNS matrix elements U_e, calculated using mixing angles distributions
     real<lower=0.0>  mbeta;     // "Total" neutrino mass measurement in eV
 
-    vector[numPts] rate_log;    // Beta decay spectrum points fit using inputted (KE, N) points
+    vector[nBinSpectrum] rate_log;    // Beta decay spectrum points fit using inputted (KE, N) points
 
     delta_m21 <- square(nu_mass[2]) - square(nu_mass[1]);
     delta_m32 <- sqrt(square(square(nu_mass[3]) - square(nu_mass[2])));
@@ -73,8 +74,8 @@ transformed parameters {
     sUe <- matrix_elements(th12, th13);
     mbeta <- sqrt(square(nu_mass[1])*sUe[1] + square(nu_mass[2])*sUe[2] + square(nu_mass[3])*sUe[3]);
 
-    for(j in 1:numPts) {
-        rate_log[j] <- signal_to_noise_log(KEin[j], Q, sUe, nu_mass, minKE, maxKE, signal_fraction);
+    for(j in 1:nBinSpectrum) {
+        rate_log[j] <- signal_to_noise_log(KE_data[j], Q, sUe, nu_mass, minKE, maxKE, signal_fraction);
 }
 }
 
@@ -89,8 +90,16 @@ model {
 
 // Fit beta decay spectrum to poisson distribution of inputted generated data points
 
-for(i in 1:numPts) {
-    N[i] ~ poisson(norm*exp(rate_log[i]));
-}
+for (i in 1:nBinSpectrum)
+  {
+    if(n_spectrum_data[i]>0 )
+    {
+      increment_log_prob(poisson_log(n_spectrum_data[i],rate_log[i])); //May require rate_log[i]*widthBin[i], instead
+    }
+    if (rate_log[i]<0)
+    {
+      print(rate_log[i],i);
+    }
+  }
 
 }

@@ -44,11 +44,11 @@
         "sample": "./examples/MassHierarchy/results/MHtest_generator.out",
         
         "output":{
-            "name": "./examples/MassHierarchy/results/MHtest_generator",
+            "name": "./examples/MassHierarchy/results/MHtest_generator.root",
             "format": "root",
             "tree" : "generated",
             "branches" : [
-                    {"variable" : "KE_data", "root_alias" : "KE"},
+                    {"variable" : "KE_data", "root_alias" : "KE_data"},
                     {"variable" : "spectrum_data", "root_alias" : "spectrum_data"},
                     {"variable" : "nData", "root_alias" : "nData", "type" : "int"}
                      ]

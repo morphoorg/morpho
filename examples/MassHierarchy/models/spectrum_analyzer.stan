@@ -18,7 +18,8 @@ functions{
     // Load libraries
 
     include_functions<-func_routines
-    include_functions<-MH_Functions
+    include_functions<-neutrino_mass_functions
+    include_functions<-tritium_functions
 
 }
 
@@ -37,6 +38,8 @@ data{
     real  meas_sin2_th13_NH_err; // Error on sin squared of 2*theta_13 for normal hierarchy
     real  meas_sin2_th13_IH;     // Same for inverted hierarchy
     real  meas_sin2_th13_IH_err;
+    
+    int nFamily;                 // Number of neutrino species
 
     real minKE;                 // Bounds on possible beta-decay spectrum kinetic energies in eV
     real maxKE;
@@ -51,8 +54,8 @@ data{
 parameters{
 
     vector<lower=0.0, upper=0.5>[3] nu_mass;    // Vector of neutrino masses (m1, m2, m3)
-    real<lower=0.0>  th12;                      // Theta values generated from measured thetas and errors (above)
-    real<lower=0.0>  th13;
+    real<lower=0.0>  sin2_th12;                      // Theta values generated from measured thetas and errors (above)
+    real<lower=0.0>  sin2_th13;
 }
 
 transformed parameters {
@@ -72,7 +75,7 @@ transformed parameters {
     m32_withsign <- square(nu_mass[3]) - square(nu_mass[2]);
 
     min_mass <- min(nu_mass);
-    Ue_squared <- matrix_elements(th12, th13);
+    Ue_squared <- get_U_PMNS(nFamily, sin2_th12, sin2_th13);
     mbeta <- sqrt(square(nu_mass[1])*Ue_squared[1] + square(nu_mass[2])*Ue_squared[2] + square(nu_mass[3])*Ue_suqared[3]);
 
     for(j in 1:nBinSpectrum) {
@@ -86,12 +89,12 @@ model {
 
     if (m32_withsign > 0.){
         delta_m32 ~ normal(meas_delta_m32_NH, meas_delta_m32_NH_err);
-        th13 ~ normal(meas_sin2_th13_NH, meas_sin2_th13_NH_err);
+        sin2_th13 ~ normal(meas_sin2_th13_NH, meas_sin2_th13_NH_err);
     }
     
     else{
         delta_m32 ~ normal(meas_delta_m32_IH, meas_delta_m32_IH_err);
-        th13 ~ normal(meas_sin2_th13_IH, meas_sin2_th13_IH_err);
+        sin2_th13 ~ normal(meas_sin2_th13_IH, meas_sin2_th13_IH_err);
     }
     
     th12 ~ normal(sin_sq_2meas_th12, sin_sq_2meas_th12_err);

@@ -18,7 +18,8 @@ functions{
     // Load libraries
 
     include_functions<-func_routines
-    include_functions<-MH_Functions
+    include_functions<-neutrino_mass_functions
+    include_functions<-tritium_functions
 
 }
 
@@ -39,6 +40,7 @@ data{
     real  meas_sin2_th13_IH_err;
 
     real  min_mass_fixed;        // Inputted value chosen as lightest mass (between 0.0 and 0.5 eV)
+    int nFamily;                 // Number of neutrino species
     
     real<lower=0 > minKE;        // Bounds on possible beta-decay spectrum kinetic energies in eV
     real<lower=minKE> maxKE;
@@ -71,7 +73,7 @@ transformed parameters {
         meas_sin2_th13 <- meas_sin2_th13_IH;}
         
     
-    sUe_fixed <- matrix_elements(meas_sin2_th12, meas_sin2_th13);
+    sUe_fixed <- get_U_PMNS(nFamily, meas_sin2_th12, meas_sin2_th13);
 
     rate_log <- signal_to_noise_log(KE, Q, sUe_fixed, nu_mass_fixed, minKE, maxKE, signal_fraction);
 

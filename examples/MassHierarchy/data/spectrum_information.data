@@ -23,4 +23,5 @@ Q <- 18574.95
 signal_fraction <- 0.99
 
 min_mass_fixed <- 0.005
+nFamily <- 3
 MH <- 0

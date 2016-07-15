@@ -25,22 +25,23 @@ functions{
 data{
 
     // Neutrino mixing parameters
-    real  meas_delta_m21;       // Best known value of delta_m2^2-delta_m1^2 in eV^2
-    real  meas_delta_m21_err;   // Error on delta_m2^2-delta_m1^2 in eV^2
-    real  meas_delta_m32;       // Best known value of delta_m3^2-delta_m2^2 in eV^2
-    real  meas_delta_m32_err;   // Error on delta_m3^2-delta_m2^2 in eV^2
-    real  sin_sq_2meas_th12;    // Best known value of sin squared of 2*theta_12 (radians)
-    real  sin_sq_2meas_th12_err;// Error on sin squared of 2*theta_12
-    real  sin_sq_2meas_th13;    // Best known value of sin squared of 2*theta_13
-    real  sin_sq_2meas_th13_err;// Error on sin squared of 2*theta_13
+    real  meas_delta_m21;        // Best known value of delta_m2^2-delta_m1^2 in eV^2
+    real  meas_delta_m21_err;    // Error on delta_m2^2-delta_m1^2 in eV^2
+    real  meas_delta_m32;        // Best known value of delta_m3^2-delta_m2^2 in eV^2
+    real  meas_delta_m32_err;    // Error on delta_m3^2-delta_m2^2 in eV^2
+    
+    real  meas_sin2_th12;         // Best known value of sin squared of 2*theta_12 (radians)
+    real  meas_sin2_th12_err;    // Error on sin squared of 2*theta_12
+    
+    real  meas_sin2_th13_NH;     // Best known value of sin squared of 2*theta_13 for normal hierarchy
+    real  meas_sin2_th13_NH_err; // Error on sin squared of 2*theta_13 for normal hierarchy
+    real  meas_sin2_th13_IH;     // Same for inverted hierarchy
+    real  meas_sin2_th13_IH_err;
 
     real minKE;                 // Bounds on possible beta-decay spectrum kinetic energies in eV
     real maxKE;
     real Q;                     // Endpoint of beta-decay spectrum in eV - should be between minKE and maxKE
     real signal_fraction;       // Fraction of events that can be described as signal (as opposed to background)
-
-    //int numPts;                 // Number of data points generated previously
-    //real norm;                  // Temporary normalization for Poisson distribution of spectrum
 
     int nBinSpectrum;           // Number of spectral bins
     vector[nBinSpectrum] KE_data;        // Kinetic energies (eV) corresponding to rates from spectrum
@@ -61,7 +62,7 @@ transformed parameters {
     real m32_withsign;      // Can be either positive or negative; sign indicates prefered hierarchy
 
     real<lower=0.0>  min_mass;  // Lowest mass, determined by minimizing nu_mass, in eV
-    vector<lower=0.0>[3] sUe;   // Squares of PMNS matrix elements U_e, calculated using mixing angles distributions
+    vector<lower=0.0>[3] Ue_squared;   // Squares of PMNS matrix elements U_e, calculated using mixing angles distributions
     real<lower=0.0>  mbeta;     // "Total" neutrino mass measurement in eV
 
     vector[nBinSpectrum] rate_log;    // Beta decay spectrum points fit using inputted (KE, N) points
@@ -71,11 +72,11 @@ transformed parameters {
     m32_withsign <- square(nu_mass[3]) - square(nu_mass[2]);
 
     min_mass <- min(nu_mass);
-    sUe <- matrix_elements(th12, th13);
-    mbeta <- sqrt(square(nu_mass[1])*sUe[1] + square(nu_mass[2])*sUe[2] + square(nu_mass[3])*sUe[3]);
+    Ue_squared <- matrix_elements(th12, th13);
+    mbeta <- sqrt(square(nu_mass[1])*Ue_squared[1] + square(nu_mass[2])*Ue_squared[2] + square(nu_mass[3])*Ue_suqared[3]);
 
     for(j in 1:nBinSpectrum) {
-        rate_log[j] <- signal_to_noise_log(KE_data[j], Q, sUe, nu_mass, minKE, maxKE, signal_fraction);
+        rate_log[j] <- signal_to_noise_log(KE_data[j], Q, Ue_squared, nu_mass, minKE, maxKE, signal_fraction);
 }
 }
 
@@ -83,10 +84,18 @@ model {
 
 // Create distribution for each parameter (below)
 
+    if (m32_withsign > 0.){
+        delta_m32 ~ normal(meas_delta_m32_NH, meas_delta_m32_NH_err);
+        th13 ~ normal(meas_sin2_th13_NH, meas_sin2_th13_NH_err);
+    }
+    
+    else{
+        delta_m32 ~ normal(meas_delta_m32_IH, meas_delta_m32_IH_err);
+        th13 ~ normal(meas_sin2_th13_IH, meas_sin2_th13_IH_err);
+    }
+    
     th12 ~ normal(sin_sq_2meas_th12, sin_sq_2meas_th12_err);
-    th13 ~ normal(sin_sq_2meas_th13, sin_sq_2meas_th13_err);
     delta_m21 ~ normal(meas_delta_m21, meas_delta_m21_err);
-    delta_m32 ~ normal(meas_delta_m32, meas_delta_m32_err);
 
 // Fit beta decay spectrum to poisson distribution of inputted generated data points
 

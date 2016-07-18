@@ -1,5 +1,13 @@
 {
-  "stan": {
+  "morpho":
+  {
+    "do_stan": False,
+    "do_postprocessing": True,
+    "do_plots": True
+  },
+
+  "stan":
+  {
 
     "name": "tritium_generator",
 
@@ -68,7 +76,7 @@
       {
         "name" : "./tritium_model/results/tritium_generator",
         "format" : "root",
-        "tree" : "procTracks",
+        "tree" : "stan_MC",
         "branches" : [
           {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
           {"variable" : "KE", "root_alias" : "KE"},
@@ -90,22 +98,22 @@
         ]
       }
 
-    }
-
-  }
-{
-  "postprocessing": {
-    "output": {
-      "name" : "./tritium_model/results/tritium_generator.root",
-      "format": "root",
-      "tree": "spectrum",
     },
+
+
+  "postprocessing":
+  {
     "which_pp":[
       {
-        "name": "data_reducer"
+        "name": "data_reducer",
+        "input_name" : "./tritium_model/results/tritium_generator.root",
+        "input_format" : "root",
+        "input_tree": "spectrum",
+        "output_name" : "./tritium_model/results/tritium_generator.root",
+        "output_format": "root",
+        "output_tree": "spectrum"
       }
 
     ]
   }
-
 }

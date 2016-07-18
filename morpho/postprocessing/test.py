@@ -12,7 +12,7 @@ sys.setdefaultencoding("utf-8")
 
 def test(dict):
     print("Hello world!")
-    print(dict['name'])
+    print(dict['method_name'])
     print(dict['output_name'])
 
 def prout():

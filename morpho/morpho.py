@@ -25,9 +25,11 @@ from inspect import getargspec
 
 import pickle
 from hashlib import md5
+import importlib
 
 
-import postprocessing.test as test
+
+
 
 
 class morpho(object):
@@ -242,32 +244,11 @@ def sampleFunc(arg):
 def postprocessing(sa):
     # Generic function for creating the PostProcessing class
     for minidict in sa.pp_dict:
-        print("Doing postprocessing {}".format(minidict['name']))
-        # globals()['test'](minidict)
-        # getattr('data_reducer','test')(minidict)
-        # pp.data_reducer('ici')
-        # print(minidict['name'])
-        # funcName = minidict['name']
-        #
-        # # globals()['data_reducer']('arguments')
-        # print("init_per_chain")
-        # test(minidict)
-        # result = methodToCall('here')
-        # dir_of_interest = os.path.dirname(os.path.abspath(__file__))+'/postprocessing'
-        # print(dir_of_interest)
-        # modules = {}
-        #
-        # sys.path.append(dir_of_interest)
-        # for module in os.listdir(dir_of_interest):
-        #     if '.py' in module and '.pyc' not in module:
-        #         current = module.replace('.py', '')
-        #         modules[current] = __import__(current)
-        #         print(module)
-        # test(minidict)
-        func = getattr(test,'test')
-        func(minidict)
-        # test.prout()
-        # modules['test'].prout()
+        print("Doing postprocessing {}".format(minidict['method_name']))
+        modulename = 'postprocessing.'+minidict['module_name']
+        i = importlib.import_module("{}".format(modulename))
+        getattr(i,minidict['method_name'])(minidict)
+
     return 1
 
 def save_object(obj, filename):

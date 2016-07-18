@@ -105,7 +105,8 @@
   {
     "which_pp":[
       {
-        "name": "data_reducer",
+        "method_name": "prout",
+        "module_name": "test",
         "input_name" : "./tritium_model/results/tritium_generator.root",
         "input_format" : "root",
         "input_tree": "spectrum",

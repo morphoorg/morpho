@@ -1,2 +1,2 @@
-nBinEvents <- 99
-nBinTime <- 99
+nBinSpectrum <- 200
+nBinTime <- 200

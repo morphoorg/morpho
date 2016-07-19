@@ -1,3 +1,4 @@
+
 /*
 * Functions: Useful Constants
 * -----------------------------------------------------
@@ -11,7 +12,6 @@
 *
 */
 
-
 // Set up constants
 
     real m_electron() {return  510998.910;}			// Electron mass in eV
@@ -22,10 +22,11 @@
     real freq_c() {return omega_c()/(2. * pi());}			 // Gyromagnetic ratio in Hz/Tesla
     real alpha() { return 7.29735257e-3;}               	   	 // Fine structure constant
     real bohr_radius() { return 5.2917721092e-11;}	 	 	 	// Bohr radius in meters
+    real ry_hydrogen() { return 13.60569253;}                    	    	// Rydberg energy in eV
     real k_boltzmann() {return  8.61733238e-5;}		         	// Boltzmann's constant in eV/Kelvin
-    real unit_mass() { return 931.494061e6;}			 	// Unit mass in eV
     real r0_electron() { return square(alpha())*bohr_radius();}  	 	// Electron radius in meters
     //Frequency damping constant (in units of Hz/Tesla^2)
+    real unit_mass() { return 931.494061e6;}			 	// Unit mass in eV
     real seconds_per_year() {return 365.25 * 86400.;}	        	// Seconds in a year
 
     real kH2() {return 3.0393615525526027e+38;}     //Molecular force constant for H2 from fitting to Dieke (1958) vibrational levels
@@ -45,15 +46,3 @@
 // Deuterium specific constants
 
     real deuterium_atomic_mass() {return  2.01410178 * unit_mass();}   	 // Atomic deuterium mass in eV
-
-// Mass of non-tritium atom in each molecule (eV). Values correspond to (T2, HT, DT, T)
-
-    real[] atomic_masses() {
-        real atomic_masses[4];
-
-        atomic_masses[1] <- tritium_atomic_mass();
-        atomic_masses[2] <- hydrogen_atomic_mass();
-        atomic_masses[3] <- deuterium_atomic_mass();
-        atomic_masses[4] <- 0.0;
-        return atomic_masses;}
-

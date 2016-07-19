@@ -49,8 +49,27 @@ class stan_args(object):
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_function(self):
-        return self.init_per_chain
-    
+        if isinstance(self.init_per_chain,list): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)):
+            # init_per_chain is a list of dictionaries
+            if self.chains >1 and len(self.init_per_chain)==1:
+                dict_list = [self.init_per_chain[0]] * self.chains
+                return dict_list
+            elif len(self.init_per_chain)==self.chains :
+                return self.init_per_chain
+            else:
+                print('ERROR: number of chains is not equal to the size of the list of dictionaries')
+                return self.init_per_chain
+        elif isinstance(self.init_per_chain,dict): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)):
+            # init_per_chain is a dictionary
+            if self.chains >1:
+                dict_list = [self.init_per_chain] * self.chains
+                return dict_list
+            else:
+                return [self.init_per_chain]
+        else:
+            # print('WARNING: init is not a list or a dictionary')
+            return self.init_per_chain
+
     def __init__(self, yd):
         try:
             # Identifications
@@ -59,6 +78,7 @@ class stan_args(object):
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
             self.functions_code = self.read_param(yd, 'stan.model.function_file', None)
+            self.model_name = self.read_param(yd, 'stan.model.model_name', None)
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
             # STAN data
@@ -74,32 +94,45 @@ class stan_args(object):
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
             self.init = self.init_function();
-                        
+
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
 
             # output information
-            self.out_format = self.read_param(yd, 'stan.output.format', 'hdf5')
-            self.out_fname = self.read_param(yd, 'stan.output.name',
-                                                 'stan_out.h5')
+            self.out_format = self.read_param(yd, 'stan.output.format', 'root')
+            self.out_fname = self.read_param(yd, 'stan.output.name','stan_out.root')
 
             self.out_tree = self.read_param(yd, 'stan.output.tree', None)
             self.out_branches = self.read_param(yd, 'stan.output.branches', None)
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
             self.out_vars = self.read_param(yd, 'stan.output.data', None)
-            
+
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
-            
+
+            # Post-processing configuration
+            self.pp_out_fname = self.read_param(yd, 'postprocessing.output.name', 'processed_stan_out.root')
+            self.pp_out_format = self.read_param(yd, 'postprocessing.output.format', 'root')
+            self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
+
+            # Root plot configuration
+
         except Exception as err:
             raise err
 
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
 
-    theData = open(model_code,'r+').read()
-    code_hash = md5(theData.encode('ascii')).hexdigest()
+    theModel = open(model_code,'r+').read()
+    match =  re.findall(r'\s*include\s*<-\s*(?P<function_name>\w+)\s*;*',theModel)
+    for matches in match:
+        for key in functions_code:
+            if (key['name']==matches):
+                StanFunctions = open(key['file'],'r+').read()
+                theModel = re.sub(r'\s*include\s*<-\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
+
+    code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:
         cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
     else:
@@ -107,15 +140,6 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
-        theModel = theData
-        if functions_code:
-            match = re.findall(r"(?<=include_functions<-)\w+",theData, flags=re.IGNORECASE)
-            if match:
-                for matches in match:
-                    for key in functions_code:
-                        if (key['name']==matches):
-                            StanFunctions = open(key['file'],'r+').read()
-                            theModel = re.sub("include_functions<-"+matches, StanFunctions, theModel, flags=re.IGNORECASE)
         sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
@@ -141,7 +165,7 @@ def parse_args():
     p.add_argument('--seed',
                    metavar='<seed>',
                    help='Add random seed number to file',
-                   required=False)                   
+                   required=False)
 
     return p.parse_args()
 
@@ -175,34 +199,18 @@ def write_result(conf, stanres):
 
     ofilename = sa.out_fname
     if (args.job_id>0):
-        ofilename = ofilename+'_'+args.job_id        
+        ofilename = ofilename+'_'+args.job_id
     if sa.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        write_result_hdf5(sa, ofilename, result)
+        pyL.write_result_hdf5(sa, ofilename, result)
 
     if sa.out_format == 'root':
         ofilename = ofilename+'.root'
         pyL.stan_write_root(sa, ofilename, result)
     return stanres
 
-def write_result_hdf5(conf, ofilename, stanres):
-    """
-    Write the STAN result to an HDF5 file.
-    """
-    with HDF5(ofilename,'w') as ofile:
-        g = open_or_create(ofile, conf.out_cfg['group'])
-        fit = stanres.extract()
-        for var in conf.out_vars:
-            stan_parname = var['stan_parameter']
-            if stan_parname not in fit:
-                warning = """WARNING: data {0} not found in fit!  Skipping...
-                """.format(stan_parname)
-                print warning
-            else:
-                print(var['output_name'])
-                g[var['output_name']] = fit[stan_parname]
-                
 def save_object(obj, filename):
+    print("Saving into pickle file: {}".format(filename))
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
@@ -216,9 +224,11 @@ if __name__ == '__main__':
             result = stan_cache(**(sa.gen_arg_dict()))
 
             stanres = write_result(sa, result)
-            plot_result(sa, result)
-        
+
             save_object(stanres, sa.out_fit)
-                                        
+            postprocessing(stanres,sa)
+            plot_result(sa, result)
+
+
         except Exception as err:
             print(err)

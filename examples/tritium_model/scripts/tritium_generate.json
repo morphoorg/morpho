@@ -39,6 +39,7 @@
       "parameters": [
         {
           "nChains" : 40
+          "MassHierarchy" : 1
         }
       ]
     },

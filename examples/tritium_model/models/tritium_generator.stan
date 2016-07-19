@@ -39,17 +39,6 @@ data {
   //if MassHierarchy = -1, inverted hierarchy (delta_m31<0)
   int MassHierarchy;
 
-  //   Number of neutrinos and mixing parameters
-  int nFamily;
-
-  real meas_delta_m21;
-  real meas_delta_m32_NH;
-  real meas_delta_m32_IH;
-
-  real meas_sin2_th12;
-  real meas_sin2_th13_NH;
-  real meas_sin2_th13_IH;
-
   real lightest_neutrino_mass;
 
   //   Primary magnetic field (in Tesla)

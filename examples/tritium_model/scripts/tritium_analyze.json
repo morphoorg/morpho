@@ -17,6 +17,13 @@
 
     "data": {
       "type": "data",
+      "parameters": [
+        {
+          "nChains" : 40
+          "MassHierarchy" : 1
+        }
+      ],
+      
       "files": [
         {
           "name": "./tritium_model/data/tritium.header.data",

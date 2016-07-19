@@ -24,7 +24,6 @@
             "parameters": [
                            {
                            "nChains" : 4,
-                           "nGenerate" : -500,
                            "MH" : 0
                            }
                            ]

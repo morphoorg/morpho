@@ -6,9 +6,9 @@
         "model":   {
             "file": "./examples/MassHierarchy/models/Q_generator.stan",
             "function_file": [
-                {"name" : "constants", "file" : "./functions/constants.functions"},
-                {"name" : "func_routines", "file" : "./functions/func_routines.functions"},
-                {"name" : "Q_Functions", "file" : "./functions/Q_functions.functions"}
+                {"name" : "constants", "file" : "../functions/constants.functions"},
+                {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"}
              ],
             "cache": "./examples/MassHierarchy/cache"
         },
@@ -17,7 +17,7 @@
             "type": "mc",
             "files": [
                       {
-                      "name": "./examples/MassHierarchy/data/Q_generate.data",
+                      "name": "./MassHierarchy/data/Q_generate.data",
                       "format":"R"
                       }
                       ]
@@ -28,14 +28,14 @@
             "iter": 10000,
             "chain": 5},
         
-        "sample": "./examples/MassHierarchy/results/Qtest_generator_T.out",
+        "sample": "./MassHierarchy/results/Qtest_generator_T.out",
         
         "output": 
             {
 
-            "name" : "./examples/MassHierarchy/results/Qtest_generator_T",
+            "name" : "./MassHierarchy/results/Qtest_generator_T",
             "format": "hdf5",
-            "fit": "./examples/MassHierarchy/results/Qresults_T.pkl",
+            "fit": "./MassHierarchy/results/Qresults_T.pkl",
             "config": {"group": "/"},
             "data": [
                      {"stan_parameter": "Q","output_name": "Q"},

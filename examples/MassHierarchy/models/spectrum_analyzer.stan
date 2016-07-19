@@ -76,7 +76,7 @@ transformed parameters {
 
     min_mass <- min(nu_mass);
     Ue_squared <- get_U_PMNS(nFamily, sin2_th12, sin2_th13);
-    mbeta <- sqrt(square(nu_mass[1])*Ue_squared[1] + square(nu_mass[2])*Ue_squared[2] + square(nu_mass[3])*Ue_suqared[3]);
+    mbeta <- get_effective_mass(Ue_squared, nu_mass);
 
     for(j in 1:nBinSpectrum) {
         rate_log[j] <- signal_to_noise_log(KE_data[j], Q, Ue_squared, nu_mass, minKE, maxKE, signal_fraction);

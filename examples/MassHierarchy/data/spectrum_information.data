@@ -1,27 +1,7 @@
-# Mixing parameter values and errors taken directly or calculated from table 14.7
-# of PDG review: "NEUTRINO MASS, MIXING, AND OSCILLATIONS" (2014).
-
-meas_delta_m21 <- 7.54e-5
-meas_delta_m21_err <- 2.4e-6
-meas_delta_m32_NH <- 2.39e-3
-meas_delta_m32_NH_err <- 6.0e-5
-meas_delta_m32_IH <- -2.42e-3
-meas_delta_m32_IH_err <- 6.0e-5
-
-meas_sin2_th12 <- 0.308
-meas_sin2_th12_err <- 0.017
-
-meas_sin2_th13_NH <- 0.0234
-meas_sin2_th13_NH_err <- 0.0020
-
-meas_sin2_th13_IH <- 0.0240
-meas_sin2_th13_IH_err <- 0.0020
-
 minKE <- 18574.00
 maxKE <- 18575.05
 Q <- 18574.95
 signal_fraction <- 0.99
 
 min_mass_fixed <- 0.005
-nFamily <- 3
 MH <- 0

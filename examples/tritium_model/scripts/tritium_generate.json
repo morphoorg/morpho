@@ -37,7 +37,7 @@
       "parameters": [
         {
           "nGenerate" : -500,
-          "nChains" : 40
+          "nChains" : 10
         }
       ]
     },
@@ -45,7 +45,7 @@
       "algorithm": "NUTS",
       "iter": 5500,
       "warmup": 5000,
-      "chain": 40,
+      "chain": 10,
       "init_off": [
         {"uB" : 0.0,
           "uQ1" : 0.0,

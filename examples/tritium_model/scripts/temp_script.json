@@ -1,0 +1,51 @@
+{"variable" : "eDop", "root_alias" : "eDop"},
+{"variable" : "kDoppler", "root_alias" : "kDoppler"},
+{"variable" : "Q", "root_alias" : "Q"},
+{"variable" : "df", "root_alias" : "df"},
+{"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
+{"variable" : "sigma_freq", "root_alias" : "sigma_freq"},
+{"variable" : "freq_recon", "root_alias" : "freq_recon"},
+{"variable" : "KE_recon", "root_alias" : "KE_recon"},
+{"variable" : "isOK", "root_alias" : "isOK"},
+{"variable" : "time_data", "root_alias" : "time_data"},
+{"variable" : "freq_data", "root_alias" : "freq_data"},
+{"variable" : "rate_data", "root_alias" : "rate_data"},
+{"variable" : "events", "root_alias" : "events", "type":"int"},
+{"variable" : "lp__", "root_alias" : "LogLikelihood"},
+{"variable" : "frequency", "root_alias" : "frequency"},
+{"variable" : "xsec", "root_alias" : "xsec"},
+{"variable" : "scatt_width", "root_alias" : "scatt_width"},
+{"variable" : "rad_width", "root_alias" : "rad_width"},
+{"variable" : "eta", "root_alias" : "eta"},
+{"variable" : "kappa", "root_alias" : "kappa"},
+{"variable" : "epsilon", "root_alias" : "epsilon"},
+{"variable" : "composition", "root_alias" : "composition", "ndim":3},
+],
+"branches_data" :
+[
+{"variable" : "isOK", "root_alias" : "isOK", "type":"int"},
+{"variable" : "time_data", "root_alias" : "time_data"},
+{"variable" : "freq_data", "root_alias" : "freq_data"},
+{"variable" : "rate_data", "root_alias" : "rate_data"},
+{"variable" : "events", "root_alias" : "events", "type":"int"},
+{"variable" : "lp__", "root_alias" : "LogLikelihood"}
+
+
+
+{"variable" : "rate", "root_alias" : "rate", "ndim":100},
+{"variable" : "frequency", "root_alias" : "frequency", "ndim":100},
+{"variable" : "mu_tot", "root_alias" : "mu_tot"},
+{"variable" : "activity", "root_alias" : "activity"},
+{"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
+{"variable" : "total_rate", "root_alias" : "total_rate"},
+
+
+
+
+{"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
+{"variable" : "mu_tot", "root_alias" : "mu_tot"},
+{"variable" : "n_spectrum_recon", "root_alias" : "n_spectrum_recon","ndim":100},
+{"variable" : "frequency", "root_alias" : "frequency","ndim":100},
+{"variable" : "norm_density", "root_alias" : "norm_density"},
+{"variable" : "activity", "root_alias" : "activity"},
+{"variable" : "background_rate", "root_alias" : "background_rate"},

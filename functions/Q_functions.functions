@@ -1,3 +1,4 @@
+
 /*
 * MC Beta Decay Spectrum Endpoint Model - Functions
 * -----------------------------------------------------
@@ -36,7 +37,7 @@
 	return E_zp;
 
     }
-    
+
 //  Energy of a given rotation state J for a given isotopolog. mass_s is the mass of the atom other than tritium in the source
 //  (Set mass_s = 0.0 for atomic tritium)
 
@@ -48,9 +49,9 @@
 	E_J <- 0.;
         mom_of_inertia <- reduced_mass(mass_s, tritium_atomic_mass())* square(bond_length_H2());
         if (mass_s > 0.)  E_J <- J * (J+1) * square(hbarc()) / (2. * mom_of_inertia);
-	
+
 	return E_J;
-	
+
     }
 
 
@@ -78,7 +79,7 @@
         real sigma_squared_J_i;
 	real beta;
 	real E_zp;
-	
+
 	sigma_squared_J_i <- 0.0;
 	if (mass_s > 0.)
 	{
@@ -87,7 +88,7 @@
 	    beta <- (2.0*mu*E_zp/(3.0*tritium_atomic_mass()) + (2.* square(hbarc())*J*(J+1))/(3.0*square(bond_length_H2())*tritium_atomic_mass()));
             sigma_squared_J_i <- (p_squared/(2.0*tritium_atomic_mass()) * beta);
 	}
-	    
+
         return sigma_squared_J_i;
         }
 
@@ -146,7 +147,7 @@
 // Finds total average standard deviation sigma_avg, accounting for translational and rotational effects
 
     real find_sigma(real temperature, real p_squared, real mass_s, int num_J, real lambda)
-    {       
+    {
 
     	real sigma_sq_rot;
     	real sigma_sq_trans;

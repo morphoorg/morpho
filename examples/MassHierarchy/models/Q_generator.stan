@@ -1,3 +1,4 @@
+//
 /*
 * MC Beta Decay Spectrum Endpoint Model - Generator
 * -----------------------------------------------------
@@ -10,6 +11,29 @@
 * Generates endpoint (Q value) distribution.
 *
 */
+//
+
+functions{
+
+// Load libraries
+
+   include <- constants;
+   include <- func_routines;
+   include <- Q_Functions;
+
+// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT) given parameters epsilon and kappa
+
+    vector find_composition(real epsilon, real kappa)
+    {
+        vector[3] composition;
+
+        composition[1] <- (2.0*epsilon - 1.0);
+        composition[2] <- (2.0*(1.0-epsilon)*kappa)/(1+kappa);
+        composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
+        return composition;
+    }
+
+}
 
 functions{
 
@@ -50,7 +74,8 @@ data{
     real delta_lambda; //Uncertainty in (lambda = sum(odd-rotation-state-coefficients))
 
     int num_iso;    //Number of isotopologs under consideration
-    vector[num_iso] Q_values;          // Best-estimate endpoint values for (T2, HT, DT, and T)
+    vector[num_iso] Q_T_molecule;          // Best-estimate endpoint values for tritium molecule (T2, HT, DT)
+    real Q_T_atom;          // Best-estimate endpoint values for atomic tritium
 
     real epsilon_set;   // Average fractional activity of source gas compared to pure T_2
     real kappa_set;     // Average ratio of HT to DT
@@ -58,8 +83,17 @@ data{
 
     real delta_epsilon; //Uncertainty in fractional activity of source gas compared to pure T_2
     real delta_kappa; //Uncertainty in ratio of HT to DT
-    real delta_eta; //Uncertainty in composition fraction of non-T (eta = 1.0 --> no T, eta = 0.0 --> all T)
-    real delta_theory; //Uncertainty in composition fraction of non-T (eta = 1.0 --> no T, eta = 0.0 --> all T)
+    real delta_theory; //Uncertainty in composition fraction of non-T
+
+}
+
+transformed data{
+
+    vector<lower=0.0>[num_iso] mass_s;
+
+    mass_s[1] <- tritium_atomic_mass();
+    mass_s[2] <- hydrogen_atomic_mass();
+    mass_s[3] <- deuterium_atomic_mass();
 
 }
 
@@ -71,7 +105,7 @@ transformed data{
     mass_s[2] <- hydrogen_atomic_mass();
     mass_s[3] <- deuterium_atomic_mass();
     mass_s[4] <- 0.0;
-    
+
 }
 
 parameters{
@@ -80,10 +114,10 @@ parameters{
 
     real uT;
     real uS;
-    
+
     real<lower=0.0, upper=1.0> lambda;
     simplex[num_iso] composition;
-    real<lower=minKE, upper=maxKE> Q;
+    real<lower=minKE,upper=maxKE> Q;
 
 }
 
@@ -92,15 +126,15 @@ transformed parameters{
     real<lower=0.0> sigmaT;     // Total temperature variation (K)
     real<lower=0.0> temperature;   // Temperature of source gas (K)
 
-    real<lower=0.0> Q_avg;             // Best estimate for value of Q (eV)
-    real<lower=0.0> sigma_avg;         // Best estimate for value of sigmaQ (eV)
+    real<lower=0.0> Q_mol;             // Best estimate for value of Q (eV)
     real<lower=0.0> p_squared;         // (Electron momentum)^2 at the endpoint
     vector<lower=0.0>[num_iso] sigma_0;
-    vector<lower=0.0>[num_iso] sigma;
+
+    real<lower=0.0> sigma_mol;         // Best estimate for value of sigmaQ for molecule (eV)
+    real<lower=0.0> sigma_atom;	       // Best estimate for value of sigmaQ for atom (eV)
 
     real epsilon;
     real kappa;
-    real eta;
 
     real sigma_theory;
 
@@ -113,24 +147,28 @@ transformed parameters{
 
 // Composition and purity of gas system
 
-    epsilon <- 0.5 * (1.0 + composition[1] / (1. - composition[4]) );
+    epsilon <- 0.5 * (1.0 + composition[1]);
     kappa <- composition[3] / composition[2];
-    eta <- 1.0 - composition[4];
+
+
 
 // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
-    
+
     for (i in 1:num_iso) {
-        p_squared <- 2.0 * Q_values[i] * m_electron();
+        p_squared <- 2.0 * Q_T_molecule[i] * m_electron();
     	sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda);
     }
-    
-    sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
-    sigma <- sigma_0 * (1. + sigma_theory);
-    
-//  Take averages of Q and sigma values
 
-    sigma_avg <- sqrt(sum(composition .* sigma .* sigma));
-    Q_avg <- sum(composition .* Q_values);
+    sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
+
+//  Take averages of Q and sigma values of molecule
+
+    Q_mol <- sum(composition .* Q_T_molecule);
+    sigma_mol <- sqrt(sum(composition .* sigma_0 .* sigma_0)) * (1. + sigma_theory);
+
+//  Find sigma of atomic tritium
+
+    sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom * m_electron(), 0., 0, 0.);
 
 }
 
@@ -139,18 +177,15 @@ model{
 // Find lambda distribution
 
     lambda_set ~ normal(lambda, delta_lambda);
-   
+
 // Find composition distribution
 
     epsilon_set ~ normal(epsilon, delta_epsilon);
     kappa_set ~ normal(kappa, delta_kappa);
-    eta_set ~ normal(eta, delta_eta);
 
-//  Distribute Q value from average
+// Set mixture of molecular and atomic tritium, if needed
 
-    Q ~ normal(Q_avg, sigma_avg);
-   
+    increment_log_prob(log_sum_exp(log(eta_set) + normal_log(Q, Q_mol, sigma_mol),
+                                   log1m(eta_set) + normal_log(Q, Q_T_atom, sigma_atom)));
+
 }
-
-
-

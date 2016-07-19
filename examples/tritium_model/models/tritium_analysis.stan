@@ -34,28 +34,9 @@ functions{
 
 data {
 
-  //   Number of neutrinos and mixing parameters
   //if MassHierarchy = 1, normal hierarchy (delta_m31>0)
   //if MassHierarchy = -1, inverted hierarchy (delta_m31<0)
   int MassHierarchy;
-  real neutrino_mass_limit;
-
-  int nFamily;
-  real meas_delta_m21;
-  real meas_delta_m32_NH;
-  real meas_delta_m32_IH;
-
-  real meas_sin2_th12;
-  real meas_sin2_th13_NH;
-  real meas_sin2_th13_IH;
-
-  real meas_delta_m21_err;
-  real meas_delta_m32_NH_err;
-  real meas_delta_m32_IH_err;
-
-  real meas_sin2_th12_err;
-  real meas_sin2_th13_NH_err;
-  real meas_sin2_th13_IH_err;
 
   //   Primary magnetic field (in Tesla)
 

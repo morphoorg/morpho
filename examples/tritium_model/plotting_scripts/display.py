@@ -292,16 +292,13 @@ def displayGraph(list, title, option):
     # print 'a'
     g.GetXaxis().SetTitle(xtitle)
     g.GetYaxis().SetTitle(ytitle)
-<<<<<<< Updated upstream:examples/tritium_model/plotting_scripts/display.py
     g.Draw("AP")
     # print 'a'
     can.SaveAs( "tritium_model/plotting_scripts/" + pdfname + ".pdf")
-=======
     if "PL" in option[0]:
         g.Draw("ALP")
     else:
         g.Draw("AP")
     # print pdfname
-    can.SaveAs( "tritium_model/ploting_scripts/" + pdfname + ".pdf")
->>>>>>> Stashed changes:examples/tritium_model/ploting_scripts/display.py
+    can.SaveAs( "tritium_model/plotting_scripts/" + pdfname + ".pdf")
     return can

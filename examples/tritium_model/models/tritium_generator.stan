@@ -34,10 +34,6 @@ functions{
 
 data {
 
-  //   Number of samples to generate (to get event statistics correct)
-  int nGenerate;
-  int nChains;
-
   //Mass ordering:
   //if MassHierarchy = 1, normal hierarchy (delta_m31>0)
   //if MassHierarchy = -1, inverted hierarchy (delta_m31<0)
@@ -343,13 +339,10 @@ model {
 generated quantities {
 
   int isOK;
-  int nData;
   real freq_data;
   real time_data;
   real spectrum_data;
   real KE_recon;
-
-  nData <- nGenerate;
 
   #   Simulate duration of event and store frequency and reconstructed kinetic energy
 

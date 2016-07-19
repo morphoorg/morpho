@@ -32,8 +32,6 @@ data{
     real Q;                      // Endpoint of beta-decay spectrum in eV - should be between minKE and maxKE
     real signal_fraction;        // Fraction of events that can be described as signal (as opposed to background)
 
-    int nGenerate;               // Number of points to be generated
-
     int MH;                      // Either 0 (normal hierarchy) or 1 (inverted hierarchy)
 
 }
@@ -72,11 +70,9 @@ model{
 
 generated quantities {
 
-    int nData;
     real KE_data;
     real spectrum_data;
 
-    nData <- nGenerate;
     KE_data <- KE;
     spectrum_data <- rate_log;
 

@@ -13,6 +13,28 @@
 */
 
 
+// Mixing parameter values and errors taken directly or calculated from table 14.7
+// of PDG review: "NEUTRINO MASS, MIXING, AND OSCILLATIONS" (2014).
+
+real nFamily() {return 3;}
+
+real meas_delta_m21() {return 7.54e-5;}
+real meas_delta_m21_err() {return 2.4e-6;}
+real meas_delta_m32_NH() {return 2.39e-3;}
+real meas_delta_m32_NH_err() {return 6.0e-5;}
+real meas_delta_m32_IH() {return -2.42e-3;}
+real meas_delta_m32_IH_err() {return 6.0e-5;}
+
+real meas_sin2_th12() {return 0.308;}
+real meas_sin2_th12_err() {return 0.017;}
+
+real meas_sin2_th13_NH() {return 0.0234;}
+real meas_sin2_th13_NH_err() {return 0.0020;}
+
+real meas_sin2_th13_IH() {return 0.0240;}
+real meas_sin2_th13_IH_err() {return 0.0020;}
+
+
 // Finds vector of squares of PMNS matrix elements U_e *from data inputs of the form sin_squared(2*theta)*
 
 vector matrix_elements(int nFamily, real sin_sq_2th12, real sin_sq_2th13) {
@@ -68,9 +90,8 @@ vector MH_masses(real min_mass_fixed, real meas_delta_m21, real meas_delta_m32, 
     return nu_mass_fixed;
     }
     
-    // m_beta = effective mass
-    real get_effective_mass(vector U, vector mass){
+// m_beta = effective mass
 
-     return pow(U[1] * pow(mass[1],2) + U[2] * pow(mass[2],2) + U[3] * pow(mass[3],2), 0.5);
-
+real get_effective_mass(vector U, vector mass){
+    return pow(U[1] * pow(mass[1],2) + U[2] * pow(mass[2],2) + U[3] * pow(mass[3],2), 0.5);
 }

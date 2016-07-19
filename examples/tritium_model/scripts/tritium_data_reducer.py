@@ -77,7 +77,7 @@ for i in range(1,h.GetNbinsX()):
     list_freq_data.append(h.GetBinCenter(i))
     list_events.append(h.GetBinContent(i))
 h.Draw()
-can.SaveAs("tritium_model/ploting_scripts/" + "events_vs_freq_data_average.pdf")
+can.SaveAs("tritium_model/plotting_scripts/" + "events_vs_freq_data_average.pdf")
 
 cant = ROOT.TCanvas("cant","cant",200,10,600,400)
 
@@ -92,7 +92,7 @@ for i in range(1,htime.GetNbinsX()):
     list_Time_events.append(htime.GetBinContent(i))
     print htime.GetBinCenter(i),  htime.GetBinContent(i)
 htime.Draw();
-cant.SaveAs("tritium_model/ploting_scripts/" + "n_time_vs_time_data_average.pdf")
+cant.SaveAs("tritium_model/plotting_scripts/" + "n_time_vs_time_data_average.pdf")
 
 # Saving the additional data (aka the number of bin for each tree)
 f = open('tritium_model/results/tritium_additionalData.txt','w')

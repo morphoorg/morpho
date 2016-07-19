@@ -5,6 +5,7 @@
 *
 * Date: 25 March 2015
 * Modified: Feb 9 2016 by MG
+*	    July 19 2016 by TW
 *
 * Purpose:
 *
@@ -153,3 +154,16 @@ real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, rea
 		return spectrum;
 
 	}
+
+
+// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
+
+vector find_composition(real epsilon, real kappa)
+  {
+    vector[3] composition;
+
+    composition[1] <- (2.0*epsilon - 1.0);
+    composition[2] <- (2.0*(1.0-epsilon)*kappa)/(1+kappa);
+    composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
+    return composition;
+  }

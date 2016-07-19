@@ -25,22 +25,7 @@ functions{
 
 data{
 
-    // Neutrino mixing parameters
-    real  meas_delta_m21;        // Best known value of delta_m2^2-delta_m1^2 in eV^2
-    real  meas_delta_m21_err;    // Error on delta_m2^2-delta_m1^2 in eV^2
-    real  meas_delta_m32;        // Best known value of delta_m3^2-delta_m2^2 in eV^2
-    real  meas_delta_m32_err;    // Error on delta_m3^2-delta_m2^2 in eV^2
-    
-    real  meas_sin2_th12;         // Best known value of sin squared of 2*theta_12 (radians)
-    real  meas_sin2_th12_err;    // Error on sin squared of 2*theta_12
-    
-    real  meas_sin2_th13_NH;     // Best known value of sin squared of 2*theta_13 for normal hierarchy
-    real  meas_sin2_th13_NH_err; // Error on sin squared of 2*theta_13 for normal hierarchy
-    real  meas_sin2_th13_IH;     // Same for inverted hierarchy
-    real  meas_sin2_th13_IH_err;
-
     real  min_mass_fixed;        // Inputted value chosen as lightest mass (between 0.0 and 0.5 eV)
-    int nFamily;                 // Number of neutrino species
     
     real<lower=0 > minKE;        // Bounds on possible beta-decay spectrum kinetic energies in eV
     real<lower=minKE> maxKE;

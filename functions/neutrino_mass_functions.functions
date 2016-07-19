@@ -18,20 +18,20 @@
 
 real nFamily() {return 3;}
 
-real meas_delta_m21() {return 7.54e-5;}
-real meas_delta_m21_err() {return 2.4e-6;}
-real meas_delta_m32_NH() {return 2.39e-3;}
-real meas_delta_m32_NH_err() {return 6.0e-5;}
-real meas_delta_m32_IH() {return -2.42e-3;}
-real meas_delta_m32_IH_err() {return 6.0e-5;}
+real meas_delta_m21() {return 7.54e-5;}         // Best known value of delta_m2^2-delta_m1^2 in eV^2
+real meas_delta_m21_err() {return 2.4e-6;}      // Error on delta_m2^2-delta_m1^2 in eV^2
+real meas_delta_m32_NH() {return 2.39e-3;}      // Best known value of delta_m3^2-delta_m2^2 in eV^2 for normal hierarchy
+real meas_delta_m32_NH_err() {return 6.0e-5;}   // Error in eV^2 for normal hierarchy
+real meas_delta_m32_IH() {return -2.42e-3;}     // Best known value of delta_m3^2-delta_m2^2 in eV^2 for inverted hierarchy
+real meas_delta_m32_IH_err() {return 6.0e-5;}   // Error in eV^2 for inverted hierarchy
 
-real meas_sin2_th12() {return 0.308;}
-real meas_sin2_th12_err() {return 0.017;}
+real meas_sin2_th12() {return 0.308;}           // Best known value of sin squared of theta_12 (radians)
+real meas_sin2_th12_err() {return 0.017;}       // Error on sin squared of theta_12
 
-real meas_sin2_th13_NH() {return 0.0234;}
-real meas_sin2_th13_NH_err() {return 0.0020;}
+real meas_sin2_th13_NH() {return 0.0234;}       // Best known value of sin squared of theta_13 for normal hierarchy
+real meas_sin2_th13_NH_err() {return 0.0020;}   // Error on sin squared of theta_13 for normal hierarchy
 
-real meas_sin2_th13_IH() {return 0.0240;}
+real meas_sin2_th13_IH() {return 0.0240;}       // Same for inverted hierarchy
 real meas_sin2_th13_IH_err() {return 0.0020;}
 
 

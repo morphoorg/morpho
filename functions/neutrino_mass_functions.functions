@@ -67,3 +67,10 @@ vector MH_masses(real min_mass_fixed, real meas_delta_m21, real meas_delta_m32, 
 
     return nu_mass_fixed;
     }
+    
+    // m_beta = effective mass
+    real get_effective_mass(vector U, vector mass){
+
+     return pow(U[1] * pow(mass[1],2) + U[2] * pow(mass[2],2) + U[3] * pow(mass[3],2), 0.5);
+
+}

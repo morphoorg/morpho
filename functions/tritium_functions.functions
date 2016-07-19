@@ -135,12 +135,10 @@ real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, rea
 		return rate_log;
 	}
 
-<<<<<<< Updated upstream:functions/tritium_functions.functions
 
-=======
->>>>>>> Stashed changes:functions/tritium_functions.functions
-	// spectrum shaper
-	real spectral_shape(real KE, real Q, vector U, vector m_nu) {
+// spectrum shaper
+
+real spectral_shape(real KE, real Q, vector U, vector m_nu) {
 		int nFamily;           // Number of neutrino species
 		real rate_log;         // Log of event rate (beta decay spectrum) --> log sum of signal and background
 		real spectrum;         // spectral shape
@@ -157,7 +155,6 @@ real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, rea
 		return spectrum;
 
 	}
-<<<<<<< Updated upstream:functions/tritium_functions.functions
 
 
 // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
@@ -171,5 +168,3 @@ vector find_composition(real epsilon, real kappa)
     composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
     return composition;
   }
-=======
->>>>>>> Stashed changes:functions/tritium_functions.functions

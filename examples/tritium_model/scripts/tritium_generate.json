@@ -38,7 +38,6 @@
       ],
       "parameters": [
         {
-          "nGenerate" : -500,
           "nChains" : 40
         }
       ]
@@ -79,7 +78,6 @@
           {"variable" : "scatt_width", "root_alias" : "scatt_width"},
           {"variable" : "Q", "root_alias" : "Q"},
           {"variable" : "norm_spectrum", "root_alias" : "norm_spectrum"},
-          {"variable" : "nData", "root_alias" : "nData", "type" : "int"},
           {"variable" : "time_data", "root_alias" : "time_data"},
           {"variable" : "freq_data", "root_alias" : "freq_data"},
           {"variable" : "KE_recon", "root_alias" : "KE_recon"},

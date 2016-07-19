@@ -35,23 +35,6 @@ real meas_sin2_th13_IH() {return 0.0240;}       // Same for inverted hierarchy
 real meas_sin2_th13_IH_err() {return 0.0020;}
 
 
-// Finds vector of squares of PMNS matrix elements U_e *from data inputs of the form sin_squared(2*theta)*
-
-vector matrix_elements(int nFamily, real sin_sq_2th12, real sin_sq_2th13) {
-    real cos_2th12;
-    real cos_2th13;
-    vector[nFamily] Ue_squared;
-
-    cos_2th12 <- pow((1. - pow(sin_sq_2th12, 2)), 0.5);
-    cos_2th13 <- pow((1. - pow(sin_sq_2th13, 2)), 0.5);
-
-    Ue_squared[1] <- 0.25*(1.+cos_2th12)*(1.+cos_2th13);
-    Ue_squared[2] <- 0.25*(1.-cos_2th12)*(1.+cos_2th13);
-    Ue_squared[3] <- 0.5*(1.-cos_2th13);
-
-    return Ue_squared;
-}
-
 // Finds vector of squares of PMNS matrix elements U_e *from data inputs of the form sin_squared(theta)*
 
 vector get_U_PMNS(int nFamily, real sin2_th12, real sin2_th13)

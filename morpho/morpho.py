@@ -27,11 +27,6 @@ import pickle
 from hashlib import md5
 import importlib
 
-
-
-
-
-
 class morpho(object):
     def read_param(self, yaml_data, node, default):
         data = yaml_data
@@ -224,7 +219,6 @@ def plot_result(conf, stanres):
         print(result)
 
 def write_result(conf, stanres):
-
     print("Writing results!")
     ofilename = sa.out_fname
     if (args.job_id>0):
@@ -265,7 +259,8 @@ if __name__ == '__main__':
             if (sa.get_do_Stan()):
                 result = stan_cache(**(sa.gen_arg_dict()))
                 stanres = write_result(sa, result)
-                save_object(stanres, sa.out_fit)
+                if sa.out_fit != None:
+                    save_object(stanres, sa.out_fit)
                 # plot_result(sa, result)
             if (sa.get_do_pp()):
                 postprocessing(sa)

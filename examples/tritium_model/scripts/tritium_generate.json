@@ -47,15 +47,17 @@
       "parameters": [
         {
           "nGenerate" : -500,
-          "nChains" : 40
+          "nChains" : 4,
+          "minKE": 18500,
+          "maxKE": 18600
         }
       ]
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 100,
-      "warmup": 80,
-      "chain": 4,
+      "iter": 10000,
+      "warmup": 8000,
+      "chain": 6,
       "init_off": [
         {"uB" : 0.0,
           "uQ1" : 0.0,
@@ -105,14 +107,19 @@
   {
     "which_pp":[
       {
-        "method_name": "prout",
-        "module_name": "test",
-        "input_name" : "./tritium_model/results/tritium_generator.root",
-        "input_format" : "root",
-        "input_tree": "spectrum",
-        "output_name" : "./tritium_model/results/tritium_generator.root",
-        "output_format": "root",
-        "output_tree": "spectrum"
+        "method_name": "data_reducer",
+        "module_name": "data_reducer",
+        "input_file_name" : "./tritium_model/results/tritium_generator.root",
+        "input_file_format" : "root",
+        "input_tree": "stan_MC",
+        "minKE":18500.,
+        "maxKE":18600.,
+        "nBinHisto":50,
+        "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
+        "output_file_format": "root",
+        "output_freq_spectrum_tree": "spectrum",
+        "output_time_spectrum_tree": "time",
+        "additional_file_name" : "./tritium_model/results/tritium_additionalData.out",
       }
 
     ]

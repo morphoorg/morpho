@@ -4,20 +4,25 @@
         "name": "Q_analysis",
         
         "model":   {
-            "file": "./examples/MassHierarchy/model/Q_analyzer.stan",
-            "function_file": "./examples/MassHierarchy/models/Q_functions.stan",
-            "cache": "./cache"
+            "file": "./MassHierarchy/models/Q_analyzer.stan",
+            "function_file": [
+                              {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                              {"name" : "constants", "file" : "../functions/constants.functions"}
+                              {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"}
+                              ],
+            "cache": "./MassHierarchy/cache"
         },
+
         
         "data": {
             "type": "mc",
             "files": [
                       {
-                      "name": "./examples/MassHierarchy/data/Q_analyze.data",
+                      "name": "./MassHierarchy/data/Q_analyze.data",
                       "format":"R"
                       },
                       {
-                      "name" : "./examples/MassHierarchy/results/Qtest_generator",
+                      "name" : "./MassHierarchy/results/Qtest_generator",
                       "format" : "hdf5",
                       "event_number" : 0,
                       "datasets" : [
@@ -41,15 +46,15 @@
             "iter": 2000,
             "chain": 1},
         
-        
-        "sample": "./examples/MassHierarchy/results/Qtest_analyzer.out",
+
+        "sample": "./MassHierarchy/results/Qtest_analyzer.out",
         
         "output":
         {
-            "name" : "./examples/MassHierarchy/results/Qtest_analyzer.h5",
+            "name" : "./MassHierarchy/results/Qtest_analyzer.h5",
             "format": "hdf5",
             "config": {"group": "/"},
-            "fit": "./examples/MassHierarchy/results/Qresults2.pkl",
+            "fit": "./MassHierarchy/results/Qresults2.pkl",
             "data": [
                      {"stan_parameter": "Q_extract","output_name": "Q_extract"},
                      {"stan_parameter": "sigma_extract","output_name": "sigma_extract"},

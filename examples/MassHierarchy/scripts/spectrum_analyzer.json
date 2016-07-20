@@ -1,0 +1,69 @@
+{
+    "stan": {
+        
+        "name": "spectrum_analyzer",
+        
+        "model":   {
+            "file": "./MassHierarchy/models/spectrum_analyzer.stan",
+            "function_file": [
+                              {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                              {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"}
+                              {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
+                              ],
+            "cache": "./MassHierarchy/cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./MassHierarchy/data/spectrum_information.data",
+                      "format":"R"
+                      },
+                      {
+                      "name": "./MassHierarchy/results/spectrum_additionalData.txt",
+                      "format":"R"
+                      },
+                      {
+                      "name" : "./MassHierarchy/results/generator_reduced.root",
+                      "format" : "root",
+                      "tree" : "spectrum",
+                      "branches" : [
+                                     {"name" : "KE_data", "stan_alias" : "KE_data"},
+                                     {"name" : "n_spectrum_data", "stan_alias" : "n_spectrum_data", "data_format" : "integer"},
+                                    ]
+                      }
+
+                      ]
+        },
+        
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 6000,
+            "warmup" : 5500,
+            "chain": 4},
+        
+        
+        "sample": "./MassHierarchy/results/MHtest_analyzer.out",
+        
+        "output":
+        {
+            "name" : "./MassHierarchy/results/MHtest_analyzer.h5",
+            "format": "hdf5",
+            "config": {"group": "/"},
+            "data": [
+                     {"stan_parameter": "nu_mass","output_name": "nu_masses"},
+                     {"stan_parameter": "th12","output_name": "th12"},
+                     {"stan_parameter": "th13","output_name": "th13"},
+                     {"stan_parameter": "delta_m21","output_name": "delta_m21"},
+                     {"stan_parameter": "delta_m32","output_name": "delta_m32"},
+                     {"stan_parameter": "m32_withsign","output_name": "m32_withsign"},
+                     {"stan_parameter": "min_mass","output_name": "min_mass"},
+                     {"stan_parameter": "mbeta","output_name": "mbeta"},
+                     {"stan_parameter": "lp__","output_name": "LogLikelihood"},
+                     ]
+        }
+        
+    }
+    
+}

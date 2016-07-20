@@ -9,13 +9,21 @@
         {"name" : "constants", "file" : "../functions/constants.functions"},
         {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
         {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"},
-        {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
+        {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"},
+        {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"}
       ],
       "cache": "./tritium_model/cache"
     },
 
     "data": {
       "type": "data",
+      "parameters": [
+        {
+          "nChains" : 40
+          "MassHierarchy" : 1
+        }
+      ],
+      
       "files": [
         {
           "name": "./tritium_model/data/tritium.header.data",
@@ -59,32 +67,31 @@
     },
 
     "run": {
-      "algorithm": "HMC",
+      "algorithm": "NUTS",
       "iter": 6000,
       "warmup": 5500,
       "chain": 4,
       "init":
-        { "lightest_neutrino_mass": 50.0,
-          "scatt_width" : 7.3e+04,
-          "background_rate" : 1.e-6,
+        { "lightest_neutrino_mass": 10.0,
+          "scatt_width" : 1.0e+06,
           "uB" : 0.0,
           "uBG" : 0.,
-          "uQ1" : 0.,
+          "uQ" : [0.,0.,0.],
           "uQ2" : 0.,
           "uF" : 0.0,
           "uS" : 0.0,
-          "Tparam1" : 30.0,
-          "lambda_param" : 0.75,
-          "kappa_param" : 0.2,
-          "epsilon_param" : 0.95,
-          "eta_param" : 0.5,
+          "Tparam1" : 0.0,
+          "lambda_param" : 0.,
+          "kappa_param" : 0.,
+          "epsilon_param" : 0.,
+          "eta_param" : 0.,
           "us12" : 0.0,
           "us13" : 0.,
           "udm21" : 0.,
           "udm32" : 0.,
           "mu_tot" : 1.0,
           "eDop":0.05,
-          "n0_timeData":800}
+          "n0_timeData":900}
       },
 
       "sample": "./tritium_model/results/tritium_analysis.out",
@@ -107,6 +114,7 @@
           {"variable" : "dm21", "root_alias" : "dm21"},
           {"variable" : "dm31", "root_alias" : "dm31"},
           {"variable" : "MainField", "root_alias" : "MainField"},
+          {"variable" : "uB", "root_alias" : "uB"},
           {"variable" : "composition", "root_alias" : "composition", "ndim":3},
           {"variable" : "eta", "root_alias" : "eta"},
           {"variable" : "temperature", "root_alias" : "temperature"},
@@ -114,8 +122,9 @@
           {"variable" : "Q_T_atom", "root_alias" : "Q_T_atom"},
           {"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
           {"variable" : "mu_tot", "root_alias" : "mu_tot"},
-          {"variable" : "n_spectrum_recon", "root_alias" : "n_spectrum_recon","ndim":100},
-          {"variable" : "frequency", "root_alias" : "frequency","ndim":100},
+          {"variable" : "n_spectrum_recon", "root_alias" : "n_spectrum_recon","ndim":200},
+          {"variable" : "frequency", "root_alias" : "frequency","ndim":200},
+          {"variable" : "KE", "root_alias" : "KE","ndim":200},
           {"variable" : "norm_density", "root_alias" : "norm_density"},
           {"variable" : "activity", "root_alias" : "activity"},
           {"variable" : "background_rate", "root_alias" : "background_rate"},

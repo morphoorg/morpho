@@ -16,7 +16,7 @@ def plot_average(KE_recon,events):
     for i in range(0,len(events)):
         h.Fill(KE_recon[i],events[i])
     h.Draw()
-    can.SaveAs("tritium_model/ploting_scripts/" + "events_vs_KE_recon_average.pdf")
+    can.SaveAs("tritium_model/plotting_scripts/" + "events_vs_KE_recon_average.pdf")
 
 def fillLogxHisto(list, xmin, xmax, nbins):
 
@@ -140,7 +140,7 @@ def displayHisto(list, title, option):
     h1.GetXaxis().SetTitle(xtitle)
     h1.GetYaxis().SetTitle(ytitle)
     h1.Draw()
-    can.SaveAs("tritium_model/ploting_scripts/" + pdfname + ".pdf")
+    can.SaveAs("tritium_model/plotting_scripts/" + pdfname + ".pdf")
     return can
 
 
@@ -292,10 +292,13 @@ def displayGraph(list, title, option):
     # print 'a'
     g.GetXaxis().SetTitle(xtitle)
     g.GetYaxis().SetTitle(ytitle)
+    g.Draw("AP")
+    # print 'a'
+    can.SaveAs( "tritium_model/plotting_scripts/" + pdfname + ".pdf")
     if "PL" in option[0]:
         g.Draw("ALP")
     else:
         g.Draw("AP")
     # print pdfname
-    can.SaveAs( "tritium_model/ploting_scripts/" + pdfname + ".pdf")
+    can.SaveAs( "tritium_model/plotting_scripts/" + pdfname + ".pdf")
     return can

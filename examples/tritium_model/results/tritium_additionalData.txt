@@ -1,2 +1,2 @@
-nBinSpectrum <- 100
-nBinTime <- 100
+nBinSpectrum <- 200
+nBinTime <- 200

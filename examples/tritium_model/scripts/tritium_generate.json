@@ -4,11 +4,13 @@
     "name": "tritium_generator",
 
     "model":     {
+      "model_name": "tritium_generator",
       "file": "./tritium_model/models/tritium_generator.stan",
       "function_file": [
         {"name" : "constants", "file" : "../functions/constants.functions"},
         {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
         {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"},
+        {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"},
         {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
       ],
       "cache": "./tritium_model/cache"
@@ -36,16 +38,16 @@
       ],
       "parameters": [
         {
-          "nGenerate" : -500,
-          "nChains" : 10
+          "nChains" : 40,
+          "MassHierarchy" : 1
         }
       ]
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 5500,
-      "warmup": 5000,
-      "chain": 10,
+      "iter": 1000,
+      "warmup": 800,
+      "chain": 4,
       "init_off": [
         {"uB" : 0.0,
           "uQ1" : 0.0,
@@ -77,7 +79,6 @@
           {"variable" : "scatt_width", "root_alias" : "scatt_width"},
           {"variable" : "Q", "root_alias" : "Q"},
           {"variable" : "norm_spectrum", "root_alias" : "norm_spectrum"},
-          {"variable" : "nData", "root_alias" : "nData", "type" : "int"},
           {"variable" : "time_data", "root_alias" : "time_data"},
           {"variable" : "freq_data", "root_alias" : "freq_data"},
           {"variable" : "KE_recon", "root_alias" : "KE_recon"},
@@ -87,7 +88,5 @@
           {"variable" : "lp__", "root_alias" : "LogLikelihood"}
         ]
       }
-
     }
-
   }

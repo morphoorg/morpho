@@ -1,0 +1,85 @@
+/*
+*
+* MC Neutrino Mass Functions
+* -----------------------------------------------------
+* Authors: Talia Weiss <tweiss@mit.edu>
+*          J. A. Formaggio <josephf@mit.edu>
+*
+* Date: 9 July 2015
+*
+* Purpose:
+*
+* Defines functions specific to neutrino mass calculations, to be used in beta decay spectrum neutrino mass generation and analysis models.
+*
+*/
+
+
+// Mixing parameter values and errors taken directly or calculated from table 14.7
+// of PDG review: "NEUTRINO MASS, MIXING, AND OSCILLATIONS" (2014).
+
+real nFamily() {return 3;}                      // Number of neutrino species
+
+real meas_delta_m21() {return 7.54e-5;}         // Best known value of delta_m2^2-delta_m1^2 in eV^2
+real meas_delta_m21_err() {return 2.4e-6;}      // Error on delta_m2^2-delta_m1^2 in eV^2
+real meas_delta_m32_NH() {return 2.39e-3;}      // Best known value of delta_m3^2-delta_m2^2 in eV^2 for normal hierarchy
+real meas_delta_m32_NH_err() {return 6.0e-5;}   // Error in eV^2 for normal hierarchy
+real meas_delta_m32_IH() {return -2.42e-3;}     // Best known value of delta_m3^2-delta_m2^2 in eV^2 for inverted hierarchy
+real meas_delta_m32_IH_err() {return 6.0e-5;}   // Error in eV^2 for inverted hierarchy
+
+real meas_sin2_th12() {return 0.308;}           // Best known value of sin squared of theta_12 (radians)
+real meas_sin2_th12_err() {return 0.017;}       // Error on sin squared of theta_12
+
+real meas_sin2_th13_NH() {return 0.0234;}       // Best known value of sin squared of theta_13 for normal hierarchy
+real meas_sin2_th13_NH_err() {return 0.0020;}   // Error on sin squared of theta_13 for normal hierarchy
+
+real meas_sin2_th13_IH() {return 0.0240;}       // Same for inverted hierarchy
+real meas_sin2_th13_IH_err() {return 0.0020;}
+
+real neutrino_mass_limit() {return 2.0;}        // Current limit on effective neutrino mass
+
+
+// Finds vector of squares of PMNS matrix elements U_e *from data inputs of the form sin_squared(theta)*
+
+vector get_U_PMNS(int nFamily, real sin2_th12, real sin2_th13)
+{
+   vector[nFamily] U;
+
+   U[1] <- (1. - sin2_th13) * (1. - sin2_th12);
+   U[2] <- (1. - sin2_th13) * sin2_th12;
+   U[3] <- sin2_th13;
+
+   return U;
+}
+
+
+// Finds vector of neutrino masses (m1, m2, m3) assuming one mass hierarchy with fixed minimum mass
+
+vector MH_masses(real min_mass_fixed, real meas_delta_m21, real meas_delta_m32, int MH) {
+    vector[3] nu_mass_fixed;
+
+    // Defining neutrino masses assuming NH is true
+    if (MH==0){
+        nu_mass_fixed[1] <- min_mass_fixed;
+        nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)+meas_delta_m21);
+        nu_mass_fixed[3] <- sqrt(square(min_mass_fixed)+meas_delta_m21+meas_delta_m32);
+        }
+
+    // Defining neutrino masses assuming IH is true
+    else if (MH==1){
+        nu_mass_fixed[3] <- min_mass_fixed;
+        nu_mass_fixed[1] <- sqrt(square(min_mass_fixed)-meas_delta_m32-meas_delta_m21);
+        nu_mass_fixed[2] <- sqrt(square(min_mass_fixed)-meas_delta_m32);
+
+        }
+    else
+        print ("MH=0 for normal hierarchy; MH=1 for inverted hierarchy");
+
+    return nu_mass_fixed;
+    }
+
+
+// m_beta = effective mass
+
+real get_effective_mass(vector U, vector mass){
+    return pow(U[1] * pow(mass[1],2) + U[2] * pow(mass[2],2) + U[3] * pow(mass[3],2), 0.5);
+}

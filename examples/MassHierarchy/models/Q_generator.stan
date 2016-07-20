@@ -17,45 +17,10 @@ functions{
 
 // Load libraries
 
-   include <- constants;
-   include <- func_routines;
-   include <- Q_Functions;
-
-// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT) given parameters epsilon and kappa
-
-    vector find_composition(real epsilon, real kappa)
-    {
-        vector[3] composition;
-
-        composition[1] <- (2.0*epsilon - 1.0);
-        composition[2] <- (2.0*(1.0-epsilon)*kappa)/(1+kappa);
-        composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
-        return composition;
-    }
-
-}
-
-functions{
-
-// Load libraries
-
     include_functions<-constants
     include_functions<-func_routines
     include_functions<-Q_Functions
-
-// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
-
-    vector find_composition(real epsilon, real kappa, real eta)
-    {
-        vector[4] composition;
-
-        composition[1] <- (2.0*epsilon - 1.0) * eta;
-        composition[2] <- (2.0*(1.0-epsilon)*kappa * eta)/(1+kappa);
-        composition[3] <- (2.0*(1.0-epsilon) * eta)/(1+kappa);
-	composition[4] <- 1.- eta;
-        return composition;
-    }
-
+    
 }
 
 
@@ -83,9 +48,10 @@ data{
 
     real delta_epsilon; //Uncertainty in fractional activity of source gas compared to pure T_2
     real delta_kappa; //Uncertainty in ratio of HT to DT
-    real delta_theory; //Uncertainty in composition fraction of non-T 
+    real delta_theory; //Uncertainty in composition fraction of non-T
 
 }
+
 
 transformed data{
 
@@ -105,7 +71,7 @@ transformed data{
     mass_s[2] <- hydrogen_atomic_mass();
     mass_s[3] <- deuterium_atomic_mass();
     mass_s[4] <- 0.0;
-    
+
 }
 
 parameters{
@@ -114,7 +80,7 @@ parameters{
 
     real uT;
     real uS;
-    
+
     real<lower=0.0, upper=1.0> lambda;
     simplex[num_iso] composition;
     real<lower=minKE,upper=maxKE> Q;
@@ -129,12 +95,8 @@ transformed parameters{
     real<lower=0.0> Q_mol;             // Best estimate for value of Q (eV)
     real<lower=0.0> p_squared;         // (Electron momentum)^2 at the endpoint
     vector<lower=0.0>[num_iso] sigma_0;
-<<<<<<< HEAD:examples/MassHierarchy/models/Q_generator.stan
-    vector<lower=0.0>[num_iso] sigma;
-=======
     real<lower=0.0> sigma_mol;         // Best estimate for value of sigmaQ for molecule (eV)
     real<lower=0.0> sigma_atom;	       // Best estimate for value of sigmaQ for atom (eV)
->>>>>>> develop:examples/MassHierarchy/models/Q_generator.stan
 
     real epsilon;
     real kappa;
@@ -153,41 +115,23 @@ transformed parameters{
     epsilon <- 0.5 * (1.0 + composition[1]);
     kappa <- composition[3] / composition[2];
 
-<<<<<<< HEAD:examples/MassHierarchy/models/Q_generator.stan
 // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
-    
-    for (i in 1:num_iso) {
-        p_squared <- 2.0 * Q_values[i] * m_electron();
-    	sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda);
-    }
-    
-    sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
-    sigma <- sigma_0 * (1. + sigma_theory);
-    
-//  Take averages of Q and sigma values
 
-    sigma_avg <- sqrt(sum(composition .* sigma .* sigma));
-    Q_avg <- sum(composition .* Q_values);
-=======
-
-// Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
-    
     for (i in 1:num_iso) {
         p_squared <- 2.0 * Q_T_molecule[i] * m_electron();
     	sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda);
     }
-    
+
     sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
     
 //  Take averages of Q and sigma values of molecule
-    
+
     Q_mol <- sum(composition .* Q_T_molecule);
     sigma_mol <- sqrt(sum(composition .* sigma_0 .* sigma_0)) * (1. + sigma_theory);
 
 //  Find sigma of atomic tritium
 
     sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom * m_electron(), 0., 0, 0.);
->>>>>>> develop:examples/MassHierarchy/models/Q_generator.stan
 
 }
 
@@ -196,30 +140,14 @@ model{
 // Find lambda distribution
 
     lambda_set ~ normal(lambda, delta_lambda);
-   
+
 // Find composition distribution
 
     epsilon_set ~ normal(epsilon, delta_epsilon);
     kappa_set ~ normal(kappa, delta_kappa);
-<<<<<<< HEAD:examples/MassHierarchy/models/Q_generator.stan
-    eta_set ~ normal(eta, delta_eta);
-
-//  Distribute Q value from average
-
-    Q ~ normal(Q_avg, sigma_avg);
-   
-}
-
-
-
-=======
 
 // Set mixture of molecular and atomic tritium, if needed
 
     increment_log_prob(log_sum_exp(log(eta_set) + normal_log(Q, Q_mol, sigma_mol),
                                    log1m(eta_set) + normal_log(Q, Q_T_atom, sigma_atom)));
-
 }
-
-
->>>>>>> develop:examples/MassHierarchy/models/Q_generator.stan

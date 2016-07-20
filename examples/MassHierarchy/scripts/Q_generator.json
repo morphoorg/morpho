@@ -4,34 +4,20 @@
         "name": "Q_generator",
 
         "model":   {
-<<<<<<< HEAD:examples/MassHierarchy/scripts/Q_generator.json
             "file": "./examples/MassHierarchy/models/Q_generator.stan",
-            "function_file": [
-                {"name" : "constants", "file" : "./functions/constants.functions"},
-                {"name" : "func_routines", "file" : "./functions/func_routines.functions"},
-                {"name" : "Q_Functions", "file" : "./functions/Q_functions.functions"}
-             ],
-            "cache": "./examples/MassHierarchy/cache"
-=======
-            "file": "./MassHierarchy/models/Q_generator.stan",
             "function_file": [
                 {"name" : "constants", "file" : "../functions/constants.functions"},
                 {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
                 {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"}
              ],
-            "cache": "./MassHierarchy/cache"
->>>>>>> develop:examples/MassHierarchy/scripts/Q_generator.json
+            "cache": "./examples/MassHierarchy/cache"
         },
 
         "data": {
             "type": "mc",
             "files": [
                       {
-<<<<<<< HEAD:examples/MassHierarchy/scripts/Q_generator.json
-                      "name": "./examples/MassHierarchy/data/Q_generate.data",
-=======
                       "name": "./MassHierarchy/data/Q_generate.data",
->>>>>>> develop:examples/MassHierarchy/scripts/Q_generator.json
                       "format":"R"
                       }
                       ]
@@ -39,44 +25,29 @@
 
         "run": {
             "algorithm": "NUTS",
-<<<<<<< HEAD:examples/MassHierarchy/scripts/Q_generator.json
             "iter": 10000,
-            "chain": 1},
-
-        "sample": "./examples/MassHierarchy/results/Qtest_generator.out",
-
-     "output":
-            {
-             "name" : "./examples/MassHierarchy/results/Qtest_generator",
-=======
-            "iter": 5000,
-            "chain": 4},
+            "chain": 5},
         
-        "sample": "./MassHierarchy/results/Qtest_generator.out",
+        "sample": "./MassHierarchy/results/Qtest_generator_T.out",
         
-     "output": 
+        "output": 
             {
-             "name" : "./Qtest_generator",
->>>>>>> develop:examples/MassHierarchy/scripts/Q_generator.json
-             "format" : "root",
-             "tree" : "QTree",
-             "branches" : [
-                     {"variable" : "Q", "root_alias" : "Q"},
-                     {"variable" : "epsilon", "root_alias" : "epsilon"},
-                     {"variable" : "kappa", "root_alias" : "kappa"},
-                     {"variable" : "sigma_0", "root_alias" : "sigma_mol_i", "ndim":3},
-                     {"variable" : "sigma_atom", "root_alias" : "sigma_atom"},
-                     {"variable" : "sigma_mol", "root_alias" : "sigma_mol"},
-                     {"variable" : "temperature", "root_alias" : "temperature"},
-<<<<<<< HEAD:examples/MassHierarchy/scripts/Q_generator.json
-                     {"variable" : "composition", "root_alias" : "composition", "ndim":4},
-                     {"variable" : "sigma", "root_alias" : "sigma", "ndim":4},
-=======
-                     {"variable" : "composition", "root_alias" : "composition", "ndim":3},
->>>>>>> develop:examples/MassHierarchy/scripts/Q_generator.json
-                     {"variable" : "lp__", "root_alias" : "LogLikelihood"}
-                      ]
-             }
+            "name" : "./MassHierarchy/results/Qtest_generator_T",
+            "format": "hdf5",
+            "fit": "./MassHierarchy/results/Qresults_T.pkl",
+            "config": {"group": "/"},
+            "data": [
+                     {"stan_parameter": "Q","output_name": "Q"},
+                     {"stan_parameter" : "epsilon", "output_name" : "epsilon"},
+                     {"stan_parameter" : "kappa", "output_name" : "kappa"},
+                     {"stan_parameter" : "eta", "output_name" : "eta"},
+                     {"stan_parameter" : "sigma_avg", "output_name" : "sigma_avg"},
+                     {"stan_parameter" : "temperature", "output_name" : "temperature"},
+                     {"stan_parameter" : "composition", "output_name" : "composition", "ndim":4},
+                     {"stan_parameter" : "sigma", "output_name" : "sigma", "ndim":4},
+                     {"stan_parameter" : "lp__", "output_name" : "LogLikelihood"}
+                     ]
+             }        
 
    }
 

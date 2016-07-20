@@ -65,7 +65,7 @@ class stan_args(object):
                 dict_list = [self.init_per_chain] * self.chains
                 return dict_list
             else:
-                return self.init_per_chain
+                return [self.init_per_chain]
         else:
             # print('WARNING: init is not a list or a dictionary')
             return self.init_per_chain
@@ -78,6 +78,7 @@ class stan_args(object):
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
             self.functions_code = self.read_param(yd, 'stan.model.function_file', None)
+            self.model_name = self.read_param(yd, 'stan.model.model_name', None)
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
             # STAN data
@@ -98,9 +99,8 @@ class stan_args(object):
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
 
             # output information
-            self.out_format = self.read_param(yd, 'stan.output.format', 'hdf5')
-            self.out_fname = self.read_param(yd, 'stan.output.name',
-                                                 'stan_out.h5')
+            self.out_format = self.read_param(yd, 'stan.output.format', 'root')
+            self.out_fname = self.read_param(yd, 'stan.output.name','stan_out.root')
 
             self.out_tree = self.read_param(yd, 'stan.output.tree', None)
             self.out_branches = self.read_param(yd, 'stan.output.branches', None)
@@ -110,6 +110,13 @@ class stan_args(object):
 
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
+
+            # Post-processing configuration
+            self.pp_out_fname = self.read_param(yd, 'postprocessing.output.name', 'processed_stan_out.root')
+            self.pp_out_format = self.read_param(yd, 'postprocessing.output.format', 'root')
+            self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
+
+            # Root plot configuration
 
         except Exception as err:
             raise err
@@ -195,31 +202,15 @@ def write_result(conf, stanres):
         ofilename = ofilename+'_'+args.job_id
     if sa.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        write_result_hdf5(sa, ofilename, result)
+        pyL.write_result_hdf5(sa, ofilename, result)
 
     if sa.out_format == 'root':
         ofilename = ofilename+'.root'
         pyL.stan_write_root(sa, ofilename, result)
     return stanres
 
-def write_result_hdf5(conf, ofilename, stanres):
-    """
-    Write the STAN result to an HDF5 file.
-    """
-    with HDF5(ofilename,'w') as ofile:
-        g = open_or_create(ofile, conf.out_cfg['group'])
-        fit = stanres.extract()
-        for var in conf.out_vars:
-            stan_parname = var['stan_parameter']
-            if stan_parname not in fit:
-                warning = """WARNING: data {0} not found in fit!  Skipping...
-                """.format(stan_parname)
-                print warning
-            else:
-                print(var['output_name'])
-                g[var['output_name']] = fit[stan_parname]
-
 def save_object(obj, filename):
+    print("Saving into pickle file: {}".format(filename))
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
@@ -233,9 +224,10 @@ if __name__ == '__main__':
             result = stan_cache(**(sa.gen_arg_dict()))
 
             stanres = write_result(sa, result)
-            plot_result(sa, result)
 
             save_object(stanres, sa.out_fit)
+            postprocessing(stanres,sa)
+            plot_result(sa, result)
 
         except Exception as err:
             print(err)

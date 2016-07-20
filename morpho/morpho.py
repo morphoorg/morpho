@@ -242,8 +242,7 @@ def postprocessing(sa):
         modulename = 'postprocessing.'+minidict['module_name']
         i = importlib.import_module("{}".format(modulename))
         getattr(i,minidict['method_name'])(minidict)
-
-    return 1
+    return
 
 def save_object(obj, filename):
     print("Saving into pickle file: {}".format(filename))
@@ -264,7 +263,6 @@ if __name__ == '__main__':
                 # plot_result(sa, result)
             if (sa.get_do_pp()):
                 postprocessing(sa)
-
 
         except Exception as err:
             print(err)

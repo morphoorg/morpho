@@ -138,6 +138,26 @@ def stan_data_files(theData):
 
     return alist
 
+
+def write_result_hdf5(conf, ofilename, stanres):
+    """
+    Write the STAN result to an HDF5 file.
+    """
+    with HDF5(ofilename,'w') as ofile:
+        g = open_or_create(ofile, conf.out_cfg['group'])
+        fit = stanres.extract()
+        for var in conf.out_vars:
+            stan_parname = var['stan_parameter']
+            if stan_parname not in fit:
+                warning = """WARNING: data {0} not found in fit!  Skipping...
+                """.format(stan_parname)
+                print warning
+            else:
+                print(var['output_name'])
+                g[var['output_name']] = fit[stan_parname]
+    print 'The file has been written to', ofilename
+
+
 def stan_write_root(conf, theFileName, theOutput):
 
     afile = TFile.Open(theFileName, "recreate")

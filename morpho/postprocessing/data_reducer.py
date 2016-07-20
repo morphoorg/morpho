@@ -1,3 +1,39 @@
+'''
+This module contains a 'data_reducer' method which transforms a spread of spectrum points (with frequency as a x axis) generated with STAN into a true spectrum-like plot.
+This module must be called in the json config file by adding a new dictionary called 'processing' inside the main dictionary:
+Here is an example of such new dictionary:
+
+  "postprocessing":
+  {
+    "which_pp":[
+      {
+        "method_name": "data_reducer", #name of the method
+        "module_name": "data_reducer", #name of the python file which contains the method
+        "input_file_name" : "./tritium_model/results/tritium_generator.root", #path to the root file which contains the raw data
+        "input_file_format" : "root", #format of the input file
+        "input_tree": "stan_MC", # name of the tree (in case of root file)
+        "minKE":18500., #minimal energy used for generating the STAN data
+        "maxKE":18600., #maximal energy used for generating the STAN data
+        "nBinHisto":50, # number of bins wanted for the output spectrum
+        "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root", #path to the root file where to save the spectrum data
+        "output_file_format": "root", #format of the output file
+        "output_freq_spectrum_tree": "spectrum", #name of the tree (in case of root file) which contains the frequency spectrum
+        "output_time_spectrum_tree": "time", #name of the tree (in case of root file) which contains the time spectrum
+        "additional_file_name" : "./tritium_model/results/tritium_additionalData.out", #name of the file which contains the number of bins for the output histograms
+      }
+     ]
+
+  }
+Below is a  to-do list:
+- easy tasks:
+    - extend the number of nBinHisto to allow the user to have different spectrum depending on the nature of the histo (time, frequency...)
+- harder tasks:
+    - make this data reducer very generic (to be able to choose between frequency, energ or time spectrum) or add the energy spectrum by default
+    - implement the h5 reader and writter
+    - integrate the "additional_file_name" content into the "output_file" (this will require --in the case of root-- to be able to read single values directly from a root file).
+    A possibility is also to make a tree with n branches with only one element, these elements are then read in the analyzer as the number of bin/data to be analyzed
+'''
+
 import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
 import cmath as math
 from array import array
@@ -52,7 +88,6 @@ def data_reducer(param_dict):
     # end of uncommentable paragraph
 
     # spectrum  vs KE
-    # cane = ROOT.TCanvas("cane","cane",200,10,600,400)
     he = ROOT.TH1F("he","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
     hew = ROOT.TH1F("hew","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
     heavg = ROOT.TH1F("heavg","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
@@ -65,6 +100,8 @@ def data_reducer(param_dict):
         list_KE.append(he.GetBinCenter(i))
         list_spectrum_data.append(h.GetBinContent(i)/max(1,hew.GetBinContent(i)))
         heavg.Fill(he.GetBinCenter(i),he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
+
+    # cane = ROOT.TCanvas("cane","cane",200,10,600,400)
     # heavg.Draw()
     # heavg.GetXaxis().SetTitle("Kinetic energy [eV]")
     # print 'Number of total event for a year : ', havg.Integral()
@@ -74,7 +111,6 @@ def data_reducer(param_dict):
     # cane.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_KE_recon_average_logy.pdf")
 
     # Time distribution
-    # cant = ROOT.TCanvas("cant","cant",200,10,600,400)
     htime = ROOT.TH1F("htime","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
     htimew = ROOT.TH1F("htimew","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
     htimeavg = ROOT.TH1F("htimeavg","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
@@ -85,7 +121,8 @@ def data_reducer(param_dict):
     for i in range(0,htime.GetNbinsX()):
         list_time.append(htime.GetBinCenter(i))
         list_Time_events.append(htime.GetBinContent(i))
-    # print 'Number of total event for a year : ', htime.Integral()
+
+    # cant = ROOT.TCanvas("cant","cant",200,10,600,400)
     # htime.Draw();
     # htime.GetXaxis().SetTitle("Track duration [s]")
     # cant.SaveAs("tritium_model/ploting_scripts/" + "n_time_vs_time_data_average.pdf")
@@ -147,7 +184,7 @@ def data_reducer(param_dict):
 
     print('Prostprocessing complete!')
 
-    raw_input('Press <ret> to end -> ')
+    # raw_input('Press <ret> to end -> ')
 
 def readTTree(root_file_path,tree_name):
     myfile = ROOT.TFile(root_file_path,"READ")

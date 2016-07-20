@@ -26,6 +26,7 @@ functions{
   include<-constants;
   include<-func_routines;
   include<-Q_Functions;
+  include<-neutrino_mass_functions;
   include<-tritium_functions;
 
   // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
@@ -81,6 +82,7 @@ data {
   vector[2] xsec_bindkin;
   vector[2] xsec_msq;
   vector[2] xsec_Q;
+  real xsection_set; //set from Devyn's thesis : xsec = 4.4e-18 cm^2 @ 17 keV
 
   //  Conditions of the experiment and measurement
 
@@ -139,32 +141,18 @@ transformed data {
   real maxFreq;
   real fclock;
 
-
-
   simplex[num_iso] composition; //Composition of the gas
 
   vector<lower=0.0>[num_iso] mass_s; //mass of tritium species
 
-  dm21 <- meas_delta_m21;
-  s12 <- meas_sin2_th12;
-  if (MassHierarchy == 1)
-  {
-    dm32 <- meas_delta_m32_NH;
-    dm31 <- meas_delta_m32_NH + meas_delta_m21;
-    m_nu[1] <- lightest_neutrino_mass;
-    m_nu[2] <- sqrt(dm21 + square(m_nu[1]));
-    m_nu[3] <- sqrt(dm31 + square(m_nu[1]));
+  if (MassHierarchy == 1){
+    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21, meas_delta_m32_NH, MassHierarchy);
     s13 <- meas_sin2_th13_NH;
-  }
-  else if (MassHierarchy == -1)
-  {
-    dm32 <- meas_delta_m32_IH;
-    dm31 <- meas_delta_m32_IH + meas_delta_m21;
-    m_nu[3] <- lightest_neutrino_mass;
-    m_nu[1] <- sqrt(-dm31 + square(m_nu[3]));
-    m_nu[2] <- sqrt(-dm32 + square(m_nu[3]));
+  }  else {
+    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21, meas_delta_m32_IH, MassHierarchy);
     s13 <- meas_sin2_th13_IH;
   }
+  s12 <- meas_sin2_th12;
   U_PMNS <- get_U_PMNS(nFamily,s12,s13);
 
   minFreq <- get_frequency(maxKE, BField);
@@ -253,8 +241,7 @@ transformed parameters{
 
   // Determine effective mass to use from neutrino mass matrix
 
-  neutrino_mass <- sqrt(U_PMNS[1] * pow(m_nu[1],2) +U_PMNS[2] * pow(m_nu[2],2) +U_PMNS[3] * pow(m_nu[3],2) );
-
+  neutrino_mass <- get_effective_mass(U_PMNS, m_nu);
 
   // Obtain magnetic field (with prior distribution)
   MainField <- BField + vnormal_lp(uB, 0. , BFieldError_fluct);
@@ -268,9 +255,10 @@ transformed parameters{
   // Here we are considering that the ionization cross-section for each molecular tritium {HT, DT, TT} is the same.
   beta <- get_velocity(KE);
   // print(KE);
-  xsec <- 0.; //initialize cross section
-  xsec <- xsec + (1-eta_set) * xsection(KE,  xsec_avekin[1], xsec_bindkin[1], xsec_msq[1], xsec_Q[1]);//adding the cross-section with modelucar tritium
-  xsec <- xsec + (eta_set) * xsection(KE,  xsec_avekin[2], xsec_bindkin[2], xsec_msq[2], xsec_Q[2]);//adding the cross-section with atomic tritium
+  // xsec <- 0.; //initialize cross section
+  // xsec <- xsec + (1-eta_set) * xsection(KE,  xsec_avekin[1], xsec_bindkin[1], xsec_msq[1], xsec_Q[1]);//adding the cross-section with modelucar tritium
+  // xsec <- xsec + (eta_set) * xsection(KE,  xsec_avekin[2], xsec_bindkin[2], xsec_msq[2], xsec_Q[2]);//adding the cross-section with atomic tritium
+  xsec <- xsection_set; //cross section set in Devyn's thesis
   scatt_width <- number_density * c() * beta * xsec;
 
   rad_width <- cyclotron_rad(MainField);
@@ -323,22 +311,19 @@ transformed parameters{
     // Determine signal from beta function
 
     spectrum_shape <- spectral_shape(KE, Q_mol_random, U_PMNS, m_nu);
-    spectrum <- spectrum + (1.- eta_set) * composition[i] * norm_spectrum * spectrum_shape;
+    spectrum <- spectrum + (eta_set) * composition[i] * norm_spectrum * spectrum_shape;
   }
 
   // Determine signal and background rates from beta function and background level
 
   spectrum_shape <- spectral_shape(KE, Q_atom_random, U_PMNS, m_nu);
-  spectrum <- spectrum + eta_set * norm_spectrum * spectrum_shape;
+  spectrum <- spectrum + (1.-eta_set) * norm_spectrum * spectrum_shape;
 
   // Adding the background to the spectrum
   spectrum <- spectrum + background_rate_mean * measuring_time;
 
   //Filtering
   // spectrum <- spectrum *filter_log;
-
-
-
 
 }
 

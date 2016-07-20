@@ -1,14 +1,24 @@
 {
-  "stan": {
+  "morpho":
+  {
+    "do_stan": False,
+    "do_postprocessing": True,
+    "do_plots": True
+  },
+
+  "stan":
+  {
 
     "name": "tritium_generator",
 
     "model":     {
+      "model_name": "tritium_generator",
       "file": "./tritium_model/models/tritium_generator.stan",
       "function_file": [
         {"name" : "constants", "file" : "../functions/constants.functions"},
         {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
         {"name" : "Q_Functions", "file" : "../functions/Q_functions.functions"},
+        {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"},
         {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
       ],
       "cache": "./tritium_model/cache"
@@ -37,15 +47,17 @@
       "parameters": [
         {
           "nGenerate" : -500,
-          "nChains" : 40
+          "nChains" : 4,
+          "minKE": 18500,
+          "maxKE": 18600
         }
       ]
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 5500,
-      "warmup": 5000,
-      "chain": 40,
+      "iter": 10000,
+      "warmup": 8000,
+      "chain": 6,
       "init_off": [
         {"uB" : 0.0,
           "uQ1" : 0.0,
@@ -64,9 +76,9 @@
 
       "output":
       {
-        "name" : "./tritium_model/results/tritium_generator_zero",
+        "name" : "./tritium_model/results/tritium_generator",
         "format" : "root",
-        "tree" : "procTracks",
+        "tree" : "stan_MC",
         "branches" : [
           {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
           {"variable" : "KE", "root_alias" : "KE"},
@@ -88,6 +100,28 @@
         ]
       }
 
-    }
+    },
 
+
+  "postprocessing":
+  {
+    "which_pp":[
+      {
+        "method_name": "data_reducer",
+        "module_name": "data_reducer",
+        "input_file_name" : "./tritium_model/results/tritium_generator.root",
+        "input_file_format" : "root",
+        "input_tree": "stan_MC",
+        "minKE":18500.,
+        "maxKE":18600.,
+        "nBinHisto":50,
+        "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
+        "output_file_format": "root",
+        "output_freq_spectrum_tree": "spectrum",
+        "output_time_spectrum_tree": "time",
+        "additional_file_name" : "./tritium_model/results/tritium_additionalData.out",
+      }
+
+    ]
   }
+}

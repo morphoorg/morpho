@@ -5,7 +5,9 @@
 #
 # author: j.n. kofron <jared.kofron@gmail.com>
 #
-import sys
+from __future__ import absolute_import
+
+import os,sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -23,8 +25,9 @@ from inspect import getargspec
 
 import pickle
 from hashlib import md5
+import importlib
 
-class stan_args(object):
+class morpho(object):
     def read_param(self, yaml_data, node, default):
         data = yaml_data
         xpath = node.split('.')
@@ -48,7 +51,7 @@ class stan_args(object):
         sa = getargspec(stan)
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
-    def init_function(self):
+    def init_Stan_function(self):
         if isinstance(self.init_per_chain,list): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)):
             # init_per_chain is a list of dictionaries
             if self.chains >1 and len(self.init_per_chain)==1:
@@ -65,19 +68,41 @@ class stan_args(object):
                 dict_list = [self.init_per_chain] * self.chains
                 return dict_list
             else:
-                return self.init_per_chain
+                return [self.init_per_chain]
         else:
             # print('WARNING: init is not a list or a dictionary')
             return self.init_per_chain
 
+    def get_do_Stan(self):
+        if self.do_stan:
+            return True
+        else:
+            return False
+    def get_do_pp(self):
+        if self.do_postprocessing:
+            return True
+        else:
+            return False
+    def get_do_plots(self):
+        if self.do_plots:
+            return True
+        else:
+            return False
+
     def __init__(self, yd):
         try:
+            # Morpho steps
+            self.do_stan = self.read_param(yd, 'morpho.do_stan', 'required')
+            self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', 'required')
+            self.do_plots = self.read_param(yd, 'morpho.do_postprocessing', 'required')
+
             # Identifications
             self.job_id = self.read_param(yd, 'stan.job_id', '0')
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
             self.functions_code = self.read_param(yd, 'stan.model.function_file', None)
+            self.model_name = self.read_param(yd, 'stan.model.model_name', None)
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
             # STAN data
@@ -92,15 +117,14 @@ class stan_args(object):
             self.seed = self.read_param(yd, 'stan.run.seed', 314159)
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
-            self.init = self.init_function();
+            self.init = self.init_Stan_function();
 
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
 
             # output information
-            self.out_format = self.read_param(yd, 'stan.output.format', 'hdf5')
-            self.out_fname = self.read_param(yd, 'stan.output.name',
-                                                 'stan_out.h5')
+            self.out_format = self.read_param(yd, 'stan.output.format', 'root')
+            self.out_fname = self.read_param(yd, 'stan.output.name','stan_out.root')
 
             self.out_tree = self.read_param(yd, 'stan.output.tree', None)
             self.out_branches = self.read_param(yd, 'stan.output.branches', None)
@@ -111,11 +135,17 @@ class stan_args(object):
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
 
+            # Post-processing configuration
+            self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
+
+            # Root plot configuration
+
         except Exception as err:
             raise err
 
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
+    print("Creating Stan cache!")
 
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*<-\s*(?P<function_name>\w+)\s*;*',theModel)
@@ -189,37 +219,34 @@ def plot_result(conf, stanres):
         print(result)
 
 def write_result(conf, stanres):
-
+    print("Writing results!")
     ofilename = sa.out_fname
     if (args.job_id>0):
         ofilename = ofilename+'_'+args.job_id
     if sa.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        write_result_hdf5(sa, ofilename, result)
+        pyL.write_result_hdf5(sa, ofilename, result)
 
     if sa.out_format == 'root':
         ofilename = ofilename+'.root'
         pyL.stan_write_root(sa, ofilename, result)
     return stanres
 
-def write_result_hdf5(conf, ofilename, stanres):
-    """
-    Write the STAN result to an HDF5 file.
-    """
-    with HDF5(ofilename,'w') as ofile:
-        g = open_or_create(ofile, conf.out_cfg['group'])
-        fit = stanres.extract()
-        for var in conf.out_vars:
-            stan_parname = var['stan_parameter']
-            if stan_parname not in fit:
-                warning = """WARNING: data {0} not found in fit!  Skipping...
-                """.format(stan_parname)
-                print warning
-            else:
-                print(var['output_name'])
-                g[var['output_name']] = fit[stan_parname]
+def sampleFunc(arg):
+    print('you called sampleFunc({})'.format(arg))
+
+def postprocessing(sa):
+    # Generic function for creating the PostProcessing class
+    for minidict in sa.pp_dict:
+        print("Doing postprocessing {}".format(minidict['method_name']))
+        modulename = 'postprocessing.'+minidict['module_name']
+        i = importlib.import_module("{}".format(modulename))
+        getattr(i,minidict['method_name'])(minidict)
+
+    return 1
 
 def save_object(obj, filename):
+    print("Saving into pickle file: {}".format(filename))
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
@@ -228,14 +255,16 @@ if __name__ == '__main__':
     with open(args.config, 'r') as cfile:
         try:
             cdata = yload(cfile)
-            sa = stan_args(cdata)
+            sa = morpho(cdata)
+            if (sa.get_do_Stan()):
+                result = stan_cache(**(sa.gen_arg_dict()))
+                stanres = write_result(sa, result)
+                if sa.out_fit != None:
+                    save_object(stanres, sa.out_fit)
+                # plot_result(sa, result)
+            if (sa.get_do_pp()):
+                postprocessing(sa)
 
-            result = stan_cache(**(sa.gen_arg_dict()))
-
-            stanres = write_result(sa, result)
-            plot_result(sa, result)
-
-            save_object(stanres, sa.out_fit)
 
         except Exception as err:
             print(err)

@@ -90,8 +90,10 @@ def writeTTree(tree_path,title,branches_names,branches):
     return 0
 
 print "Reducing the generated data!"
+file_path = "tritium_model/results/tritium_generator.root"
+print file_path
 
-time_data, freq_data, spectrum_data, KE_recon = readTTree("tritium_model/results/tritium_generator.root")
+time_data, freq_data, spectrum_data, KE_recon = readTTree(file_path)
 
 can = ROOT.TCanvas("can","can",200,10,600,400)
 
@@ -99,12 +101,19 @@ minKE, maxKE = get_min_max_KE("tritium_model/data/tritium_endpoint.data")
 
 # can.SetLogy();
 
-nBinHisto = 100
+nBinHisto = 200
 dKE = (maxKE - minKE)/nBinHisto
-# events vs freq
+
+# spectrum vs freq
 h = ROOT.TH1F("h","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
 hw = ROOT.TH1F("hw","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
 havg = ROOT.TH1F("havg","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
+
+hFakeData = ROOT.TH1F("fake_data","",nBinHisto,min(freq_data),max(freq_data))
+hresidu = ROOT.TH1F("residu","",50,-3,3)
+
+ran = ROOT.TRandom3()
+list_fakespectrum_data = []
 list_freq_data = []
 list_spectrum_data = []
 for i in range(0,len(spectrum_data)):
@@ -114,26 +123,35 @@ for i in range(0,len(spectrum_data)):
 for i in range(0,h.GetNbinsX()):
     list_freq_data.append(h.GetBinCenter(i))
     list_spectrum_data.append(h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
-    havg.Fill(h.GetBinCenter(i),h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
+    havg.Fill(h.GetBinCenter(i),list_spectrum_data[i])
+    #Poisson distribution
+    list_fakespectrum_data.append(ran.Poisson(list_spectrum_data[i]))
+    hFakeData.Fill(h.GetBinCenter(i),list_fakespectrum_data[i])
+    print list_freq_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
+    # Residu calculation
+    if list_spectrum_data[i]!=0:
+        hresidu.Fill((list_fakespectrum_data[i]-list_spectrum_data[i])/pow(list_spectrum_data[i],0.5))
+
+
 havg.Draw()
+hFakeData.Draw("same")
 havg.GetXaxis().SetTitle("Measured frequency [Hz]")
 havg.SetLineColor(1)
 print 'Number of total event for a year : ', havg.Integral()
 can.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_freq_data_average.pdf")
 can.SetLogy()
 can.Update()
-# events vs KE
-cane = ROOT.TCanvas("cane","cane",200,10,600,400)
 
+# spectrum  vs KE
+cane = ROOT.TCanvas("cane","cane",200,10,600,400)
 he = ROOT.TH1F("h","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
 hew = ROOT.TH1F("hw","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
 heavg = ROOT.TH1F("hw","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
 list_KE = []
 list_spectrum_data = []
 for i in range(0,len(spectrum_data)):
-    # if (isOK[i]==1):
-        he.Fill(KE_recon[i],spectrum_data[i]*dKE)
-        hew.Fill(KE_recon[i],1)
+    he.Fill(KE_recon[i],spectrum_data[i]*dKE)
+    hew.Fill(KE_recon[i],1)
 for i in range(0,h.GetNbinsX()):
     list_KE.append(he.GetBinCenter(i))
     list_spectrum_data.append(h.GetBinContent(i)/max(1,hew.GetBinContent(i)))
@@ -146,44 +164,24 @@ cane.SetLogy()
 cane.Update()
 cane.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_KE_recon_average_logy.pdf")
 
+# Time distribution
 cant = ROOT.TCanvas("cant","cant",200,10,600,400)
-
 htime = ROOT.TH1F("htime","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
 htimew = ROOT.TH1F("htimew","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
 htimeavg = ROOT.TH1F("htimeavg","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
 list_time = []
 list_Time_events = []
 for i in range(0,len(time_data)):
-    # if (isOK[i]==1):
-        htime.Fill(time_data[i],1)
-        # htimew.Fill(time_data[i],1)
+    htime.Fill(time_data[i],1)
 for i in range(0,htime.GetNbinsX()):
     list_time.append(htime.GetBinCenter(i))
-    list_Time_events.append(htime.GetBinContent(i))#/max(1,htimew.GetBinContent(i)))
-    # list_events.append(h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
-    # htimeavg.Fill(htime.GetBinCenter(i),htime.GetBinContent(i)/max(1,htimew.GetBinContent(i)))
-    # print htime.GetBinCenter(i),  htime.GetBinContent(i)
+    list_Time_events.append(htime.GetBinContent(i))
 print 'Number of total event for a year : ', htime.Integral()
 htime.Draw();
 htime.GetXaxis().SetTitle("Track duration [s]")
 cant.SaveAs("tritium_model/ploting_scripts/" + "n_time_vs_time_data_average.pdf")
 
-# Generating the poisson distribution of the spectrum
-ran = ROOT.TRandom3()
-list_fakespectrum_data = []
-
-hFakeData = ROOT.TH1F("fake_data","",nBinHisto,min(freq_data),max(freq_data))
-hresidu = ROOT.TH1F("residu","",nBinHisto,-3,3)
-for i in range(0,len(list_spectrum_data)):
-# list_freq_data.append(h.GetBinCenter(i))
-    x = ran.Poisson(list_spectrum_data[i])
-    list_fakespectrum_data.append(x)
-    hFakeData.Fill(list_freq_data[i],list_fakespectrum_data[i])
-    # print x,list_spectrum_data[i], x-list_spectrum_data[i], pow(list_spectrum_data[i],0.5)
-    if list_spectrum_data[i]!=0:
-        hresidu.Fill((x-list_spectrum_data[i])/pow(list_spectrum_data[i],0.5))
-
-
+# Plot the poisson distribution of the spectrum
 canfakedata = ROOT.TCanvas("canfd","canfd",200,10,600,400)
 canfakedata.SetLogy()
 hFakeData.Draw()
@@ -193,7 +191,7 @@ havg.SetLineColor(1)
 canfakedata.Update()
 canfakedata.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_freq_data_average_logy.pdf")
 
-
+# Plot residu
 canres = ROOT.TCanvas("canR","canR",200,10,600,400)
 hresidu.Draw()
 hresidu.GetXaxis().SetTitle("Residus")
@@ -201,7 +199,7 @@ canres.Update()
 canres.SaveAs("tritium_model/ploting_scripts/" + "Poisson_residus.pdf")
 
 # Saving the additional data (aka the number of bin for each tree)
-f = open('tritium_model/results/tritium_additionalData.txt','w')
+f = open('tritium_model/results/tritium_additionalData.out','w')
 value =(str(h.GetNbinsX()))
 s=str(value)
 f.write('nBinSpectrum <- ' + s + '\n')

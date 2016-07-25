@@ -108,24 +108,24 @@ real filter_log(real s, real s_min, real s_max, real n) {
 
 real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, real maxKE, real signal_fraction) {
 
-	int nFamily;           // Number of neutrino species
+     	int nfamily;           // Number of neutrino species
 	real background_log;   // Log of background event rate --> log sum of background fraction and KE range
-	real signal;            // Spectrum function above modified to incorporate [nFamily] masses
+	real signal;            // Spectrum function above modified to incorporate [nfamily] masses
 	real rate_log;         // Log of event rate (beta decay spectrum) --> log sum of signal and background
 	real int_signal;     // Integral of the signal
 
-	nFamily <- num_elements(U);
+	nfamily <- num_elements(U);
 
 	background_log <- log(1.-signal_fraction) - log(maxKE - minKE);
 
 	int_signal <- 0.; //initialize the integrated signal
 
-	for (i in 1:nFamily){
+	for (i in 1:nfamily){
 		int_signal <- int_signal + U[i]*beta_integral(Q,m_nu[i],minKE); //recursive integration of the beta_spectrum for every neutrino mass
 		}
 
 	signal <- 0.;
-	for (i in 1:nFamily){
+	for (i in 1:nfamily){
 		if (KE < (Q-fabs(m_nu[i]))) {
 			signal <-signal + signal_fraction*U[i]*(Q-KE)*sqrt(square(KE-Q)-square(m_nu[i]))/int_signal;
 		}
@@ -138,14 +138,14 @@ real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, rea
 // spectrum shaper
 
 real spectral_shape(real KE, real Q, vector U, vector m_nu) {
-	int nFamily;           // Number of neutrino species
+	int nfamily;           // Number of neutrino species
 	real rate_log;         // Log of event rate (beta decay spectrum) --> log sum of signal and background
 	real spectrum;         // spectral shape
 
-	nFamily <- num_elements(U);
+	nfamily <- num_elements(U);
 
 	spectrum <- 0.;
-	for (i in 1:nFamily){
+	for (i in 1:nfamily){
 		if (KE < (Q-fabs(m_nu[i]))) {
 			spectrum <-spectrum + U[i]*(Q-KE)*sqrt(square(KE-Q)-square(m_nu[i]));
 		}

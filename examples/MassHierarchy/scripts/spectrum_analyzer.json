@@ -6,8 +6,9 @@
         "model":   {
             "file": "./MassHierarchy/models/spectrum_analyzer.stan",
             "function_file": [
+                              {"name" : "constants", "file" : "../functions/constants.functions"},
                               {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
-                              {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"}
+                              {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"},
                               {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
                               ],
             "cache": "./MassHierarchy/cache"
@@ -21,7 +22,7 @@
                       "format":"R"
                       },
                       {
-                      "name": "./MassHierarchy/results/spectrum_additionalData.txt",
+                      "name": "./MassHierarchy/results/spectrum_additionalData.out",
                       "format":"R"
                       },
                       {
@@ -48,19 +49,19 @@
         
         "output":
         {
-            "name" : "./MassHierarchy/results/MHtest_analyzer.h5",
-            "format": "hdf5",
-            "config": {"group": "/"},
-            "data": [
-                     {"stan_parameter": "nu_mass","output_name": "nu_masses"},
-                     {"stan_parameter": "th12","output_name": "th12"},
-                     {"stan_parameter": "th13","output_name": "th13"},
-                     {"stan_parameter": "delta_m21","output_name": "delta_m21"},
-                     {"stan_parameter": "delta_m32","output_name": "delta_m32"},
-                     {"stan_parameter": "m32_withsign","output_name": "m32_withsign"},
-                     {"stan_parameter": "min_mass","output_name": "min_mass"},
-                     {"stan_parameter": "mbeta","output_name": "mbeta"},
-                     {"stan_parameter": "lp__","output_name": "LogLikelihood"},
+            "name" : "./MassHierarchy/results/MHtest_analyzer",
+            "format": "root",
+            "tree" : "analysis_parameters",
+            "branches": [
+                     {"variable": "nu_mass","root_alias": "nu_mass"},
+                     {"variable": "sin2_th12","root_alias": "sin2_th12"},
+                     {"variable": "sin2_th13","root_alias": "sin2_th13"},
+                     {"variable": "delta_m21","root_alias": "delta_m21"},
+                     {"variable": "delta_m32","root_alias": "delta_m32"},
+                     {"variable": "m32_withsign","root_alias": "m32_withsign"},
+                     {"variable": "min_mass","root_alias": "min_mass"},
+                     {"variable": "mbeta","root_alias": "mbeta"},
+                     {"variable": "lp__","root_alias": "LogLikelihood"},
                      ]
         }
         

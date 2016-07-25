@@ -1,3 +1,4 @@
+
 /*
 *
 * MC Neutrino Mass Functions
@@ -17,8 +18,6 @@
 // Mixing parameter values and errors taken directly or calculated from table 14.7
 // of PDG review: "NEUTRINO MASS, MIXING, AND OSCILLATIONS" (2014).
 
-real nFamily() {return 3;}                      // Number of neutrino species
-
 real meas_delta_m21() {return 7.54e-5;}         // Best known value of delta_m2^2-delta_m1^2 in eV^2
 real meas_delta_m21_err() {return 2.4e-6;}      // Error on delta_m2^2-delta_m1^2 in eV^2
 real meas_delta_m32_NH() {return 2.39e-3;}      // Best known value of delta_m3^2-delta_m2^2 in eV^2 for normal hierarchy
@@ -36,13 +35,13 @@ real meas_sin2_th13_IH() {return 0.0240;}       // Same for inverted hierarchy
 real meas_sin2_th13_IH_err() {return 0.0020;}
 
 real neutrino_mass_limit() {return 2.0;}        // Current limit on effective neutrino mass
-
+int nFamily() {return 3;}
 
 // Finds vector of squares of PMNS matrix elements U_e *from data inputs of the form sin_squared(theta)*
 
-vector get_U_PMNS(int nFamily, real sin2_th12, real sin2_th13)
+vector get_U_PMNS(int nfamily, real sin2_th12, real sin2_th13)
 {
-   vector[nFamily] U;
+   vector[nfamily] U;
 
    U[1] <- (1. - sin2_th13) * (1. - sin2_th12);
    U[2] <- (1. - sin2_th13) * sin2_th12;

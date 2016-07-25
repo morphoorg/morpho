@@ -46,3 +46,4 @@
 // Deuterium specific constants
 
     real deuterium_atomic_mass() {return  2.01410178 * unit_mass();}   	 // Atomic deuterium mass in eV
+

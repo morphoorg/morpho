@@ -1,5 +1,4 @@
-B1;95;0c/*
-* Tritium Spectrum Model (Generator)
+/* Tritium Spectrum Model (Generator)
 * -----------------------------------------------------
 * Copyright: J. A. Formaggio <josephf@mit.edu>
 *
@@ -108,8 +107,8 @@ transformed data {
   real dm21;
   real dm31;
   real dm32;
-  vector[nFamily] m_nu;
-  vector[nFamily] U_PMNS;
+  vector[nFamily()] m_nu;
+  vector[nFamily()] U_PMNS;
 
 
   real minFreq;
@@ -121,14 +120,14 @@ transformed data {
   vector<lower=0.0>[num_iso] mass_s; //mass of tritium species
 
   if (MassHierarchy == 1){
-    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21, meas_delta_m32_NH, MassHierarchy);
-    s13 <- meas_sin2_th13_NH;
+    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21(), meas_delta_m32_NH(), MassHierarchy);
+    s13 <- meas_sin2_th13_NH();
   }  else {
-    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21, meas_delta_m32_IH, MassHierarchy);
-    s13 <- meas_sin2_th13_IH;
+    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21(), meas_delta_m32_IH(), MassHierarchy);
+    s13 <- meas_sin2_th13_IH();
   }
-  s12 <- meas_sin2_th12;
-  U_PMNS <- get_U_PMNS(nFamily,s12,s13);
+  s12 <- meas_sin2_th12();
+  U_PMNS <- get_U_PMNS(nFamily(),s12,s13);
 
   minFreq <- get_frequency(maxKE, BField);
   maxFreq <- get_frequency(minKE, BField);

@@ -17,9 +17,10 @@ functions{
 
     // Load libraries
 
-    include_functions<-func_routines
-    include_functions<-neutrino_mass_functions
-    include_functions<-tritium_functions
+    include<-constants;
+    include<-func_routines;
+    include<-neutrino_mass_functions;
+    include<-tritium_functions;
 }
 
 data{
@@ -28,8 +29,12 @@ data{
     
     real<lower=0 > minKE;        // Bounds on possible beta-decay spectrum kinetic energies in eV
     real<lower=minKE> maxKE;
-    real Q;                      // Endpoint of beta-decay spectrum in eV - should be between minKE and maxKE
-    real signal_fraction;        // Fraction of events that can be described as signal (as opposed to background)
+
+    real Q;                        // Endpoint of beta-decay spectrum in eV - should be between minKE and maxKE
+    //real signal_fraction;        // Fraction of events that can be described as signal (as opposed to background)
+    real background_rate_mean;     // In Hz/eV
+    real measuring_time;           // In seconds
+    real activity;                 // (Molecular tritium) activity
 
     int MH;                      // Either 0 (normal hierarchy) or 1 (inverted hierarchy)
 
@@ -45,20 +50,21 @@ transformed parameters {
     real<lower=0., upper =1.> meas_sin2_th13;
     vector<lower=0.0>[3] sUe_fixed;     // Squares of PMNS matrix elements U_e, calculated using fixed mixing angles
     vector<lower=0.0>[3] nu_mass_fixed; // Neutrino masses calculated with fixed mixing parameters, asumming one MH
-    real rate_log;                // Beta decay spectrum generated assuming one MH
+    real spectrum_shape;                // Beta decay spectrum generated assuming one MH
+    real spectrum;                      // Accounting for measuring time and background
 
     if (MH == 0){
-        nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21, meas_delta_m32_NH, MH);
-        meas_sin2_th13 <- meas_sin2_th13_NH;}
+        nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21(), meas_delta_m32_NH(), MH);
+        meas_sin2_th13 <- meas_sin2_th13_NH();}
     if (MH == 1){
-        nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21, meas_delta_m32_IH, MH);
-        meas_sin2_th13 <- meas_sin2_th13_IH;}
+        nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21(), meas_delta_m32_IH(), MH);
+        meas_sin2_th13 <- meas_sin2_th13_IH();}
         
     
-    sUe_fixed <- get_U_PMNS(nFamily, meas_sin2_th12, meas_sin2_th13);
+    sUe_fixed <- get_U_PMNS(nFamily(), meas_sin2_th12(), meas_sin2_th13);
 
-    rate_log <- signal_to_noise_log(KE, Q, sUe_fixed, nu_mass_fixed, minKE, maxKE, signal_fraction);
-
+    spectrum_shape <- spectral_shape(KE, Q, sUe_fixed, nu_mass_fixed);
+    spectrum <- activity * measuring_time * spectrum_shape + background_rate_mean * measuring_time;
 }
 
 model{
@@ -73,6 +79,6 @@ generated quantities {
     real spectrum_data;
 
     KE_data <- KE;
-    spectrum_data <- rate_log;
+    spectrum_data <- spectrum;
 
 }

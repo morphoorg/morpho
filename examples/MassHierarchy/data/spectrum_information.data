@@ -1,7 +1,11 @@
-minKE <- 18574.00
-maxKE <- 18575.05
+minKE <- 18500.00
+maxKE <- 18600.00
 Q <- 18574.95
 signal_fraction <- 0.99
 
 min_mass_fixed <- 0.005
 MH <- 0
+
+background_rate_mean <- 1.0e-06
+measuring_time <- 3.0e+07
+activity <- 3.2091e-08

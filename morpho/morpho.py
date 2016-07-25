@@ -90,7 +90,7 @@ class stan_args(object):
             self.iter = self.read_param(yd, 'stan.run.iter', 2000)
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
-            self.seed = self.read_param(yd, 'stan.run.seed', 314159)
+            self.seed = self.read_param(yd, 'stan.run.seed', '314159')
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
             self.init = self.init_function();
@@ -140,7 +140,7 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
-        sm = pystan.StanModel(model_code=theModel)
+        sm = pystan.StanModel(model_code=theModel, verbose=True)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:

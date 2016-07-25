@@ -115,6 +115,7 @@ class morpho(object):
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
             self.seed = self.read_param(yd, 'stan.run.seed', '')
+
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
             self.init = self.init_Stan_function();
@@ -136,6 +137,8 @@ class morpho(object):
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
 
             # Post-processing configuration
+            self.pp_out_fname = self.read_param(yd, 'postprocessing.output.name', 'processed_stan_out.root')
+            self.pp_out_format = self.read_param(yd, 'postprocessing.output.format', 'root')
             self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
 
             # Root plot configuration
@@ -163,7 +166,7 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
-        sm = pystan.StanModel(model_code=theModel)
+        sm = pystan.StanModel(model_code=theModel, verbose=True)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:

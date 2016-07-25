@@ -2,17 +2,17 @@ morpho
 ======
 The morpho package:
 
-    A python interface between stan/pystan Markov Chain Monte Carlo packahe for meta analysis and generation of fake data.
+    A python interface between Stan/PyStan Markov Chain Monte Carlo packahe for meta analysis and generation of fake data.
 
 
 Requirements
 ======
-	We will need pystan in order to run this system.
+	We will need PyStan in order to run this system.
 
-	The pystan (and mc-stan module) can be downloaded via github or directly.
-
-	see   http://mc-stan.org
-	and   http://mc-stan.org/pystan.html
+	The PyStan (and mc-stan) module can be downloaded via GitHub or directly.
+	
+	see   http://mc-stan.org	
+	and   http://mc-stan.org/pystan.html.
 
 	PyStan has the following dependencies:
 
@@ -31,7 +31,7 @@ Install
 
 Running
 ======
-	A sample executible is shown in the examples directory:
+	A sample executable is shown in the examples directory:
 
 	  	  python ../morpho/morpho.py --config  model_folder/scripts/<name_of_json_config_file>
 		  
@@ -41,10 +41,10 @@ Running
 
 		  2.  The input files are read into the system.  Right now, my input files are set for R-style formats, but we can use anything that makes a dict file.  I will leave it to higher up programers to deal with this.
 
-		  3.  There are two input files (actually, any number you want).  The first input file has general information common to both the generator and the analysis models (for example, the magnetic field parameters).  The second input file can contain input that is specific to the model being run (for example, data entries for data, model parameters for the generator).
+		  3.  There are two input files (actually, any number you want).  The first input file has general information common to both the generator and the analysis models (for example, the magnetic field parameters).  The second input file can contain input that is specifc to the model being run (for example, data entries for the analyzer, model parameters for the generator).
 
 		  4.  The model generates a number of Markov Chain files (in the specified directory) according to the specific model.  If there is no data, this in principle can be used to generate fake data.  That feature isn't quite implemented yet.
 
-		  5.  Very generic plots and screen output is created, just to flash some results.
-
-		  See the documentation on the STAN homepage for greater details.
+		  5.  Very generic plots and screen outputs are created, just to flash some results.
+		  
+		  See the documentation on the Stan homepage for more detail.

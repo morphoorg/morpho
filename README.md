@@ -2,12 +2,12 @@ morpho
 ======
 The morpho package:
 
-    A python interface between stan/pystan Markov Chain Monte Carlo packahe for meta analysis and generation of fake data.
+    A python interface between Stan/PyStan Markov Chain Monte Carlo packahe for meta analysis and generation of fake data.
 
 
 Requirements
 ======
-	We will need pystan in order to run this system.
+	We will need PyStan in order to run this system.
 
 	The PyStan (and mc-stan) module can be downloaded via GitHub or directly.
 	

@@ -21,6 +21,7 @@
 */
 real cyclotron_rad(real B) {return (4./3.)*r0_electron()/c()*square(omega_c() * B);}    // Frequency damping constant (in units of Hz/Tesla^2)
 
+
 // Method for converting kinetic energy (eV) to frequency (Hz).
 // Depends on magnetic field (Tesla)
 
@@ -149,9 +150,9 @@ real spectral_shape(real KE, real Q, vector U, vector m_nu) {
 		if (KE < (Q-fabs(m_nu[i]))) {
 			spectrum <-spectrum + U[i]*(Q-KE)*sqrt(square(KE-Q)-square(m_nu[i]));
 		}
+
 	}
 	return spectrum;
-
 	}
 
 

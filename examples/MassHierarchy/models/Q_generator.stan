@@ -60,7 +60,7 @@ transformed data{
     mass_s[1] <- tritium_atomic_mass();
     mass_s[2] <- hydrogen_atomic_mass();
     mass_s[3] <- deuterium_atomic_mass();
-    
+
 }
 
 transformed data{
@@ -95,6 +95,7 @@ transformed parameters{
     real<lower=0.0> Q_mol;             // Best estimate for value of Q (eV)
     real<lower=0.0> p_squared;         // (Electron momentum)^2 at the endpoint
     vector<lower=0.0>[num_iso] sigma_0;
+
     real<lower=0.0> sigma_mol;         // Best estimate for value of sigmaQ for molecule (eV)
     real<lower=0.0> sigma_atom;	       // Best estimate for value of sigmaQ for atom (eV)
 
@@ -123,7 +124,7 @@ transformed parameters{
     }
 
     sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
-    
+
 //  Take averages of Q and sigma values of molecule
 
     Q_mol <- sum(composition .* Q_T_molecule);

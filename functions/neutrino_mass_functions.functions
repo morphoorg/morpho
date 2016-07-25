@@ -50,7 +50,6 @@ vector get_U_PMNS(int nfamily, real sin2_th12, real sin2_th13)
    return U;
 }
 
-
 // Finds vector of neutrino masses (m1, m2, m3) assuming one mass hierarchy with fixed minimum mass
 
 vector MH_masses(real min_mass_fixed, real meas_delta_m21, real meas_delta_m32, int MH) {

@@ -90,7 +90,9 @@ def writeTTree(tree_path,title,branches_names,branches):
     return 0
 
 print "Reducing the generated data!"
+
 file_path = "./tritium_model/results/tritium_generator_zero.root"
+
 print file_path
 
 time_data, freq_data, spectrum_data, KE_recon = readTTree(file_path)
@@ -127,7 +129,7 @@ for i in range(0,h.GetNbinsX()):
 #can.SaveAs("tritium_model/plotting_scripts/" + "events_vs_freq_data_average.pdf")
     list_spectrum_data.append(h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
     havg.Fill(h.GetBinCenter(i),list_spectrum_data[i])
-#Poisson distribution
+    #Poisson distribution
     list_fakespectrum_data.append(ran.Poisson(list_spectrum_data[i]))
     hFakeData.Fill(h.GetBinCenter(i),list_fakespectrum_data[i])
     print list_freq_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
@@ -200,22 +202,7 @@ hresidu.GetXaxis().SetTitle("Residus")
 canres.Update()
 canres.SaveAs("tritium_model/plotting_scripts/" + "Poisson_residus.pdf")
 
-# Generating the poisson distribution of the spectrum
-ran = ROOT.TRandom3()
-list_fakespectrum_data = []
-
-hFakeData = ROOT.TH1F("fake_data","",nBinHisto,min(freq_data),max(freq_data))
-hresidu = ROOT.TH1F("residu","",nBinHisto,-3,3)
-for i in range(0,len(list_spectrum_data)):
-# list_freq_data.append(h.GetBinCenter(i))
-    x = ran.Poisson(list_spectrum_data[i])
-    list_fakespectrum_data.append(x)
-    hFakeData.Fill(list_freq_data[i],list_fakespectrum_data[i])
-    # print x,list_spectrum_data[i], x-list_spectrum_data[i], pow(list_spectrum_data[i],0.5)
-    if list_spectrum_data[i]!=0:
-        hresidu.Fill((x-list_spectrum_data[i])/pow(list_spectrum_data[i],0.5))
-
-
+# Plot the poisson distribution of the spectrum
 canfakedata = ROOT.TCanvas("canfd","canfd",200,10,600,400)
 canfakedata.SetLogy()
 hFakeData.Draw("hist")
@@ -225,7 +212,7 @@ havg.SetLineColor(1)
 canfakedata.Update()
 canfakedata.SaveAs("tritium_model/plotting_scripts/" + "spectrum_vs_freq_data_average_logy.pdf")
 
-
+# Plot residu
 canres = ROOT.TCanvas("canR","canR",200,10,600,400)
 hresidu.Draw()
 hresidu.GetXaxis().SetTitle("Residus")

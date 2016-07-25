@@ -161,6 +161,7 @@ parameters {
   real<lower=-meas_delta_m32_NH(),upper=meas_delta_m32_NH()> udm32;
   real<lower=-meas_sin2_th12(),upper=meas_sin2_th12()> us12;
   real<lower=-meas_sin2_th13_NH(),upper=meas_sin2_th13_NH()> us13;
+
   real<lower=0.0> eDop;
   real scatt_width;
   real n0_timeData;
@@ -292,9 +293,9 @@ transformed parameters{
     sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
     Q_T_molecule[i] <- Q_T_molecule_set[i] + vnormal_lp(uQ[i] , 0. , sigma_0[i]);
 
-    }
+  }
 
-    sigma_theory <-  vnormal_lp(uS, 0. , delta_theory);
+  sigma_theory <-  vnormal_lp(uS, 0. , delta_theory);
 
   //  Take averages of Q and sigma values of molecule
   Q_mol <- sum(composition .* Q_T_molecule);

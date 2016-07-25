@@ -24,10 +24,6 @@
           "format":"R"
         },
         {
-          "name": "./tritium_model/data/tritium_neutrino_parameters.data",
-          "format":"R"
-        },
-        {
           "name": "./tritium_model/data/tritium_endpoint.data",
           "format":"R"
         },
@@ -38,8 +34,9 @@
       ],
       "parameters": [
         {
-          "nChains" : 40,
-          "MassHierarchy" : 1
+          "nChains" : 4,
+          "MassHierarchy" : 1,
+          "lightest_neutrino_mass" : 10.
         }
       ]
     },

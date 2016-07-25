@@ -6,8 +6,9 @@
         "model":   {
             "file": "./MassHierarchy/models/spectrum_generator.stan",
             "function_file": [
+                              {"name" : "constants", "file" : "../functions/constants.functions"},
                               {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
-                              {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"}
+                              {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"},
                               {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
                               ],
             "cache": "./MassHierarchy/cache"
@@ -44,7 +45,7 @@
         "sample": "./MassHierarchy/results/MHtest_generator.out",
         
         "output":{
-            "name": "./MassHierarchy/results/MHtest_generator.root",
+            "name": "./MassHierarchy/results/MHtest_generator",
             "format": "root",
             "tree" : "generated",
             "branches" : [

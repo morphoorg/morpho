@@ -12,6 +12,16 @@
 */
 
 
+functions{
+
+// Load libraries
+
+    include_functions<-constants
+    include_functions<-func_routines
+    include_functions<-Q_Functions
+    
+}
+
 data{
 
     real minKE;             // Bounds of Q distribution in eV

@@ -25,49 +25,18 @@ functions{
   // Load libraries
 
   include <- constants;
+  include <- neutrino_mass_functions;
   include <- func_routines;
   include <- Q_Functions;
   include <- tritium_functions;
-  include <- neutrino_mass_functions;
-
-  // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
-
-  vector find_composition(real epsilon, real kappa)
-  {
-    vector[3] composition;
-
-    composition[1] <- (2.0*epsilon - 1.0);
-    composition[2] <- (2.0*(1.0-epsilon)*kappa)/(1+kappa);
-    composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
-    return composition;
-  }
 
 }
 
 data {
 
-  //   Number of neutrinos and mixing parameters
   //if MassHierarchy = 1, normal hierarchy (delta_m31>0)
   //if MassHierarchy = -1, inverted hierarchy (delta_m31<0)
   int MassHierarchy;
-  real neutrino_mass_limit;
-
-  int nFamily;
-  real meas_delta_m21;
-  real meas_delta_m32_NH;
-  real meas_delta_m32_IH;
-
-  real meas_sin2_th12;
-  real meas_sin2_th13_NH;
-  real meas_sin2_th13_IH;
-
-  real meas_delta_m21_err;
-  real meas_delta_m32_NH_err;
-  real meas_delta_m32_IH_err;
-
-  real meas_sin2_th12_err;
-  real meas_sin2_th13_NH_err;
-  real meas_sin2_th13_IH_err;
 
   //   Primary magnetic field (in Tesla)
 
@@ -149,10 +118,14 @@ transformed data {
   real dFreq_bin;
   real minFreq;
   real maxFreq;
+  int nFam;
 
   dFreq_bin <- (freq_data[nBinSpectrum] - freq_data[1])/nBinSpectrum;
   minFreq <- freq_data[1];
   maxFreq <- freq_data[nBinSpectrum];
+
+  nFam <- nFamily();
+
   // print(minFreq,"   ", maxFreq);
 
   fclock <- 0.;
@@ -184,10 +157,11 @@ parameters {
   real uQ2;
   real uS;
 
-  real<lower=-meas_delta_m21,upper=meas_delta_m21> udm21;
-  real<lower=-meas_delta_m32_NH,upper=meas_delta_m32_NH> udm32;
-  real<lower=-meas_sin2_th12,upper=meas_sin2_th12> us12;
-  real<lower=-meas_sin2_th13_NH,upper=meas_sin2_th13_NH> us13;
+  real<lower=-meas_delta_m21(),upper=meas_delta_m21()> udm21;
+  real<lower=-meas_delta_m32_NH(),upper=meas_delta_m32_NH()> udm32;
+  real<lower=-meas_sin2_th12(),upper=meas_sin2_th12()> us12;
+  real<lower=-meas_sin2_th13_NH(),upper=meas_sin2_th13_NH()> us13;
+
   real<lower=0.0> eDop;
   real scatt_width;
   real n0_timeData;
@@ -202,10 +176,8 @@ parameters {
     // }
 }
 
+
 transformed parameters{
-
-
-
 
   // Oscillations parameters
   real dm21;
@@ -213,8 +185,8 @@ transformed parameters{
   real dm31;
   real<lower=0., upper =1.> s12;
   real<lower=0., upper =1.> s13;
-  vector<lower = 0.>[nFamily] m_nu;
-  vector[nFamily] U_PMNS;
+  vector<lower = 0.>[nFam] m_nu;
+  vector[nFam] U_PMNS;
   real<lower = 0.> neutrino_mass;
 
   // Main Field
@@ -273,22 +245,22 @@ transformed parameters{
   real delta_sigma;       // Uncertainty (1 stdev) in estimate of sigma (sigma_avg), from theory
 
   // Priors on the neutrino mixin parameters and mass differences
-  dm21 <- meas_delta_m21 + vnormal_lp(udm21,0.,meas_delta_m21_err);
-  s12 <- fabs(meas_sin2_th12 + vnormal_lp(us12, 0. ,meas_sin2_th12_err));
+  dm21 <- meas_delta_m21() + vnormal_lp(udm21, 0., meas_delta_m21_err());
+  s12 <- fabs(meas_sin2_th12() + vnormal_lp(us12, 0., meas_sin2_th12_err()));
 
 
   if (MassHierarchy == 1){
-    dm32 <- meas_delta_m32_NH + vnormal_lp(udm32, 0. ,meas_delta_m32_NH_err);
-    s13 <- fabs(meas_sin2_th13_NH + vnormal_lp(us13,0.,meas_sin2_th13_NH_err));
+    dm32 <- meas_delta_m32_NH() + vnormal_lp(udm32, 0., meas_delta_m32_NH_err());
+    s13 <- fabs(meas_sin2_th13_NH() + vnormal_lp(us13, 0., meas_sin2_th13_NH_err()));
     dm31 <- dm32 + dm21;
   }
   else {
-    dm32 <- meas_delta_m32_IH + vnormal_lp(udm32, 0.,meas_delta_m32_IH_err);
-    s13 <- fabs(meas_sin2_th13_IH + vnormal_lp(us13, 0. ,meas_sin2_th13_IH_err));
+    dm32 <- meas_delta_m32_IH() + vnormal_lp(udm32, 0.,meas_delta_m32_IH_err());
+    s13 <- fabs(meas_sin2_th13_IH() + vnormal_lp(us13, 0. ,meas_sin2_th13_IH_err()));
     dm31 <- dm32 + dm21;
   }
   m_nu <- MH_masses(lightest_neutrino_mass, dm21, dm32, MassHierarchy);
-  U_PMNS <- get_U_PMNS(nFamily,s12,s13);
+  U_PMNS <- get_U_PMNS(nFamily(),s12,s13);
 
   neutrino_mass <- get_effective_mass(U_PMNS, m_nu);
 
@@ -358,6 +330,7 @@ transformed parameters{
     for (i in 1:num_iso){
 
       kDoppler <-  m_electron() * beta * sqrt(eDop / mass_s[i]);
+
       KE_shift <- KE[j] + kDoppler;
 
       // Determine signal from the spectral shape
@@ -374,7 +347,6 @@ transformed parameters{
 
     // Adding the background to the spectrum
     spectrum <- spectrum + background_rate * measuring_time;
-
 
     n_spectrum_recon[j] <- spectrum * widthBin;
     if (n_spectrum_recon[j]<0.)
@@ -393,7 +365,6 @@ transformed parameters{
 
 model {
 
-
   // uB ~ normal(0.,BFieldError_tot);
 
   #  Thermal Doppler broadening of the tritium source
@@ -407,7 +378,6 @@ model {
       increment_log_prob(poisson_log(n_time_data[i], n0_timeData * exp( - time_data[i] * scatt_width )));
     }
   }
-
 
   for (i in 1:nBinSpectrum)
   {
@@ -426,6 +396,5 @@ model {
 }
 
 generated quantities {
-
 
 }

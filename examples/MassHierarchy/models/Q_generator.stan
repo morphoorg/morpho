@@ -17,45 +17,10 @@ functions{
 
 // Load libraries
 
-   include <- constants;
-   include <- func_routines;
-   include <- Q_Functions;
-
-// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT) given parameters epsilon and kappa
-
-    vector find_composition(real epsilon, real kappa)
-    {
-        vector[3] composition;
-
-        composition[1] <- (2.0*epsilon - 1.0);
-        composition[2] <- (2.0*(1.0-epsilon)*kappa)/(1+kappa);
-        composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
-        return composition;
-    }
-
-}
-
-functions{
-
-// Load libraries
-
     include_functions<-constants
     include_functions<-func_routines
     include_functions<-Q_Functions
-
-// Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
-
-    vector find_composition(real epsilon, real kappa, real eta)
-    {
-        vector[4] composition;
-
-        composition[1] <- (2.0*epsilon - 1.0) * eta;
-        composition[2] <- (2.0*(1.0-epsilon)*kappa * eta)/(1+kappa);
-        composition[3] <- (2.0*(1.0-epsilon) * eta)/(1+kappa);
-	composition[4] <- 1.- eta;
-        return composition;
-    }
-
+    
 }
 
 
@@ -86,6 +51,7 @@ data{
     real delta_theory; //Uncertainty in composition fraction of non-T
 
 }
+
 
 transformed data{
 
@@ -150,8 +116,6 @@ transformed parameters{
     epsilon <- 0.5 * (1.0 + composition[1]);
     kappa <- composition[3] / composition[2];
 
-
-
 // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
 
     for (i in 1:num_iso) {
@@ -187,5 +151,4 @@ model{
 
     increment_log_prob(log_sum_exp(log(eta_set) + normal_log(Q, Q_mol, sigma_mol),
                                    log1m(eta_set) + normal_log(Q, Q_T_atom, sigma_atom)));
-
 }

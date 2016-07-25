@@ -17,13 +17,16 @@
 
     "data": {
       "type": "data",
+      "parameters": [
+        {
+          "nChains" : 4,
+          "MassHierarchy" : 1
+        }
+      ],
+      
       "files": [
         {
           "name": "./tritium_model/data/tritium.header.data",
-          "format":"R"
-        },
-        {
-          "name": "./tritium_model/data/tritium_neutrino_parameters.data",
           "format":"R"
         },
         {

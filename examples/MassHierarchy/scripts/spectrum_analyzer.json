@@ -1,0 +1,70 @@
+{
+    "stan": {
+        
+        "name": "spectrum_analyzer",
+        
+        "model":   {
+            "file": "./MassHierarchy/models/spectrum_analyzer.stan",
+            "function_file": [
+                              {"name" : "constants", "file" : "../functions/constants.functions"},
+                              {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                              {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"},
+                              {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
+                              ],
+            "cache": "./MassHierarchy/cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./MassHierarchy/data/spectrum_information.data",
+                      "format":"R"
+                      },
+                      {
+                      "name": "./MassHierarchy/results/spectrum_additionalData.out",
+                      "format":"R"
+                      },
+                      {
+                      "name" : "./MassHierarchy/results/generator_reduced.root",
+                      "format" : "root",
+                      "tree" : "spectrum",
+                      "branches" : [
+                                     {"name" : "KE_data", "stan_alias" : "KE_data"},
+                                     {"name" : "n_spectrum_data", "stan_alias" : "n_spectrum_data", "data_format" : "integer"},
+                                    ]
+                      }
+
+                      ]
+        },
+        
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 6000,
+            "warmup" : 5500,
+            "chain": 4},
+        
+        
+        "sample": "./MassHierarchy/results/MHtest_analyzer.out",
+        
+        "output":
+        {
+            "name" : "./MassHierarchy/results/MHtest_analyzer",
+            "format": "root",
+            "tree" : "analysis_parameters",
+            "branches": [
+                     {"variable": "nu_mass","root_alias": "nu_mass"},
+                     {"variable": "sin2_th12","root_alias": "sin2_th12"},
+                     {"variable": "sin2_th13","root_alias": "sin2_th13"},
+                     {"variable": "delta_m21","root_alias": "delta_m21"},
+                     {"variable": "delta_m32","root_alias": "delta_m32"},
+                     {"variable": "m32_withsign","root_alias": "m32_withsign"},
+                     {"variable": "min_mass","root_alias": "min_mass"},
+                     {"variable": "mbeta","root_alias": "mbeta"},
+                     {"variable": "lp__","root_alias": "LogLikelihood"},
+                     ]
+        }
+        
+    }
+    
+}

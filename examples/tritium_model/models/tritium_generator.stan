@@ -1,5 +1,4 @@
-/*
-* Tritium Spectrum Model (Generator)
+/* Tritium Spectrum Model (Generator)
 * -----------------------------------------------------
 * Copyright: J. A. Formaggio <josephf@mit.edu>
 *
@@ -28,42 +27,17 @@ functions{
   include<-Q_Functions;
   include<-neutrino_mass_functions;
   include<-tritium_functions;
-
-  // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa
-
-  vector find_composition(real epsilon, real kappa)
-  {
-    vector[3] composition;
-
-    composition[1] <- (2.0*epsilon - 1.0);
-    composition[2] <- (2.0*(1.0-epsilon)*kappa)/(1+kappa);
-    composition[3] <- (2.0*(1.0-epsilon))/(1+kappa);
-    return composition;
-  }
-
+  
 }
 
-data {
 
-  //   Number of samples to generate (to get event statistics correct)
-  int nGenerate;
-  int nChains;
+
+data {
 
   //Mass ordering:
   //if MassHierarchy = 1, normal hierarchy (delta_m31>0)
   //if MassHierarchy = -1, inverted hierarchy (delta_m31<0)
   int MassHierarchy;
-
-  //   Number of neutrinos and mixing parameters
-  int nFamily;
-
-  real meas_delta_m21;
-  real meas_delta_m32_NH;
-  real meas_delta_m32_IH;
-
-  real meas_sin2_th12;
-  real meas_sin2_th13_NH;
-  real meas_sin2_th13_IH;
 
   real lightest_neutrino_mass;
 
@@ -133,8 +107,8 @@ transformed data {
   real dm21;
   real dm31;
   real dm32;
-  vector[nFamily] m_nu;
-  vector[nFamily] U_PMNS;
+  vector[nFamily()] m_nu;
+  vector[nFamily()] U_PMNS;
 
 
   real minFreq;
@@ -146,14 +120,15 @@ transformed data {
   vector<lower=0.0>[num_iso] mass_s; //mass of tritium species
 
   if (MassHierarchy == 1){
-    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21, meas_delta_m32_NH, MassHierarchy);
-    s13 <- meas_sin2_th13_NH;
+    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21(), meas_delta_m32_NH(), MassHierarchy);
+    s13 <- meas_sin2_th13_NH();
   }  else {
-    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21, meas_delta_m32_IH, MassHierarchy);
-    s13 <- meas_sin2_th13_IH;
+    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21(), meas_delta_m32_IH(), MassHierarchy);
+    s13 <- meas_sin2_th13_IH();
   }
-  s12 <- meas_sin2_th12;
-  U_PMNS <- get_U_PMNS(nFamily,s12,s13);
+  s12 <- meas_sin2_th12();
+  U_PMNS <- get_U_PMNS(nFamily(),s12,s13);
+
 
   minFreq <- get_frequency(maxKE, BField);
   maxFreq <- get_frequency(minKE, BField);
@@ -272,6 +247,7 @@ transformed parameters{
     sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
   }
 
+
   //  Take averages of Q and sigma values of molecule
 
   Q_mol <- sum(composition .* Q_T_molecule_set);
@@ -354,13 +330,10 @@ model {
 generated quantities {
 
   int isOK;
-  int nData;
   real freq_data;
   real time_data;
   real spectrum_data;
   real KE_recon;
-
-  nData <- nGenerate;
 
   #   Simulate duration of event and store frequency and reconstructed kinetic energy
 

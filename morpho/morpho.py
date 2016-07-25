@@ -5,7 +5,9 @@
 #
 # author: j.n. kofron <jared.kofron@gmail.com>
 #
-import sys
+from __future__ import absolute_import
+
+import os,sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -23,8 +25,9 @@ from inspect import getargspec
 
 import pickle
 from hashlib import md5
+import importlib
 
-class stan_args(object):
+class morpho(object):
     def read_param(self, yaml_data, node, default):
         data = yaml_data
         xpath = node.split('.')
@@ -48,7 +51,7 @@ class stan_args(object):
         sa = getargspec(stan)
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
-    def init_function(self):
+    def init_Stan_function(self):
         if isinstance(self.init_per_chain,list): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)):
             # init_per_chain is a list of dictionaries
             if self.chains >1 and len(self.init_per_chain)==1:
@@ -70,8 +73,29 @@ class stan_args(object):
             # print('WARNING: init is not a list or a dictionary')
             return self.init_per_chain
 
+    def get_do_Stan(self):
+        if self.do_stan:
+            return True
+        else:
+            return False
+    def get_do_pp(self):
+        if self.do_postprocessing:
+            return True
+        else:
+            return False
+    def get_do_plots(self):
+        if self.do_plots:
+            return True
+        else:
+            return False
+
     def __init__(self, yd):
         try:
+            # Morpho steps
+            self.do_stan = self.read_param(yd, 'morpho.do_stan', 'required')
+            self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', 'required')
+            self.do_plots = self.read_param(yd, 'morpho.do_postprocessing', 'required')
+
             # Identifications
             self.job_id = self.read_param(yd, 'stan.job_id', '0')
 
@@ -90,10 +114,11 @@ class stan_args(object):
             self.iter = self.read_param(yd, 'stan.run.iter', 2000)
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
-            self.seed = self.read_param(yd, 'stan.run.seed', '314159')
+            self.seed = self.read_param(yd, 'stan.run.seed', '')
+
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
-            self.init = self.init_function();
+            self.init = self.init_Stan_function();
 
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
@@ -123,6 +148,7 @@ class stan_args(object):
 
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
+    print("Creating Stan cache!")
 
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*<-\s*(?P<function_name>\w+)\s*;*',theModel)
@@ -196,7 +222,7 @@ def plot_result(conf, stanres):
         print(result)
 
 def write_result(conf, stanres):
-
+    print("Writing results!")
     ofilename = sa.out_fname
     if (args.job_id>0):
         ofilename = ofilename+'_'+args.job_id
@@ -209,6 +235,18 @@ def write_result(conf, stanres):
         pyL.stan_write_root(sa, ofilename, result)
     return stanres
 
+def sampleFunc(arg):
+    print('you called sampleFunc({})'.format(arg))
+
+def postprocessing(sa):
+    # Generic function for creating the PostProcessing class
+    for minidict in sa.pp_dict:
+        print("Doing postprocessing {}".format(minidict['method_name']))
+        modulename = 'postprocessing.'+minidict['module_name']
+        i = importlib.import_module("{}".format(modulename))
+        getattr(i,minidict['method_name'])(minidict)
+    return
+
 def save_object(obj, filename):
     print("Saving into pickle file: {}".format(filename))
     with open(filename, 'wb') as output:
@@ -219,15 +257,15 @@ if __name__ == '__main__':
     with open(args.config, 'r') as cfile:
         try:
             cdata = yload(cfile)
-            sa = stan_args(cdata)
-
-            result = stan_cache(**(sa.gen_arg_dict()))
-
-            stanres = write_result(sa, result)
-
-            save_object(stanres, sa.out_fit)
-            postprocessing(stanres,sa)
-            plot_result(sa, result)
+            sa = morpho(cdata)
+            if (sa.get_do_Stan()):
+                result = stan_cache(**(sa.gen_arg_dict()))
+                stanres = write_result(sa, result)
+                if sa.out_fit != None:
+                    save_object(stanres, sa.out_fit)
+                # plot_result(sa, result)
+            if (sa.get_do_pp()):
+                postprocessing(sa)
 
         except Exception as err:
             print(err)

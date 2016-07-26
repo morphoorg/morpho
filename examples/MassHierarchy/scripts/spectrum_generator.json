@@ -78,7 +78,7 @@
         "output_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake.root",
         "output_file_format": "root",
         "output_freq_spectrum_tree": "spectrum",
-        "output_time_spectrum_tree": None,
+        "output_time_spectrum_tree": "None",
         "additional_file_name" : "./MassHierarchy/results/spectrum_additionalData.out",
       }
 

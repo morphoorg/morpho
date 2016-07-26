@@ -71,13 +71,14 @@
         "module_name": "data_reducer",
         "input_file_name" : "./MassHierarchy/results/MHtest_generator.root",
         "input_file_format" : "root",
-        "input_tree": "stan_MC",
+        "input_tree": "generated",
         "minKE":18500.,
         "maxKE":18600.,
         "nBinHisto":100,
         "output_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake.root",
         "output_file_format": "root",
         "output_freq_spectrum_tree": "spectrum",
+        "output_time_spectrum_tree": None,
         "additional_file_name" : "./MassHierarchy/results/spectrum_additionalData.out",
       }
 

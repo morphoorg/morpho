@@ -1,5 +1,5 @@
 morpho
-======  
+======
 The morpho package:
 
     A python interface between Stan/PyStan Markov Chain Monte Carlo packahe for meta analysis and generation of fake data.

@@ -242,7 +242,7 @@ def postprocessing(sa):
     # Generic function for creating the PostProcessing class
     for minidict in sa.pp_dict:
         print("Doing postprocessing {}".format(minidict['method_name']))
-        modulename = 'postprocessing.'+minidict['module_name']
+        modulename = 'postprocessing.'+minidict['module_name'] 
         i = importlib.import_module("{}".format(modulename))
         getattr(i,minidict['method_name'])(minidict)
     return

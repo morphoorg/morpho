@@ -44,10 +44,10 @@ def data_reducer(param_dict):
     print("Input data is: {}".format(param_dict['input_file_name']))
     if (param_dict['input_file_format']=='root'):
         if(param_dict['output_time_spectrum_tree']=='None'):
-            freq_data, spectrum_data = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
+            x_axis_data, spectrum_data = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
             time_data=None
         else:
-            time_data, freq_data, spectrum_data, KE_recon = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
+            time_data, x_axis_data, spectrum_data, KE_recon = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
     elif (param_dict['input_file_format']=='h5'):
         print('h5 file is not yet supported in the data_reducer')
     else:
@@ -57,35 +57,37 @@ def data_reducer(param_dict):
     dKE = (param_dict['maxKE'] - param_dict['minKE'])/nBinHisto
 
     # spectrum vs freq
-    h = ROOT.TH1F("h","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
-    hw = ROOT.TH1F("hw","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
-    havg = ROOT.TH1F("havg","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
+    h = ROOT.TH1F("h","",nBinHisto,min(x_axis_data),max(x_axis_data))#KE_min and KE_max
+    hw = ROOT.TH1F("hw","",nBinHisto,min(x_axis_data),max(x_axis_data))#KE_min and KE_max
+    havg = ROOT.TH1F("havg","",nBinHisto,min(x_axis_data),max(x_axis_data))#KE_min and KE_max
 
-    hFakeData = ROOT.TH1F("fake_data","",nBinHisto,min(freq_data),max(freq_data))
+    hFakeData = ROOT.TH1F("fake_data","",nBinHisto,min(x_axis_data),max(x_axis_data))
 
     ran = ROOT.TRandom3()
     list_fakespectrum_data = []
-    list_freq_data = []
+    list_x_axis_data = []
     list_spectrum_data = []
     for i in range(0,len(spectrum_data)):
         # if (isOK[i]==1):
-            h.Fill(freq_data[i],spectrum_data[i]*dKE)
-            hw.Fill(freq_data[i],1)
+            h.Fill(x_axis_data[i],spectrum_data[i]*dKE)
+            hw.Fill(x_axis_data[i],1)
     for i in range(0,h.GetNbinsX()):
-        list_freq_data.append(h.GetBinCenter(i))
+        list_x_axis_data.append(h.GetBinCenter(i))
         list_spectrum_data.append(h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
         havg.Fill(h.GetBinCenter(i),list_spectrum_data[i])
         #Poisson distribution
         list_fakespectrum_data.append(ran.Poisson(list_spectrum_data[i]))
         hFakeData.Fill(h.GetBinCenter(i),list_fakespectrum_data[i])
 
+       # print list_x_axis_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
+    
     # This paragraph might be uncommented when doing debugging
     # can =  ROOT.TCanvas("can","can",200,10,600,400)
     # havg.Draw('hist')
     # hFakeData.Draw('samehist')
     # havg.GetXaxis().SetTitle("Measured frequency [Hz]")
     # havg.SetLineColor(1)
-    # print 'Number of total event for a year : ', havg.Integral()
+    print 'Total number of events for a year : ', havg.Integral()
     # can.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_freq_data_average.pdf")
     # can.SetLogy()
     # can.Update()
@@ -164,14 +166,18 @@ def data_reducer(param_dict):
         print('{} file is not a known format'.format(param_dict['output_file_format']))
 
     # tree spectrum
-    tmp_freq_data = array('f',[ 0 ])
+    tmp_x_axis_data = array('f',[ 0 ])
     tmp_number_events = array('i',[ 0 ])
 
-    tree_spectrum = ROOT.TTree(param_dict['output_freq_spectrum_tree'], param_dict['output_freq_spectrum_tree'])
-    tree_spectrum.Branch('freq_data', tmp_freq_data, 'freq_data/F')
+    if(time_data!=None):
+        tree_spectrum = ROOT.TTree(param_dict['output_freq_spectrum_tree'], param_dict['output_freq_spectrum_tree'])
+        tree_spectrum.Branch('freq_data', tmp_x_axis_data, 'freq_data/F')
+    else:
+        tree_spectrum = ROOT.TTree(param_dict['output_KE_spectrum_tree'], param_dict['output_KE_spectrum_tree'])
+        tree_spectrum.Branch('KE_data', tmp_x_axis_data, 'KE_data/F')
     tree_spectrum.Branch('n_spectrum_data', tmp_number_events, 'n_spectrum_data/I')
-    for i in range(0,len(list_freq_data)):
-        tmp_freq_data[0] = list_freq_data[i]
+    for i in range(0,len(list_x_axis_data)):
+        tmp_x_axis_data[0] = list_x_axis_data[i]
         tmp_number_events[0] = int(list_fakespectrum_data[i] )
         tree_spectrum.Fill()
     tree_spectrum.Write()
@@ -188,7 +194,7 @@ def data_reducer(param_dict):
             tmp_time_data[0] = list_time[i]
             tmp_Time_events[0] = int(list_Time_events[i] )
             tree_time.Fill()
-            tree_time.Write()
+        tree_time.Write()
 
     print('Prostprocessing complete!')
 
@@ -204,7 +210,6 @@ def readTTree(root_file_path,tree_name, read_time):
     freq_data = []
     spectrum_data = []
     KE_data = []
-    # isOK = [
     for i in range(0,n):
         tree.GetEntry(i)
         if(read_time!='None'):

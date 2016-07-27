@@ -166,7 +166,7 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     try:
         sm = pickle.load(open(cache_fn, 'rb'))
     except:
-        sm = pystan.StanModel(model_code=theModel, verbose=True)
+        sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:

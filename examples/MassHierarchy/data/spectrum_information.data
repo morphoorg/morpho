@@ -8,4 +8,4 @@ MH <- 0
 
 background_rate_mean <- 1.0e-06
 measuring_time <- 3.0e+07
-activity <- 3.2091e-08
+activity <- 3.2091e-05

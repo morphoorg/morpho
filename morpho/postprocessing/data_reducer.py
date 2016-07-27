@@ -43,7 +43,11 @@ def data_reducer(param_dict):
     print("Reducing the generated data!")
     print("Input data is: {}".format(param_dict['input_file_name']))
     if (param_dict['input_file_format']=='root'):
-        time_data, freq_data, spectrum_data, KE_recon = readTTree(param_dict['input_file_name'],param_dict['input_tree'])
+        if(param_dict['output_time_spectrum_tree']=='None'):
+            freq_data, spectrum_data = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
+            time_data=None
+        else:
+            time_data, freq_data, spectrum_data, KE_recon = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
     elif (param_dict['input_file_format']=='h5'):
         print('h5 file is not yet supported in the data_reducer')
     else:
@@ -88,18 +92,19 @@ def data_reducer(param_dict):
     # end of uncommentable paragraph
 
     # spectrum  vs KE
-    he = ROOT.TH1F("he","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
-    hew = ROOT.TH1F("hew","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
-    heavg = ROOT.TH1F("heavg","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
-    list_KE = []
-    list_spectrum_data = []
-    for i in range(0,len(spectrum_data)):
-        he.Fill(KE_recon[i],spectrum_data[i]*dKE)
-        hew.Fill(KE_recon[i],1)
-    for i in range(0,h.GetNbinsX()):
-        list_KE.append(he.GetBinCenter(i))
-        list_spectrum_data.append(h.GetBinContent(i)/max(1,hew.GetBinContent(i)))
-        heavg.Fill(he.GetBinCenter(i),he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
+    if(time_data!=None):
+        he = ROOT.TH1F("he","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
+        hew = ROOT.TH1F("hew","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
+        heavg = ROOT.TH1F("heavg","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
+        list_KE = []
+        list_spectrum_data = []
+        for i in range(0,len(spectrum_data)):
+            he.Fill(KE_recon[i],spectrum_data[i]*dKE)
+            hew.Fill(KE_recon[i],1)
+        for i in range(0,h.GetNbinsX()):
+            list_KE.append(he.GetBinCenter(i))
+            list_spectrum_data.append(h.GetBinContent(i)/max(1,hew.GetBinContent(i)))
+            heavg.Fill(he.GetBinCenter(i),he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
 
     # cane = ROOT.TCanvas("cane","cane",200,10,600,400)
     # heavg.Draw()
@@ -111,16 +116,17 @@ def data_reducer(param_dict):
     # cane.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_KE_recon_average_logy.pdf")
 
     # Time distribution
-    htime = ROOT.TH1F("htime","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
-    htimew = ROOT.TH1F("htimew","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
-    htimeavg = ROOT.TH1F("htimeavg","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
-    list_time = []
-    list_Time_events = []
-    for i in range(0,len(time_data)):
-        htime.Fill(time_data[i],1)
-    for i in range(0,htime.GetNbinsX()):
-        list_time.append(htime.GetBinCenter(i))
-        list_Time_events.append(htime.GetBinContent(i))
+    if(time_data!=None):
+        htime = ROOT.TH1F("htime","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
+        htimew = ROOT.TH1F("htimew","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
+        htimeavg = ROOT.TH1F("htimeavg","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
+        list_time = []
+        list_Time_events = []
+        for i in range(0,len(time_data)):
+            htime.Fill(time_data[i],1)
+        for i in range(0,htime.GetNbinsX()):
+            list_time.append(htime.GetBinCenter(i))
+            list_Time_events.append(htime.GetBinContent(i))
 
     # cant = ROOT.TCanvas("cant","cant",200,10,600,400)
     # htime.Draw();
@@ -142,9 +148,10 @@ def data_reducer(param_dict):
     value =(str(h.GetNbinsX()))
     s=str(value)
     f.write('nBinSpectrum <- ' + s + '\n')
-    value =(str(htime.GetNbinsX()))
-    s=str(value)
-    f.write('nBinTime <- ' + s + '\n')
+    if(time_data!=None):
+        value =(str(htime.GetNbinsX()))
+        s=str(value)
+        f.write('nBinTime <- ' + s + '\n')
     f.close()
 
     # Creating the root file
@@ -170,40 +177,49 @@ def data_reducer(param_dict):
     tree_spectrum.Write()
 
     # tree time
-    tmp_time_data = array('f',[ 0. ])
-    tmp_Time_events = array('i',[ 0 ])
+    if(time_data!=None):
+        tmp_time_data = array('f',[ 0. ])
+        tmp_Time_events = array('i',[ 0 ])
 
-    tree_time = ROOT.TTree(param_dict['output_time_spectrum_tree'], param_dict['output_time_spectrum_tree'])
-    tree_time.Branch('time_data', tmp_time_data, 'time_data/F')
-    tree_time.Branch('n_time_data', tmp_Time_events, 'n_time_data/I')
-    for i in range(0,len(list_time)):
-        tmp_time_data[0] = list_time[i]
-        tmp_Time_events[0] = int(list_Time_events[i] )
-        tree_time.Fill()
-    tree_time.Write()
+        tree_time = ROOT.TTree(param_dict['output_time_spectrum_tree'], param_dict['output_time_spectrum_tree'])
+        tree_time.Branch('time_data', tmp_time_data, 'time_data/F')
+        tree_time.Branch('n_time_data', tmp_Time_events, 'n_time_data/I')
+        for i in range(0,len(list_time)):
+            tmp_time_data[0] = list_time[i]
+            tmp_Time_events[0] = int(list_Time_events[i] )
+            tree_time.Fill()
+            tree_time.Write()
 
     print('Prostprocessing complete!')
 
     # raw_input('Press <ret> to end -> ')
 
-def readTTree(root_file_path,tree_name):
+def readTTree(root_file_path,tree_name, read_time):
     myfile = ROOT.TFile(root_file_path,"READ")
     tree = myfile.Get(tree_name)
     n = tree.GetEntries()
 
     time_data = []
+    KE_recon = []
     freq_data = []
     spectrum_data = []
-    KE_recon = []
-    # isOK = []
+    KE_data = []
+    # isOK = [
     for i in range(0,n):
         tree.GetEntry(i)
-    	time_data.append(tree.time_data)
-    	freq_data.append(tree.freq_data)
+        if(read_time!='None'):
+            time_data.append(tree.time_data)
+            KE_recon.append(tree.KE_recon)
+            freq_data.append(tree.freq_data)
+        else:
+            KE_data.append(tree.KE_data)
         spectrum_data.append(tree.spectrum_data)
-        KE_recon.append(tree.KE_recon)
 
-    return time_data, freq_data, spectrum_data, KE_recon
+    if(read_time!='None'):
+        return time_data, freq_data, spectrum_data, KE_recon
+    else:
+        return KE_data, spectrum_data
+
 
 # depreciated
 # def get_min_max_KE(file_path):

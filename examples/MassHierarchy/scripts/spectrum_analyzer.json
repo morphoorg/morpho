@@ -1,4 +1,10 @@
 {
+   "morpho":
+   {
+     "do_stan": True,
+     "do_postprocessing": False,
+     "do_plots": False
+   },
     "stan": {
         
         "name": "spectrum_analyzer",
@@ -22,11 +28,11 @@
                       "format":"R"
                       },
                       {
-                      "name": "./MassHierarchy/results/spectrum_additionalData.out",
+                      "name": "./MassHierarchy/results/spectrum_additionalData_IJ.out",
                       "format":"R"
                       },
                       {
-                      "name" : "./MassHierarchy/results/generator_reduced.root",
+                      "name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_IH.root",
                       "format" : "root",
                       "tree" : "spectrum",
                       "branches" : [
@@ -35,36 +41,51 @@
                                     ]
                       }
 
-                      ]
+                      ],
+            "parameters": [
+                           {
+                           "minKE": 18574.00,
+                           "maxKE": 18575.05
+                           }
+                           ]
         },
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 6000,
-            "warmup" : 5500,
-            "chain": 4},
+            "iter": 1000,
+            "warmup" : 500,
+            "chain": 2},
         
         
         "sample": "./MassHierarchy/results/MHtest_analyzer.out",
         
         "output":
         {
-            "name" : "./MassHierarchy/results/MHtest_analyzer",
+            "name" : "./MassHierarchy/results/MHtest_analyzer_IH",
             "format": "root",
             "tree" : "analysis_parameters",
+            "fit": "./MassHierarchy/results/analysis_fit_IH.pkl", 
             "branches": [
-                     {"variable": "nu_mass","root_alias": "nu_mass"},
-                     {"variable": "sin2_th12","root_alias": "sin2_th12"},
-                     {"variable": "sin2_th13","root_alias": "sin2_th13"},
-                     {"variable": "delta_m21","root_alias": "delta_m21"},
-                     {"variable": "delta_m32","root_alias": "delta_m32"},
-                     {"variable": "m32_withsign","root_alias": "m32_withsign"},
-                     {"variable": "min_mass","root_alias": "min_mass"},
-                     {"variable": "mbeta","root_alias": "mbeta"},
-                     {"variable": "lp__","root_alias": "LogLikelihood"},
+                 {"variable": "sin2_th12","root_alias": "sin2_th12"},
+                 {"variable": "sin2_th13","root_alias": "sin2_th13"},
+                 {"variable": "delta_m21","root_alias": "delta_m21"},
+                 {"variable": "delta_m32","root_alias": "delta_m32"},
+                 {"variable": "m32_withsign","root_alias": "m32_withsign"},
+                 {"variable": "nu_mass","root_alias": "nu_mass", "ndim" : 3},
+                 {"variable": "min_mass","root_alias": "min_mass"},
+                 {"variable": "mbeta","root_alias": "mbeta"},
+                 {"variable": "lp__","root_alias": "LogLikelihood"},
                      ]
         }
         
-    }
+    },
+
+"postprocessing":
+  {
+    "which_pp":[
+      {
+      }
+]
+}
     
 }

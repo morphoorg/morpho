@@ -1,4 +1,11 @@
 {
+   "morpho":
+   {
+     "do_stan": True,
+     "do_postprocessing": False,
+     "do_plots": False
+   },
+
   "stan": {
 
     "name": "tritium_analysis",
@@ -20,7 +27,9 @@
       "parameters": [
         {
           "nChains" : 4,
-          "MassHierarchy" : 1
+          "MassHierarchy" : 1,
+          "minKE": 18500,
+          "maxKE": 18600
         }
       ],
       
@@ -38,7 +47,7 @@
           "format":"R"
         },
         {
-          "name": "./tritium_model/results/tritium_additionalData.txt",
+          "name": "./tritium_model/results/tritium_additionalData.out",
           "format":"R"
         },
         {
@@ -118,14 +127,22 @@
           {"variable" : "Q_T_atom", "root_alias" : "Q_T_atom"},
           {"variable" : "signal_fraction", "root_alias" : "signal_fraction"},
           {"variable" : "mu_tot", "root_alias" : "mu_tot"},
-          {"variable" : "n_spectrum_recon", "root_alias" : "n_spectrum_recon","ndim":200},
-          {"variable" : "frequency", "root_alias" : "frequency","ndim":200},
-          {"variable" : "KE", "root_alias" : "KE","ndim":200},
+          {"variable" : "n_spectrum_recon", "root_alias" : "n_spectrum_recon","ndim":50},
+          {"variable" : "frequency", "root_alias" : "frequency","ndim":50},
+          {"variable" : "KE", "root_alias" : "KE","ndim":50},
           {"variable" : "norm_density", "root_alias" : "norm_density"},
           {"variable" : "activity", "root_alias" : "activity"},
           {"variable" : "background_rate", "root_alias" : "background_rate"},
           {"variable" : "lp__", "root_alias" : "LogLikelihood"}
         ]
       }
+    },
+
+  "postprocessing":
+   {
+    "which_pp":[
+      {
+      }
+      ]
     }
-  }
+ }

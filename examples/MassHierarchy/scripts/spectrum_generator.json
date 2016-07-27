@@ -1,7 +1,7 @@
 {
    "morpho":
    {
-     "do_stan": False,
+     "do_stan": True,
      "do_postprocessing": True,
      "do_plots": True
    },
@@ -32,7 +32,9 @@
             "parameters": [
                            {
                            "nChains" : 4,
-                           "MH" : 0
+                           "MH" : 1,
+                           "minKE": 18574.00,
+                           "maxKE": 18575.05
                            }
                            ]
 
@@ -52,7 +54,7 @@
         "sample": "./MassHierarchy/results/MHtest_generator.out",
         
         "output":{
-            "name": "./MassHierarchy/results/MHtest_generator",
+            "name": "./MassHierarchy/results/MHtest_generator_IH",
             "format": "root",
             "tree" : "generated",
             "branches" : [
@@ -69,17 +71,17 @@
       {
         "method_name": "data_reducer",
         "module_name": "data_reducer",
-        "input_file_name" : "./MassHierarchy/results/MHtest_generator.root",
+        "input_file_name" : "./MassHierarchy/results/MHtest_generator_IH.root",
         "input_file_format" : "root",
         "input_tree": "generated",
         "minKE":18500.,
         "maxKE":18600.,
         "nBinHisto":100,
-        "output_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake.root",
+        "output_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_IH.root",
         "output_file_format": "root",
-        "output_freq_spectrum_tree": "spectrum",
+        "output_KE_spectrum_tree": "spectrum",
         "output_time_spectrum_tree": "None",
-        "additional_file_name" : "./MassHierarchy/results/spectrum_additionalData.out",
+        "additional_file_name" : "./MassHierarchy/results/spectrum_additionalData_IJ.out",
       }
 
     ]

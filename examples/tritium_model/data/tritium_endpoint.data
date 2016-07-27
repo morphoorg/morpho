@@ -1,6 +1,3 @@
-minKE <- 18500.0
-maxKE <- 18600.0
-
 num_iso <- 3
 Q_T_molecule_set <- c(18574.95, 18574.96, 18574.95)
 eQ_T_molecule_set <- c(.1, .1, .1)

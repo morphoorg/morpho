@@ -44,7 +44,9 @@
         {
           "nChains" : 4,
           "MassHierarchy" : 1,
-          "lightest_neutrino_mass" : 10.
+          "lightest_neutrino_mass" : 10.,
+          "minKE": 18500,
+          "maxKE": 18600
         }
       ]
     },

@@ -263,6 +263,7 @@ if __name__ == '__main__':
                 stanres = write_result(sa, result)
                 if sa.out_fit != None:
                     save_object(stanres, sa.out_fit)
+                    print('saved fit')
                 # plot_result(sa, result)
             if (sa.get_do_pp()):
                 postprocessing(sa)

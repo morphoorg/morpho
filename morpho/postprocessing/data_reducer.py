@@ -147,7 +147,6 @@ def data_reducer(param_dict):
 
     print('Prostprocessing complete!')
 
-    raw_input('Press <ret> to end -> ')
 
 def readTTree(root_file_path,tree_name):
     myfile = ROOT.TFile(root_file_path,"READ")

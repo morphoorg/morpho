@@ -109,13 +109,13 @@ def data_reducer(param_dict):
             for i in range(0,len(list_x_axis_data)):
                 tmp_x_axis_data[0] = list_x_axis_data[i]
                 tmp_number_events[0] = int(list_fakespectrum_data[i] )
-                tree_spectrum.Fill()
+                tree_freq_spectrum.Fill()
         else:
             #Not a fake spectrum
             for i in range(0,len(list_x_axis_data)):
                 tmp_x_axis_data[0] = list_x_axis_data[i]
                 tmp_number_events[0] = int(list_spectrum_data[i] )
-                tree_spectrum.Fill()
+                tree_freq_spectrum.Fill()
         tree_freq_spectrum.Write()
            # print list_x_axis_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
 
@@ -139,7 +139,7 @@ def data_reducer(param_dict):
         he = ROOT.TH1F("he","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
         hew = ROOT.TH1F("hew","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
         heavg = ROOT.TH1F("heavg","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
-        heFakeData = ROOT.TH1F("heavg","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
+        heFakeData = ROOT.TH1F("heFake","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
         list_KE = []
         list_spectrum_data = []
         for i in range(0,len(spectrum_data)):
@@ -162,13 +162,13 @@ def data_reducer(param_dict):
             for i in range(0,len(list_x_axis_data)):
                 tmp_x_axis_data[0] = list_x_axis_data[i]
                 tmp_number_events[0] = int(list_fakespectrum_data[i] )
-                tree_spectrum.Fill()
+                tree_KE_spectrum.Fill()
         else:
             #Not a fake spectrum
             for i in range(0,len(list_x_axis_data)):
                 tmp_x_axis_data[0] = list_x_axis_data[i]
                 tmp_number_events[0] = int(list_spectrum_data[i] )
-                tree_spectrum.Fill()
+                tree_KE_spectrum.Fill()
         tree_KE_spectrum.Write()
     # cane = ROOT.TCanvas("cane","cane",200,10,600,400)
     # heavg.Draw()

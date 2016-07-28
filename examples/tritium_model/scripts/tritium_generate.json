@@ -123,5 +123,27 @@
       }
 
     ]
-  }
+  },
+
+    "plot":
+    {
+      "which_plot":[
+        {
+          "method_name": "histo",
+          "title": "histo_test",
+          "input_file_name" : "./tritium_model/results/tritium_generator.root",
+          "input_file_format" : "root",
+          "input_tree": "stan_MC",
+          "minKE":18500.,
+          "maxKE":18600.,
+          "nBinHisto":50,
+          "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
+          "output_file_format": "root",
+          "output_freq_spectrum_tree": "spectrum",
+          "output_time_spectrum_tree": "time",
+          "additional_file_name" : "./tritium_model/results/tritium_additionalData.out",
+        }
+
+      ]
+    }
 }

@@ -27,7 +27,7 @@ functions{
   include<-Q_Functions;
   include<-neutrino_mass_functions;
   include<-tritium_functions;
-  
+
 }
 
 
@@ -164,7 +164,7 @@ parameters {
   //Physical parameters
   real<lower=0.0> eDop;
   real<lower=0.0> duration;
-  real<lower=minKE,upper=maxKE> KE;
+  real<lower=minKE,upper=maxKE> KE_data;
 
   real<lower=0.0, upper=1.0> lambda;
   real<lower=minKE, upper=maxKE> Q;
@@ -228,8 +228,8 @@ transformed parameters{
   // Calculate scattering length, radiation width, and total width;
   //The total cross-section is equal to the cross-section of each species, weighted by their relative composition
   // Here we are considering that the ionization cross-section for each molecular tritium {HT, DT, TT} is the same.
-  beta <- get_velocity(KE);
-  // print(KE);
+  beta <- get_velocity(KE_data);
+  // print(KE_data);
   // xsec <- 0.; //initialize cross section
   // xsec <- xsec + (1-eta_set) * xsection(KE,  xsec_avekin[1], xsec_bindkin[1], xsec_msq[1], xsec_Q[1]);//adding the cross-section with modelucar tritium
   // xsec <- xsec + (eta_set) * xsection(KE,  xsec_avekin[2], xsec_bindkin[2], xsec_msq[2], xsec_Q[2]);//adding the cross-section with atomic tritium
@@ -265,7 +265,7 @@ transformed parameters{
 
   // Calculate frequency dispersion
 
-  frequency <- get_frequency(KE, MainField);
+  frequency <- get_frequency(KE_data, MainField);
 
   df <- vnormal_lp(uF, 0.0, sigma_freq);
 
@@ -282,17 +282,17 @@ transformed parameters{
   for (i in 1:num_iso){
 
     kDoppler <-  m_electron() * beta * sqrt(eDop / mass_s[i]);
-    KE_shift <- KE + kDoppler;
+    KE_shift <- KE_data + kDoppler;
 
     // Determine signal from beta function
 
-    spectrum_shape <- spectral_shape(KE, Q_mol_random, U_PMNS, m_nu);
+    spectrum_shape <- spectral_shape(KE_data, Q_mol_random, U_PMNS, m_nu);
     spectrum <- spectrum + (eta_set) * composition[i] * norm_spectrum * spectrum_shape;
   }
 
   // Determine signal and background rates from beta function and background level
 
-  spectrum_shape <- spectral_shape(KE, Q_atom_random, U_PMNS, m_nu);
+  spectrum_shape <- spectral_shape(KE_data, Q_atom_random, U_PMNS, m_nu);
   spectrum <- spectrum + (1.-eta_set) * norm_spectrum * spectrum_shape;
 
   // Adding the background to the spectrum
@@ -305,7 +305,7 @@ transformed parameters{
 
 model {
 
-  KE ~ uniform(minKE,maxKE);
+  KE_data ~ uniform(minKE,maxKE);
 
   # Thermal Doppler broadening of the tritium source
 

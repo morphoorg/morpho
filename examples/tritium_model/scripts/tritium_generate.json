@@ -1,7 +1,7 @@
 {
   "morpho":
   {
-    "do_stan": False,
+    "do_stan": True,
     "do_postprocessing": True,
     "do_plots": True
   },

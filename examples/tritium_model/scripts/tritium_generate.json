@@ -42,7 +42,7 @@
       ],
       "parameters": [
         {
-          "nChains" : 4,
+          "nChains" : 6,
           "MassHierarchy" : 1,
           "lightest_neutrino_mass" : 10.,
           "minKE": 18500,
@@ -52,9 +52,9 @@
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 1000,
-      "warmup": 800,
-      "chain": 4,
+      "iter": 10000,
+      "warmup": 8000,
+      "chain": 6,
 
       "init_off": [
         {"uB" : 0.0,
@@ -116,6 +116,7 @@
         "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
         "output_file_format": "root",
         "output_freq_spectrum_tree": "spectrum",
+        "output_KE_spectrum_tree": "spectrumKE",
         "output_time_spectrum_tree": "time",
         "additional_file_name" : "./tritium_model/results/tritium_additionalData.out",
       }

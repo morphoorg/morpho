@@ -1,7 +1,7 @@
 {
   "morpho":
   {
-    "do_stan": True,
+    "do_stan": False,
     "do_postprocessing": True,
     "do_plots": True
   },
@@ -79,7 +79,7 @@
         "tree" : "stan_MC",
         "branches" : [
           {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
-          {"variable" : "KE", "root_alias" : "KE"},
+          {"variable" : "KE_data", "root_alias" : "KE_data"},
           {"variable" : "beta", "root_alias" : "beta"},
           {"variable" : "MainField", "root_alias" : "MainField"},
           {"variable" : "temperature", "root_alias" : "temperature"},
@@ -112,7 +112,7 @@
         "input_tree": "stan_MC",
         "minKE":18500.,
         "maxKE":18600.,
-        "nBinHisto":50,
+        "nBinHisto":100,
         "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
         "output_file_format": "root",
         "output_freq_spectrum_tree": "spectrum",

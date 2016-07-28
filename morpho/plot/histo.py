@@ -7,6 +7,7 @@ import uuid
 def histo(param_dict):
     print("Creating histo!")
 
+    # Preparing the canvas
     if 'title' in param_dict:
         title = param_dict['title']
     else:
@@ -20,6 +21,7 @@ def histo(param_dict):
     else:
         height = 400
 
+    # Setting the titles
     if 'xtitle' in param_dict:
         xtitle = param_dict['xtitle']
     else:
@@ -29,6 +31,7 @@ def histo(param_dict):
     else:
         ytitle = ''
 
+    # Setting the picture file name
     if 'output_path' in param_dict:
         path = param_dict['output_path']
     else:
@@ -44,7 +47,7 @@ def histo(param_dict):
 
     if isinstance(param_dict['data'],list):
         for namedata in param_dict['data']:
-            
+
     for
 
     return can

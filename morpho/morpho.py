@@ -114,7 +114,7 @@ class morpho(object):
             self.iter = self.read_param(yd, 'stan.run.iter', 2000)
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
-            self.seed = self.read_param(yd, 'stan.run.seed', '')
+            self.seed = self.read_param(yd, 'stan.run.seed', None)
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')

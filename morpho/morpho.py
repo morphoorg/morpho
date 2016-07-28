@@ -88,6 +88,11 @@ class morpho(object):
             return True
         else:
             return False
+    def get_wait(self):
+        if self.wait:
+            return True
+        else:
+            return False
 
     def __init__(self, yd):
         try:
@@ -95,6 +100,7 @@ class morpho(object):
             self.do_stan = self.read_param(yd, 'morpho.do_stan', 'required')
             self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', 'required')
             self.do_plots = self.read_param(yd, 'morpho.do_plots', 'required')
+            self.wait = self.read_param(yd, 'morpho.wait_at_the_end', False)
 
             # Identifications
             self.job_id = self.read_param(yd, 'stan.job_id', '0')
@@ -245,19 +251,18 @@ def postprocessing(sa):
         modulename = 'postprocessing.'+minidict['module_name']
         i = importlib.import_module("{}".format(modulename))
         getattr(i,minidict['method_name'])(minidict)
-
     return 1
-
 
 def plotting(sa):
     # Generic function for creating the PostProcessing class
+    list_canvas = []
     for minidict in sa.plot_dict:
         print("Doing plot {}".format(minidict['method_name']))
         modulename = 'plot.'+minidict['module_name']
         i = importlib.import_module("{}".format(modulename))
-        getattr(i,minidict['method_name'])(minidict)
+        list_canvas.append(getattr(i,minidict['method_name'])(minidict))
 
-    return 1
+    return list_canvas
 
 def save_object(obj, filename):
     print("Saving into pickle file: {}".format(filename))
@@ -278,6 +283,11 @@ if __name__ == '__main__':
                 # plot_result(sa, result)
             if (sa.get_do_pp()):
                 postprocessing(sa)
+            if (sa.get_do_plots()):
+                list_canvas = plotting(sa)
+
+            if(sa.get_wait()):
+                raw_input('Press <ret> to end -> ')
 
 
         except Exception as err:

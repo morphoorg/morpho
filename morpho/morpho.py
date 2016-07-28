@@ -94,7 +94,7 @@ class morpho(object):
             # Morpho steps
             self.do_stan = self.read_param(yd, 'morpho.do_stan', 'required')
             self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', 'required')
-            self.do_plots = self.read_param(yd, 'morpho.do_postprocessing', 'required')
+            self.do_plots = self.read_param(yd, 'morpho.do_plots', 'required')
 
             # Identifications
             self.job_id = self.read_param(yd, 'stan.job_id', '0')
@@ -137,6 +137,9 @@ class morpho(object):
 
             # Post-processing configuration
             self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
+
+            # Plot configuration
+            self.plot_dict = self.read_param(yd, 'plot.which_plot', None)
 
             # Root plot configuration
 
@@ -240,6 +243,17 @@ def postprocessing(sa):
     for minidict in sa.pp_dict:
         print("Doing postprocessing {}".format(minidict['method_name']))
         modulename = 'postprocessing.'+minidict['module_name']
+        i = importlib.import_module("{}".format(modulename))
+        getattr(i,minidict['method_name'])(minidict)
+
+    return 1
+
+
+def plotting(sa):
+    # Generic function for creating the PostProcessing class
+    for minidict in sa.plot_dict:
+        print("Doing plot {}".format(minidict['method_name']))
+        modulename = 'plot.'+minidict['module_name']
         i = importlib.import_module("{}".format(modulename))
         getattr(i,minidict['method_name'])(minidict)
 

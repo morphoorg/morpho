@@ -3,7 +3,8 @@
   {
     "do_stan": False,
     "do_postprocessing": True,
-    "do_plots": True
+    "do_plots": True,
+    "wait_at_the_end":True
   },
 
   "stan":
@@ -103,34 +104,12 @@
     },
 
 
-  "postprocessing":
-  {
-    "which_pp":[
-      {
-        "method_name": "data_reducer",
-        "module_name": "data_reducer",
-        "input_file_name" : "./tritium_model/results/tritium_generator.root",
-        "input_file_format" : "root",
-        "input_tree": "stan_MC",
-        "minKE":18500.,
-        "maxKE":18600.,
-        "nBinHisto":50,
-        "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
-        "output_file_format": "root",
-        "output_freq_spectrum_tree": "spectrum",
-        "output_time_spectrum_tree": "time",
-        "additional_file_name" : "./tritium_model/results/tritium_additionalData.out",
-      }
-
-    ]
-  },
-
-    "plot":
+    "postprocessing":
     {
-      "which_plot":[
+      "which_pp":[
         {
-          "method_name": "histo",
-          "title": "histo_test",
+          "method_name": "data_reducer",
+          "module_name": "data_reducer",
           "input_file_name" : "./tritium_model/results/tritium_generator.root",
           "input_file_format" : "root",
           "input_tree": "stan_MC",
@@ -143,7 +122,28 @@
           "output_time_spectrum_tree": "time",
           "additional_file_name" : "./tritium_model/results/tritium_additionalData.out",
         }
+      ]
+    },
+
+    "plot":
+    {
+      "which_plot":[
+        {
+          "method_name": "histo",
+          "module_name": "histo",
+          "title": "histo_test",
+          "input_file_name" : "./tritium_model/results/tritium_generator.root",
+          "input_file_format" : "root",
+          "input_tree": "stan_MC",
+          "output_format":"pdf",
+          "output_width": 600,
+          "output_height": 400,
+          "data": [""],
+          "x_title": "Kinetic Energy [eV]",
+          "y_title": "",
+          "options": "logy"
+        }
 
       ]
     }
-}
+  }

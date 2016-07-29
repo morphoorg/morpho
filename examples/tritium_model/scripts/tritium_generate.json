@@ -131,17 +131,20 @@
         {
           "method_name": "histo",
           "module_name": "histo",
-          "title": "histo_test",
+          "title": "",
           "input_file_name" : "./tritium_model/results/tritium_generator.root",
           "input_file_format" : "root",
           "input_tree": "stan_MC",
-          "output_path": "./tritium_model/results/"
+          "output_path": "./tritium_model/results/",
           "output_format":"pdf",
           "output_width": 600,
           "output_height": 400,
-          "data": ["KE_data"],
-          "x_title": "Kinetic Energy [eV]",
+          "data": ["KE_data","KE_recon"],
+          "x_title": "B_{0} [T]",
           "y_title": "",
+          "x_range":[18500,18600],
+          "y_range":[0.,200],
+          "n_bins":100,
           "options": "logy"
         }
 

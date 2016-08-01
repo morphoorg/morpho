@@ -93,6 +93,8 @@ def histo(param_dict):
             if 'x_range' in param_dict:
                 if isinstance(param_dict['x_range'],list):
 
+                    print('more progress!')
+
                     if (isinstance(param_dict['x_range'][0],float) or isinstance(param_dict['x_range'][0],int)) and (isinstance(param_dict['x_range'][1],float) or isinstance(param_dict['x_range'][1],int)):
                         if  param_dict['x_range'][0] < param_dict['x_range'][1]:
                             xmin = param_dict['x_range'][0]
@@ -140,9 +142,9 @@ def histo(param_dict):
 
             print(j)
 
-
             j=j+1
     gSave.append(can)
+
     # gSave.append(list_histo)
 
     # Setting the picture file name
@@ -166,7 +168,7 @@ def histo(param_dict):
     raw_input('Press <ret> to end -> ')
 
     return can
-#
+
 
 def autoRangeList(list):
     print('Using autoRange')

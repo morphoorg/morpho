@@ -121,7 +121,7 @@ def data_reducer(param_dict):
                 tmp_number_events[0] = int(list_spectrum_data[i] )
                 tree_freq_spectrum.Fill()
         tree_freq_spectrum.Write()
-           # print list_x_axis_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
+          
 
         # This paragraph might be uncommented when doing debugging
         # can =  ROOT.TCanvas("can","can",200,10,600,400)
@@ -129,7 +129,7 @@ def data_reducer(param_dict):
         # hFakeData.Draw('samehist')
         # havg.GetXaxis().SetTitle("Measured frequency [Hz]")
         # havg.SetLineColor(1)
-        print 'Total number of events : ', havg.Integral()
+        # print 'Total number of events : ', havg.Integral()
         # can.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_freq_data_average.pdf")
         # can.SetLogy()
         # can.Update()
@@ -150,14 +150,16 @@ def data_reducer(param_dict):
             # print(KE_data[i],spectrum_data[i]*dKE)
             he.Fill(KE_data[i],spectrum_data[i]*dKE)
             hew.Fill(KE_data[i],1)
-        for i in range(0,h.GetNbinsX()):
+       # for i in range(0,h.GetNbinsX()):
+        for i in range(0,he.GetNbinsX()): 
             list_x_axis_data.append(he.GetBinCenter(i))
             list_spectrum_data.append(he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
             heavg.Fill(he.GetBinCenter(i),he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
             # Poisson distribution
             if('Poisson_redistribution' in param_dict and param_dict['Poisson_redistribution']==True):
                 list_fakespectrum_data.append(ran.Poisson(list_spectrum_data[i]))
-                heFakeData.Fill(h.GetBinCenter(i),list_fakespectrum_data[i])
+                #heFakeData.Fill(h.GetBinCenter(i),list_fakespectrum_data[i])
+                heFakeData.Fill(he.GetBinCenter(i),list_fakespectrum_data[i])
         tree_KE_spectrum = ROOT.TTree(param_dict['output_KE_spectrum_tree'], param_dict['output_KE_spectrum_tree'])
         tree_KE_spectrum.Branch('KE_data', tmp_x_axis_data, 'KE_data/F')
         tree_KE_spectrum.Branch('n_spectrum_data', tmp_number_events, 'n_spectrum_data/I')
@@ -168,6 +170,7 @@ def data_reducer(param_dict):
                 tmp_x_axis_data[0] = list_x_axis_data[i]
                 tmp_number_events[0] = int(list_fakespectrum_data[i] )
                 tree_KE_spectrum.Fill()
+                print list_x_axis_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
         else:
             #Not a fake spectrum
             for i in range(0,len(list_x_axis_data)):
@@ -175,6 +178,9 @@ def data_reducer(param_dict):
                 tmp_number_events[0] = int(list_spectrum_data[i] )
                 tree_KE_spectrum.Fill()
         tree_KE_spectrum.Write()
+
+        print 'Total number of events : ', heavg.Integral()  
+
     # cane = ROOT.TCanvas("cane","cane",200,10,600,400)
     # heavg.Draw()
     # heavg.GetXaxis().SetTitle("Kinetic energy [eV]")
@@ -224,10 +230,13 @@ def data_reducer(param_dict):
 
     # Saving the additional data (aka the number of bin for each tree)
     f = open(param_dict['additional_file_name'],'w')
-    value =(str(h.GetNbinsX()))
+    if ('frequency' in param_dict['which_spectrum']):
+        value =(str(h.GetNbinsX()))
+    elif ('KE' in param_dict['which_spectrum']):
+        value =(str(he.GetNbinsX()))
     s=str(value)
     f.write('nBinSpectrum <- ' + s + '\n')
-    if(time_data!=None):
+    if ('time' in param_dict['which_spectrum']):
         value =(str(htime.GetNbinsX()))
         s=str(value)
         f.write('nBinTime <- ' + s + '\n')

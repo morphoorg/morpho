@@ -52,9 +52,9 @@
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 1000,
-            "warmup" : 500,
-            "chain": 2},
+            "iter": 10000,
+            "warmup" : 8000,
+            "chain": 10},
         
         
         "sample": "./MassHierarchy/results/MHtest_analyzer.out",

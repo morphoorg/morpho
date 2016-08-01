@@ -33,7 +33,7 @@ Running
 ======
 	A sample executable is shown in the examples directory:
 
-	  	  python ../morpho/morpho.py --config  model_folder/scripts/<name_of_json_config_file>
+	  	  python ../morpho/morpho.py --config  model_folder/scripts/<name_of_json_config_file> --other_options
 		  
 		  Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 

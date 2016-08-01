@@ -140,9 +140,9 @@ def histo(param_dict):
 
             print(j)
 
-
             j=j+1
     gSave.append(can)
+
     # gSave.append(list_histo)
 
     # Setting the picture file name
@@ -166,7 +166,7 @@ def histo(param_dict):
     raw_input('Press <ret> to end -> ')
 
     return can
-#
+
 
 def autoRangeList(list):
     print('Using autoRange')

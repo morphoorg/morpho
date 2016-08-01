@@ -1,9 +1,10 @@
 {
    "morpho":
    {
-     "do_stan": True,
-     "do_postprocessing": True,
-     "do_plots": True
+     "do_stan": False,
+     "do_postprocessing": False,
+     "do_plots": True,
+     "wait_at_the_end": False
    },
 
     "stan": {
@@ -72,12 +73,14 @@
       {
         "method_name": "data_reducer",
         "module_name": "data_reducer",
+        "which_spectrum": ["KE"],
+        "Poisson_redistribution": True,
         "input_file_name" : "./MassHierarchy/results/MHtest_generator_IH.root",
         "input_file_format" : "root",
         "input_tree": "generated",
-        "minKE":18500.,
-        "maxKE":18600.,
-        "nBinHisto":200,
+        "minKE":18574.00,
+        "maxKE":18575.05,
+        "nBinHisto":75,
         "output_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_IH.root",
         "output_file_format": "root",
         "output_KE_spectrum_tree": "spectrum",
@@ -86,7 +89,31 @@
       }
 
     ]
-  }
-    
+  },
+
+ "plot":
+    {
+      "which_plot":[
+        {
+          "method_name": "histo",
+          "module_name": "histo",
+          "title": "",
+          "input_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_IH.root",
+          "input_file_format" : "root",
+          "input_tree": "generated",
+          "output_path": "./MassHierarchy/results/",
+          "output_format":"pdf",
+          "output_width": 600,
+          "output_height": 400,
+          "data": ["KE_data"],
+          "x_title": "B_{0} [T]",
+          "y_title": "",
+          "x_range":[18574.00,18575.05],
+          "y_range":[0.,20],
+          "n_bins":75,
+          "options": "logy"
+        }
+      ]
+    }
 
 }

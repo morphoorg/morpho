@@ -1,2 +1,0 @@
-nBinSpectrum <- 200
-nBinTime <- 200

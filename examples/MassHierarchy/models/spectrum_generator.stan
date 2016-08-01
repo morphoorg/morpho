@@ -53,11 +53,14 @@ transformed parameters {
     real spectrum_shape;                // Beta decay spectrum generated assuming one MH
     real spectrum;                      // Accounting for measuring time and background
 
+    print(MH);
+
     if (MH == 0){
         nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21(), meas_delta_m32_NH(), MH);
         meas_sin2_th13 <- meas_sin2_th13_NH();}
     if (MH == 1){
         nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21(), meas_delta_m32_IH(), MH);
+	print(nu_mass_fixed);
         meas_sin2_th13 <- meas_sin2_th13_IH();}
         
     

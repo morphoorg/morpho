@@ -9,6 +9,8 @@ Here is an example of such new dictionary:
       {
         "method_name": "data_reducer", #name of the method
         "module_name": "data_reducer", #name of the python file which contains the method
+        "which_spectrum": ["frequency","time","KE"], # list of the reduction to be performed
+        "Poisson_redistribution": True, #is a Poisson redistribution of the data required?
         "input_file_name" : "./tritium_model/results/tritium_generator.root", #path to the root file which contains the raw data
         "input_file_format" : "root", #format of the input file
         "input_tree": "stan_MC", # name of the tree (in case of root file)
@@ -18,6 +20,7 @@ Here is an example of such new dictionary:
         "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root", #path to the root file where to save the spectrum data
         "output_file_format": "root", #format of the output file
         "output_freq_spectrum_tree": "spectrum", #name of the tree (in case of root file) which contains the frequency spectrum
+        "output_KE_spectrum_tree": "spectrum", #name of the tree (in case of root file) which contains the KE spectrum
         "output_time_spectrum_tree": "time", #name of the tree (in case of root file) which contains the time spectrum
         "additional_file_name" : "./tritium_model/results/tritium_additionalData.out", #name of the file which contains the number of bins for the output histograms
       }
@@ -42,12 +45,17 @@ import re
 def data_reducer(param_dict):
     print("Reducing the generated data!")
     print("Input data is: {}".format(param_dict['input_file_name']))
+    if (param_dict['input_file_name'].endswith('.root')):
+        param_dict['input_file_format']='root'
+    if (param_dict['input_file_name'].endswith('.h5')):
+        param_dict['input_file_format']='h5'
     if (param_dict['input_file_format']=='root'):
-        if(param_dict['output_time_spectrum_tree']=='None'):
-            x_axis_data, spectrum_data = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
-            time_data=None
-        else:
-            time_data, x_axis_data, spectrum_data, KE_recon = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
+        # if(param_dict['output_time_spectrum_tree']=='None'):
+        # x_axis_data, spectrum_data = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
+        #     time_data=None
+        # else:
+        time_data, freq_data, spectrum_data, KE_data = readTTree(param_dict['input_file_name'],param_dict['input_tree'])
+
     elif (param_dict['input_file_format']=='h5'):
         print('h5 file is not yet supported in the data_reducer')
     else:
@@ -56,58 +64,117 @@ def data_reducer(param_dict):
     nBinHisto = param_dict['nBinHisto']
     dKE = (param_dict['maxKE'] - param_dict['minKE'])/nBinHisto
 
-    # spectrum vs freq
-    h = ROOT.TH1F("h","",nBinHisto,min(x_axis_data),max(x_axis_data))#KE_min and KE_max
-    hw = ROOT.TH1F("hw","",nBinHisto,min(x_axis_data),max(x_axis_data))#KE_min and KE_max
-    havg = ROOT.TH1F("havg","",nBinHisto,min(x_axis_data),max(x_axis_data))#KE_min and KE_max
+    # Creating the root file
+    print("Output data is: {}".format(param_dict['output_file_name']))
+    if param_dict['output_file_format']=='root':
+        myfile = ROOT.TFile(param_dict['output_file_name'],"RECREATE")
+    elif param_dict['output_file_format']=='h5':
+        print('h5 file is not yet supported in the data_reducer')
+    else:
+        print('{} file is not a known format'.format(param_dict['output_file_format']))
 
-    hFakeData = ROOT.TH1F("fake_data","",nBinHisto,min(x_axis_data),max(x_axis_data))
+
+    if 'Poisson_redistribution' not in param_dict:
+        param_dict['Poisson_redistribution']=False
 
     ran = ROOT.TRandom3()
-    list_fakespectrum_data = []
-    list_x_axis_data = []
-    list_spectrum_data = []
-    for i in range(0,len(spectrum_data)):
-        # if (isOK[i]==1):
-            h.Fill(x_axis_data[i],spectrum_data[i]*dKE)
-            hw.Fill(x_axis_data[i],1)
-    for i in range(0,h.GetNbinsX()):
-        list_x_axis_data.append(h.GetBinCenter(i))
-        list_spectrum_data.append(h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
-        havg.Fill(h.GetBinCenter(i),list_spectrum_data[i])
-        #Poisson distribution
-        list_fakespectrum_data.append(ran.Poisson(list_spectrum_data[i]))
-        hFakeData.Fill(h.GetBinCenter(i),list_fakespectrum_data[i])
 
-       # print list_x_axis_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
-    
-    # This paragraph might be uncommented when doing debugging
-    # can =  ROOT.TCanvas("can","can",200,10,600,400)
-    # havg.Draw('hist')
-    # hFakeData.Draw('samehist')
-    # havg.GetXaxis().SetTitle("Measured frequency [Hz]")
-    # havg.SetLineColor(1)
-    print 'Total number of events for a year : ', havg.Integral()
-    # can.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_freq_data_average.pdf")
-    # can.SetLogy()
-    # can.Update()
-    # end of uncommentable paragraph
+    tmp_x_axis_data = array('f',[ 0 ])
+    tmp_number_events = array('i',[ 0 ])
+
+    # spectrum vs freq
+    if ('frequency' in param_dict['which_spectrum']):
+        h = ROOT.TH1F("h","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
+        hw = ROOT.TH1F("hw","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
+        havg = ROOT.TH1F("havg","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
+        hFakeData = ROOT.TH1F("fake_data","",nBinHisto,min(freq_data),max(freq_data))
+        list_fakespectrum_data = []
+        list_x_axis_data = []
+        list_spectrum_data = []
+        for i in range(0,len(spectrum_data)):
+            # if (isOK[i]==1):
+                h.Fill(freq_data[i],spectrum_data[i]*dKE)
+                hw.Fill(freq_data[i],1)
+        for i in range(0,h.GetNbinsX()):
+            list_x_axis_data.append(h.GetBinCenter(i))
+            list_spectrum_data.append(h.GetBinContent(i)/max(1,hw.GetBinContent(i)))
+            havg.Fill(h.GetBinCenter(i),list_spectrum_data[i])
+            # Poisson distribution
+            if('Poisson_redistribution' in param_dict and param_dict['Poisson_redistribution']==True):
+                list_fakespectrum_data.append(ran.Poisson(list_spectrum_data[i]))
+                hFakeData.Fill(h.GetBinCenter(i),list_fakespectrum_data[i])
+        # Creating the ROOT Tree
+        tree_freq_spectrum = ROOT.TTree(param_dict['output_freq_spectrum_tree'], param_dict['output_freq_spectrum_tree'])
+        tree_freq_spectrum.Branch('freq_data', tmp_x_axis_data, 'freq_data/F')
+        tree_freq_spectrum.Branch('n_spectrum_data', tmp_number_events, 'n_spectrum_data/I')
+
+        if('Poisson_redistribution' in param_dict and param_dict['Poisson_redistribution']==True):
+            # Fake spectrum
+            for i in range(0,len(list_x_axis_data)):
+                tmp_x_axis_data[0] = list_x_axis_data[i]
+                tmp_number_events[0] = int(list_fakespectrum_data[i] )
+                tree_freq_spectrum.Fill()
+        else:
+            #Not a fake spectrum
+            for i in range(0,len(list_x_axis_data)):
+                tmp_x_axis_data[0] = list_x_axis_data[i]
+                tmp_number_events[0] = int(list_spectrum_data[i] )
+                tree_freq_spectrum.Fill()
+        tree_freq_spectrum.Write()
+           # print list_x_axis_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
+
+        # This paragraph might be uncommented when doing debugging
+        # can =  ROOT.TCanvas("can","can",200,10,600,400)
+        # havg.Draw('hist')
+        # hFakeData.Draw('samehist')
+        # havg.GetXaxis().SetTitle("Measured frequency [Hz]")
+        # havg.SetLineColor(1)
+        print 'Total number of events : ', havg.Integral()
+        # can.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_freq_data_average.pdf")
+        # can.SetLogy()
+        # can.Update()
+        # end of uncommentable paragraph
 
     # spectrum  vs KE
-    if(time_data!=None):
-        he = ROOT.TH1F("he","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
-        hew = ROOT.TH1F("hew","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
-        heavg = ROOT.TH1F("heavg","",nBinHisto,min(KE_recon),max(KE_recon))#KE_min and KE_max
+    if ('KE' in param_dict['which_spectrum']):
+        list_fakespectrum_data = []
+        list_x_axis_data = []
+        list_spectrum_data = []
+        he = ROOT.TH1F("he","",nBinHisto,min(KE_data),max(KE_data))#KE_min and KE_max
+        hew = ROOT.TH1F("hew","",nBinHisto,min(KE_data),max(KE_data))#KE_min and KE_max
+        heavg = ROOT.TH1F("heavg","",nBinHisto,min(KE_data),max(KE_data))#KE_min and KE_max
+        heFakeData = ROOT.TH1F("heFake","",nBinHisto,min(KE_data),max(KE_data))#KE_min and KE_max
         list_KE = []
         list_spectrum_data = []
         for i in range(0,len(spectrum_data)):
-            he.Fill(KE_recon[i],spectrum_data[i]*dKE)
-            hew.Fill(KE_recon[i],1)
+            # print(KE_data[i],spectrum_data[i]*dKE)
+            he.Fill(KE_data[i],spectrum_data[i]*dKE)
+            hew.Fill(KE_data[i],1)
         for i in range(0,h.GetNbinsX()):
-            list_KE.append(he.GetBinCenter(i))
-            list_spectrum_data.append(h.GetBinContent(i)/max(1,hew.GetBinContent(i)))
+            list_x_axis_data.append(he.GetBinCenter(i))
+            list_spectrum_data.append(he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
             heavg.Fill(he.GetBinCenter(i),he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
+            # Poisson distribution
+            if('Poisson_redistribution' in param_dict and param_dict['Poisson_redistribution']==True):
+                list_fakespectrum_data.append(ran.Poisson(list_spectrum_data[i]))
+                heFakeData.Fill(h.GetBinCenter(i),list_fakespectrum_data[i])
+        tree_KE_spectrum = ROOT.TTree(param_dict['output_KE_spectrum_tree'], param_dict['output_KE_spectrum_tree'])
+        tree_KE_spectrum.Branch('KE_data', tmp_x_axis_data, 'KE_data/F')
+        tree_KE_spectrum.Branch('n_spectrum_data', tmp_number_events, 'n_spectrum_data/I')
 
+        if('Poisson_redistribution' in param_dict and param_dict['Poisson_redistribution']==True):
+            # Fake spectrum
+            for i in range(0,len(list_x_axis_data)):
+                tmp_x_axis_data[0] = list_x_axis_data[i]
+                tmp_number_events[0] = int(list_fakespectrum_data[i] )
+                tree_KE_spectrum.Fill()
+        else:
+            #Not a fake spectrum
+            for i in range(0,len(list_x_axis_data)):
+                tmp_x_axis_data[0] = list_x_axis_data[i]
+                tmp_number_events[0] = int(list_spectrum_data[i] )
+                tree_KE_spectrum.Fill()
+        tree_KE_spectrum.Write()
     # cane = ROOT.TCanvas("cane","cane",200,10,600,400)
     # heavg.Draw()
     # heavg.GetXaxis().SetTitle("Kinetic energy [eV]")
@@ -118,7 +185,7 @@ def data_reducer(param_dict):
     # cane.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_KE_recon_average_logy.pdf")
 
     # Time distribution
-    if(time_data!=None):
+    if('time' in param_dict['which_spectrum']):
         htime = ROOT.TH1F("htime","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
         htimew = ROOT.TH1F("htimew","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
         htimeavg = ROOT.TH1F("htimeavg","",nBinHisto,0.,int(100000*max(time_data)+1)/100000)#time_min and time_max
@@ -129,7 +196,17 @@ def data_reducer(param_dict):
         for i in range(0,htime.GetNbinsX()):
             list_time.append(htime.GetBinCenter(i))
             list_Time_events.append(htime.GetBinContent(i))
+        tmp_time_data = array('f',[ 0. ])
+        tmp_Time_events = array('i',[ 0 ])
 
+        tree_time = ROOT.TTree(param_dict['output_time_spectrum_tree'], param_dict['output_time_spectrum_tree'])
+        tree_time.Branch('time_data', tmp_time_data, 'time_data/F')
+        tree_time.Branch('n_time_data', tmp_Time_events, 'n_time_data/I')
+        for i in range(0,len(list_time)):
+            tmp_time_data[0] = list_time[i]
+            tmp_Time_events[0] = int(list_Time_events[i] )
+            tree_time.Fill()
+        tree_time.Write()
     # cant = ROOT.TCanvas("cant","cant",200,10,600,400)
     # htime.Draw();
     # htime.GetXaxis().SetTitle("Track duration [s]")
@@ -156,74 +233,57 @@ def data_reducer(param_dict):
         f.write('nBinTime <- ' + s + '\n')
     f.close()
 
-    # Creating the root file
-    print("Output data is: {}".format(param_dict['output_file_name']))
-    if param_dict['output_file_format']=='root':
-        myfile = ROOT.TFile(param_dict['output_file_name'],"RECREATE")
-    elif param_dict['output_file_format']=='h5':
-        print('h5 file is not yet supported in the data_reducer')
-    else:
-        print('{} file is not a known format'.format(param_dict['output_file_format']))
-
-    # tree spectrum
-    tmp_x_axis_data = array('f',[ 0 ])
-    tmp_number_events = array('i',[ 0 ])
-
-    if(time_data!=None):
-        tree_spectrum = ROOT.TTree(param_dict['output_freq_spectrum_tree'], param_dict['output_freq_spectrum_tree'])
-        tree_spectrum.Branch('freq_data', tmp_x_axis_data, 'freq_data/F')
-    else:
-        tree_spectrum = ROOT.TTree(param_dict['output_KE_spectrum_tree'], param_dict['output_KE_spectrum_tree'])
-        tree_spectrum.Branch('KE_data', tmp_x_axis_data, 'KE_data/F')
-    tree_spectrum.Branch('n_spectrum_data', tmp_number_events, 'n_spectrum_data/I')
-    for i in range(0,len(list_x_axis_data)):
-        tmp_x_axis_data[0] = list_x_axis_data[i]
-        tmp_number_events[0] = int(list_fakespectrum_data[i] )
-        tree_spectrum.Fill()
-    tree_spectrum.Write()
-
-    # tree time
-    if(time_data!=None):
-        tmp_time_data = array('f',[ 0. ])
-        tmp_Time_events = array('i',[ 0 ])
-
-        tree_time = ROOT.TTree(param_dict['output_time_spectrum_tree'], param_dict['output_time_spectrum_tree'])
-        tree_time.Branch('time_data', tmp_time_data, 'time_data/F')
-        tree_time.Branch('n_time_data', tmp_Time_events, 'n_time_data/I')
-        for i in range(0,len(list_time)):
-            tmp_time_data[0] = list_time[i]
-            tmp_Time_events[0] = int(list_Time_events[i] )
-            tree_time.Fill()
-        tree_time.Write()
-
     print('Prostprocessing complete!')
 
-    # raw_input('Press <ret> to end -> ')
 
-def readTTree(root_file_path,tree_name, read_time):
+def readTTree(root_file_path,tree_name):
+    print('Reading {}'.format(root_file_path))
     myfile = ROOT.TFile(root_file_path,"READ")
     tree = myfile.Get(tree_name)
-    n = tree.GetEntries()
-
+    n = int(tree.GetEntries())
     time_data = []
-    KE_recon = []
     freq_data = []
     spectrum_data = []
     KE_data = []
     for i in range(0,n):
+        # print(i)
         tree.GetEntry(i)
-        if(read_time!='None'):
+        if 'time_data' in tree.GetListOfBranches():
+            # print('there is time!')
             time_data.append(tree.time_data)
-            KE_recon.append(tree.KE_recon)
-            freq_data.append(tree.freq_data)
-        else:
+        if 'KE_data' in tree.GetListOfBranches():
+        # print('there is KE!')
             KE_data.append(tree.KE_data)
-        spectrum_data.append(tree.spectrum_data)
+        if 'freq_data' in tree.GetListOfBranches():
+        # print('there is freq!')
+            freq_data.append(tree.freq_data)
+        if 'spectrum_data' in tree.GetListOfBranches():
+        # print('there is spectrum!')
+            spectrum_data.append(tree.spectrum_data)
+    # print(tree_name)
 
-    if(read_time!='None'):
-        return time_data, freq_data, spectrum_data, KE_recon
-    else:
-        return KE_data, spectrum_data
+
+    #     print(i,n)
+    #     tree.GetEntry(i)
+    #     print(i,n)
+    #     # if time_data in tree:
+    #     print('there is time!')
+    #     time_data.append(tree.time_data)
+
+    #     print(tree.spectrum_data)
+
+    #     if(read_time!='None'):
+    #         time_data.append(tree.time_data)
+    #         KE_recon.append(tree.KE_recon)
+    #         freq_data.append(tree.freq_data)
+    #     else:
+    #         KE_data.append(tree.KE_data)
+    #     spectrum_data.append(tree.spectrum_data)
+    #
+    # if(read_time!='None'):
+    return time_data, freq_data, spectrum_data, KE_data
+    # else:
+    #     return KE_data, spectrum_data
 
 
 # depreciated

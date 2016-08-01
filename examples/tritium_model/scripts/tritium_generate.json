@@ -3,7 +3,8 @@
   {
     "do_stan": True,
     "do_postprocessing": True,
-    "do_plots": True
+    "do_plots": True,
+    "wait_at_the_end":True
   },
 
   "stan":
@@ -42,7 +43,7 @@
       ],
       "parameters": [
         {
-          "nChains" : 4,
+          "nChains" : 6,
           "MassHierarchy" : 1,
           "lightest_neutrino_mass" : 10.,
           "minKE": 18500,
@@ -52,9 +53,9 @@
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 1000,
-      "warmup": 800,
-      "chain": 4,
+      "iter": 10000,
+      "warmup": 8000,
+      "chain": 6,
 
       "init_off": [
         {"uB" : 0.0,
@@ -79,7 +80,7 @@
         "tree" : "stan_MC",
         "branches" : [
           {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
-          {"variable" : "KE", "root_alias" : "KE"},
+          {"variable" : "KE_data", "root_alias" : "KE_data"},
           {"variable" : "beta", "root_alias" : "beta"},
           {"variable" : "MainField", "root_alias" : "MainField"},
           {"variable" : "temperature", "root_alias" : "temperature"},
@@ -87,6 +88,7 @@
           {"variable" : "scatt_width", "root_alias" : "scatt_width"},
           {"variable" : "Q", "root_alias" : "Q"},
           {"variable" : "norm_spectrum", "root_alias" : "norm_spectrum"},
+          {"variable" : "nData", "root_alias" : "nData", "type" : "int"},
           {"variable" : "time_data", "root_alias" : "time_data"},
           {"variable" : "freq_data", "root_alias" : "freq_data"},
           {"variable" : "KE_recon", "root_alias" : "KE_recon"},
@@ -105,20 +107,45 @@
       {
         "method_name": "data_reducer",
         "module_name": "data_reducer",
+        "which_spectrum": ["frequency","time","KE"],
+        "Poisson_redistribution": True,
         "input_file_name" : "./tritium_model/results/tritium_generator.root",
         "input_file_format" : "root",
         "input_tree": "stan_MC",
         "minKE":18500.,
         "maxKE":18600.,
-        "nBinHisto":50,
+        "nBinHisto":100,
         "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root",
         "output_file_format": "root",
         "output_freq_spectrum_tree": "spectrum",
+        "output_KE_spectrum_tree": "spectrumKE",
         "output_time_spectrum_tree": "time",
         "additional_file_name" : "./tritium_model/results/tritium_additionalData.out",
       }
 
-    ]
-  }
-}
+    "plot":
+    {
+      "which_plot":[
+        {
+          "method_name": "histo",
+          "module_name": "histo",
+          "title": "",
+          "input_file_name" : "./tritium_model/results/tritium_generator.root",
+          "input_file_format" : "root",
+          "input_tree": "stan_MC",
+          "output_path": "./tritium_model/results/",
+          "output_format":"pdf",
+          "output_width": 600,
+          "output_height": 400,
+          "data": ["KE_data","KE_recon"],
+          "x_title": "B_{0} [T]",
+          "y_title": "",
+          "x_range":[18500,18600],
+          "y_range":[0.,200],
+          "n_bins":100,
+          "options": "logy"
+        }
 
+      ]
+    }
+  }

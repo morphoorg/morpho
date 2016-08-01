@@ -91,9 +91,7 @@ def histo(param_dict):
 
             # list_histo.append()
             if 'x_range' in param_dict:
-                if isinstance(param_dict['x_range'],list):
-
-                    print('more progress!')
+                if isinstance(param_dict['x_range'],list):
 
                     if (isinstance(param_dict['x_range'][0],float) or isinstance(param_dict['x_range'][0],int)) and (isinstance(param_dict['x_range'][1],float) or isinstance(param_dict['x_range'][1],int)):
                         if  param_dict['x_range'][0] < param_dict['x_range'][1]:

@@ -91,7 +91,7 @@ def histo(param_dict):
 
             # list_histo.append()
             if 'x_range' in param_dict:
-                if isinstance(param_dict['x_range'],list):
+                if isinstance(param_dict['x_range'],list):
 
                     print('more progress!')
 

@@ -71,12 +71,14 @@ infile = '../results/MHtest_analyzer.root'
 #Plotting neutrino mass distributions
 masses = ModelFit.plot(pars=['nu_mass'])
 plt.tight_layout()
+"""
 if MH==0:
     plt.savefig(uniquify('./NH_numasses.pdf'))
 elif MH==1:
     plt.savefig(uniquify('./IH_numasses.pdf'))
 else:
     print "Cannot save plots. No mass hierarchy selected."
+"""
 plt.show()
 
 
@@ -102,18 +104,22 @@ plt.xlim(1E-3, 1)
 plt.xscale('log')
 plt.yscale('log')
 plt.tight_layout()
+"""
 if MH==0:
     plt.savefig(uniquify('./NH_massparams.pdf'))
 elif MH==1:
     plt.savefig(uniquify('./IH_massparams.pdf'))
+"""
 plt.show()
 
 
 #Plotting neutrino mixing parameter distributions
 mixing = ModelFit.plot(pars=['sin2_th12', 'sin2_th13', 'delta_m21', 'delta_m32', 'm32_withsign'])
 plt.tight_layout()
+"""
 if MH==0:
     plt.savefig(uniquify('./NH_mixingparams.pdf'))
 elif MH==1:
     plt.savefig(uniquify('./IH_mixingparams.pdf'))
+"""
 plt.show()

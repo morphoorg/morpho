@@ -42,7 +42,7 @@ data{
 
 parameters{
 
-    real<lower=minKE, upper=maxKE> KE;          // Kinetic energies of electrons from beta decay in eV
+    real<lower=minKE, upper=maxKE> KE_data;          // Kinetic energies of electrons from beta decay in eV
 }
 
 transformed parameters {
@@ -53,35 +53,35 @@ transformed parameters {
     real spectrum_shape;                // Beta decay spectrum generated assuming one MH
     real spectrum;                      // Accounting for measuring time and background
 
-    print(MH);
+//    print(MH);
 
     if (MH == 0){
         nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21(), meas_delta_m32_NH(), MH);
         meas_sin2_th13 <- meas_sin2_th13_NH();}
     if (MH == 1){
         nu_mass_fixed <- MH_masses(min_mass_fixed, meas_delta_m21(), meas_delta_m32_IH(), MH);
-	print(nu_mass_fixed);
+//	print(nu_mass_fixed);
         meas_sin2_th13 <- meas_sin2_th13_IH();}
         
     
     sUe_fixed <- get_U_PMNS(nFamily(), meas_sin2_th12(), meas_sin2_th13);
 
-    spectrum_shape <- spectral_shape(KE, Q, sUe_fixed, nu_mass_fixed);
+    spectrum_shape <- spectral_shape(KE_data, Q, sUe_fixed, nu_mass_fixed);
     spectrum <- activity * measuring_time * spectrum_shape + background_rate_mean * measuring_time;
 }
 
 model{
 
-    KE ~ uniform(minKE,maxKE);
+    KE_data ~ uniform(minKE,maxKE);
 
 }
 
 generated quantities {
 
-    real KE_data;
+//    real KE_data;
     real spectrum_data;
 
-    KE_data <- KE;
+//    KE_data <- KE;
     spectrum_data <- spectrum;
 
 }

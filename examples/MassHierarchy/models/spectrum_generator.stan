@@ -72,7 +72,9 @@ transformed parameters {
 
 model{
 
-    KE_data ~ uniform(minKE,maxKE);
+    KE_data ~ uniform(minKE+1.,maxKE-1.);
+//    increment_log_prob(log(KE_data));
+
 
 }
 

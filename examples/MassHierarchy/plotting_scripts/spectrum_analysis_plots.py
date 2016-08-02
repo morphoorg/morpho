@@ -21,6 +21,8 @@ mpl.rc('xtick', labelsize=8)
 import matplotlib.pyplot as plt
 from pylab import *
 
+#Specify the hierarchy used for generation: 0 -> normal; 1 -> inverted
+MH = 1
 
 #Unpickling stan fit object
 with open('../cache/cached-model-9b564a72eea4422c25eed027ea785e5a.pkl', 'rb') as input1:
@@ -33,6 +35,9 @@ with open('../results/analysis_fit_IH.pkl', 'rb') as input2:
 params = ModelFit.extract(permuted=True)
 mbeta = params['mbeta']
 min_mass = params['min_mass']
+sin2_th13 = params['sin2_th13']
+sin2_th12 = params['sin2_th12']
+delta_m21 = params['delta_m21']
 
 
 #Each time file created with same filename (in same directory), adds consecutively higher number to end of filename
@@ -63,7 +68,6 @@ def readTTree(tree_path):
 
     return mbeta, min_mass, log_likelihood
 
-MH = 1
 infile = '../results/MHtest_analyzer.root'
 #mbeta_root, min_mass_root, log_likelihood_root = readTTree(infile)
 
@@ -71,14 +75,14 @@ infile = '../results/MHtest_analyzer.root'
 #Plotting neutrino mass distributions
 masses = ModelFit.plot(pars=['nu_mass'])
 plt.tight_layout()
-"""
+
 if MH==0:
     plt.savefig(uniquify('./NH_numasses.pdf'))
 elif MH==1:
     plt.savefig(uniquify('./IH_numasses.pdf'))
 else:
     print "Cannot save plots. No mass hierarchy selected."
-"""
+
 plt.show()
 
 
@@ -86,13 +90,6 @@ plt.show()
 fig = plt.figure(figsize=(10,6))
 a1 = plt.subplot(121)
 ModelFit.plot(pars=['mbeta', 'min_mass'])
-#plt.hist(mbeta, bins=45)
-#a1.set_title(r'Histogram of Stan Output $m_\beta$ Values', fontsize=12.5)
-#a1.set_xlabel(r'$m_\beta$ (eV)', fontsize=16)
-#a2 = plt.subplot(221)
-#plt.hist(min_mass, bins=45)
-#a2.set_title(r'Histogram of Stan Output $M_{lightest}$ Values', fontsize=12.5)
-#a2.set_xlabel(r'$M_{lightest}$ (eV)', fontsize=16)
 
 b = plt.subplot(122)
 scatter(min_mass, mbeta, marker='.', color='r')
@@ -104,22 +101,56 @@ plt.xlim(1E-3, 1)
 plt.xscale('log')
 plt.yscale('log')
 plt.tight_layout()
-"""
+
 if MH==0:
     plt.savefig(uniquify('./NH_massparams.pdf'))
 elif MH==1:
     plt.savefig(uniquify('./IH_massparams.pdf'))
-"""
+
 plt.show()
 
 
 #Plotting neutrino mixing parameter distributions
 mixing = ModelFit.plot(pars=['sin2_th12', 'sin2_th13', 'delta_m21', 'delta_m32', 'm32_withsign'])
 plt.tight_layout()
-"""
+
 if MH==0:
     plt.savefig(uniquify('./NH_mixingparams.pdf'))
 elif MH==1:
     plt.savefig(uniquify('./IH_mixingparams.pdf'))
-"""
+
+plt.show()
+
+
+#Mixing parameter contour plots
+fig = plt.figure()
+ax = fig.add_subplot(121)
+H, xedges, yedges = np.histogram2d(sin2_th12, sin2_th13, range=[[0.1,0.39], [0.,0.08]], bins=(50, 50))
+extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]
+subplots_adjust(bottom=0.15, left=0.15)
+levels = (5., 25., 125., 300.)
+cset = contour(H, levels, origin='lower',colors=['black','green','blue','red'],linewidths=(1.9, 1.6, 1.5, 1.4),extent=extent)
+plt.clabel(cset, inline=1, fontsize=10, fmt='%1.0i')
+plt.xlabel(r'$sin^2(\theta_{12})}$', fontsize=16)
+plt.ylabel(r'$sin^2(\theta_{13})}$', fontsize=16)
+for c in cset.collections:
+    c.set_linestyle('solid')
+
+ax2 = fig.add_subplot(122)
+H, xedges, yedges = np.histogram2d(sin2_th12, delta_m21, range=[[0.1,0.39], [5E-5,1.E-4]], bins=(50, 50))
+extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]
+subplots_adjust(bottom=0.15, left=0.15)
+levels = (5., 25., 125., 300.)
+cset = contour(H, levels, origin='lower',colors=['black','green','blue','red'],linewidths=(1.9, 1.6, 1.5, 1.4),extent=extent)
+plt.clabel(cset, inline=1, fontsize=10, fmt='%1.0i')
+plt.xlabel(r'$sin^2(\theta_{12})}$', fontsize=16)
+plt.ylabel(r'$\Delta m^2_{21}$', fontsize=16)
+for c in cset.collections:
+    c.set_linestyle('solid')
+
+plt.tight_layout()
+if MH==0:
+    plt.savefig(uniquify('./NH_mixing_param_contours.pdf'))
+elif MH==1:
+    plt.savefig(uniquify('./IH_mixing_param_contours.pdf'))
 plt.show()

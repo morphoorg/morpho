@@ -1,8 +1,8 @@
 {
    "morpho":
    {
-     "do_stan": True,
-     "do_postprocessing": False,
+     "do_stan": False,
+     "do_postprocessing": True,
      "do_plots": True,
      "wait_at_the_end": False
    },
@@ -35,7 +35,7 @@
                            "nChains" : 10,
                            "MH" : 1,
                            "minKE": 18573.00,
-                           "maxKE": 18575.50,
+                           "maxKE": 18576.05,
                            "min_mass_fixed": 0.05
                            }
                            ]
@@ -43,7 +43,7 @@
         },
         
         "run": {
-            "algorithim": "NUTS",
+            "algorithm": "NUTS",
             "iter": 10000,
             "warmup": 8000,
             "chain": 10},
@@ -93,9 +93,9 @@
           "method_name": "histo",
           "module_name": "histo",
           "title": "",
-          "input_file_name" : "./MassHierarchy/results/MHtest_generator_IH.root",
+          "input_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_IH.root",
           "input_file_format" : "root",
-          "input_tree": "generated",
+          "input_tree": "spectrum",
           "output_path": "./MassHierarchy/results/",
           "output_format":"pdf",
           "output_width": 600,
@@ -103,7 +103,7 @@
           "data": ["KE_data"],
           "x_title": "B_{0} [T]",
           "y_title": "",
-          "x_range":[18573.00,18575.50],
+          "x_range":[18573.95,18575.10],
           "y_range":[0.,350],
           "n_bins":100,
           "options": "logy"

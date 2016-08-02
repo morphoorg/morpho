@@ -28,7 +28,7 @@
                       "format":"R"
                       },
                       {
-                      "name": "./MassHierarchy/results/spectrum_additionalData_IJ.out",
+                      "name": "./MassHierarchy/results/spectrum_additionalData_IH.out",
                       "format":"R"
                       },
                       {
@@ -85,7 +85,14 @@
     "which_pp":[
       {
       }
-]
-}
-    
+   ]
+   },
+
+"plot":
+    {
+      "which_plot":[
+        {
+        }
+    ]
+    }
 }

@@ -88,7 +88,6 @@
           {"variable" : "scatt_width", "root_alias" : "scatt_width"},
           {"variable" : "Q", "root_alias" : "Q"},
           {"variable" : "norm_spectrum", "root_alias" : "norm_spectrum"},
-          {"variable" : "nData", "root_alias" : "nData", "type" : "int"},
           {"variable" : "time_data", "root_alias" : "time_data"},
           {"variable" : "freq_data", "root_alias" : "freq_data"},
           {"variable" : "KE_recon", "root_alias" : "KE_recon"},
@@ -121,7 +120,9 @@
         "output_KE_spectrum_tree": "spectrumKE",
         "output_time_spectrum_tree": "time",
         "additional_file_name" : "./tritium_model/results/tritium_additionalData.out",
-      }
+         }
+       ]
+      },
 
     "plot":
     {

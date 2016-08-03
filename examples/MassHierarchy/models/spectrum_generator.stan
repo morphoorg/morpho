@@ -43,6 +43,7 @@ data{
 parameters{
 
     real<lower=minKE, upper=maxKE> KE_data;          // Kinetic energies of electrons from beta decay in eV
+    real<lower=-1.5, upper=1.5> test_param;
 }
 
 transformed parameters {
@@ -72,18 +73,16 @@ transformed parameters {
 
 model{
 
-    KE_data ~ uniform(minKE+1.,maxKE-1.);
-//    increment_log_prob(log(KE_data));
+     KE_data ~ uniform(minKE,maxKE);
+//    KE_data ~ uniform(minKE+1.,maxKE-1.);
 
 
 }
 
 generated quantities {
 
-//    real KE_data;
     real spectrum_data;
 
-//    KE_data <- KE;
     spectrum_data <- spectrum;
 
 }

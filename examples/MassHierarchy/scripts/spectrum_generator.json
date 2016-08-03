@@ -2,7 +2,7 @@
    "morpho":
    {
      "do_stan": False,
-     "do_postprocessing": True,
+     "do_postprocessing": False,
      "do_plots": True,
      "wait_at_the_end": False
    },
@@ -44,8 +44,8 @@
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 10000,
-            "warmup": 8000,
+            "iter": 50000,
+            "warmup": 25000,
             "chain": 10},
         
         "sample": "./MassHierarchy/results/MHtest_generator.out",
@@ -56,7 +56,8 @@
             "tree" : "generated",
             "branches" : [
                     {"variable" : "KE_data", "root_alias" : "KE_data"},
-                    {"variable" : "spectrum_data", "root_alias" : "spectrum_data"},
+                    {"variable" : "test_param", "root_alias" : "test_param"},
+                    {"variable" : "spectrum_data", "root_alias" : "spectrum_data"}
                      ]
         }
         
@@ -93,18 +94,18 @@
           "method_name": "histo",
           "module_name": "histo",
           "title": "",
-          "input_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_IH.root",
+          "input_file_name" : "./MassHierarchy/results/MHtest_generator_IH.root",
           "input_file_format" : "root",
-          "input_tree": "spectrum",
+          "input_tree": "generated",
           "output_path": "./MassHierarchy/results/",
           "output_format":"pdf",
           "output_width": 600,
           "output_height": 400,
-          "data": ["KE_data"],
-          "x_title": "B_{0} [T]",
+          "data": ["test_param"],
+          "x_title": "Test Parameter",
           "y_title": "",
-          "x_range":[18573.95,18575.10],
-          "y_range":[0.,350],
+          "x_range":[-1.5, 1.5],
+          "y_range":[0.,6000],
           "n_bins":100,
           "options": "logy"
         }

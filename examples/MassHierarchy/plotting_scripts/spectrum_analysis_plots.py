@@ -19,6 +19,8 @@ import matplotlib as mpl
 mpl.rc('ytick', labelsize=8)
 mpl.rc('xtick', labelsize=8)
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from matplotlib.colors import LogNorm
 from pylab import *
 
 #Specify the hierarchy used for generation: 0 -> normal; 1 -> inverted
@@ -39,6 +41,9 @@ sin2_th13 = params['sin2_th13']
 sin2_th12 = params['sin2_th12']
 delta_m21 = params['delta_m21']
 
+#sin2_th13 = params['s13']
+#sin2_th12 = params['s12']
+#delta_m21 = params['dm21']
 
 #Each time file created with same filename (in same directory), adds consecutively higher number to end of filename
 def uniquify(path, sep = ''):
@@ -71,7 +76,7 @@ def readTTree(tree_path):
 infile = '../results/MHtest_analyzer.root'
 #mbeta_root, min_mass_root, log_likelihood_root = readTTree(infile)
 
-
+"""
 #Plotting neutrino mass distributions
 masses = ModelFit.plot(pars=['nu_mass'])
 plt.tight_layout()
@@ -120,14 +125,17 @@ elif MH==1:
     plt.savefig(uniquify('./IH_mixingparams.pdf'))
 
 plt.show()
-
+"""
 
 #Mixing parameter contour plots
 fig = plt.figure()
+"""
 ax = fig.add_subplot(121)
-H, xedges, yedges = np.histogram2d(sin2_th12, sin2_th13, range=[[0.1,0.39], [0.,0.08]], bins=(50, 50))
-extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]
+H, xedges, yedges = np.histogram2d(sin2_th13, sin2_th12, range=[[0.,0.08], [0.1, 0.39]], bins=(50, 50))
+extent = [yedges[-1], yedges[0], xedges[0], xedges[-1]]
 subplots_adjust(bottom=0.15, left=0.15)
+plt.imshow(H, extent=extent, cmap=cm.hot, aspect='auto')
+plt.colorbar()
 levels = (5., 25., 125., 300.)
 cset = contour(H, levels, origin='lower',colors=['black','green','blue','red'],linewidths=(1.9, 1.6, 1.5, 1.4),extent=extent)
 plt.clabel(cset, inline=1, fontsize=10, fmt='%1.0i')
@@ -135,22 +143,42 @@ plt.xlabel(r'$sin^2(\theta_{12})}$', fontsize=16)
 plt.ylabel(r'$sin^2(\theta_{13})}$', fontsize=16)
 for c in cset.collections:
     c.set_linestyle('solid')
+"""
 
-ax2 = fig.add_subplot(122)
-H, xedges, yedges = np.histogram2d(sin2_th12, delta_m21, range=[[0.1,0.39], [5E-5,1.E-4]], bins=(50, 50))
+ax = fig.add_subplot(121)
+H, xedges, yedges = np.histogram2d(delta_m21,sin2_th12, range=[[5E-5,1.E-4], [0.1, 0.39]], bins=(50, 50))
 extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]
 subplots_adjust(bottom=0.15, left=0.15)
-levels = (5., 25., 125., 300.)
-cset = contour(H, levels, origin='lower',colors=['black','green','blue','red'],linewidths=(1.9, 1.6, 1.5, 1.4),extent=extent)
+plt.imshow(H, extent=extent ,cmap=cm.copper, norm=LogNorm(), aspect='auto')
+plt.colorbar()
+levels = (5., 100., 350.)
+cset = contour(H, levels, origin='lower',colors=['blue','green','red'],linewidths=(1.9, 1.6, 1.5, 1.4),extent=extent)
 plt.clabel(cset, inline=1, fontsize=10, fmt='%1.0i')
-plt.xlabel(r'$sin^2(\theta_{12})}$', fontsize=16)
+plt.xlabel(r'$sin^2(\theta_{12})$', fontsize=16)
 plt.ylabel(r'$\Delta m^2_{21}$', fontsize=16)
 for c in cset.collections:
     c.set_linestyle('solid')
 
+ax2 = fig.add_subplot(122)
+Hb, xedgesb, yedgesb = np.histogram2d(sin2_th13,sin2_th12, range=[[0.0, 0.08], [0.1, 0.39]], bins=(50, 50))
+extentb = [yedgesb[0], yedgesb[-1], xedgesb[0], xedgesb[-1]]
+subplots_adjust(bottom=0.15, left=0.15)
+plt.imshow(Hb, extent=extentb, origin='lower', cmap=cm.copper, norm=LogNorm(), aspect='auto')
+plt.colorbar()
+levels = (5., 100., 350.)
+cset = contour(Hb, levels, origin='lower',colors=['blue','green','red'],linewidths=(1.9, 1.6, 1.5, 1.4),extent=extentb)
+plt.clabel(cset, inline=1, fontsize=10, fmt='%1.0i')
+plt.xlabel(r'$sin^2(\theta_{12})$', fontsize=16)
+plt.ylabel(r'$sin^2(\theta_{13})$', fontsize=16)
+for c in cset.collections:
+    c.set_linestyle('solid')
+
+
+
 plt.tight_layout()
-if MH==0:
+"""if MH==0:
     plt.savefig(uniquify('./NH_mixing_param_contours.pdf'))
 elif MH==1:
     plt.savefig(uniquify('./IH_mixing_param_contours.pdf'))
+"""
 plt.show()

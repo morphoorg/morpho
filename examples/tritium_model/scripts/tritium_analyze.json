@@ -106,6 +106,7 @@
         "name" : "./tritium_model/results/tritium_analysis",
         "format" : "root",
         "tree" : "stanAnalysis",
+        "fit": "./tritium_model/results/tritium_analysis_fit.pkl",
         "branches" : [
 
           {"variable" : "scatt_width", "root_alias" : "scatt_width"},

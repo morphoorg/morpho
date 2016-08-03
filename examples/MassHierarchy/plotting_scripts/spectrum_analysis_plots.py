@@ -76,7 +76,7 @@ def readTTree(tree_path):
 infile = '../results/MHtest_analyzer.root'
 #mbeta_root, min_mass_root, log_likelihood_root = readTTree(infile)
 
-"""
+
 #Plotting neutrino mass distributions
 masses = ModelFit.plot(pars=['nu_mass'])
 plt.tight_layout()
@@ -125,26 +125,9 @@ elif MH==1:
     plt.savefig(uniquify('./IH_mixingparams.pdf'))
 
 plt.show()
-"""
+
 
 #Mixing parameter contour plots
-fig = plt.figure()
-"""
-ax = fig.add_subplot(121)
-H, xedges, yedges = np.histogram2d(sin2_th13, sin2_th12, range=[[0.,0.08], [0.1, 0.39]], bins=(50, 50))
-extent = [yedges[-1], yedges[0], xedges[0], xedges[-1]]
-subplots_adjust(bottom=0.15, left=0.15)
-plt.imshow(H, extent=extent, cmap=cm.hot, aspect='auto')
-plt.colorbar()
-levels = (5., 25., 125., 300.)
-cset = contour(H, levels, origin='lower',colors=['black','green','blue','red'],linewidths=(1.9, 1.6, 1.5, 1.4),extent=extent)
-plt.clabel(cset, inline=1, fontsize=10, fmt='%1.0i')
-plt.xlabel(r'$sin^2(\theta_{12})}$', fontsize=16)
-plt.ylabel(r'$sin^2(\theta_{13})}$', fontsize=16)
-for c in cset.collections:
-    c.set_linestyle('solid')
-"""
-
 ax = fig.add_subplot(121)
 H, xedges, yedges = np.histogram2d(delta_m21,sin2_th12, range=[[5E-5,1.E-4], [0.1, 0.39]], bins=(50, 50))
 extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]
@@ -173,12 +156,9 @@ plt.ylabel(r'$sin^2(\theta_{13})$', fontsize=16)
 for c in cset.collections:
     c.set_linestyle('solid')
 
-
-
 plt.tight_layout()
-"""if MH==0:
+if MH==0:
     plt.savefig(uniquify('./NH_mixing_param_contours.pdf'))
 elif MH==1:
     plt.savefig(uniquify('./IH_mixing_param_contours.pdf'))
-"""
 plt.show()

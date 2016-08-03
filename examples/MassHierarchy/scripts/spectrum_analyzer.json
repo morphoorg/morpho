@@ -92,6 +92,15 @@
     {
       "which_plot":[
         {
+        "method_name": "neutrino_params",
+        "module_name": "neutrino_params",
+        "input_fit_name": "./MassHierarchy/results/analysis_fit_IH.pkl",
+        "input_cache_name": "./MassHierarchy/cache/cached-model-9b564a72eea4422c25eed027ea785e5a.pkl",
+        "output_path": "./MassHierarchy/results",
+        "output_format": "pdf",
+        "plotting_options": ["neutrino_masses", "mass_params", "mixing_params", "contours"],
+        "data": [{"sin2_th12":"sin2_th12", "sin2_th13":"sin2_th13", "delta_m21":"delta_m21", "mbeta":"mbeta", "min_mass":"min_mass"}],
+        "hierarchy": "inverted"
         }
     ]
     }

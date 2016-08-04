@@ -1,3 +1,4 @@
+
 #======================================================
 # neutrino_params.py
 #
@@ -40,17 +41,13 @@ from matplotlib.colors import LogNorm
 from pylab import *
 
 
-<<<<<<< HEAD
+
 def uniquify(path, sep = ''):
     """
     Each time a file is created the with same filename (in the same
     directory), add a consecutively higher number to the end of the
     filename.
     """
-=======
-#Each time file created with same filename (in same directory), adds consecutively higher number to end of filename
-def uniquify(path, sep = ''):
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
     def name_sequence():
         count = IT.count()
         yield ''
@@ -67,7 +64,6 @@ def uniquify(path, sep = ''):
     return filename
 
 
-<<<<<<< HEAD
 def plot_neutrino_masses(param_dict, ModelFit, data):
     """
     Creates, saves, and displays a plot of overlayed distributions
@@ -85,27 +81,17 @@ def plot_neutrino_masses(param_dict, ModelFit, data):
     out_dir = param_dict['output_path']
     out_fmt = param_dict['output_format']
 
-=======
-def plot_neutrino_masses(param_dict, ModelFit, data, out_dir):
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
     masses = ModelFit.plot(pars=[data['nu_mass']])
     plt.tight_layout()
     
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
-<<<<<<< HEAD
         plt.savefig(uniquify(out_dir + './neutrino_masses_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
         plt.savefig(uniquify(out_dir + './neutrino_masses_real_data.' + out_fmt))
-=======
-        plt.savefig(uniquify(out_dir+'./neutrino_masses_' + param_dict['hierarchy'] + '.pdf'))
-    else:
-        plt.savefig(uniquify(out_dir+'./neutrino_masses_real_data.pdf'))
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
         print("No mass hierarchy was selected.")
     plt.show()
 
 
-<<<<<<< HEAD
 def plot_mass_params(param_dict, ModelFit, data):
     """
     Creates, saves, and displays an image with three subplots:
@@ -123,10 +109,6 @@ def plot_mass_params(param_dict, ModelFit, data):
     analysis_params = ModelFit.extract(permuted=True)
     out_dir = param_dict['output_path']
     out_fmt = param_dict['output_format']
-=======
-def plot_mass_params(param_dict, ModelFit, data, out_dir):
-    analysis_params = ModelFit.extract(permuted=True)
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
 
     mbeta = analysis_params[data['mbeta']]
     min_mass = analysis_params[data['min_mass']]
@@ -147,20 +129,13 @@ def plot_mass_params(param_dict, ModelFit, data, out_dir):
     plt.tight_layout()
                 
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
-<<<<<<< HEAD
         plt.savefig(uniquify(out_dir +'./mass_params_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
         plt.savefig(uniquify(out_dir+'./mass_params_real_data.' + out_fmt))
-=======
-        plt.savefig(uniquify(out_dir+'./mass_params_' + param_dict['hierarchy'] + '.pdf'))
-    else:
-        plt.savefig(uniquify(out_dir+'./mass_params_real_data.pdf'))
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
     
     plt.show()
 
 
-<<<<<<< HEAD
 def plot_mixing_params(param_dict, ModelFit, data):
     """
     Creates, saves, and displays an image containing parameter
@@ -177,14 +152,10 @@ def plot_mixing_params(param_dict, ModelFit, data):
     out_dir = param_dict['output_path']
     out_fmt = param_dict['output_format']
 
-=======
-def plot_mixing_params(param_dict, ModelFit, data, out_dir):
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
     mixing = ModelFit.plot(pars=[data['sin2_th12'], data['sin2_th13'], data['delta_m21'], data['delta_m32'], data['m32_withsign']])
     plt.tight_layout()
 
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
-<<<<<<< HEAD
         plt.savefig(uniquify(out_dir + './mixing_params_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
         plt.savefig(uniquify(out_dir + './mixing_params_real_data.' + out_fmt))
@@ -212,17 +183,6 @@ def plot_contours(ModelFit, param_dict, data):
     analysis_params = ModelFit.extract(permuted=True)
     out_dir = param_dict['output_path']
     out_fmt = param_dict['output_format']
-=======
-        plt.savefig(uniquify(out_dir+'./mixing_params_' + param_dict['hierarchy'] + '.pdf'))
-    else:
-        plt.savefig(uniquify(out_dir+'./mixing_params_real_data.pdf'))
-    plt.show()
-
-
-def plot_contours(ModelFit, param_dict, data, out_dir):
-
-    analysis_params = ModelFit.extract(permuted=True)
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
 
     delta_m21 = analysis_params[data['delta_m21']]
     sin2_th12 = analysis_params[data['sin2_th12']]
@@ -260,20 +220,13 @@ def plot_contours(ModelFit, param_dict, data, out_dir):
     plt.tight_layout()
 
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
-<<<<<<< HEAD
         plt.savefig(uniquify(out_dir + './mixing_param_contours_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
         plt.savefig(uniquify(out_dir + './mixing_param_contours_real_data.' + out_fmt))
-=======
-        plt.savefig(uniquify(out_dir + './mixing_param_contours_' + param_dict['hierarchy'] + '.pdf'))
-    else:
-        plt.savefig(uniquify(out_dir + './mixing_param_contours_real_data.pdf'))
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
     plt.show()
 
 
 def neutrino_params(param_dict):
-<<<<<<< HEAD
     """
     Loads a Stan ModelFit from a pickle file. Then invokes whichever
     plotting functions are indicated by the 'plotting_options':[opt1, opt2 ...]
@@ -288,9 +241,7 @@ def neutrino_params(param_dict):
     name of a pickle file (str), a 'data' dictionary with names of Stan
     parameters, 'plotting_options' (list), and optionally a specification
     of the mass hierarchy (str - either 'normal'or 'inverted')
-    """    
-=======
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
+    """
 
     #Determining which plots will be created
     plotting_options = param_dict['plotting_options']
@@ -309,20 +260,10 @@ def neutrino_params(param_dict):
     if 'data' in param_dict and param_dict['data']!='':
         data = param_dict['data']
 
-<<<<<<< HEAD
     #Plotting neutrino mass distributions
     if 'neutrino_masses' in plotting_options:
         if 'nu_mass' in data and data['nu_mass']!='':
             plot_neutrino_masses(param_dict, ModelFit, data)
-=======
-    out_dir = param_dict['output_path']
-
-    
-    #Plotting neutrino mass distributions
-    if 'neutrino_masses' in plotting_options:
-        if 'nu_mass' in data and data['nu_mass']!='':
-            plot_neutrino_masses(param_dict, ModelFit, data, out_dir)
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
 
         else:
             print("Cannot plot neutrino_masses if parameter 'nu_mass' is not specified in param_dict['data'].")
@@ -337,23 +278,13 @@ def neutrino_params(param_dict):
             print("Cannot plot mass_params if parameter 'min_mass' is not specified in param_dict['data'].")
 
         else:
-<<<<<<< HEAD
             plot_mass_params(param_dict, ModelFit, data)
-=======
-            plot_mass_params(param_dict, ModelFit, data, out_dir)
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
-    
     
     #Plotting neutrino mixing parameter distributions
     if 'mixing_params' in plotting_options:
         
         if 'sin2_th12' and 'sin2_th13' and 'delta_m21' and 'delta_m32' and 'm32_withsign' in data:
-<<<<<<< HEAD
             plot_mixing_params(param_dict, ModelFit, data)
-=======
-            plot_mixing_params(param_dict, ModelFit, data, out_dir)
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
-
         else:
             print("Cannot plot mixing_params if not all mixing parameters specified in param_dict['data']")
 
@@ -362,11 +293,7 @@ def neutrino_params(param_dict):
     if 'contours' in plotting_options:
     
         if 'delta_m21' and 'sin2_th12' and 'sin2_th13' in data:
-<<<<<<< HEAD
             plot_contours(ModelFit, param_dict, data)
-=======
-            plot_contours(ModelFit, param_dict, data, out_dir)
->>>>>>> d5b33ee3c37f3f9560c25ab1a5ba471e9b8b9695
 
         else:
             print("Cannot plot contours if 'delta_m21', 'sin2_th12', or 'sin2_th13' are not specified in param_dict['data'].")

@@ -52,9 +52,9 @@
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 1000,
-            "warmup" : 600,
-            "chain": 2},
+            "iter": 4000,
+            "warmup" : 300,
+            "chain": 6},
         
         
         "sample": "./MassHierarchy/results/MHtest_analyzer.out",
@@ -64,6 +64,7 @@
             "name" : "./MassHierarchy/results/MHtest_analyzer_IH",
             "format": "root",
             "tree" : "analysis_parameters",
+            "save_cache_name": "./MassHierarchy/results/cache_name_file.txt", 
             "fit": "./MassHierarchy/results/analysis_fit_IH.pkl", 
             "branches": [
                  {"variable": "sin2_th12","root_alias": "sin2_th12"},

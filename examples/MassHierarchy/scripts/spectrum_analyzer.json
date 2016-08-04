@@ -1,9 +1,9 @@
 {
    "morpho":
    {
-     "do_stan": True,
+     "do_stan": False,
      "do_postprocessing": False,
-     "do_plots": False
+     "do_plots": True
    },
     "stan": {
         
@@ -52,9 +52,9 @@
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 10000,
-            "warmup" : 8000,
-            "chain": 10},
+            "iter": 1000,
+            "warmup" : 600,
+            "chain": 2},
         
         
         "sample": "./MassHierarchy/results/MHtest_analyzer.out",
@@ -94,12 +94,12 @@
         {
         "method_name": "neutrino_params",
         "module_name": "neutrino_params",
+        "read_cache_name": "./MassHierarchy/results/cache_name_file.txt",
         "input_fit_name": "./MassHierarchy/results/analysis_fit_IH.pkl",
-        "input_cache_name": "./MassHierarchy/cache/cached-model-9b564a72eea4422c25eed027ea785e5a.pkl",
-        "output_path": "./MassHierarchy/results",
+        "output_path": "./MassHierarchy/results/",
         "output_format": "pdf",
         "plotting_options": ["neutrino_masses", "mass_params", "mixing_params", "contours"],
-        "data": [{"sin2_th12":"sin2_th12", "sin2_th13":"sin2_th13", "delta_m21":"delta_m21", "mbeta":"mbeta", "min_mass":"min_mass"}],
+        "data": {"nu_mass":"nu_mass","sin2_th12":"sin2_th12", "sin2_th13":"sin2_th13", "delta_m21":"delta_m21", "delta_m32":"delta_m32", "m32_withsign":"m32_withsign", "mbeta":"mbeta", "min_mass":"min_mass"},
         "hierarchy": "inverted"
         }
     ]

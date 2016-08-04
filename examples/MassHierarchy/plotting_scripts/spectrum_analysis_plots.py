@@ -128,6 +128,7 @@ plt.show()
 
 
 #Mixing parameter contour plots
+fig = plt.figure()
 ax = fig.add_subplot(121)
 H, xedges, yedges = np.histogram2d(delta_m21,sin2_th12, range=[[5E-5,1.E-4], [0.1, 0.39]], bins=(50, 50))
 extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]

@@ -107,8 +107,8 @@
         "format" : "root",
         "tree" : "stanAnalysis",
         "fit": "./tritium_model/results/tritium_analysis_fit.pkl",
+        "save_cache_name": "./MassHierarchy/results/cache_name_file.txt",
         "branches" : [
-
           {"variable" : "scatt_width", "root_alias" : "scatt_width"},
           {"variable" : "n0_timeData", "root_alias" : "n0_timeData"},
           {"variable" : "widthBin", "root_alias" : "widthBin"},

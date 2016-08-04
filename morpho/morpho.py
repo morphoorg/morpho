@@ -180,7 +180,7 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
             pickle.dump(sm, f)
     else:
         print("Using cached StanModel")
-    return sm.sampling(**kwargs)
+    return sm.sampling(**kwargs), cache_fn
 
 def parse_args():
     '''
@@ -230,7 +230,7 @@ def plot_result(conf, stanres):
                 stanres.plot(parname)
         print(result)
 
-def write_result(conf, stanres):
+def write_result(conf, stanres, cache_fn):
     print("Writing results!")
     ofilename = sa.out_fname
     if (args.job_id>0):
@@ -242,6 +242,10 @@ def write_result(conf, stanres):
     if sa.out_format == 'root':
         ofilename = ofilename+'.root'
         pyL.stan_write_root(sa, ofilename, result)
+    
+    cache_name_file = open("/".join(ofilename.split("/")[:-1])+'/cache_name_file.txt','w+')
+    cache_name_file.write(cache_fn)
+
     return stanres
 
 def sampleFunc(arg):
@@ -280,8 +284,8 @@ if __name__ == '__main__':
             cdata = yload(cfile)
             sa = morpho(cdata)
             if (sa.get_do_Stan()):
-                result = stan_cache(**(sa.gen_arg_dict()))
-                stanres = write_result(sa, result)
+                result, cache_fn = stan_cache(**(sa.gen_arg_dict()))
+                stanres = write_result(sa, result, cache_fn)
                 if sa.out_fit != None:
                     save_object(stanres, sa.out_fit)
                     print('saved fit')

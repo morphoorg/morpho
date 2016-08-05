@@ -78,7 +78,7 @@
         "name" : "./tritium_model/results/tritium_generator",
         "format" : "root",
         "tree" : "stan_MC",
-        "save_cache_name": "./MassHierarchy/results/cache_name_file.txt",
+        "save_cache_name": "./tritium_model/results/cache_name_generate.txt",
         "branches" : [
           {"variable" : "neutrino_mass", "root_alias" : "neutrino_mass"},
           {"variable" : "KE_data", "root_alias" : "KE_data"},

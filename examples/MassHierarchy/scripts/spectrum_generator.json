@@ -54,7 +54,7 @@
             "name": "./MassHierarchy/results/MHtest_generator_IH",
             "format": "root",
             "tree" : "generated",
-            "save_cache_name": "./MassHierarchy/results/cache_name_file.txt",
+            "save_cache_name": "./MassHierarchy/results/cache_name_generator.txt",
             "branches" : [
                     {"variable" : "KE_data", "root_alias" : "KE_data"},
                     {"variable" : "test_param", "root_alias" : "test_param"},

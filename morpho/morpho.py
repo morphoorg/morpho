@@ -163,12 +163,12 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
     print("Creating Stan cache!")
 
     theModel = open(model_code,'r+').read()
-    match =  re.findall(r'\s*include\s*<-\s*(?P<function_name>\w+)\s*;*',theModel)
+    match =  re.findall(r'\s*include\s*=\s*(?P<function_name>\w+)\s*;*',theModel)
     for matches in match:
         for key in functions_code:
             if (key['name']==matches):
                 StanFunctions = open(key['file'],'r+').read()
-                theModel = re.sub(r'\s*include\s*<-\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
+                theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
 
     code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:

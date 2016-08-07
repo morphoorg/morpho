@@ -22,11 +22,11 @@ functions{
 
   // Load libraries
 
-  include<-constants;
-  include<-func_routines;
-  include<-Q_Functions;
-  include<-neutrino_mass_functions;
-  include<-tritium_functions;
+  include=constants;
+  include=func_routines;
+  include=Q_Functions;
+  include=neutrino_mass_functions;
+  include=tritium_functions;
 
 }
 
@@ -120,20 +120,20 @@ transformed data {
   vector<lower=0.0>[num_iso] mass_s; //mass of tritium species
 
   if (MassHierarchy == 1){
-    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21(), meas_delta_m32_NH(), MassHierarchy);
-    s13 <- meas_sin2_th13_NH();
+    m_nu = MH_masses(lightest_neutrino_mass, meas_delta_m21(), meas_delta_m32_NH(), MassHierarchy);
+    s13 = meas_sin2_th13_NH();
   }  else {
-    m_nu <- MH_masses(lightest_neutrino_mass, meas_delta_m21(), meas_delta_m32_IH(), MassHierarchy);
-    s13 <- meas_sin2_th13_IH();
+    m_nu = MH_masses(lightest_neutrino_mass, meas_delta_m21(), meas_delta_m32_IH(), MassHierarchy);
+    s13 = meas_sin2_th13_IH();
   }
-  s12 <- meas_sin2_th12();
-  U_PMNS <- get_U_PMNS(nFamily(),s12,s13);
+  s12 = meas_sin2_th12();
+  U_PMNS = get_U_PMNS(nFamily(),s12,s13);
 
 
-  minFreq <- get_frequency(maxKE, BField);
-  maxFreq <- get_frequency(minKE, BField);
+  minFreq = get_frequency(maxKE, BField);
+  maxFreq = get_frequency(minKE, BField);
 
-  fclock <- 0.;
+  fclock = 0.;
 
   // if (fBandpass > (maxFreq-minFreq)) {
   //   print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
@@ -143,12 +143,12 @@ transformed data {
   //Transformed Data from feature/MH_Talia (Q_generator.stan)
   // Setting the masses of the tritium species
 
-  mass_s[1] <- tritium_atomic_mass();
-  mass_s[2] <- hydrogen_atomic_mass();
-  mass_s[3] <- deuterium_atomic_mass();
+  mass_s[1] = tritium_atomic_mass();
+  mass_s[2] = hydrogen_atomic_mass();
+  mass_s[3] = deuterium_atomic_mass();
 
 
-  composition <- find_composition(epsilon_set,kappa_set);
+  composition = find_composition(epsilon_set,kappa_set);
 
 }
 
@@ -216,90 +216,90 @@ transformed parameters{
 
   // Determine effective mass to use from neutrino mass matrix
 
-  neutrino_mass <- get_effective_mass(U_PMNS, m_nu);
+  neutrino_mass = get_effective_mass(U_PMNS, m_nu);
 
   // Obtain magnetic field (with prior distribution)
-  MainField <- BField + vnormal_lp(uB, 0. , BFieldError_fluct);
+  MainField = BField + vnormal_lp(uB, 0. , BFieldError_fluct);
 
   // Temperature of system
-  sigmaT <- deltaT_fluctuation;
-  temperature <- T_set + vnormal_lp(uT, 0. , sigmaT);
+  sigmaT = deltaT_fluctuation;
+  temperature = T_set + vnormal_lp(uT, 0. , sigmaT);
 
   // Calculate scattering length, radiation width, and total width;
   //The total cross-section is equal to the cross-section of each species, weighted by their relative composition
   // Here we are considering that the ionization cross-section for each molecular tritium {HT, DT, TT} is the same.
-  beta <- get_velocity(KE_data);
+  beta = get_velocity(KE_data);
   // print(KE_data);
-  // xsec <- 0.; //initialize cross section
-  // xsec <- xsec + (1-eta_set) * xsection(KE,  xsec_avekin[1], xsec_bindkin[1], xsec_msq[1], xsec_Q[1]);//adding the cross-section with modelucar tritium
-  // xsec <- xsec + (eta_set) * xsection(KE,  xsec_avekin[2], xsec_bindkin[2], xsec_msq[2], xsec_Q[2]);//adding the cross-section with atomic tritium
-  xsec <- xsection_set; //cross section set in Devyn's thesis
-  scatt_width <- number_density * c() * beta * xsec;
+  // xsec = 0.; //initialize cross section
+  // xsec = xsec + (1-eta_set) * xsection(KE,  xsec_avekin[1], xsec_bindkin[1], xsec_msq[1], xsec_Q[1]);//adding the cross-section with modelucar tritium
+  // xsec = xsec + (eta_set) * xsection(KE,  xsec_avekin[2], xsec_bindkin[2], xsec_msq[2], xsec_Q[2]);//adding the cross-section with atomic tritium
+  xsec = xsection_set; //cross section set in Devyn's thesis
+  scatt_width = number_density * c() * beta * xsec;
 
-  rad_width <- cyclotron_rad(MainField);
-  tot_width <- (scatt_width + rad_width);
-  sigma_freq <- (scatt_width + rad_width) / (4. * pi());//LOOK!
+  rad_width = cyclotron_rad(MainField);
+  tot_width = (scatt_width + rad_width);
+  sigma_freq = (scatt_width + rad_width) / (4. * pi());//LOOK!
 
   // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
 
   for (i in 1:num_iso) {
-    p_squared <- 2.0 * Q_T_molecule_set[i] * m_electron();
-    sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
+    p_squared = 2.0 * Q_T_molecule_set[i] * m_electron();
+    sigma_0[i] = find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
   }
 
 
   //  Take averages of Q and sigma values of molecule
 
-  Q_mol <- sum(composition .* Q_T_molecule_set);
-  sigma_mol <- sqrt(sum(composition .* sigma_0 .* sigma_0)); // * (1. + sigma_theory);
+  Q_mol = sum(composition .* Q_T_molecule_set);
+  sigma_mol = sqrt(sum(composition .* sigma_0 .* sigma_0)); // * (1. + sigma_theory);
 
   //  Find sigma of atomic tritium
 
-  sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom_set * m_electron(), 0., 0, 0.);
+  sigma_atom = find_sigma(temperature, 2.0 * Q_T_atom_set * m_electron(), 0., 0, 0.);
 
   // Get a random value of the endpoint for each molecular and atomic tritium
 
-  Q_mol_random <- vnormal_lp(uQ1, Q_mol,sigma_mol);
-  Q_atom_random <- vnormal_lp(uQ2, Q_T_atom_set,sigma_atom);
+  Q_mol_random = vnormal_lp(uQ1, Q_mol,sigma_mol);
+  Q_atom_random = vnormal_lp(uQ2, Q_T_atom_set,sigma_atom);
 
 
   // Calculate frequency dispersion
 
-  frequency <- get_frequency(KE_data, MainField);
+  frequency = get_frequency(KE_data, MainField);
 
-  df <- vnormal_lp(uF, 0.0, sigma_freq);
+  df = vnormal_lp(uF, 0.0, sigma_freq);
 
-  freq_recon <- frequency + df - fclock;
+  freq_recon = frequency + df - fclock;
 
   // Calculate Doppler effect from tritium atom/molecule motion
 
   // Determine total rate from activity for the molecular tritium
-  activity <-  3 * tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
-  norm_spectrum <-activity * measuring_time;
-  signal_fraction <- activity/(activity + background_rate_mean);
+  activity =  3 * tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
+  norm_spectrum =activity * measuring_time;
+  signal_fraction = activity/(activity + background_rate_mean);
 
-  spectrum <- 0;
+  spectrum = 0;
   for (i in 1:num_iso){
 
-    kDoppler <-  m_electron() * beta * sqrt(eDop / mass_s[i]);
-    KE_shift <- KE_data + kDoppler;
+    kDoppler =  m_electron() * beta * sqrt(eDop / mass_s[i]);
+    KE_shift = KE_data + kDoppler;
 
     // Determine signal from beta function
 
-    spectrum_shape <- spectral_shape(KE_data, Q_mol_random, U_PMNS, m_nu);
-    spectrum <- spectrum + (eta_set) * composition[i] * norm_spectrum * spectrum_shape;
+    spectrum_shape = spectral_shape(KE_data, Q_mol_random, U_PMNS, m_nu);
+    spectrum = spectrum + (eta_set) * composition[i] * norm_spectrum * spectrum_shape;
   }
 
   // Determine signal and background rates from beta function and background level
 
-  spectrum_shape <- spectral_shape(KE_data, Q_atom_random, U_PMNS, m_nu);
-  spectrum <- spectrum + (1.-eta_set) * norm_spectrum * spectrum_shape;
+  spectrum_shape = spectral_shape(KE_data, Q_atom_random, U_PMNS, m_nu);
+  spectrum = spectrum + (1.-eta_set) * norm_spectrum * spectrum_shape;
 
   // Adding the background to the spectrum
-  spectrum <- spectrum + background_rate_mean * measuring_time;
+  spectrum = spectrum + background_rate_mean * measuring_time;
 
   //Filtering
-  // spectrum <- spectrum *filter_log;
+  // spectrum = spectrum *filter_log;
 
 }
 
@@ -322,8 +322,8 @@ model {
 
   // Set mixture of molecular and atomic tritium, if needed
 
-  increment_log_prob(log_sum_exp(log(eta_set) + normal_log(Q, Q_mol, sigma_mol),
-                                 log1m(eta_set) + normal_log(Q, Q_T_atom_set, sigma_atom)));
+  target += log_sum_exp(log(eta_set) + normal_lpdf(Q | Q_mol, sigma_mol), log1m(eta_set) + normal_lpdf(Q | Q_T_atom_set, sigma_atom)); 
+
 
 }
 
@@ -337,16 +337,16 @@ generated quantities {
 
   #   Simulate duration of event and store frequency and reconstructed kinetic energy
 
-  time_data <- duration;
-  freq_data <- freq_recon;
-  KE_recon <- get_kinetic_energy(frequency+df, MainField);
+  time_data = duration;
+  freq_data = freq_recon;
+  KE_recon = get_kinetic_energy(frequency+df, MainField);
 
   # Compute the number of events that should be simulated for a given frequency/energy.  Assume Poisson distribution.
 
-  spectrum_data <- spectrum;
+  spectrum_data = spectrum;
 
   # Tag events that are below DC in analysis
 
-  isOK <- (freq_data > 0.);
+  isOK = (freq_data > 0.);
 
 }

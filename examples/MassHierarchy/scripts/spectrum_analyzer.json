@@ -1,9 +1,9 @@
 {
    "morpho":
    {
-     "do_stan": False,
+     "do_stan": True,
      "do_postprocessing": False,
-     "do_plots": True
+     "do_plots": False
    },
     "stan": {
         
@@ -28,11 +28,11 @@
                       "format":"R"
                       },
                       {
-                      "name": "./MassHierarchy/results/spectrum_additionalData_IH.out",
+                      "name": "./MassHierarchy/results/spectrum_additionalData.out",
                       "format":"R"
                       },
                       {
-                      "name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_IH.root",
+                      "name" : "./MassHierarchy/results/spectrum_generator_reduced_fake.root",
                       "format" : "root",
                       "tree" : "spectrum",
                       "branches" : [

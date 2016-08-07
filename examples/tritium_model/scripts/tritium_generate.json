@@ -2,7 +2,7 @@
   "morpho":
   {
     "do_stan": True,
-    "do_postprocessing": True,
+    "do_postprocessing": False,
     "do_plots": True,
     "wait_at_the_end":True
   },
@@ -53,9 +53,9 @@
     },
     "run": {
       "algorithm": "NUTS",
-      "iter": 10000,
-      "warmup": 8000,
-      "chain": 6,
+      "iter": 50000,
+      "warmup": 25000,
+      "chain": 10,
 
       "init_off": [
         {"uB" : 0.0,
@@ -143,7 +143,7 @@
           "x_title": "B_{0} [T]",
           "y_title": "",
           "x_range":[18500,18600],
-          "y_range":[0.,200],
+          "y_range":[0.,6000],
           "n_bins":100,
           "options": "logy"
         }

@@ -30,9 +30,9 @@
 	real hbar_omega;
 	real E_zp;
 
-	mu <- reduced_mass(isotope_mass, tritium_atomic_mass());
-	hbar_omega <- hbar()*sqrt(kH2()/mu);
-	E_zp <- 0.5*hbar_omega - aH2()*square(0.5*hbar_omega);
+	mu = reduced_mass(isotope_mass, tritium_atomic_mass());
+	hbar_omega = hbar()*sqrt(kH2()/mu);
+	E_zp = 0.5*hbar_omega - aH2()*square(0.5*hbar_omega);
 
 	return E_zp;
 
@@ -46,9 +46,9 @@
         real mom_of_inertia;
 	real E_J;
 
-	E_J <- 0.;
-        mom_of_inertia <- reduced_mass(mass_s, tritium_atomic_mass())* square(bond_length_H2());
-        if (mass_s > 0.)  E_J <- J * (J+1) * square(hbarc()) / (2. * mom_of_inertia);
+	E_J = 0.;
+        mom_of_inertia = reduced_mass(mass_s, tritium_atomic_mass())* square(bond_length_H2());
+        if (mass_s > 0.)  E_J = J * (J+1) * square(hbarc()) / (2. * mom_of_inertia);
 
 	return E_J;
 
@@ -80,13 +80,13 @@
 	real beta;
 	real E_zp;
 
-	sigma_squared_J_i <- 0.0;
+	sigma_squared_J_i = 0.0;
 	if (mass_s > 0.)
 	{
-            mu <- reduced_mass(mass_s, tritium_atomic_mass());
-	    E_zp <- EZero_Point(mass_s);
-	    beta <- (2.0*mu*E_zp/(3.0*tritium_atomic_mass()) + (2.* square(hbarc())*J*(J+1))/(3.0*square(bond_length_H2())*tritium_atomic_mass()));
-            sigma_squared_J_i <- (p_squared/(2.0*tritium_atomic_mass()) * beta);
+            mu = reduced_mass(mass_s, tritium_atomic_mass());
+	    E_zp = EZero_Point(mass_s);
+	    beta = (2.0*mu*E_zp/(3.0*tritium_atomic_mass()) + (2.* square(hbarc())*J*(J+1))/(3.0*square(bond_length_H2())*tritium_atomic_mass()));
+            sigma_squared_J_i = (p_squared/(2.0*tritium_atomic_mass()) * beta);
 	}
 
         return sigma_squared_J_i;
@@ -104,27 +104,27 @@
         real Z_i;
         real P_J_i;
 
-	nLimit <- 20;
-        P_J_i <- 0.0;
-	Z_i  <- 0.0;
+	nLimit = 20;
+        P_J_i = 0.0;
+	Z_i  = 0.0;
 
         if (mass_s == tritium_atomic_mass()){
-	    Qo <- 0.0;
-            Qp <- 0.0;
+	    Qo = 0.0;
+            Qp = 0.0;
 	    for (i in 0:nLimit) {
-	    	Qo <- Qo + f_heterogenous(2*i+1, temperature, mass_s);
-	    	Qp <- Qp + f_heterogenous(  2*i, temperature, mass_s);
+	    	Qo = Qo + f_heterogenous(2*i+1, temperature, mass_s);
+	    	Qp = Qp + f_heterogenous(  2*i, temperature, mass_s);
 	    }
-            Z_i <- (1.0-lambda)*Qp + lambda*Qo;
+            Z_i = (1.0-lambda)*Qp + lambda*Qo;
 
             if  (J % 2 == 0 || J == 0){
-                P_J_i <- (1.0-lambda)*f_heterogenous(J, temperature, mass_s)/Z_i;
+                P_J_i = (1.0-lambda)*f_heterogenous(J, temperature, mass_s)/Z_i;
 	    } else{
-                P_J_i <- lambda*f_heterogenous(J, temperature, mass_s)/Z_i;
+                P_J_i = lambda*f_heterogenous(J, temperature, mass_s)/Z_i;
 	    }
         } else if (mass_s > 0.0){
-            for (j in 0:nLimit) Z_i <- Z_i + f_heterogenous(j, temperature, mass_s);
-            P_J_i <- f_heterogenous(J, temperature, mass_s) / Z_i;
+            for (j in 0:nLimit) Z_i = Z_i + f_heterogenous(j, temperature, mass_s);
+            P_J_i = f_heterogenous(J, temperature, mass_s) / Z_i;
         }
 
         return P_J_i;
@@ -136,9 +136,9 @@
     real find_sigma_squared_rotational(int num_J, real mass_s, real p_squared, real temperature, real lambda){
         real sigma_squared_rotational;
 
-        sigma_squared_rotational <- 0.;
+        sigma_squared_rotational = 0.;
         for (n in 0:num_J){
-            sigma_squared_rotational <- sigma_squared_rotational + find_P_J_i(n, temperature, mass_s, lambda)*find_sigma_squared_J_i(n, mass_s, p_squared);
+            sigma_squared_rotational = sigma_squared_rotational + find_P_J_i(n, temperature, mass_s, lambda)*find_sigma_squared_J_i(n, mass_s, p_squared);
         }
         return sigma_squared_rotational;
      }
@@ -152,8 +152,8 @@
     	real sigma_sq_rot;
     	real sigma_sq_trans;
 
-	sigma_sq_rot <- find_sigma_squared_rotational(num_J, mass_s, p_squared, temperature, lambda);
-	sigma_sq_trans <- find_sigma_squared_translational(temperature, mass_s, p_squared);
+	sigma_sq_rot = find_sigma_squared_rotational(num_J, mass_s, p_squared, temperature, lambda);
+	sigma_sq_trans = find_sigma_squared_translational(temperature, mass_s, p_squared);
 
 	return sqrt(sigma_sq_rot + sigma_sq_trans);
 

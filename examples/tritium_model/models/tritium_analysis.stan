@@ -24,11 +24,11 @@ functions{
 
   // Load libraries
 
-  include <- constants;
-  include <- neutrino_mass_functions;
-  include <- func_routines;
-  include <- Q_Functions;
-  include <- tritium_functions;
+  include = constants;
+  include = neutrino_mass_functions;
+  include = func_routines;
+  include = Q_Functions;
+  include = tritium_functions;
 
 }
 
@@ -120,15 +120,15 @@ transformed data {
   real maxFreq;
   int nFam;
 
-  dFreq_bin <- (freq_data[nBinSpectrum] - freq_data[1])/nBinSpectrum;
-  minFreq <- freq_data[1];
-  maxFreq <- freq_data[nBinSpectrum];
+  dFreq_bin = (freq_data[nBinSpectrum] - freq_data[1])/nBinSpectrum;
+  minFreq = freq_data[1];
+  maxFreq = freq_data[nBinSpectrum];
 
-  nFam <- nFamily();
+  nFam = nFamily();
 
   // print(minFreq,"   ", maxFreq);
 
-  fclock <- 0.;
+  fclock = 0.;
 
   // if (fBandpass > (maxFreq-minFreq)) {
   //   print("Bandpass filter (",fBandpass,") is greater than energy range (",maxFreq-minFreq,").");
@@ -139,9 +139,9 @@ transformed data {
 
   // print("Approximate rate (Hz) = ",tritium_rate_per_eV() * beta_integral(KE, 0., minKE) * number_density * effective_volume / tritium_halflife() / log(2.));
 
-  mass_s[1] <- tritium_atomic_mass();
-  mass_s[2] <- hydrogen_atomic_mass();
-  mass_s[3] <- deuterium_atomic_mass();
+  mass_s[1] = tritium_atomic_mass();
+  mass_s[2] = hydrogen_atomic_mass();
+  mass_s[3] = deuterium_atomic_mass();
 
 }
 
@@ -245,110 +245,110 @@ transformed parameters{
   real delta_sigma;       // Uncertainty (1 stdev) in estimate of sigma (sigma_avg), from theory
 
   // Priors on the neutrino mixin parameters and mass differences
-  dm21 <- meas_delta_m21() + vnormal_lp(udm21, 0., meas_delta_m21_err());
-  s12 <- fabs(meas_sin2_th12() + vnormal_lp(us12, 0., meas_sin2_th12_err()));
+  dm21 = meas_delta_m21() + vnormal_lp(udm21, 0., meas_delta_m21_err());
+  s12 = fabs(meas_sin2_th12() + vnormal_lp(us12, 0., meas_sin2_th12_err()));
 
 
   if (MassHierarchy == 1){
-    dm32 <- meas_delta_m32_NH() + vnormal_lp(udm32, 0., meas_delta_m32_NH_err());
-    s13 <- fabs(meas_sin2_th13_NH() + vnormal_lp(us13, 0., meas_sin2_th13_NH_err()));
-    dm31 <- dm32 + dm21;
+    dm32 = meas_delta_m32_NH() + vnormal_lp(udm32, 0., meas_delta_m32_NH_err());
+    s13 = fabs(meas_sin2_th13_NH() + vnormal_lp(us13, 0., meas_sin2_th13_NH_err()));
+    dm31 = dm32 + dm21;
   }
   else {
-    dm32 <- meas_delta_m32_IH() + vnormal_lp(udm32, 0.,meas_delta_m32_IH_err());
-    s13 <- fabs(meas_sin2_th13_IH() + vnormal_lp(us13, 0. ,meas_sin2_th13_IH_err()));
-    dm31 <- dm32 + dm21;
+    dm32 = meas_delta_m32_IH() + vnormal_lp(udm32, 0.,meas_delta_m32_IH_err());
+    s13 = fabs(meas_sin2_th13_IH() + vnormal_lp(us13, 0. ,meas_sin2_th13_IH_err()));
+    dm31 = dm32 + dm21;
   }
-  m_nu <- MH_masses(lightest_neutrino_mass, dm21, dm32, MassHierarchy);
-  U_PMNS <- get_U_PMNS(nFamily(),s12,s13);
+  m_nu = MH_masses(lightest_neutrino_mass, dm21, dm32, MassHierarchy);
+  U_PMNS = get_U_PMNS(nFamily(),s12,s13);
 
-  neutrino_mass <- get_effective_mass(U_PMNS, m_nu);
+  neutrino_mass = get_effective_mass(U_PMNS, m_nu);
 
   //   Obtain magnetic field (with prior distribution)
-  BFieldError_tot <- pow(pow(BFieldError_calib,2)+pow(BFieldError_fluct,2),0.5);
-  MainField <- BField + vnormal_lp(uB, 0. , BFieldError_tot);
+  BFieldError_tot = pow(pow(BFieldError_calib,2)+pow(BFieldError_fluct,2),0.5);
+  MainField = BField + vnormal_lp(uB, 0. , BFieldError_tot);
 
   // Determine the deltaE of the bin
-  widthBin <- fabs((get_kinetic_energy(freq_data[1],MainField) - get_kinetic_energy(freq_data[nBinSpectrum],MainField))/nBinSpectrum);
+  widthBin = fabs((get_kinetic_energy(freq_data[1],MainField) - get_kinetic_energy(freq_data[nBinSpectrum],MainField))/nBinSpectrum);
 
   //  Determining endpoint
-  deltaT_total <- pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
-  temperature <-  vnormal_lp(Tparam1, T_set , deltaT_total);
+  deltaT_total = pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
+  temperature =  vnormal_lp(Tparam1, T_set , deltaT_total);
 
-  lambda <- lambda_set + vnormal_lp(lambda_param, 0. , delta_lambda);
-  epsilon <- epsilon_set + vnormal_lp(epsilon_param, 0. , err_epsilon_set);
-  kappa <- kappa_set + vnormal_lp(kappa_param, 0. , err_kappa_set);
+  lambda = lambda_set + vnormal_lp(lambda_param, 0. , delta_lambda);
+  epsilon = epsilon_set + vnormal_lp(epsilon_param, 0. , err_epsilon_set);
+  kappa = kappa_set + vnormal_lp(kappa_param, 0. , err_kappa_set);
 
   if (err_eta_set > 0.0){
-    eta <- eta_set + vnormal_lp(eta_param, 0., err_eta_set);
+    eta = eta_set + vnormal_lp(eta_param, 0., err_eta_set);
   }
-  else eta <- eta_set;
+  else eta = eta_set;
 
-  composition <- find_composition(epsilon, kappa);
-  composition_set <- find_composition(epsilon_set, kappa_set);
+  composition = find_composition(epsilon, kappa);
+  composition_set = find_composition(epsilon_set, kappa_set);
 
   // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
   for (i in 1:num_iso) {
-    p_squared <- 2.0 * Q_T_molecule_set[i] * m_electron();
-    sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
-    Q_T_molecule[i] <- Q_T_molecule_set[i] + vnormal_lp(uQ[i] , 0. , sigma_0[i]);
+    p_squared = 2.0 * Q_T_molecule_set[i] * m_electron();
+    sigma_0[i] = find_sigma(temperature, p_squared, mass_s[i], num_J, lambda); //LOOK!
+    Q_T_molecule[i] = Q_T_molecule_set[i] + vnormal_lp(uQ[i] , 0. , sigma_0[i]);
 
   }
 
-  sigma_theory <-  vnormal_lp(uS, 0. , delta_theory);
+  sigma_theory =  vnormal_lp(uS, 0. , delta_theory);
 
   //  Take averages of Q and sigma values of molecule
-  Q_mol <- sum(composition .* Q_T_molecule);
-  sigma_mol <- sqrt(sum(composition .* sigma_0 .* sigma_0)) * (1. + sigma_theory);
+  Q_mol = sum(composition .* Q_T_molecule);
+  sigma_mol = sqrt(sum(composition .* sigma_0 .* sigma_0)) * (1. + sigma_theory);
 
   //  Find sigma of atomic tritium
-  sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom_set * m_electron(), 0., 0, 0.);
-  Q_T_atom <- Q_T_atom_set + vnormal_lp(uQ2 , 0. , sigma_atom);
+  sigma_atom = find_sigma(temperature, 2.0 * Q_T_atom_set * m_electron(), 0., 0, 0.);
+  Q_T_atom = Q_T_atom_set + vnormal_lp(uQ2 , 0. , sigma_atom);
 
   //   Calculate scattering length, radiation width, and total width;
-  rad_width <- cyclotron_rad(MainField);
-  tot_width <- (scatt_width + rad_width);
-  sigma_freq <- (scatt_width + rad_width) / (4. * pi());
+  rad_width = cyclotron_rad(MainField);
+  tot_width = (scatt_width + rad_width);
+  sigma_freq = (scatt_width + rad_width) / (4. * pi());
 
   // Frequency spread
-  df <- vnormal_lp(uF, 0.0, sigma_freq);
+  df = vnormal_lp(uF, 0.0, sigma_freq);
 
   // Determine signal from beta function and background level
-  activity <- 3 * tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
+  activity = 3 * tritium_rate_per_eV() * number_density * effective_volume / (tritium_halflife() / log(2.) );
 
 
-  norm_density <-  mu_tot * activity * measuring_time;
-  background_rate <- fabs(background_rate_mean + vnormal_lp(uBG,0. ,background_rate_err));
-  signal_fraction <- activity/(activity + background_rate);
+  norm_density =  mu_tot * activity * measuring_time;
+  background_rate = fabs(background_rate_mean + vnormal_lp(uBG,0. ,background_rate_err));
+  signal_fraction = activity/(activity + background_rate);
 
   for (j in 1:nBinSpectrum){
-    frequency[j] <- freq_data[j] - df + fclock;
-    KE[j] <- get_kinetic_energy(frequency[j], MainField);
-    beta <- get_velocity(KE[j]);
+    frequency[j] = freq_data[j] - df + fclock;
+    KE[j] = get_kinetic_energy(frequency[j], MainField);
+    beta = get_velocity(KE[j]);
 
-    spectrum <- 0;
+    spectrum = 0;
     for (i in 1:num_iso){
 
-      kDoppler <-  m_electron() * beta * sqrt(eDop / mass_s[i]);
+      kDoppler =  m_electron() * beta * sqrt(eDop / mass_s[i]);
 
-      KE_shift <- KE[j] + kDoppler;
+      KE_shift = KE[j] + kDoppler;
 
       // Determine signal from the spectral shape
-      spectrum_shape <- spectral_shape(KE[j], Q_mol, U_PMNS, m_nu);
-      spectrum <- spectrum + ( eta) * composition[i] * norm_density * spectrum_shape;
+      spectrum_shape = spectral_shape(KE[j], Q_mol, U_PMNS, m_nu);
+      spectrum = spectrum + ( eta) * composition[i] * norm_density * spectrum_shape;
     }
 
 
 
     // Determine signal from the spectral shape
 
-    spectrum_shape <- spectral_shape(KE[j], Q_T_atom, U_PMNS, m_nu);
-    spectrum <- spectrum + (1. - eta ) * norm_density * spectrum_shape;
+    spectrum_shape = spectral_shape(KE[j], Q_T_atom, U_PMNS, m_nu);
+    spectrum = spectrum + (1. - eta ) * norm_density * spectrum_shape;
 
     // Adding the background to the spectrum
-    spectrum <- spectrum + background_rate * measuring_time;
+    spectrum = spectrum + background_rate * measuring_time;
 
-    n_spectrum_recon[j] <- spectrum * widthBin;
+    n_spectrum_recon[j] = spectrum * widthBin;
     if (n_spectrum_recon[j]<0.)
     {
       print(s12,"  ", s13);
@@ -375,7 +375,7 @@ model {
   {
     if(n_time_data[i]>0)
     {
-      increment_log_prob(poisson_log(n_time_data[i], n0_timeData * exp( - time_data[i] * scatt_width )));
+      target += poisson_lpmf(n_time_data[i], n0_timeData * exp( - time_data[i] * scatt_width ));
     }
   }
 
@@ -383,7 +383,7 @@ model {
   {
     if(n_spectrum_data[i]>0 )
     {
-      increment_log_prob(poisson_log(n_spectrum_data[i],n_spectrum_recon[i]));
+      target += poisson_lpmf(n_spectrum_data[i],n_spectrum_recon[i]);
     }
     if (n_spectrum_recon[i]<0)
     {

@@ -17,10 +17,10 @@ functions{
 
     // Load libraries
 
-    include<-constants;
-    include<-func_routines;
-    include<-neutrino_mass_functions;
-    include<-tritium_functions;
+    include=constants;
+    include=func_routines;
+    include=neutrino_mass_functions;
+    include=tritium_functions;
 
 }
 
@@ -65,25 +65,25 @@ transformed parameters {
     real widthBin;
     vector[nBinSpectrum] n_spectrum_recon;
 
-    delta_m21 <- square(nu_mass[2]) - square(nu_mass[1]);
-    delta_m32 <- sqrt(square(square(nu_mass[3]) - square(nu_mass[2])));
-    m32_withsign <- square(nu_mass[3]) - square(nu_mass[2]);
+    delta_m21 = square(nu_mass[2]) - square(nu_mass[1]);
+    delta_m32 = sqrt(square(square(nu_mass[3]) - square(nu_mass[2])));
+    m32_withsign = square(nu_mass[3]) - square(nu_mass[2]);
 
-    min_mass <- min(nu_mass);
-    Ue_squared <- get_U_PMNS(nFamily(), sin2_th12, sin2_th13);
-    mbeta <- get_effective_mass(Ue_squared, nu_mass);
+    min_mass = min(nu_mass);
+    Ue_squared = get_U_PMNS(nFamily(), sin2_th12, sin2_th13);
+    mbeta = get_effective_mass(Ue_squared, nu_mass);
 
-    widthBin <- (maxKE - minKE)/nBinSpectrum;
+    widthBin = (maxKE - minKE)/nBinSpectrum;
 
     for(j in 1:nBinSpectrum) {
-        spectrum_shape <- spectral_shape(KE_data[j], Q, Ue_squared, nu_mass);
-	spectrum <- spectrum_shape * mu_tot * activity * measuring_time + background_rate_mean * measuring_time;
+        spectrum_shape = spectral_shape(KE_data[j], Q, Ue_squared, nu_mass);
+	spectrum = spectrum_shape * mu_tot * activity * measuring_time + background_rate_mean * measuring_time;
 
-	 n_spectrum_recon[j] <- spectrum * widthBin;
+	 n_spectrum_recon[j] = spectrum * widthBin;
     	 if (n_spectrum_recon[j]<0.)
     	    {
-      	     print(sin2_th12,"  ", sin2_th13);
-      	     print(n_spectrum_recon[j],"  ", spectrum,"  ", widthBin,"   ", spectrum_shape);
+//      	     print(sin2_th12,"  ", sin2_th13);
+//      	     print(n_spectrum_recon[j],"  ", spectrum,"  ", widthBin,"   ", spectrum_shape);
   	    }
 	 }
 }
@@ -112,7 +112,7 @@ for (i in 1:nBinSpectrum)
   {
     if(n_spectrum_data[i]>0 )
     {
-      increment_log_prob(poisson_log(n_spectrum_data[i], n_spectrum_recon[i]));
+      target += poisson_lpmf(n_spectrum_data[i] | n_spectrum_recon[i]);
     }
     if (n_spectrum_recon[i]<0)
     {

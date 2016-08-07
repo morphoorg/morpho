@@ -17,9 +17,9 @@ functions{
 
 // Load libraries
 
-    include_functions<-constants
-    include_functions<-func_routines
-    include_functions<-Q_Functions
+    include_functions=constants
+    include_functions=func_routines
+    include_functions=Q_Functions
     
 }
 
@@ -57,9 +57,9 @@ transformed data{
 
     vector<lower=0.0>[num_iso] mass_s;
 
-    mass_s[1] <- tritium_atomic_mass();
-    mass_s[2] <- hydrogen_atomic_mass();
-    mass_s[3] <- deuterium_atomic_mass();
+    mass_s[1] = tritium_atomic_mass();
+    mass_s[2] = hydrogen_atomic_mass();
+    mass_s[3] = deuterium_atomic_mass();
 
 }
 
@@ -67,10 +67,10 @@ transformed data{
 
     vector<lower=0.0>[num_iso] mass_s;
 
-    mass_s[1] <- tritium_atomic_mass();
-    mass_s[2] <- hydrogen_atomic_mass();
-    mass_s[3] <- deuterium_atomic_mass();
-    mass_s[4] <- 0.0;
+    mass_s[1] = tritium_atomic_mass();
+    mass_s[2] = hydrogen_atomic_mass();
+    mass_s[3] = deuterium_atomic_mass();
+    mass_s[4] = 0.0;
 
 }
 
@@ -108,31 +108,31 @@ transformed parameters{
 
 // Temperature of system
 
-    sigmaT <- sqrt(square(deltaT_calibration) + square(deltaT_fluctuation));
-    temperature <- vnormal_lp(uT, T_set, sigmaT);
+    sigmaT = sqrt(square(deltaT_calibration) + square(deltaT_fluctuation));
+    temperature = vnormal_lp(uT, T_set, sigmaT);
 
 // Composition and purity of gas system
 
-    epsilon <- 0.5 * (1.0 + composition[1]);
-    kappa <- composition[3] / composition[2];
+    epsilon = 0.5 * (1.0 + composition[1]);
+    kappa = composition[3] / composition[2];
 
 // Find standard deviation of endpoint distribution (eV), given normally distributed input parameters.
 
     for (i in 1:num_iso) {
-        p_squared <- 2.0 * Q_T_molecule[i] * m_electron();
-    	sigma_0[i] <- find_sigma(temperature, p_squared, mass_s[i], num_J, lambda);
+        p_squared = 2.0 * Q_T_molecule[i] * m_electron();
+    	sigma_0[i] = find_sigma(temperature, p_squared, mass_s[i], num_J, lambda);
     }
 
-    sigma_theory <- vnormal_lp(uS, 0. , delta_theory);
+    sigma_theory = vnormal_lp(uS, 0. , delta_theory);
 
 //  Take averages of Q and sigma values of molecule
 
-    Q_mol <- sum(composition .* Q_T_molecule);
-    sigma_mol <- sqrt(sum(composition .* sigma_0 .* sigma_0)) * (1. + sigma_theory);
+    Q_mol = sum(composition .* Q_T_molecule);
+    sigma_mol = sqrt(sum(composition .* sigma_0 .* sigma_0)) * (1. + sigma_theory);
 
 //  Find sigma of atomic tritium
 
-    sigma_atom <- find_sigma(temperature, 2.0 * Q_T_atom * m_electron(), 0., 0, 0.);
+    sigma_atom = find_sigma(temperature, 2.0 * Q_T_atom * m_electron(), 0., 0, 0.);
 
 }
 
@@ -149,6 +149,6 @@ model{
 
 // Set mixture of molecular and atomic tritium, if needed
 
-    increment_log_prob(log_sum_exp(log(eta_set) + normal_log(Q, Q_mol, sigma_mol),
-                                   log1m(eta_set) + normal_log(Q, Q_T_atom, sigma_atom)));
+    target += log_sum_exp(log(eta_set) + normal_lpdf(Q, Q_mol, sigma_mol),
+                                   log1m(eta_set) + normal_lpdf(Q, Q_T_atom, sigma_atom));
 }

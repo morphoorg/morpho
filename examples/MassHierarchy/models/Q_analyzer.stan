@@ -16,9 +16,9 @@ functions{
 
 // Load libraries
 
-    include_functions<-constants
-    include_functions<-func_routines
-    include_functions<-Q_Functions
+    include_functions=constants
+    include_functions=func_routines
+    include_functions=Q_Functions
     
 }
 
@@ -96,38 +96,38 @@ transformed parameters{
 
     // Create distribution for each parameter
 
-    T0 <- vnormal_lp(Tparam1, T_set, deltaT_calibration);
-    temp <- vnormal_lp(Tparam2, T0, deltaT_fluctuation);
+    T0 = vnormal_lp(Tparam1, T_set, deltaT_calibration);
+    temp = vnormal_lp(Tparam2, T0, deltaT_fluctuation);
 
-    lambda <- vnormal_lp(lambda_param, lambda_set, delta_lambda);
-    epsilon <- vnormal_lp(epsilon_param, epsilon_set, delta_epsilon);
-    kappa <- vnormal_lp(kappa_param, kappa_set, delta_kappa);
+    lambda = vnormal_lp(lambda_param, lambda_set, delta_lambda);
+    epsilon = vnormal_lp(epsilon_param, epsilon_set, delta_epsilon);
+    kappa = vnormal_lp(kappa_param, kappa_set, delta_kappa);
     if (delta_eta != 0.0){
-        eta <- vnormal_lp(eta_param, eta_set, delta_eta);}
+        eta = vnormal_lp(eta_param, eta_set, delta_eta);}
 
-    deltaT_total <- pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
+    deltaT_total = pow(pow(deltaT_calibration, 2) + pow(deltaT_fluctuation, 2), 0.5);
 
-    composition <- find_composition(epsilon, kappa, eta, num_iso);
-    composition_set <- find_composition(epsilon_set, kappa_set, eta_set, num_iso);
+    composition = find_composition(epsilon, kappa, eta, num_iso);
+    composition_set = find_composition(epsilon_set, kappa_set, eta_set, num_iso);
 
-    Q_avg <- 0;
+    Q_avg = 0;
     for (s in 1:num_iso){
-        Q_avg <- Q_avg + composition[s]*Q_values[s];}
-    p_squared <- 2*Q_avg*m_electron();
+        Q_avg = Q_avg + composition[s]*Q_values[s];}
+    p_squared = 2*Q_avg*m_electron();
 
     //Calculating sigma given normally distributed parameters (temp, lambda, composition)
-    sigma_floating <- find_sigma(temp, p_squared, composition, num_J, lambda);
+    sigma_floating = find_sigma(temp, p_squared, composition, num_J, lambda);
     print ("temp: ", temp);
     print ("sigma: ", sigma_floating);
 
 
     //DELTA_SIGMA CALCULATION REQUIRES REVISION DUE TO ERROR WHEN CALCULATING find_delta_sigma_squared_eta
     // delta_sigma can be printed or outputted as a check. It should be very similar to the standard deviation of the generated sigma distribution.
-    // delta_sigma <- find_delta_sigma(T_set, p_squared, deltaT_total, num_J, delta_lambda, composition_set, lambda_set, epsilon_set, kappa_set, eta_set, delta_epsilon, delta_kappa, delta_eta);
+    // delta_sigma = find_delta_sigma(T_set, p_squared, deltaT_total, num_J, delta_lambda, composition_set, lambda_set, epsilon_set, kappa_set, eta_set, delta_epsilon, delta_kappa, delta_eta);
 
 
     // Extracting sigma_extract using calculated delta_sigma and inputted data (as check)
-    // sigma <- vnormal_lp(sigma_param, sigma_extract, delta_sigma);
+    // sigma = vnormal_lp(sigma_param, sigma_extract, delta_sigma);
 }
 
 

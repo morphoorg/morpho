@@ -117,7 +117,7 @@ def histo(param_dict):
                 # print(list_data[i])
             can.cd()
             if (j==0):
-                list_histo[j].Draw()
+                list_histo[j].Draw('hist')
                 list_histo[j].GetXaxis().SetTitle(xtitle);
                 list_histo[j].SetTitle(title)
                 if 'y_range' in param_dict and isinstance(param_dict['y_range'],list):

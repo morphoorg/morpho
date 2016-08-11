@@ -52,16 +52,16 @@
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 4000,
-            "warmup" : 300,
-            "chain": 6},
+            "iter": 5000,
+            "warmup" : 2500,
+            "chain": 1},
         
         
-        "sample": "./MassHierarchy/results/MHtest_analyzer.out",
+        "sample": "./MassHierarchy/results/spectrum_analyzer.out",
         
         "output":
         {
-            "name" : "./MassHierarchy/results/MHtest_analyzer_IH",
+            "name" : "./MassHierarchy/results/spectrum_analyzer_IH",
             "format": "root",
             "tree" : "analysis_parameters",
             "save_cache_name": "./MassHierarchy/results/cache_name_file.txt", 
@@ -96,11 +96,21 @@
         "method_name": "neutrino_params",
         "module_name": "neutrino_params",
         "read_cache_name": "./MassHierarchy/results/cache_name_file.txt",
-        "input_fit_name": "./MassHierarchy/results/analysis_fit_IH.pkl",
+"input_fit_name": "./MassHierarchy/results/analysis_fit_IH.pkl",
         "output_path": "./MassHierarchy/results/",
         "output_format": "pdf",
         "plotting_options": ["neutrino_masses", "mass_params", "mixing_params", "contours"],
         "data": {"nu_mass":"nu_mass","sin2_th12":"sin2_th12", "sin2_th13":"sin2_th13", "delta_m21":"delta_m21", "delta_m32":"delta_m32", "m32_withsign":"m32_withsign", "mbeta":"mbeta", "min_mass":"min_mass"},
+        "hierarchy": "inverted"
+        },
+        {
+        "method_name": "contours",
+        "module_name": "contours",
+        "read_cache_name": "./MassHierarchy/results/cache_name_file.txt",
+        "input_fit_name": "./MassHierarchy/results/analysis_fit_IH.pkl",
+        "output_path": "./MassHierarchy/results/",
+        "result_names": ["sin2_th12", "sin2_th13", "delta_m21", "delta_m32"],
+        "output_format": "pdf",
         "hierarchy": "inverted"
         }
     ]

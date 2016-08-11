@@ -1,4 +1,3 @@
-
 #======================================================
 # neutrino_params.py
 #
@@ -24,7 +23,6 @@ To do (for myself):
     Clean up way of displaying error messages.
 """
 
-import ROOT as ROOT
 import numpy as np
 import tempfile
 import itertools as IT
@@ -39,7 +37,6 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 from pylab import *
-
 
 
 def uniquify(path, sep = ''):
@@ -297,6 +294,5 @@ def neutrino_params(param_dict):
 
         else:
             print("Cannot plot contours if 'delta_m21', 'sin2_th12', or 'sin2_th13' are not specified in param_dict['data'].")
-    print("finished")
 
 

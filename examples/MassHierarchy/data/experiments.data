@@ -1,0 +1,37 @@
+nExp_th12 <- 2
+nExp_th13 <- 4
+nHierarchyDep_th13 <- 1
+
+nExp_m21 <- 1
+nExp_m32 <- 3
+
+
+sin2_th12_means <- c(0.30362, 0.318801)
+sin2_th12_sigmas <- c(0.013093, 0.024663)
+
+sin2_th13_means <- c(0.023, 0.0259219, 0.0230304, 0.0230304)
+sin2_th13_sigmas <- c(0.002, 0.00474605, 0.00799317, 0.00222761)
+
+sin2_th13_means_NH <- c(0.0363191)
+sin2_th13_means_IH <- c(0.0444783)
+sin2_th13_sigmas_NH <- c(0.00943537)
+sin2_th13_sigmas_IH <- c(0.0112508)
+
+
+delta_m21_means <- c(7.53e-05)
+delta_m21_sigmas <- c(0.18e-05)
+
+delta_m32_means_NH <- c(2.51e-03, 2.52e-03, 2.37e-03)
+delta_m32_means_IH <- c(-2.56e-03, -2.56e-03, -2.425e-03)
+delta_m32_sigmas_NH <- c(0.10e-03, 0.19e-03, 0.09e-03)
+delta_m32_sigmas_IH <- c(0.10e-03, 0.19e-03, 0.105e-03)
+
+
+m_beta_squared_mean <- 0.0025
+m_beta_squared_sigma <- 0.0005
+
+m_s_mean <- 0.100
+m_s_sigma <- 0.005
+
+use_m_beta <- 1
+use_m_s <- 0

@@ -84,8 +84,7 @@ def plot_neutrino_masses(param_dict, ModelFit, data):
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
         plt.savefig(uniquify(out_dir + './neutrino_masses_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
-        plt.savefig(uniquify(out_dir + './neutrino_masses_real_data.' + out_fmt))
-        print("No mass hierarchy was selected.")
+        plt.savefig(uniquify(out_dir + './neutrino_masses.' + out_fmt))
     plt.show()
 
 
@@ -128,7 +127,7 @@ def plot_mass_params(param_dict, ModelFit, data):
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
         plt.savefig(uniquify(out_dir +'./mass_params_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
-        plt.savefig(uniquify(out_dir+'./mass_params_real_data.' + out_fmt))
+        plt.savefig(uniquify(out_dir+'./mass_params.' + out_fmt))
     
     plt.show()
 
@@ -155,7 +154,7 @@ def plot_mixing_params(param_dict, ModelFit, data):
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
         plt.savefig(uniquify(out_dir + './mixing_params_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
-        plt.savefig(uniquify(out_dir + './mixing_params_real_data.' + out_fmt))
+        plt.savefig(uniquify(out_dir + './mixing_params.' + out_fmt))
     plt.show()
 
 
@@ -219,7 +218,7 @@ def plot_contours(ModelFit, param_dict, data):
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
         plt.savefig(uniquify(out_dir + './mixing_param_contours_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
-        plt.savefig(uniquify(out_dir + './mixing_param_contours_real_data.' + out_fmt))
+        plt.savefig(uniquify(out_dir + './mixing_param_contours.' + out_fmt))
     plt.show()
 
 
@@ -280,6 +279,17 @@ def neutrino_params(param_dict):
     #Plotting neutrino mixing parameter distributions
     if 'mixing_params' in plotting_options:
         
+        if 'sin2_th12' not in data:
+            print(1)
+        if 'sin2_th13' not in data:
+            print(2)
+        if 'delta_m21' not in data:
+            print(3)
+        if 'delta_m32' not in data:
+            print(4)
+        if 'm32_withsign' not in data:
+            print(5)
+
         if 'sin2_th12' and 'sin2_th13' and 'delta_m21' and 'delta_m32' and 'm32_withsign' in data:
             plot_mixing_params(param_dict, ModelFit, data)
         else:

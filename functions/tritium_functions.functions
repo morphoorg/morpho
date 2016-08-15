@@ -140,7 +140,6 @@ real signal_to_noise_log(real KE, real Q, vector U, vector m_nu, real minKE, rea
 
 real spectral_shape(real KE, real Q, vector U, vector m_nu) {
 	int nfamily;           // Number of neutrino species
-	real rate_log;         // Log of event rate (beta decay spectrum) --> log sum of signal and background
 	real spectrum;         // spectral shape
 
 	nfamily = num_elements(U);

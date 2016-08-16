@@ -10,8 +10,8 @@ Requirements
 	We will need PyStan in order to run this system.
 
 	The PyStan (and mc-stan) module can be downloaded via GitHub or directly.
-	
-	see   http://mc-stan.org	
+
+	see   http://mc-stan.org
 	and   http://mc-stan.org/pystan.html.
 
 	PyStan has the following dependencies:
@@ -22,19 +22,18 @@ Requirements
 
 Install
 ======
-	PyStan and the required packages may be installed from the Python Package Index using pip.
-
-	       	      pip install pystan
-
-	One can install Cython and NumPy in a similar manner
-
+  PyStan and the required packages may be installed from the Python Package Index using pip inside a virtual environment.
+                virtualenv ~/path/to/the/virtualenvironment/env
+                pip install -r ~/path/to/morpho/requirements.txt
+  Once all the required packages are installed on the virtualenvironment, one can load it using
+                source ~/path/to/the/virtualenvironment/env
 
 Running
 ======
 	A sample executable is shown in the examples directory:
 
 	  	  python ../morpho/morpho.py --config  model_folder/scripts/<name_of_json_config_file> --other_options
-		  
+
 		  Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 
 		  1.  The script looks for cached versions of the .stan model file.  If not, it generates a new one and saves it.  The cached models exist in the cache directory
@@ -46,5 +45,5 @@ Running
 		  4.  The model generates a number of Markov Chain files (in the specified directory) according to the specific model.  If there is no data, this in principle can be used to generate fake data.  That feature isn't quite implemented yet.
 
 		  5.  Very generic plots and screen outputs are created, just to flash some results.
-		  
+
 		  See the documentation on the Stan homepage for more detail.

@@ -36,9 +36,9 @@
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 9000,
-            "warmup" : 6000,
-            "chain": 8},
+            "iter": 50000,
+            "warmup" : 40000,
+            "chain": 25},
         
         
         "sample": "./MassHierarchy/results/mass_analysis.out",
@@ -83,7 +83,7 @@
 "input_fit_name": "./MassHierarchy/results/mass_analysis.pkl",
         "output_path": "./MassHierarchy/results/",
         "output_format": "pdf",
-        "plotting_options": ["neutrino_masses", "mass_params", "mixing_params", "contours"],
+        "plotting_options": ["neutrino_masses", "mass_params", "mixing_params"],
         "data": {"nu_mass":"nu_mass","sin2_th12":"sin2_th12", "sin2_th13":"sin2_th13", "delta_m21":"delta_m21", "delta_m32":"delta_m32", "m32_withsign":"delta_m32_with_sign", "mbeta":"m_beta", "min_mass":"min_mass"}
         }
     ]

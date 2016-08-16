@@ -26,7 +26,7 @@ Install
                 virtualenv ~/path/to/the/virtualenvironment/env
                 pip install -r ~/path/to/morpho/requirements.txt
   Once all the required packages are installed on the virtualenvironment, one can load it using
-                source ~/path/to/the/virtualenvironment/env
+                source ~/path/to/the/virtualenvironment/env/bin/activate
 
 Running
 ======

@@ -23,10 +23,13 @@ Requirements
 Install
 ======
   PyStan and the required packages may be installed from the Python Package Index using pip inside a virtual environment.
-                virtualenv ~/path/to/the/virtualenvironment/env
-                pip install -r ~/path/to/morpho/requirements.txt
+  
+  	  	  virtualenv ~/path/to/the/virtualenvironment/env
+	  	  pip install -r ~/path/to/morpho/requirements.txt
+                  
   Once all the required packages are installed on the virtualenvironment, one can load it using
-                source ~/path/to/the/virtualenvironment/env/bin/activate
+  
+	  	  source ~/path/to/the/virtualenvironment/env/bin/activate
 
 Running
 ======

@@ -82,20 +82,20 @@ parameters{
 	real<lower=0.0, upper=1.0> sin2_th12;
 	real<lower=0.0, upper=1.0> sin2_th13;
 
-	vector<lower=0.0, upper=0.5>[3] nu_mass;
+	vector<lower=0.0, upper=1.5>[3] nu_mass;
 }
 
 
 transformed parameters{
 
 	real delta_m32_with_sign;	   // Sign indicates prefered hierarchy
-	real <lower=0.0> min_mass;
+	real<lower=0.0> min_mass;
 	vector<lower=0.0>[3] Ue_squared;   // Squares of PMNS matrix elements U_e
 	real delta_m21;
 	real<lower=0.0> delta_m32;
-	real<lower=0.0> m_beta;
-	real<lower=0.0> m_beta_squared;
-	real<lower=0.0> m_s;
+	real m_beta_squared;
+	real m_beta;
+	real m_s;
 
 	delta_m21 = square(nu_mass[2]) - square(nu_mass[1]);
 	delta_m32 = sqrt(square(square(nu_mass[3]) - square(nu_mass[2])));
@@ -104,8 +104,14 @@ transformed parameters{
 	min_mass = min(nu_mass);
 	Ue_squared = get_U_PMNS(nFamily(), sin2_th12, sin2_th13);
 	
-	m_beta = get_effective_mass(Ue_squared, nu_mass);
-	m_beta_squared = square(m_beta);
+	m_beta_squared = get_effective_mass_squared(Ue_squared, nu_mass);
+	if (m_beta_squared<0.){
+		m_beta = -1.*pow(m_beta_squared, 0.5);
+	}
+	else{
+		m_beta = pow(m_beta_squared, 0.5);
+	}
+
 	m_s = sum(nu_mass);
 
 }

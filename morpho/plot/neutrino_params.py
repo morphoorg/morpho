@@ -13,23 +13,17 @@
 # should specify which plots he or she wishes to create using the 
 # "plotting_options" list (e.g. "plotting_options": ["neutrino_masses",
 # "mass_params", "mixing_params"]).
-#======================================================
+#=======================================================
 
 """
 To do (for myself):
     Allow for more flexible and/or user defined ranges for plots of parameters.
     Allow for more flexible contour level inputs.
     Create a separate contour module.
-    Clean up way of displaying error messages.
+    Clean up error messages.
 """
 
 import numpy as np
-import tempfile
-import itertools as IT
-import os
-import pickle
-import sys
-
 import matplotlib as mpl
 mpl.rc('ytick', labelsize=8)
 mpl.rc('xtick', labelsize=8)
@@ -38,27 +32,7 @@ import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 from pylab import *
 
-
-def uniquify(path, sep = ''):
-    """
-    Each time a file is created the with same filename (in the same
-    directory), add a consecutively higher number to the end of the
-    filename.
-    """
-    def name_sequence():
-        count = IT.count()
-        yield ''
-        while True:
-            yield '{s}{n:d}'.format(s = sep, n = next(count))
-    orig = tempfile._name_sequence
-    with tempfile._once_lock:
-        tempfile._name_sequence = name_sequence()
-        path = os.path.normpath(path)
-        dirname, basename = os.path.split(path)
-        filename, ext = os.path.splitext(basename)
-        fd, filename = tempfile.mkstemp(dir = dirname, prefix = filename, suffix = ext)
-        tempfile._name_sequence = orig
-    return filename
+import plotting_routines as pr
 
 
 def plot_neutrino_masses(param_dict, ModelFit, data):
@@ -82,9 +56,9 @@ def plot_neutrino_masses(param_dict, ModelFit, data):
     plt.tight_layout()
     
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
-        plt.savefig(uniquify(out_dir + './neutrino_masses_' + param_dict['hierarchy'] + '.' + out_fmt))
+        plt.savefig(pr.uniquify(out_dir + './neutrino_masses_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
-        plt.savefig(uniquify(out_dir + './neutrino_masses.' + out_fmt))
+        plt.savefig(pr.uniquify(out_dir + './neutrino_masses.' + out_fmt))
     plt.show()
 
 
@@ -125,9 +99,9 @@ def plot_mass_params(param_dict, ModelFit, data):
     plt.tight_layout()
                 
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
-        plt.savefig(uniquify(out_dir +'./mass_params_' + param_dict['hierarchy'] + '.' + out_fmt))
+        plt.savefig(pr.uniquify(out_dir +'./mass_params_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
-        plt.savefig(uniquify(out_dir+'./mass_params.' + out_fmt))
+        plt.savefig(pr.uniquify(out_dir+'./mass_params.' + out_fmt))
     
     plt.show()
 
@@ -152,13 +126,13 @@ def plot_mixing_params(param_dict, ModelFit, data):
     plt.tight_layout()
 
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
-        plt.savefig(uniquify(out_dir + './mixing_params_' + param_dict['hierarchy'] + '.' + out_fmt))
+        plt.savefig(pr.uniquify(out_dir + './mixing_params_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
-        plt.savefig(uniquify(out_dir + './mixing_params.' + out_fmt))
+        plt.savefig(pr.uniquify(out_dir + './mixing_params.' + out_fmt))
     plt.show()
 
 
-def plot_contours(ModelFit, param_dict, data):
+def plot_contours(analysis_params, param_dict, data):
     """
     Combines distributions from pairs of parameters to create 2D
     histograms.
@@ -176,7 +150,6 @@ def plot_contours(ModelFit, param_dict, data):
     parameters used in the Stan model. Must contain keys 'delta_m21',
     'sin2_th12', and 'sin2_th13'.
     """
-    analysis_params = ModelFit.extract(permuted=True)
     out_dir = param_dict['output_path']
     out_fmt = param_dict['output_format']
 
@@ -216,9 +189,9 @@ def plot_contours(ModelFit, param_dict, data):
     plt.tight_layout()
 
     if 'hierarchy' in param_dict and param_dict['hierarchy']!='':
-        plt.savefig(uniquify(out_dir + './mixing_param_contours_' + param_dict['hierarchy'] + '.' + out_fmt))
+        plt.savefig(pr.uniquify(out_dir + './mixing_param_contours_' + param_dict['hierarchy'] + '.' + out_fmt))
     else:
-        plt.savefig(uniquify(out_dir + './mixing_param_contours.' + out_fmt))
+        plt.savefig(pr.uniquify(out_dir + './mixing_param_contours.' + out_fmt))
     plt.show()
 
 
@@ -243,15 +216,9 @@ def neutrino_params(param_dict):
     plotting_options = param_dict['plotting_options']
 
     #Unpickling stan fit object
-    cache_name_file = open(param_dict['read_cache_name'],'r')
-    cache_fn = cache_name_file.readline()
+    f = open(param_dict['read_cache_name'],'r')
+    ModelFit, analysis = pr.unpickle_with_cache(f, param_dict['input_fit_name'])
     
-    with open(cache_fn, 'rb') as input1:
-        pickle.load(input1)
-
-    with open(param_dict['input_fit_name'], 'rb') as input2:
-        ModelFit = pickle.load(input2)
-
     #Getting names of data entries in Stan fit
     if 'data' in param_dict and param_dict['data']!='':
         data = param_dict['data']
@@ -278,17 +245,6 @@ def neutrino_params(param_dict):
     
     #Plotting neutrino mixing parameter distributions
     if 'mixing_params' in plotting_options:
-        
-        if 'sin2_th12' not in data:
-            print(1)
-        if 'sin2_th13' not in data:
-            print(2)
-        if 'delta_m21' not in data:
-            print(3)
-        if 'delta_m32' not in data:
-            print(4)
-        if 'm32_withsign' not in data:
-            print(5)
 
         if 'sin2_th12' and 'sin2_th13' and 'delta_m21' and 'delta_m32' and 'm32_withsign' in data:
             plot_mixing_params(param_dict, ModelFit, data)
@@ -300,9 +256,7 @@ def neutrino_params(param_dict):
     if 'contours' in plotting_options:
     
         if 'delta_m21' and 'sin2_th12' and 'sin2_th13' in data:
-            plot_contours(ModelFit, param_dict, data)
+            plot_contours(analysis, param_dict, data)
 
         else:
             print("Cannot plot contours if 'delta_m21', 'sin2_th12', or 'sin2_th13' are not specified in param_dict['data'].")
-
-

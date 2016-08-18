@@ -199,10 +199,10 @@ def neutrino_params(param_dict):
     """
     Loads a Stan ModelFit from a pickle file. Then invokes whichever
     plotting functions are indicated by the 'plotting_options':[opt1, opt2 ...]
-    entry in param dict.
+    entry in param_dict.
 
     Possible options: 'neutrino_masses', 'mass_params', 'mixing_params',
-    'contours'.
+    'contours'
 
     Parameters:
     param_dict - dictionary containing output path (str), output

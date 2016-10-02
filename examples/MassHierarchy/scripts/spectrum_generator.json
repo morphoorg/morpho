@@ -32,7 +32,7 @@
                       ],
             "parameters": [
                            {
-                           "MH" : 1,
+                           "MH" : 0,
                            "minKE": 18574.00,
                            "maxKE": 18575.05,
                            "min_mass_fixed": 0.2
@@ -50,11 +50,11 @@
         "sample": "./MassHierarchy/results/MHtest_generator.out",
         
         "output":{
-            "name": "./MassHierarchy/results/spectrum_generator",
+            "name": "./MassHierarchy/results/spectrum_generator_NH",
             "format": "root",
             "tree" : "generated",
-            "save_cache_name": "./MassHierarchy/results/cache_name_generator.txt",
-            "fit": "./MassHierarchy/results/spectrum_generator.pkl",
+            "save_cache_name": "./MassHierarchy/results/cache_fn/cache_name_generator.txt",
+            "fit": "./MassHierarchy/results/spectrum_generator_NH.pkl",
             "branches" : [
                     {"variable" : "KE_data", "root_alias" : "KE_data"},
                     {"variable" : "spectrum_data", "root_alias": "spectrum_data"}
@@ -71,13 +71,13 @@
         "module_name": "data_reducer",
         "which_spectrum": ["KE"],
         "Poisson_redistribution": True,
-        "input_file_name" : "./MassHierarchy/results/spectrum_generator.root",
+        "input_file_name" : "./MassHierarchy/results/spectrum_generator_NH.root",
         "input_file_format" : "root",
         "input_tree": "generated",
-        "minKE":18574.00,
+        "minKE":18574.1,
         "maxKE":18575.05,
-        "nBinHisto":150,
-        "output_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake.root",
+        "nBinHisto":45,
+        "output_file_name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_NH.root",
         "output_file_format": "root",
         "output_KE_spectrum_tree": "spectrum",
         "output_time_spectrum_tree": "None",
@@ -93,10 +93,10 @@
          {
         "method_name": "spectra",
         "module_name": "spectra",
-        "read_cache_name": "./MassHierarchy/results/cache_name_file.txt",
-        "input_fit_name": "./MassHierarchy/results/spectrum_generator.pkl",
+        "read_cache_name": "./MassHierarchy/results/cache_name_generator.txt",
+        "input_fit_name": "./MassHierarchy/results/spectrum_generator_NH.pkl",
         "output_path": "./MassHierarchy/results",
-        "output_format": "pdf",
+        "output_format": "png",
         "plotting_options": ["spectrum_scatter"],
         "data": {"x_axis_data":"KE_data", "x_label":"Kinetic Energy (eV)", "spectrum_data":"spectrum_data"},
         "x_range": [18574.00, 18575.05],
@@ -106,7 +106,7 @@
          "method_name": "histo",
          "module_name": "histo",
          "title": "",
-         "input_file_name" : "./MassHierarchy/results/spectrum_generator.root",
+         "input_file_name" : "./MassHierarchy/results/spectrum_generator_NH.root",
          "input_file_format" : "root",
          "input_tree": "generated",
          "output_path": "./MassHierarchy/results/",

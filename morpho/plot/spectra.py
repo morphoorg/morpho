@@ -15,12 +15,7 @@
 # "spectrum_scatter", "overlay"]).
 #=======================================================
 
-"""
-To do (for myself):
-    Allow for optional plot title specification in param_dict.
-    To make it easier to compare to generated spectrum, allow for
-    root file inputs and/or for multiple pickle file inputs.
-"""
+
 
 import numpy as np
 import matplotlib as mpl
@@ -191,14 +186,14 @@ def spectra(param_dict):
         assert required1 <= set(data_vals), missing_key.format(required1)
 
         plot_spectrum_shape(x_min, x_max, data_vals['Q'], data_vals['Ue_squared'], data_vals['m_nu'], data_vals['time'], data_vals['activity'], data_vals['bkgd_rate'], num_x, yscale=yscale)
-        plt.savefig(pr.uniquify(out_dir + '/spectrum_shape.' + out_fmt))
+       # plt.savefig(pr.uniquify(out_dir + '/spectrum_shape.' + out_fmt))
         plt.show()
 
     if 'spectrum_scatter' in plotting_options:
         assert required2 <= set(data_vals), missing_key.format(required2)
 
         plot_spectrum_scatter(params[data_names['x_axis_data']], params[data_names['spectrum_data']], data_vals['x_label'], yscale=yscale)
-        plt.savefig(pr.uniquify(out_dir + '/spectrum_scatter.' + out_fmt))
+      #  plt.savefig(pr.uniquify(out_dir + '/spectrum_scatter.' + out_fmt))
         plt.show()
 
     if 'overlay' in plotting_options:

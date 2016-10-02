@@ -10,15 +10,13 @@
 * Constructs neutrino mass model in Stan given an input distribution
 * for either m_beta or m_s=m1+m2+m3.
 *
-* Sources for the data used as priors are given in data/experiment_key.txt.
+* This ("temporary") model does not yet incorporate asymmetric
+* errors on mixing parameters (the asymmetric gaussian function
+* currently has trouble with particular parameters).
 *
 */
 
 
-/*
-* To do:
-* Incorporate covariances: "multi-gp."
-*/
 
 
 
@@ -45,35 +43,29 @@ data{
 	int nExp_m13_IH;	
 
 	real sin2_th12_means[nExp_th12];	// Means from each experiment
-	vector[nExp_th12] sin2_th12_sigmas_upper; // Standard devs from each
-	vector[nExp_th12] sin2_th12_sigmas_lower; // Allowing for "assymetric gaussians":
+	vector[nExp_th12] sin2_th12_sigmas; // Standard devs from each
+
 			  			  // see func_routines.functions
 
 	real sin2_th13_means[nExp_th13];
-	vector[nExp_th13] sin2_th13_sigmas_upper;
-	vector[nExp_th13] sin2_th13_sigmas_lower;
+	vector[nExp_th13] sin2_th13_sigmas;
 
 	real sin2_th13_means_NH[nHierarchyDep_th13];
 	real sin2_th13_means_IH[nHierarchyDep_th13];
-	vector[nHierarchyDep_th13] sin2_th13_sigmas_NH_upper;
-	vector[nHierarchyDep_th13] sin2_th13_sigmas_NH_lower;
-	vector[nHierarchyDep_th13] sin2_th13_sigmas_IH_upper;
-	vector[nHierarchyDep_th13] sin2_th13_sigmas_IH_lower;	
+	vector[nHierarchyDep_th13] sin2_th13_sigmas_NH;
+	vector[nHierarchyDep_th13] sin2_th13_sigmas_IH;
+
 
 	real delta_m21_means[nExp_m21];
-	vector[nExp_m21] delta_m21_sigmas_upper;
-	vector[nExp_m21] delta_m21_sigmas_lower;
+	vector[nExp_m21] delta_m21_sigmas;
 
 	real delta_m32_means_NH[nExp_m32_NH];
 	real delta_m32_means_IH[nExp_m32_IH];
-	vector[nExp_m32_NH] delta_m32_sigmas_NH_upper;
-	vector[nExp_m32_NH] delta_m32_sigmas_NH_lower;
-	vector[nExp_m32_IH] delta_m32_sigmas_IH_upper;
-	vector[nExp_m32_IH] delta_m32_sigmas_IH_lower;
+	vector[nExp_m32_NH] delta_m32_sigmas_NH;
+	vector[nExp_m32_IH] delta_m32_sigmas_IH;
 
 	real delta_m13_means_IH[nExp_m13_IH];
-	real delta_m13_sigmas_IH_upper[nExp_m13_IH];
-	real delta_m13_sigmas_IH_lower[nExp_m13_IH];
+	real delta_m13_sigmas_IH[nExp_m13_IH];
 
 	real m_beta_squared_mean;	// m_beta_squared = sum(U_{e,i}^2*m_i^2)
 	real m_beta_squared_sigma;
@@ -88,7 +80,7 @@ data{
 
 parameters{
 
-	vector<lower=0.0, upper=2.0>[3] nu_mass;
+	vector<lower=0.0, upper=0.4>[3] nu_mass;
 
 	real<lower=0.0, upper=0.5> sin2_th12;
 	real<lower=0.0, upper=0.1> sin2_th13;
@@ -124,15 +116,12 @@ transformed parameters{
 	min_mass = min(nu_mass);
 	Ue_squared = get_U_PMNS(nFamily(), sin2_th12, sin2_th13);
 	
-
-	// Assuming measured quantity is m_beta_squared. m_beta is
-	// calculated from m_beta_squared.
-
 	m_beta_squared = get_effective_mass_squared(Ue_squared, nu_mass);
 
 	if (m_beta_squared<0.){
 		m_beta = -1.*pow(fabs(m_beta_squared), 0.5);
 		print("m_beta");
+
 	}
 	else{
 		m_beta = pow(m_beta_squared, 0.5);
@@ -144,32 +133,27 @@ transformed parameters{
 
 model{
 
-	// Increment log probability for mixing parameter distributions
-	// with asymmetric errors (modeled as two half-gaussians which
-	// share a mean)
+	sin2_th12_means ~ normal(sin2_th12, sin2_th12_sigmas);
+	sin2_th13_means ~ normal(sin2_th13, sin2_th13_sigmas);
+	delta_m21_means ~ normal(delta_m21, delta_m21_sigmas);
 
-	target += asym_normal_log(sin2_th12, sin2_th12_means, sin2_th12_sigmas_upper, sin2_th12_sigmas_lower);
-	target += asym_normal_log(sin2_th13, sin2_th13_means, sin2_th13_sigmas_upper, sin2_th13_sigmas_lower);
-	target += asym_normal_log(delta_m21, delta_m21_means, delta_m21_sigmas_upper, delta_m21_sigmas_lower);
 	
-
 	if (nu_mass[2] < nu_mass[3]){
-	   target += asym_normal_log(delta_m32_with_sign, delta_m32_means_NH, delta_m32_sigmas_NH_upper, delta_m32_sigmas_NH_lower);
-	   target += asym_normal_log(sin2_th13, sin2_th13_means_NH, sin2_th13_sigmas_NH_upper, sin2_th13_sigmas_NH_lower);
+	   delta_m32_means_NH ~ normal(delta_m32_with_sign, delta_m32_sigmas_NH);
+	   sin2_th13_means_NH ~ normal(sin2_th13, sin2_th13_sigmas_NH);
 	   }
 	else if (nu_mass[3] < nu_mass[2]){
-	   target += asym_normal_log(delta_m32_with_sign, delta_m32_means_IH, delta_m32_sigmas_IH_upper, delta_m32_sigmas_IH_lower);
-	   target += asym_normal_log(sin2_th13, sin2_th13_means_IH, sin2_th13_sigmas_IH_upper, sin2_th13_sigmas_IH_lower);
-	   target += asym_normal_log(delta_m13, delta_m13_means_IH, delta_m13_sigmas_IH_upper, delta_m13_sigmas_IH_lower);
+	   delta_m32_means_IH ~ normal(delta_m32_with_sign, delta_m32_sigmas_IH);
+	   sin2_th13_means_IH ~ normal(sin2_th13, sin2_th13_sigmas_IH);
 	}
 
 
-	// Determined whether distributions for m_beta and m_s are incorporated into analysis
 	if (use_m_beta == 1){
 	   m_beta_squared_mean ~ normal(m_beta_squared, m_beta_squared_sigma);
 	   }
 	if (use_m_s == 1){
 	   m_s_mean ~ normal(m_s, m_s_sigma);
 	   }
+
 
 }

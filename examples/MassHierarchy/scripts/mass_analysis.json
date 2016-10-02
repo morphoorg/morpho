@@ -3,14 +3,14 @@
    {
      "do_stan": True,
      "do_postprocessing": False,
-     "do_plots": True
+     "do_plots": False
    },
     "stan": {
         
         "name": "mass_analysis",
         
         "model":   {
-            "file": "./MassHierarchy/models/mass_analysis.stan",
+            "file": "./MassHierarchy/models/mass_analysis_temp.stan",
             "function_file": [
                               {"name" : "constants", "file" : "../functions/constants.functions"},
                               {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
@@ -24,32 +24,38 @@
             "type": "mc",
             "files": [
                       {
-                      "name": "./MassHierarchy/data/experiments.data",
+                      "name": "./MassHierarchy/data/experiments_temp.data",
                       "format":"R"
                       },
                       ],
             "parameters": [
                            {
+                           "use_m_beta":1,
+                           "use_m_s":0,
+                           "m_beta_squared_mean":0.0009,
+                           "m_beta_squared_sigma":0.0004,
+                           "m_s_mean":0.0294,
+                           "m_s_sigma":0.003
                            }
                            ]
         },
         
         "run": {
             "algorithm": "NUTS",
-            "iter": 50000,
-            "warmup" : 40000,
-            "chain": 25},
+            "iter": 10000,
+            "warmup" : 8000,
+            "chain": 10},
         
         
         "sample": "./MassHierarchy/results/mass_analysis.out",
         
         "output":
         {
-            "name" : "./MassHierarchy/results/mass_analysis",
+            "name" : "./MassHierarchy/results/mass_analysis_asym",
             "format": "root",
             "tree" : "analysis_parameters",
-            "save_cache_name": "./MassHierarchy/results/cache_name_file.txt", 
-            "fit": "./MassHierarchy/results/mass_analysis.pkl", 
+            "save_cache_name": "./MassHierarchy/results/cache_fn/cache_mass_asym.txt",
+             "fit": "./MassHierarchy/results/mass_analysis_asym.pkl", 
             "branches": [
                  {"variable": "sin2_th12","root_alias": "sin2_th12"},
                  {"variable": "sin2_th13","root_alias": "sin2_th13"},

@@ -1,6 +1,7 @@
-Q <- 18574.95
-signal_fraction <- 0.99
+Q_mean <- 18574.95
+Q_err <- 0.1
 
+energy_resolution <- 0.040
 background_rate_mean <- 1.0e-06
 measuring_time <- 3.0e+07
-activity <- 3.2091e-05
+activity <- 3.2091e-04

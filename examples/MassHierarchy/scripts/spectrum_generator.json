@@ -1,8 +1,8 @@
 {
    "morpho":
    {
-     "do_stan": True,
-     "do_postprocessing": True,
+     "do_stan": False,
+     "do_postprocessing": False,
      "do_plots": True,
      "wait_at_the_end": False
    },
@@ -90,18 +90,7 @@
  "plot":
     {
       "which_plot":[
-         {
-        "method_name": "spectra",
-        "module_name": "spectra",
-        "read_cache_name": "./MassHierarchy/results/cache_name_generator.txt",
-        "input_fit_name": "./MassHierarchy/results/spectrum_generator_NH.pkl",
-        "output_path": "./MassHierarchy/results",
-        "output_format": "png",
-        "plotting_options": ["spectrum_scatter"],
-        "data": {"x_axis_data":"KE_data", "x_label":"Kinetic Energy (eV)", "spectrum_data":"spectrum_data"},
-        "x_range": [18574.00, 18575.05],
-        "y_scale": "log"
-         },
+
          {
          "method_name": "histo",
          "module_name": "histo",
@@ -120,7 +109,19 @@
          "y_range":[0.,6000],
          "n_bins":100,
          "options": "logy"
-        }
+        },
+        {
+        "method_name": "spectra",
+        "module_name": "spectra",
+        "read_cache_name": "./MassHierarchy/results/cache_name_generator.txt",
+        "input_fit_name": "./MassHierarchy/results/spectrum_generator_NH.pkl",
+        "output_path": "./MassHierarchy/results",
+        "output_format": "png",
+        "plotting_options": ["spectrum_scatter"],
+        "data": {"x_axis_data":"KE_data", "x_label":"Kinetic Energy (eV)", "spectrum_data":"spectrum_data"},
+        "x_range": [18574.00, 18575.05],
+        "y_scale": "log"
+         }
       ]
     }
 

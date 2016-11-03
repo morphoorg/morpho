@@ -122,7 +122,7 @@ def data_reducer(param_dict):
                 tree_freq_spectrum.Fill()
         tree_freq_spectrum.Write()
         hFakeData.Write()
-
+        havg.Write()
 
         # This paragraph might be uncommented when doing debugging
         # can =  ROOT.TCanvas("can","can",200,10,600,400)
@@ -182,6 +182,7 @@ def data_reducer(param_dict):
                 tree_KE_spectrum.Fill()
         tree_KE_spectrum.Write()
         heFakeData.Write()
+        heavg.Write()
 
         print 'Total number of events : ', heavg.Integral()
 

@@ -175,12 +175,14 @@ def histo(param_dict):
         figurefullpath = path
     for namedata in param_dict['data']:
         figurefullpath += namedata + '_'
+    if figurefullpath.endswith('_'):
+        figurefullpath = figurefullpath[:-1]
     if 'output_format' in param_dict:
-        figurefullpath += param_dict['output_format']
+        figurefullpath += '.' + param_dict['output_format']
     else:
         figurefullpath += '.pdf'
     can.SaveAs(figurefullpath)
-    raw_input('Press <ret> to end -> ')
+    # raw_input('Press <ret> to end -> ')
 
     return can
 

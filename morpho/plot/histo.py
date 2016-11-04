@@ -1,3 +1,20 @@
+#======================================================
+# histo.py
+#
+# Author: M. Guigue, T. E. Weiss
+# Date: Aug. 4, 2016
+#
+# Description:
+#
+# Generic methods to display histograms with ROOT
+#=======================================================
+
+"""
+To do:
+    - Clean up
+    - Add log
+"""
+
 import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
 import cmath as math
 from array import array

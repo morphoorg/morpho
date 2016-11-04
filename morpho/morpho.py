@@ -49,6 +49,7 @@ class morpho(object):
         d = self.__dict__
         sca = getargspec(stan_cache)
         sa = getargspec(stan)
+        # print({k: d[k] for k in (sa.args + sca.args) if k in d})
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_Stan_function(self):
@@ -65,8 +66,7 @@ class morpho(object):
         elif isinstance(self.init_per_chain,dict): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)):
             # init_per_chain is a dictionary
             if self.chains >1:
-                dict_list = [self.init_per_chain] * self.chains
-                return dict_list
+                return [self.init_per_chain] * self.chains
             else:
                 return [self.init_per_chain]
         else:
@@ -141,7 +141,7 @@ class morpho(object):
 
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
-            
+
             # Outputted text file containing name of cache file
             self.out_cache_fn = self.read_param(yd, 'stan.output.save_cache_name', None)
 
@@ -160,7 +160,6 @@ class morpho(object):
 
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
-    print("Creating Stan cache!")
 
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*=\s*(?P<function_name>\w+)\s*;*',theModel)
@@ -175,18 +174,27 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
         cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
     else:
         cache_fn = '{}/cached-{}-{}.pkl'.format(cashe_dir, model_name, code_hash)
-    try:
-        sm = pickle.load(open(cache_fn, 'rb'))
-    except:
+
+    if (args.force_restart):
+        print("Forced to create Stan cache!")
         sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:
-        print("Using cached StanModel")
+        try:
+            print("Trying to load cached StanModel")
+            sm = pickle.load(open(cache_fn, 'rb'))
+        except:
+            print("Creating Stan cache!")
+            sm = pystan.StanModel(model_code=theModel)
+            with open(cache_fn, 'wb') as f:
+                pickle.dump(sm, f)
+        else:
+            print("Using cached StanModel")
 
     cache_name_file = open(sa.out_cache_fn,'w+')
     cache_name_file.write(cache_fn)
-    
+
     return sm.sampling(**kwargs)
 
 def parse_args():
@@ -208,7 +216,11 @@ def parse_args():
                    metavar='<seed>',
                    help='Add random seed number to file',
                    required=False)
-
+    p.add_argument('-f','--force-restart',
+                   action='store_true',
+                   default=False,
+                   help='Force the creation of a cache',
+                   required=False)
     return p.parse_args()
 
 

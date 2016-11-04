@@ -256,12 +256,11 @@ def write_result(conf, stanres):
         ofilename = ofilename+'_'+args.job_id
     if sa.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        pyL.write_result_hdf5(sa, ofilename, result)
+        pyL.write_result_hdf5(sa, ofilename, stanres)
 
     if sa.out_format == 'root':
         ofilename = ofilename+'.root'
-        pyL.stan_write_root(sa, ofilename, result)
-
+        pyL.stan_write_root(sa, ofilename, stanres)
     return stanres
 
 def sampleFunc(arg):

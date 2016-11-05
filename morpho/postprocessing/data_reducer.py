@@ -87,7 +87,7 @@ def data_reducer(param_dict):
         h = ROOT.TH1F("h","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
         hw = ROOT.TH1F("hw","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
         havg = ROOT.TH1F("havg","",nBinHisto,min(freq_data),max(freq_data))#KE_min and KE_max
-        hFakeData = ROOT.TH1F("fake_data","",nBinHisto,min(freq_data),max(freq_data))
+        hFakeData = ROOT.TH1F("fake_data","fake_data",nBinHisto,min(freq_data),max(freq_data))
         list_fakespectrum_data = []
         list_x_axis_data = []
         list_spectrum_data = []
@@ -121,7 +121,8 @@ def data_reducer(param_dict):
                 tmp_number_events[0] = int(list_spectrum_data[i] )
                 tree_freq_spectrum.Fill()
         tree_freq_spectrum.Write()
-          
+        hFakeData.Write()
+        havg.Write()
 
         # This paragraph might be uncommented when doing debugging
         # can =  ROOT.TCanvas("can","can",200,10,600,400)
@@ -140,10 +141,12 @@ def data_reducer(param_dict):
         list_fakespectrum_data = []
         list_x_axis_data = []
         list_spectrum_data = []
-        he = ROOT.TH1F("he","",nBinHisto,min(KE_data),max(KE_data))#KE_min and KE_max
-        hew = ROOT.TH1F("hew","",nBinHisto,min(KE_data),max(KE_data))#KE_min and KE_max
-        heavg = ROOT.TH1F("heavg","",nBinHisto,min(KE_data),max(KE_data))#KE_min and KE_max
-        heFakeData = ROOT.TH1F("heFake","",nBinHisto,min(KE_data),max(KE_data))#KE_min and KE_max
+        minKE = param_dict['minKE']
+        maxKE = param_dict['maxKE']
+        he = ROOT.TH1F("he","",nBinHisto,minKE,maxKE)#KE_min and KE_max
+        hew = ROOT.TH1F("hew","",nBinHisto,minKE,maxKE)#KE_min and KE_max
+        heavg = ROOT.TH1F("heavg","",nBinHisto,minKE,maxKE)#KE_min and KE_max
+        heFakeData = ROOT.TH1F("heFake","",nBinHisto,minKE,maxKE)#KE_min and KE_max
         list_KE = []
         list_spectrum_data = []
         for i in range(0,len(spectrum_data)):
@@ -151,7 +154,7 @@ def data_reducer(param_dict):
             he.Fill(KE_data[i],spectrum_data[i]*dKE)
             hew.Fill(KE_data[i],1)
        # for i in range(0,h.GetNbinsX()):
-        for i in range(0,he.GetNbinsX()): 
+        for i in range(0,he.GetNbinsX()):
             list_x_axis_data.append(he.GetBinCenter(i))
             list_spectrum_data.append(he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
             heavg.Fill(he.GetBinCenter(i),he.GetBinContent(i)/max(1,hew.GetBinContent(i)))
@@ -178,8 +181,10 @@ def data_reducer(param_dict):
                 tmp_number_events[0] = int(list_spectrum_data[i] )
                 tree_KE_spectrum.Fill()
         tree_KE_spectrum.Write()
+        heFakeData.Write()
+        heavg.Write()
 
-        print 'Total number of events : ', heavg.Integral()  
+        print 'Total number of events : ', heavg.Integral()
 
     # cane = ROOT.TCanvas("cane","cane",200,10,600,400)
     # heavg.Draw()

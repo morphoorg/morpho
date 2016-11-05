@@ -1,0 +1,122 @@
+{
+   "morpho":
+   {
+     "do_stan": False,
+     "do_postprocessing": False,
+     "do_plots": True
+   },
+    "stan": {
+        
+        "name": "spectrum_analyzer_resolution",
+        
+        "model":   {
+            "file": "./MassHierarchy/models/spectrum_analyzer_resolution.stan",
+            "function_file": [
+                              {"name" : "constants", "file" : "../functions/constants.functions"},
+                              {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                              {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"},
+                              {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
+                              ],
+            "cache": "./MassHierarchy/cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./MassHierarchy/data/spectrum_information.data",
+                      "format":"R"
+                      },
+                      {
+                      "name": "./MassHierarchy/results/spectrum_additionalData.out",
+                      "format":"R"
+                      },
+                      {
+                      "name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_NH.root",
+                      "format" : "root",
+                      "tree" : "spectrum",
+                      "branches" : [
+                                     {"name" : "KE_data", "stan_alias" : "KE_data"},
+                                     {"name" : "n_spectrum_data", "stan_alias" : "n_spectrum_data", "data_format" : "integer"}
+                                    ]
+                      }
+
+                      ],
+            "parameters": [
+                           {
+                           "minKE": 18574.08,
+                           "maxKE": 18575.05
+                           }
+                           ]
+        },
+        
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 10000,
+            "warmup" : 8000,
+            "chain": 6,
+            "init": 
+                        {
+                            "amplitude" : 5.e+06,
+                            "background_rate" : 1.e-08,
+                            "uQ" : 18574.95,
+                            "resolution" : 0.01,
+                            "U_squared" : [0.02,0.98],
+                            "nu_mass" : [0.01,0.05],
+
+
+                        }
+                        
+            },
+        
+        
+        "sample": "./MassHierarchy/results/spectrum_analyzer.out",
+        
+        "output":
+        {
+            "name" : "./MassHierarchy/results/spectrum_analyzer_NH",
+            "format": "root",
+            "tree" : "analysis_parameters",
+            "save_cache_name": "./MassHierarchy/results/cache_fn/cache_name_file.txt", 
+            "fit": "./MassHierarchy/results/analysis_fit_NH.pkl", 
+            "branches": [
+                 {"variable": "background_rate", "root_alias":"background_rate"},
+                 {"variable": "resolution", "root_alias":"resolution"},
+                 {"variable": "amplitude", "root_alias":"amplitude"},
+                 {"variable": "U_squared", "root_alias": "U_squared", "ndim":2},
+                 {"variable": "nu_mass","root_alias": "nu_mass", "ndim" : 2},
+                 {"variable": "Q", "root_alias":"Q"},
+                 {"variable": "lp__","root_alias": "LogLikelihood"},
+                     ]
+        }
+        
+    },
+
+"postprocessing":
+  {
+    "which_pp":[
+      {
+      }
+   ]
+   },
+
+"plot":
+    {
+      "which_plot":[
+        {
+         "method_name": "timeseries",
+         "module_name": "timeseries",
+         "title": "",
+         "input_file_name" : "./MassHierarchy/results/spectrum_analyzer_NH.root",
+         "input_file_format" : "root",
+         "input_tree": "analysis_parameters",
+         "output_path": "./MassHierarchy/results/",
+         "output_format":"pdf",
+         "output_width": 600,
+         "output_height": 400,
+         "data": ["Q","amplitude","background_rate","resolution"],
+         "y_title": ["Q","amplitude","background_rate","resolution"],
+        }
+      ]
+    }
+}

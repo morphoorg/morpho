@@ -1,0 +1,97 @@
+{
+   "morpho":
+   {
+     "do_stan": True,
+     "do_postprocessing": False,
+     "do_plots": False
+   },
+    "stan": {
+        
+        "name": "mass_analysis",
+        
+        "model":   {
+            "file": "./MassHierarchy/models/mass_analysis_temp.stan",
+            "function_file": [
+                              {"name" : "constants", "file" : "../functions/constants.functions"},
+                              {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
+                              {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"},
+                              {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
+                              ],
+            "cache": "./MassHierarchy/cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./MassHierarchy/data/experiments_temp.data",
+                      "format":"R"
+                      },
+                      ],
+            "parameters": [
+                           {
+                           "use_m_beta":1,
+                           "use_m_s":0,
+                           "m_beta_squared_mean":0.0009,
+                           "m_beta_squared_sigma":0.0004,
+                           "m_s_mean":0.0294,
+                           "m_s_sigma":0.003
+                           }
+                           ]
+        },
+        
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 10000,
+            "warmup" : 8000,
+            "chain": 10},
+        
+        
+        "sample": "./MassHierarchy/results/mass_analysis.out",
+        
+        "output":
+        {
+            "name" : "./MassHierarchy/results/mass_analysis_asym",
+            "format": "root",
+            "tree" : "analysis_parameters",
+            "save_cache_name": "./MassHierarchy/results/cache_fn/cache_mass_asym.txt",
+             "fit": "./MassHierarchy/results/mass_analysis_asym.pkl", 
+            "branches": [
+                 {"variable": "sin2_th12","root_alias": "sin2_th12"},
+                 {"variable": "sin2_th13","root_alias": "sin2_th13"},
+                 {"variable": "delta_m21","root_alias": "delta_m21"},
+                 {"variable": "delta_m32","root_alias": "delta_m32"},
+                 {"variable": "delta_m32_with_sign","root_alias": "m32_withsign"},
+                 {"variable": "nu_mass","root_alias": "nu_mass", "ndim" : 3},
+                 {"variable": "min_mass","root_alias": "min_mass"},
+                 {"variable": "m_beta","root_alias": "mbeta"},
+                 {"variable": "lp__","root_alias": "LogLikelihood"},
+                     ]
+        }
+        
+    },
+
+"postprocessing":
+  {
+    "which_pp":[
+      {
+      }
+   ]
+   },
+
+"plot":
+    {
+      "which_plot":[
+        {
+        "method_name": "neutrino_params",
+        "module_name": "neutrino_params",
+        "read_cache_name": "./MassHierarchy/results/cache_name_file.txt",
+"input_fit_name": "./MassHierarchy/results/mass_analysis.pkl",
+        "output_path": "./MassHierarchy/results/",
+        "output_format": "pdf",
+        "plotting_options": ["neutrino_masses", "mass_params", "mixing_params"],
+        "data": {"nu_mass":"nu_mass","sin2_th12":"sin2_th12", "sin2_th13":"sin2_th13", "delta_m21":"delta_m21", "delta_m32":"delta_m32", "m32_withsign":"delta_m32_with_sign", "mbeta":"m_beta", "min_mass":"min_mass"}
+        }
+    ]
+    }
+}

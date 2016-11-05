@@ -1,3 +1,20 @@
+#======================================================
+# histo.py
+#
+# Author: M. Guigue, T. E. Weiss
+# Date: Aug. 4, 2016
+#
+# Description:
+#
+# Generic methods to display histograms with ROOT
+#=======================================================
+
+"""
+To do:
+    - Clean up
+    - Add log scales
+"""
+
 import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
 import cmath as math
 from array import array
@@ -155,12 +172,14 @@ def histo(param_dict):
         figurefullpath = path
     for namedata in param_dict['data']:
         figurefullpath += namedata + '_'
+    if figurefullpath.endswith('_'):
+        figurefullpath = figurefullpath[:-1]
     if 'output_format' in param_dict:
-        figurefullpath += param_dict['output_format']
+        figurefullpath += '.' + param_dict['output_format']
     else:
         figurefullpath += '.pdf'
     can.SaveAs(figurefullpath)
-    raw_input('Press <ret> to end -> ')
+    # raw_input('Press <ret> to end -> ')
 
     return can
 

@@ -1,0 +1,74 @@
+{
+   "morpho":
+   {
+     "do_stan": True,
+     "do_postprocessing": False,
+     "do_plots": False
+   },
+    "stan": {
+        
+        "name": "bernoulli_analysis",
+        
+        "model":   {
+            "file": "./MassHierarchy/models/bernoulli_analysis.stan",
+            "function_file": [
+                              ],
+            "cache": "./MassHierarchy/cache"
+        },
+        
+        "data": {
+            "type": "mc",
+            "files": [
+                      {
+                      "name": "./MassHierarchy/results/mass_analysis.root",
+                      "format":"root",
+                      "tree" : "analysis_parameters",
+                      "branches" : [
+                              {"name" : "m32_withsign", "stan_alias" : "m32_withsign"},
+                                    ]
+                      }
+                      ],
+            "parameters":[
+                         {
+                         "len_m32": 200000
+                         } 
+                         ]
+        },
+        
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 20000,
+            "warmup" : 10000,
+            "chain": 20},
+        
+        
+        "sample": "./MassHierarchy/results/bernoulli_analysis.out",
+        
+        "output":
+        {
+            "name" : "./MassHierarchy/results/bernoulli_analysis",
+            "format": "root",
+            "tree" : "bernoulli",
+            "save_cache_name": "./MassHierarchy/results/cache_bernoulli.txt",
+            "branches": [
+                 {"variable":"theta", "root_alias":"theta"}
+                        ]
+         }
+    },
+
+"postprocessing":
+  {
+    "which_pp":[
+      {
+      }
+   ]
+   },
+
+"plot":
+    {
+      "which_plot":[
+        {
+        }
+        ]
+    }
+}

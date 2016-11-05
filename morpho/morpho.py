@@ -16,6 +16,7 @@ import pystan
 import pystanLoad as pyL
 import json
 import fileinput
+import time
 
 from pystan import stan
 from h5py import File as HDF5
@@ -49,6 +50,7 @@ class morpho(object):
         d = self.__dict__
         sca = getargspec(stan_cache)
         sa = getargspec(stan)
+        # print({k: d[k] for k in (sa.args + sca.args) if k in d})
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_Stan_function(self):
@@ -65,8 +67,7 @@ class morpho(object):
         elif isinstance(self.init_per_chain,dict): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)):
             # init_per_chain is a dictionary
             if self.chains >1:
-                dict_list = [self.init_per_chain] * self.chains
-                return dict_list
+                return [self.init_per_chain] * self.chains
             else:
                 return [self.init_per_chain]
         else:
@@ -120,7 +121,15 @@ class morpho(object):
             self.iter = self.read_param(yd, 'stan.run.iter', 2000)
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
-            self.seed = self.read_param(yd, 'stan.run.seed', None)
+            # Adding a seed based on extra arguments, current time
+            if isinstance(args.seed,int):
+                self.seed=args.seed
+            elif args.autoseed:
+                self.seed = int(round(time.time() * 1000))
+            else:
+                self.seed = self.read_param(yd, 'stan.run.seed', None)
+
+            print(self.seed)
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
@@ -141,7 +150,7 @@ class morpho(object):
 
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
-            
+
             # Outputted text file containing name of cache file
             self.out_cache_fn = self.read_param(yd, 'stan.output.save_cache_name', None)
 
@@ -153,14 +162,11 @@ class morpho(object):
             # Plot configuration
             self.plot_dict = self.read_param(yd, 'plot.which_plot', None)
 
-            # Root plot configuration
-
         except Exception as err:
             raise err
 
 def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
-    print("Creating Stan cache!")
 
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*=\s*(?P<function_name>\w+)\s*;*',theModel)
@@ -175,18 +181,27 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
         cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
     else:
         cache_fn = '{}/cached-{}-{}.pkl'.format(cashe_dir, model_name, code_hash)
-    try:
-        sm = pickle.load(open(cache_fn, 'rb'))
-    except:
+
+    if (args.force_restart):
+        print("Forced to create Stan cache!")
         sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:
-        print("Using cached StanModel")
+        try:
+            print("Trying to load cached StanModel")
+            sm = pickle.load(open(cache_fn, 'rb'))
+        except:
+            print("Creating Stan cache!")
+            sm = pystan.StanModel(model_code=theModel)
+            with open(cache_fn, 'wb') as f:
+                pickle.dump(sm, f)
+        else:
+            print("Using cached StanModel")
 
     cache_name_file = open(sa.out_cache_fn,'w+')
     cache_name_file.write(cache_fn)
-    
+
     return sm.sampling(**kwargs)
 
 def parse_args():
@@ -208,7 +223,16 @@ def parse_args():
                    metavar='<seed>',
                    help='Add random seed number to file',
                    required=False)
-
+    p.add_argument('-f','--force-restart',
+                   action='store_true',
+                   default=False,
+                   help='Force the creation of a cache',
+                   required=False)
+    p.add_argument('-as','--autoseed',
+                   action='store_true',
+                   default=False,
+                   help='Generate the seed based on the current time in ms',
+                   required=False)
     return p.parse_args()
 
 
@@ -244,12 +268,11 @@ def write_result(conf, stanres):
         ofilename = ofilename+'_'+args.job_id
     if sa.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        pyL.write_result_hdf5(sa, ofilename, result)
+        pyL.write_result_hdf5(sa, ofilename, stanres)
 
     if sa.out_format == 'root':
         ofilename = ofilename+'.root'
-        pyL.stan_write_root(sa, ofilename, result)
-
+        pyL.stan_write_root(sa, ofilename, stanres)
     return stanres
 
 def sampleFunc(arg):

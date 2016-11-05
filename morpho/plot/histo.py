@@ -12,7 +12,7 @@
 """
 To do:
     - Clean up
-    - Add log
+    - Add log scales
 """
 
 import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree

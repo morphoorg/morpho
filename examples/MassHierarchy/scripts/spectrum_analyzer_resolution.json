@@ -1,7 +1,7 @@
 {
    "morpho":
    {
-     "do_stan": True,
+     "do_stan": False,
      "do_postprocessing": False,
      "do_plots": True
    },
@@ -114,8 +114,8 @@
          "output_format":"pdf",
          "output_width": 600,
          "output_height": 400,
-         "data": ["Q","amplitude"],
-         "y_title": ["Q","amplitude"],
+         "data": ["Q","amplitude","background_rate","resolution"],
+         "y_title": ["Q","amplitude","background_rate","resolution"],
         }
       ]
     }

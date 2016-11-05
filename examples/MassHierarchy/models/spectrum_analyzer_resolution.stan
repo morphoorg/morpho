@@ -10,7 +10,7 @@
 * Purpose:
 *
 * Fit a measured spectrum including an energy resolution.
-* The fitted spectrum is a 2-kinks model
+* The fitted spectrum is a 2-kinks model, but it should be easy to adapt it to more than 2-kinks.
 */
 
 

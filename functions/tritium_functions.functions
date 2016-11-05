@@ -102,7 +102,7 @@ real xsection(real kinetic_energy, real ave_kinetic, real bind_energy, real msq,
 real filter_log(real s, real s_min, real s_max, real n) {
 	return -1./2. * (log1p(pow(s_min/s,2.*n)) +log1p(pow(s/s_max,2.*n)) );
 }
-	
+
 
 // Method for generating beta decay spectrum (rate of events) with a flat background (larger signal fraction -> less background)
 // Uses vector of neutrino masses of size nFamily (3)
@@ -153,6 +153,36 @@ real spectral_shape(real KE, real Q, vector U, vector m_nu) {
 	}
 	return spectrum;
 	}
+
+real smeared_spectral_shape(real KE, real Q, vector U, vector m_nu, real resolution, int nStepPerSigma, int nSigmaConvol) {
+	// nStepPerSigma is a parameter used to calculate the step size for the convolution.
+	// nSigmaConvol is the number of sigma desired for the convolution (nSigmaConvol = 5 -> the convolution will go from -5 resolution to 5 resolution).
+	// The step in the integration is then given as resolution/nConvolution.
+	// The total number of steps is then given by
+	int nfamily;           // Number of neutrino species
+	real spectrum;         // spectral shape
+	real temp;             // temporary variable
+	real step = resolution/nConvolution; // size of the dE for integration
+	real integration_range = 2*nSigmaConvol*resolution; // size of integration around KE
+	int numberOfIntegration = integration_range/step; // number of integration to be done
+	
+	nfamily = num_elements(U);
+
+	spectrum = 0.;
+	for (i in 1:nfamily){
+		temp = 0.;
+		for (i in 1:numberOfIntegration){
+			KEprime = KE - nSigmaConvol*resolution + i*step;
+			if (KEprime < (Q-fabs(m_nu[i]))) {
+				temp = temp + (Q-KEprime)*sqrt(square(KEprime-Q)-square(m_nu[i]))*exp(-(KE-KEprime)**2/(2*resolution**2));
+			}
+		}
+		spectrum += temp * U[i]*1./(sqrt(2*pi())*resolution)*step;
+	}
+
+	return spectrum;
+}
+
 
 
 // Finds a simplex of isotopolog fractional composition values in the form (f_T2,f_HT,f_DT, f_atomic) given parameters epsilon and kappa

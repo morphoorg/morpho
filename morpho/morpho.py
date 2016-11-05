@@ -16,6 +16,7 @@ import pystan
 import pystanLoad as pyL
 import json
 import fileinput
+import time
 
 from pystan import stan
 from h5py import File as HDF5
@@ -120,7 +121,15 @@ class morpho(object):
             self.iter = self.read_param(yd, 'stan.run.iter', 2000)
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
-            self.seed = self.read_param(yd, 'stan.run.seed', None)
+            # Adding a seed based on extra arguments, current time
+            if isinstance(args.seed,int):
+                self.seed=args.seed
+            elif args.autoseed:
+                self.seed = int(round(time.time() * 1000))
+            else:
+                self.seed = self.read_param(yd, 'stan.run.seed', None)
+
+            print(self.seed)
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
@@ -152,8 +161,6 @@ class morpho(object):
 
             # Plot configuration
             self.plot_dict = self.read_param(yd, 'plot.which_plot', None)
-
-            # Root plot configuration
 
         except Exception as err:
             raise err
@@ -220,6 +227,11 @@ def parse_args():
                    action='store_true',
                    default=False,
                    help='Force the creation of a cache',
+                   required=False)
+    p.add_argument('-as','--autoseed',
+                   action='store_true',
+                   default=False,
+                   help='Generate the seed based on the current time in ms',
                    required=False)
     return p.parse_args()
 

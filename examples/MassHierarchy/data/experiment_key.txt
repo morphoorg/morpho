@@ -1,0 +1,37 @@
+# KamLAND (2013), SNO (2011)
+sin2_th12_means <- c(0.30362, 0.318801)
+sin2_th12_sigmas_upper <- c(0.0140634, 0.0241297)
+sin2_th12_sigmas_lower <- c(0.0121236, 0.0232016)
+
+# KamLAND (2013), RENO (2014), Double Chooz (2014), Daya Bay (2014)
+sin2_th13_means <- c(0.023, 0.0259219, 0.0230304, 0.0230304)
+sin2_th13_sigmas_upper <- c(0.002, 0.00337661, 0.00838628, 0.00209657)
+sin2_th13_sigmas_lower <- c(0.002, 0.00337661, 0.00760007, 0.00235864)
+
+# T2K (2014)
+sin2_th13_means_NH <- c(0.0363191)
+sin2_th13_means_IH <- c(0.0444783)
+sin2_th13_sigmas_NH_upper <- c(0.0102441)
+sin2_th13_sigmas_NH_lower <- c(0.00862662)
+sin2_th13_sigmas_IH_lower <- c(0.0123485)
+sin2_th13_sigmas_IH_upper <- c(0.0101532)
+
+# KamLAND (2013)
+delta_m21_means <- c(7.53e-05, 5.62e-05)
+delta_m21_sigmas_upper <- c(0.18e-05, 1.92e-05)
+delta_m21_sigmas_lower <- c(0.18e-05, 1.36e-05)
+
+# T2K (2015), Nova (2016), MINOS (2014), IceCube (2015), Daya Bay (2014)
+delta_m32_means_NH <- c(2.51e-03, 2.52e-03, 2.37e-03, 2.72e-03, 2.54e-03)
+delta_m32_sigmas_NH_upper <- c(0.10e-03, 0.20e-03, 0.09e-03, 0.19e-03, 0.19e-03)
+delta_m32_sigmas_NH_lower <- c(0.10e-03, 0.18e-03, 0.09e-03, 0.20e-03, 0.20e-03)
+
+# Nova (2016), MINOS (2014), IceCube (2015), Daya Bay (2014)
+delta_m32_means_IH <- c(-2.56e-03, -2.425e-03, -2.73e-03, -2.64e-03)
+delta_m32_sigmas_IH_upper <- c(0.19e-03, 0.105e-03, 0.18e-03, 0.19e-03)
+delta_m32_sigmas_IH_lower <- c(0.19e-03, 0.105e-03, 0.21e-03, 0.20e-03)
+
+# T2K (2015)
+delta_m13_means_IH <- c(2.48e-03)
+delta_m13_sigmas_IH_upper <- c(0.10e-03)
+delta_m13_sigmas_IH_upper <- c(0.10e-03)

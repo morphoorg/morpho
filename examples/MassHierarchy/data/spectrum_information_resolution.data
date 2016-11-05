@@ -1,0 +1,7 @@
+Q_mean <- 18574.95
+Q_err <- 0.1
+
+energy_resolution <- 0.01
+background_rate_mean <- 1.0e-08
+measuring_time <- 3.0e+08
+activity <- 0.01733126018

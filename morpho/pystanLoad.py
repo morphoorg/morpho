@@ -1,11 +1,19 @@
 # Definitions for loading and using pystan for analysis using root or hdf5
 
-from ROOT import *
+try:
+    from ROOT import *
+except ImportError:
+    print("Cannot import ROOT")
+    pass
+
+try:
+    import h5py
+except ImportError:
+    print("Cannot import h5py")
+    pass
 
 import pystan
 import numpy as np
-import h5py
-
 import array
 
 def readLabel(aDict, name, default=None):

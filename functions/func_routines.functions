@@ -21,6 +21,8 @@
         return mu + beta_raw * sigma;
     }
 
+
+
     //  Create a centered normal distribution function for faster convergence on cauchy distributions.
   	//  IMPORTANT: The beta_raw input must be distributed within bounds of -pi/2 to +pi/2.
 
@@ -28,3 +30,27 @@
   		beta_raw ~ uniform(-pi()/2. , + pi()/2.);
   		return mu +  tan(beta_raw) * sigma;
   	}
+
+
+
+// An assymetric gaussian function.
+// 68% of the distribution falls within sigma1 on the right side of the distribution and within sigma2 on the left side.
+// To use this function, write in the model block:
+//    	       target += assym_normal_log(y, mu, sigma1, sigma2);
+
+real asym_normal_log(real y, real[] mu, vector sigma1, vector sigma2){
+     real N1;
+     real N2;
+     real unnorm;
+     real gaussian;
+     
+     gaussian = 0;
+     for (i in 1:size(mu)){
+     	 N1 = exp(normal_lpdf(y | mu[i], sigma1[i]));
+     	 N2 = exp(normal_lpdf(y | mu[i], sigma2[i]));
+     	 unnorm = int_step(y-mu[i])*N1 + int_step(mu[i]-y)*N2;
+     	 gaussian = gaussian + unnorm/sqrt(unnorm);
+    }
+    return log(gaussian/size(mu));
+
+}

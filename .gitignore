@@ -18,3 +18,5 @@ python/doc/_build/*
 *.pdf
 *.pkl
 
+*.out
+*.txt

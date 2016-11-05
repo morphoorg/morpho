@@ -3,11 +3,13 @@
 try:
     from ROOT import *
 except ImportError:
+    print("Cannot import ROOT")
     pass
 
 try:
     import h5py
 except ImportError:
+    print("Cannot import h5py")
     pass
 
 import pystan

@@ -1,5 +1,5 @@
 #======================================================
-# histo.py
+# timeseries.py
 #
 # Author: M. Guigue, T. E. Weiss
 # Date: Aug. 4, 2016
@@ -44,11 +44,11 @@ def timeseries(param_dict):
     # Preparing the canvas
     if 'title' in param_dict and param_dict['title']!='':
         title = param_dict['title']
-        set_style_options(0.04,0.1,0.07,0.12)
+        set_style_options(0.04,0.15,0.07,0.12)
 
     else:
         title = ' ' #canvas_'+uuid.uuid4().get_hex()
-        set_style_options(0.04,0.1,0.03,0.12)
+        set_style_options(0.04,0.15,0.07,0.12)
 
     if 'output_width' in param_dict:
         width = param_dict['output_width']
@@ -100,6 +100,7 @@ def timeseries(param_dict):
         lgraph[dataname].Draw(drawing_options)
         lgraph[dataname].GetXaxis().SetTitle(xtitle[iCanvas])
         lgraph[dataname].GetYaxis().SetTitle(ytitle[iCanvas])
+        lgraph[dataname].SetTitle("")
         iCanvas +=1
     can.Update()
 
@@ -118,8 +119,10 @@ def timeseries(param_dict):
         figurefullpath = path
     for namedata in param_dict['data']:
         figurefullpath += namedata + '_'
+    if figurefullpath.endswith('_'):
+        figurefullpath = figurefullpath[:-1]
     if 'output_format' in param_dict:
-        figurefullpath += param_dict['output_format']
+        figurefullpath += '.' + param_dict['output_format']
     else:
         figurefullpath += '.pdf'
     can.SaveAs(figurefullpath)

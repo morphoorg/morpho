@@ -1,4 +1,4 @@
-Copyright (c) the Copyright Holders of Dripline and the Project 8 Collaboration, 2015.
+Copyright (c) the Copyright Holders of morpho and the Project 8 Collaboration, 2015.
 See the file AUTHORS for details on the copyright holders.
 All rights not expressly granted under this license are reserved.
 
@@ -7,11 +7,9 @@ Installation, use, reproduction, display, modification and redistribution of thi
 1. Redistributions of this software, in whole or in part, with or without modification, must reproduce the above copyright notice and these license conditions in this software, the user documentation and any other materials provided with the redistributed software.  By using, copying,  modifying or distributing the software (or any work based on the software) you agree to acknowledge its use in resulting scientific publications.
 
 2. The user documentation, if any, included with a redistribution, must include the following notice:
-"This product includes software developed by the Copyright Holders of Dripline and the Project 8 Collaboration"
-
 If that is where third-party acknowledgments normally appear, this acknowledgment must be reproduced in the modified version of this software itself.
  
-3. The names "Dripline" and "Project 8" may not be used to endorse or promote software, or products derived therefrom, except with prior written permission by the Project 8 Collaboration. If this software is redistributed in modified form, the name and reference of the modified version must be clearly distinguishable from that of this software.
+3. The names "morpho" and "Project 8" may not be used to endorse or promote software, or products derived therefrom, except with prior written permission by the Project 8 Collaboration. If this software is redistributed in modified form, the name and reference of the modified version must be clearly distinguishable from that of this software.
 
 4. You are under no obligation to provide anyone with any modifications of this software that you may develop, including but not limited to bug fixes, patches, upgrades or other enhancements or derivatives of the features, functionality or performance of this software. However, if you publish or distribute your modifications without contemporaneously requiring users to enter into a separate written license agreement, then you are deemed to have granted all Copyright Holders and members of the Project 8 Collaboration a license to your modifications, including modifications protected by any patent owned by you, under the conditions of this license.
 
@@ -19,7 +17,7 @@ If that is where third-party acknowledgments normally appear, this acknowledgmen
 
 6. DISCLAIMER
  
-THIS SOFTWARE IS PROVIDED BY THE MEMBERS OF THE PROJECT 8 COLLABORATION AND THE COPYRIGHT HOLDERS OF DRIPLINE AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, OF SATISFACTORY QUALITY, AND FITNESS FOR A PARTICULAR PURPOSE OR USE ARE DISCLAIMED. THE COPYRIGHT HOLDERS AND THE PROJECT 8 COLLABORATION MAKE NO REPRESENTATION THAT THE SOFTWARE AND MODIFICATIONS THEREOF, WILL NOT INFRINGE ANY PATENT, COPYRIGHT, TRADE SECRET OR OTHER PROPRIETARY RIGHT.
+THIS SOFTWARE IS PROVIDED BY THE MEMBERS OF THE PROJECT 8 COLLABORATION AND THE COPYRIGHT HOLDERS OF MORPHO AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, OF SATISFACTORY QUALITY, AND FITNESS FOR A PARTICULAR PURPOSE OR USE ARE DISCLAIMED. THE COPYRIGHT HOLDERS AND THE PROJECT 8 COLLABORATION MAKE NO REPRESENTATION THAT THE SOFTWARE AND MODIFICATIONS THEREOF, WILL NOT INFRINGE ANY PATENT, COPYRIGHT, TRADE SECRET OR OTHER PROPRIETARY RIGHT.
 
 7. LIMITATION OF LIABILITY
 

@@ -2,7 +2,7 @@ morpho
 ======
 The morpho package:
 
-    A python interface between Stan/PyStan Markov Chain Monte Carlo packahe for meta analysis and generation of fake data.
+    A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
 
 
 Requirements
@@ -15,17 +15,26 @@ Requirements
 	and   http://mc-stan.org/pystan.html.
 
 	PyStan has the following dependencies:
-
 	Python: 2.7 or 3.3
 	Cython: 0.19 or greater
 	NumPy: 1.7 or greater
+	
+	You will need to install via a package manager (such as apt-get):
+	- python-matplotlib
+	- python-pip
+	- git
+	- virtualenv 
+	To read and save files, you will need either hdf5 or root:
+	- hdf5: libhdf5-serial-dev libhdf5-dev
+	- root: root-system from apt-get or sources from https://root.cern.ch
 
 Install
 ======
-  PyStan and the required packages may be installed from the Python Package Index using pip inside a virtual environment.
+  PyStan and the required packages may be installed from the Python Index Package using pip inside a virtual environment.
   
   	  	  virtualenv ~/path/to/the/virtualenvironment/env
 	  	  pip install -r ~/path/to/morpho/requirements.txt
+	  	  pip install -r ~/path/to/morpho/optional-requirements.txt
                   
   Once all the required packages are installed on the virtualenvironment, one can load it using
   

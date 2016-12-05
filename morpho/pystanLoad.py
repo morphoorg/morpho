@@ -1,15 +1,21 @@
 # Definitions for loading and using pystan for analysis using root or hdf5
 
+import logging
+logger = logging.getLogger('pystanLoad.py')
+logger.setLevel(logging.DEBUG)
+base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
+logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
+
 try:
     from ROOT import *
 except ImportError:
-    print("Cannot import ROOT")
+    logger.debug("Cannot import ROOT")
     pass
 
 try:
     import h5py
 except ImportError:
-    print("Cannot import h5py")
+    logger.debug("Cannot import h5py")
     pass
 
 import pystan
@@ -140,7 +146,7 @@ def stan_data_files(theData):
                     afile.Close()
 
                 else:
-                    print atype,' format not yet implemented.'
+                    logger.warning('{} format not yet implemented.'.format(atype))
             elif tags=='parameters':
                 alist = dict(alist.items() + key.items())
 
@@ -159,11 +165,11 @@ def write_result_hdf5(conf, ofilename, stanres):
             if stan_parname not in fit:
                 warning = """WARNING: data {0} not found in fit!  Skipping...
                 """.format(stan_parname)
-                print warning
+                logger.debug(warning)
             else:
                 print(var['output_name'])
                 g[var['output_name']] = fit[stan_parname]
-    print 'The file has been written to', ofilename
+    logger.info('The file has been written to {}'.format(ofilename))
 
 
 def stan_write_root(conf, theFileName, theOutput):
@@ -211,4 +217,4 @@ def stan_write_root(conf, theFileName, theOutput):
     atree.Write()
     afile.Close()
 
-    print 'The file has been written to', theFileName
+    logger.info('The file has been written to {}'.format(theFileName))

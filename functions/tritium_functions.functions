@@ -162,9 +162,11 @@ real smeared_spectral_shape(real KE, real Q, vector U, vector m_nu, real resolut
 	int nfamily;           // Number of neutrino species
 	real spectrum;         // spectral shape
 	real temp;             // temporary variable
-	real step = resolution/nConvolution; // size of the dE for integration
-	real integration_range = 2*nSigmaConvol*resolution; // size of integration around KE
-	int numberOfIntegration = integration_range/step; // number of integration to be done
+	real astep; // size of the dE for integration
+	real integration_range;// = 2*nSigmaConvol*resolution; // size of integration around KE
+	int numberOfIntegration; // = integration_range/astep; // number of integration to be done
+
+	astep = resolution / nStepPerSigma;
 	
 	nfamily = num_elements(U);
 
@@ -172,12 +174,12 @@ real smeared_spectral_shape(real KE, real Q, vector U, vector m_nu, real resolut
 	for (i in 1:nfamily){
 		temp = 0.;
 		for (i in 1:numberOfIntegration){
-			KEprime = KE - nSigmaConvol*resolution + i*step;
+			KEprime = KE - nSigmaConvol*resolution + i*astep;
 			if (KEprime < (Q-fabs(m_nu[i]))) {
 				temp = temp + (Q-KEprime)*sqrt(square(KEprime-Q)-square(m_nu[i]))*exp(-(KE-KEprime)**2/(2*resolution**2));
 			}
 		}
-		spectrum += temp * U[i]*1./(sqrt(2*pi())*resolution)*step;
+		spectrum += temp * U[i]*1./(sqrt(2*pi())*resolution)*astep;
 	}
 
 	return spectrum;

@@ -343,3 +343,4 @@ if __name__ == '__main__':
                 raw_input('Press <ret> to end -> ')
         except Exception as err:
             logger.debug(err)
+    logger.info("This is all for now!")

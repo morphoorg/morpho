@@ -60,7 +60,7 @@ def preparingCanvas(param_dict):
         height = 400
     return title, width, height
 
-def preparingTitles(paramdict):
+def preparingTitles(param_dict):
     # Setting the titles
     if 'x_title' in param_dict:
         xtitle = param_dict['x_title']
@@ -76,10 +76,13 @@ def preparingTitles(paramdict):
 def histo(param_dict):
 
     # Preparing the canvas
+    print("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
 
     # Setting the titles
+    print("Preparing Titles")
+
     xtitle, ytitle = preparingTitles(param_dict)
 
     gSave = []

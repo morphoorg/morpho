@@ -246,7 +246,7 @@ def data_reducer(param_dict):
         value =(str(htime.GetNbinsX()))
         s2=str(value)
         # f.write('nBinTime <- ' + s2 + '\n')
-    tuple.Fill(s,s2)
+        tuple.Fill(s,s2)
     myfile.cd()
     tuple.Write()
     # f.close()

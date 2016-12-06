@@ -30,11 +30,6 @@ import re
 
 import pystan
 from pystan import stan
-try:
-    import h5py
-except ImportError:
-    logger.debug("Cannot import h5py")
-    pass
 from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
@@ -65,7 +60,6 @@ class morpho(object):
         d = self.__dict__
         sca = getargspec(stan_cache)
         sa = getargspec(stan)
-        # print({k: d[k] for k in (sa.args + sca.args) if k in d})
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_Stan_function(self):
@@ -86,7 +80,6 @@ class morpho(object):
             else:
                 return [self.init_per_chain]
         else:
-            # print('WARNING: init is not a list or a dictionary')
             return self.init_per_chain
 
     def get_do_Stan(self):
@@ -128,8 +121,9 @@ class morpho(object):
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
             # STAN data
-            datafiles = self.read_param(yd, 'stan.data', 'required')
-            self.data = pyL.stan_data_files(datafiles)
+            datafiles = self.read_param(yd, 'stan.data', None)
+            if datafiles is not None:
+                self.data = pyL.stan_data_files(datafiles)
 
             # STAN run conditions
             self.algorithm = self.read_param(yd, 'stan.run.algorithm', 'NUTS')
@@ -140,7 +134,8 @@ class morpho(object):
             if isinstance(args.seed,int):
                 self.seed=args.seed
             elif args.autoseed:
-                self.seed = int(round(time.time() * 1000))
+                self.seed = int(round(time.time()))
+                logger.debug("Autoseed activated: seed = {}".format(self.seed))
             else:
                 self.seed = self.read_param(yd, 'stan.run.seed', None)
 
@@ -212,9 +207,12 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
         else:
             logger.debug("Using cached StanModel")
 
-    cache_name_file = open(sa.out_cache_fn,'w+')
-    cache_name_file.write(cache_fn)
+    if sa.out_cache_fn is not None:
+        logger.debug("Saving cache file to {}".format(sa.out_cache_fn))
+        cache_name_file = open(sa.out_cache_fn,'w+')
+        cache_name_file.write(cache_fn)
 
+    logger.info("Starting the sampling")
     return sm.sampling(**kwargs)
 
 def parse_args():
@@ -299,7 +297,6 @@ def postprocessing(sa):
         getattr(i,minidict['method_name'])(minidict)
     return 1
 
-
 def plotting(sa):
     # Generic function for creating the PostProcessing class
     list_canvas = []
@@ -324,19 +321,17 @@ if __name__ == '__main__':
             cdata = yload(cfile)
             sa = morpho(cdata)
             if (sa.get_do_Stan()):
+                logger.info("Doing MC with Stan")
                 result = stan_cache(**(sa.gen_arg_dict()))
                 stanres = write_result(sa, result)
                 if sa.out_fit != None:
                     save_object(stanres, sa.out_fit)
                     logger.debug('Saved fit in {}'.format(sa.out_fit))
-                # plot_result(sa, result)
             if (sa.get_do_pp()):
                 postprocessing(sa)
             if (sa.get_do_plots()):
                 list_canvas = plotting(sa)
-
             if(sa.get_wait()):
                 raw_input('Press <ret> to end -> ')
-
         except Exception as err:
             logger.debug(err)

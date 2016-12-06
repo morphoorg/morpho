@@ -124,6 +124,7 @@ class morpho(object):
             # STAN data
             datafiles = self.read_param(yd, 'stan.data', None)
             if datafiles is not None:
+                logger.debug("Loading datafiles")
                 self.data = pyL.stan_data_files(datafiles)
 
             # STAN run conditions

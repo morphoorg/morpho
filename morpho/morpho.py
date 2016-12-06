@@ -296,7 +296,10 @@ def postprocessing(sa):
         logger.info("Doing postprocessing {}".format(minidict['method_name']))
         modulename = 'postprocessing.'+minidict['module_name']
         i = importlib.import_module("{}".format(modulename))
-        getattr(i,minidict['method_name'])(minidict)
+        try:
+            getattr(i,minidict['method_name'])(minidict)
+        except Exception as err:
+            logger.debug(err)
     return 1
 
 def plotting(sa):
@@ -306,7 +309,10 @@ def plotting(sa):
         logger.info("Doing plot {}".format(minidict['method_name']))
         modulename = 'plot.'+minidict['module_name']
         i = importlib.import_module("{}".format(modulename))
-        list_canvas.append(getattr(i,minidict['method_name'])(minidict))
+        try:
+            list_canvas.append(getattr(i,minidict['method_name'])(minidict))
+        except Exception as err:
+            logger.debug(err)
 
     return list_canvas
 

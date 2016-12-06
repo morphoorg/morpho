@@ -8,9 +8,9 @@
    },
 
     "stan": {
-        
+
         "name": "spectrum_generator",
-        
+
         "model":   {
             "file": "./MassHierarchy/models/spectrum_generator.stan",
             "function_file": [
@@ -21,7 +21,7 @@
                               ],
             "cache": "./MassHierarchy/cache"
         },
-        
+
         "data": {
             "type": "mc",
             "files": [
@@ -40,15 +40,15 @@
                            ]
 
         },
-        
+
         "run": {
             "algorithm": "NUTS",
             "iter": 50000,
             "warmup": 25000,
             "chain": 10},
-        
+
         "sample": "./MassHierarchy/results/MHtest_generator.out",
-        
+
         "output":{
             "name": "./MassHierarchy/results/spectrum_generator_NH",
             "format": "root",
@@ -60,7 +60,7 @@
                     {"variable" : "spectrum_data", "root_alias": "spectrum_data"}
                      ]
         }
-        
+
     },
 
 "postprocessing":
@@ -81,7 +81,6 @@
         "output_file_format": "root",
         "output_KE_spectrum_tree": "spectrum",
         "output_time_spectrum_tree": "None",
-        "additional_file_name" : "./MassHierarchy/results/spectrum_additionalData.out",
       }
 
     ]

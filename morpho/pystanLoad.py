@@ -1,7 +1,7 @@
 # Definitions for loading and using pystan for analysis using root or hdf5
 
 import logging
-logger = logging.getLogger('pystanLoad.py')
+logger = logging.getLogger('morpho.py')
 logger.setLevel(logging.DEBUG)
 base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
 logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
@@ -44,7 +44,6 @@ def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
 
 def stan_data_files(theData):
     alist = {}
-
     for tags in theData.keys():
         for key in theData[tags]:
             if tags=='files':
@@ -136,13 +135,13 @@ def stan_data_files(theData):
                                     insertIntoDataStruct(aname,areal[0], alist)
 
                                 else:
-                                    aint[0] = getattr(atree, lbr['name'])
+                                    aint[0] = int(getattr(atree, lbr['name']))
                                     insertIntoDataStruct(aname,aint[0], alist)
-
                             else:
                                 avalue = branch.GetValue(iEntry,1)
                                 insertIntoDataStruct(aname, avalue, alist)
-
+                        if len(alist[aname])==1:
+                            alist.update({aname: alist[aname][0]})
                     afile.Close()
 
                 else:
@@ -167,7 +166,6 @@ def write_result_hdf5(conf, ofilename, stanres):
                 """.format(stan_parname)
                 logger.debug(warning)
             else:
-                print(var['output_name'])
                 g[var['output_name']] = fit[stan_parname]
     logger.info('The file has been written to {}'.format(ofilename))
 

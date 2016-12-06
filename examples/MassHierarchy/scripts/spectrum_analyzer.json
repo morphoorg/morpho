@@ -6,9 +6,9 @@
      "do_plots": True
    },
     "stan": {
-        
+
         "name": "spectrum_analyzer",
-        
+
         "model":   {
             "file": "./MassHierarchy/models/spectrum_analyzer.stan",
             "function_file": [
@@ -19,7 +19,7 @@
                               ],
             "cache": "./MassHierarchy/cache"
         },
-        
+
         "data": {
             "type": "mc",
             "files": [
@@ -28,8 +28,13 @@
                       "format":"R"
                       },
                       {
-                      "name": "./MassHierarchy/results/spectrum_additionalData.out",
-                      "format":"R"
+                      "name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_NH.root",
+                      "format" : "root",
+                      "tree" : "additional_data",
+                      "branches" : [
+                                     {"name" : "nBinSpectrum", "stan_alias" : "nBinSpectrum", "data_format" : "integer"},
+                                     {"name" : "nBinTime", "stan_alias" : "nBinTime", "data_format" : "integer"},
+                                    ]
                       },
                       {
                       "name" : "./MassHierarchy/results/spectrum_generator_reduced_fake_NH.root",
@@ -49,23 +54,23 @@
                            }
                            ]
         },
-        
+
         "run": {
             "algorithm": "NUTS",
             "iter": 80000,
             "warmup" : 70000,
             "chain": 8},
-        
-        
+
+
         "sample": "./MassHierarchy/results/spectrum_analyzer.out",
-        
+
         "output":
         {
             "name" : "./MassHierarchy/results/spectrum_analyzer_NH3",
             "format": "root",
             "tree" : "analysis_parameters",
-            "save_cache_name": "./MassHierarchy/results/cache_fn/cache_name_file3.txt", 
-            "fit": "./MassHierarchy/results/analysis_fit_NH3.pkl", 
+            "save_cache_name": "./MassHierarchy/results/cache_fn/cache_name_file3.txt",
+            "fit": "./MassHierarchy/results/analysis_fit_NH3.pkl",
             "branches": [
                  {"variable": "Ue_squared", "root_alias": "Ue_squared", "ndim":3},
                  {"variable": "delta_m21","root_alias": "delta_m21"},
@@ -78,7 +83,7 @@
                  {"variable": "lp__","root_alias": "LogLikelihood"},
                      ]
         }
-        
+
     },
 
 "postprocessing":
@@ -103,7 +108,7 @@
         "data": {"Q":18574.95, "Ue_squared":"Ue_squared", "m_nu":"nu_mass", "time":3.0e+07, "activity":0.000032091, "bkgd_rate":0.000001, "x_axis_data":"KE_check", "x_label":"Kinetic Energy (eV)", "spectrum_data":"spectrum_rate_check"},
         "x_range": [18573.00, 18575.05],
         "y_scale": "log"
-        },   
+        },
         {
         "method_name": "neutrino_params",
         "module_name": "neutrino_params",

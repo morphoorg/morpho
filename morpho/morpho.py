@@ -5,21 +5,32 @@
 #
 # author: j.n. kofron <jared.kofron@gmail.com>
 #
+
 from __future__ import absolute_import
+
+
 
 import os,sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-import re
-import pystan
-import pystanLoad as pyL
-import json
-import fileinput
-import time
 
+import logging
+logger = logging.getLogger('morpho.py')
+logger.setLevel(logging.DEBUG)
+base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
+logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
+
+
+import time
+import fileinput
+import json
+import pystanLoad as pyL
+import re
+import random
+
+import pystan
 from pystan import stan
-from h5py import File as HDF5
 from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
@@ -40,7 +51,7 @@ class morpho(object):
                 err = """FATAL: Configuration parameter {0} required but not\
                 provided in config file!
                 """.format(node)
-                print(err)
+                logger.debug(err)
                 raise exc
             else:
                 data = default
@@ -50,7 +61,6 @@ class morpho(object):
         d = self.__dict__
         sca = getargspec(stan_cache)
         sa = getargspec(stan)
-        # print({k: d[k] for k in (sa.args + sca.args) if k in d})
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_Stan_function(self):
@@ -62,7 +72,7 @@ class morpho(object):
             elif len(self.init_per_chain)==self.chains :
                 return self.init_per_chain
             else:
-                print('ERROR: number of chains is not equal to the size of the list of dictionaries')
+                logger.error('Number of chains is not equal to the size of the list of dictionaries')
                 return self.init_per_chain
         elif isinstance(self.init_per_chain,dict): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)):
             # init_per_chain is a dictionary
@@ -71,7 +81,6 @@ class morpho(object):
             else:
                 return [self.init_per_chain]
         else:
-            # print('WARNING: init is not a list or a dictionary')
             return self.init_per_chain
 
     def get_do_Stan(self):
@@ -113,8 +122,9 @@ class morpho(object):
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
             # STAN data
-            datafiles = self.read_param(yd, 'stan.data', 'required')
-            self.data = pyL.stan_data_files(datafiles)
+            datafiles = self.read_param(yd, 'stan.data', None)
+            if datafiles is not None:
+                self.data = pyL.stan_data_files(datafiles)
 
             # STAN run conditions
             self.algorithm = self.read_param(yd, 'stan.run.algorithm', 'NUTS')
@@ -125,11 +135,10 @@ class morpho(object):
             if isinstance(args.seed,int):
                 self.seed=args.seed
             elif args.autoseed:
-                self.seed = int(round(time.time() * 1000))
+                self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
+                logger.debug("Autoseed activated: seed = {}".format(self.seed))
             else:
                 self.seed = self.read_param(yd, 'stan.run.seed', None)
-
-            print(self.seed)
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
@@ -183,25 +192,28 @@ def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwar
         cache_fn = '{}/cached-{}-{}.pkl'.format(cashe_dir, model_name, code_hash)
 
     if (args.force_restart):
-        print("Forced to create Stan cache!")
+        logger.debug("Forced to create Stan cache!")
         sm = pystan.StanModel(model_code=theModel)
         with open(cache_fn, 'wb') as f:
             pickle.dump(sm, f)
     else:
         try:
-            print("Trying to load cached StanModel")
+            logger.debug("Trying to load cached StanModel")
             sm = pickle.load(open(cache_fn, 'rb'))
         except:
-            print("Creating Stan cache!")
+            logger.debug("Creating Stan cache!")
             sm = pystan.StanModel(model_code=theModel)
             with open(cache_fn, 'wb') as f:
                 pickle.dump(sm, f)
         else:
-            print("Using cached StanModel")
+            logger.debug("Using cached StanModel")
 
-    cache_name_file = open(sa.out_cache_fn,'w+')
-    cache_name_file.write(cache_fn)
+    if sa.out_cache_fn is not None:
+        logger.debug("Saving cache file to {}".format(sa.out_cache_fn))
+        cache_name_file = open(sa.out_cache_fn,'w+')
+        cache_name_file.write(cache_fn)
 
+    logger.info("Starting the sampling")
     return sm.sampling(**kwargs)
 
 def parse_args():
@@ -211,7 +223,7 @@ def parse_args():
     p = ArgumentParser(description='''
         An analysis tool for Project 8 data.
     ''')
-    p.add_argument('--config',
+    p.add_argument('-c','--config',
                    metavar='<configuration file>',
                    help='Full path to the configuration file used by morpho',
                    required=True)
@@ -219,7 +231,7 @@ def parse_args():
                    metavar='<job_id>',
                    help='Job id number for batching',
                    required=False)
-    p.add_argument('--seed',
+    p.add_argument('-s','--seed',
                    metavar='<seed>',
                    help='Add random seed number to file',
                    required=False)
@@ -256,13 +268,12 @@ def plot_result(conf, stanres):
             if parname not in fit:
                 warning = """WARNING: data {0} not found in fit!  Skipping...
                 """.format(parname)
-                print warning
+                logger.debug(warning)
             else:
                 stanres.plot(parname)
-        print(result)
 
 def write_result(conf, stanres):
-    print("Writing results!")
+    logger.info("Writing results!")
     ofilename = sa.out_fname
     if (args.job_id>0):
         ofilename = ofilename+'_'+args.job_id
@@ -276,23 +287,22 @@ def write_result(conf, stanres):
     return stanres
 
 def sampleFunc(arg):
-    print('you called sampleFunc({})'.format(arg))
+    logger.info('you called sampleFunc({})'.format(arg))
 
 def postprocessing(sa):
     # Generic function for creating the PostProcessing class
     for minidict in sa.pp_dict:
-        print("Doing postprocessing {}".format(minidict['method_name']))
+        logger.info("Doing postprocessing {}".format(minidict['method_name']))
         modulename = 'postprocessing.'+minidict['module_name']
         i = importlib.import_module("{}".format(modulename))
         getattr(i,minidict['method_name'])(minidict)
     return 1
 
-
 def plotting(sa):
     # Generic function for creating the PostProcessing class
     list_canvas = []
     for minidict in sa.plot_dict:
-        print("Doing plot {}".format(minidict['method_name']))
+        logger.info("Doing plot {}".format(minidict['method_name']))
         modulename = 'plot.'+minidict['module_name']
         i = importlib.import_module("{}".format(modulename))
         list_canvas.append(getattr(i,minidict['method_name'])(minidict))
@@ -300,30 +310,29 @@ def plotting(sa):
     return list_canvas
 
 def save_object(obj, filename):
-    print("Saving into pickle file: {}".format(filename))
+    logger.info("Saving into pickle file: {}".format(filename))
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
+    logger.info("Welcome to morpho")
     args = parse_args()
     with open(args.config, 'r') as cfile:
         try:
             cdata = yload(cfile)
             sa = morpho(cdata)
             if (sa.get_do_Stan()):
+                logger.info("Doing MC with Stan")
                 result = stan_cache(**(sa.gen_arg_dict()))
                 stanres = write_result(sa, result)
                 if sa.out_fit != None:
                     save_object(stanres, sa.out_fit)
-                    print('saved fit')
-                # plot_result(sa, result)
+                    logger.debug('Saved fit in {}'.format(sa.out_fit))
             if (sa.get_do_pp()):
                 postprocessing(sa)
             if (sa.get_do_plots()):
                 list_canvas = plotting(sa)
-
             if(sa.get_wait()):
                 raw_input('Press <ret> to end -> ')
-
         except Exception as err:
-            print(err)
+            logger.debug(err)

@@ -234,19 +234,19 @@ def data_reducer(param_dict):
     # canfakedata.SaveAs("tritium_model/ploting_scripts/" + "spectrum_vs_freq_data_average_logy.pdf")
 
     # Saving the additional data (aka the number of bin for each tree)
-    tuple = ROOT.TNtupleD("additional_data","additional_data","nBinSpectrum:nBinTime")
+    tuple = ROOT.TNtuple("additional_data","additional_data","nBinSpectrum:nBinTime")
     # f = open(param_dict['additional_file_name'],'w')
     if ('frequency' in param_dict['which_spectrum']):
-        value =(str(h.GetNbinsX()))
+        value =h.GetNbinsX()
     elif ('KE' in param_dict['which_spectrum']):
-        value =(str(he.GetNbinsX()))
-    s=str(value)
-    # f.write('nBinSpectrum <- ' + s + '\n')
+        value =he.GetNbinsX()
+
     if ('time' in param_dict['which_spectrum']):
-        value =(str(htime.GetNbinsX()))
-        s2=str(value)
-        # f.write('nBinTime <- ' + s2 + '\n')
-        tuple.Fill(s,s2)
+        value2 =htime.GetNbinsX()
+    else:
+        value2=0
+    tuple.Fill(value,value2)
+
     myfile.cd()
     tuple.Write()
     # f.close()

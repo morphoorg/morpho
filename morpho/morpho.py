@@ -27,6 +27,7 @@ import fileinput
 import json
 import pystanLoad as pyL
 import re
+import random
 
 import pystan
 from pystan import stan
@@ -134,7 +135,7 @@ class morpho(object):
             if isinstance(args.seed,int):
                 self.seed=args.seed
             elif args.autoseed:
-                self.seed = int(round(time.time()))
+                self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
                 logger.debug("Autoseed activated: seed = {}".format(self.seed))
             else:
                 self.seed = self.read_param(yd, 'stan.run.seed', None)

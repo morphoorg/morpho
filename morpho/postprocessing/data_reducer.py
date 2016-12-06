@@ -37,6 +37,13 @@ Below is a  to-do list:
     A possibility is also to make a tree with n branches with only one element, these elements are then read in the analyzer as the number of bin/data to be analyzed
 '''
 
+import logging
+logger = logging.getLogger('data_reducer.py')
+logger.setLevel(logging.DEBUG)
+base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
+logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
+
+
 import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
 import cmath as math
 from array import array

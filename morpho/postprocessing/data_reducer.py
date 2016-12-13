@@ -50,35 +50,34 @@ from array import array
 import re
 
 def data_reducer(param_dict):
-    print("Reducing the generated data!")
-    print("Input data is: {}".format(param_dict['input_file_name']))
+    logger.info("Reducing the generated data!")
+    logger.info("Input data is: {}".format(param_dict['input_file_name']))
     if (param_dict['input_file_name'].endswith('.root')):
         param_dict['input_file_format']='root'
     if (param_dict['input_file_name'].endswith('.h5')):
         param_dict['input_file_format']='h5'
     if (param_dict['input_file_format']=='root'):
-        # if(param_dict['output_time_spectrum_tree']=='None'):
-        # x_axis_data, spectrum_data = readTTree(param_dict['input_file_name'],param_dict['input_tree'], param_dict['output_time_spectrum_tree'])
-        #     time_data=None
-        # else:
         time_data, freq_data, spectrum_data, KE_data = readTTree(param_dict['input_file_name'],param_dict['input_tree'])
-
     elif (param_dict['input_file_format']=='h5'):
-        print('h5 file is not yet supported in the data_reducer')
+        logger.debug('h5 file is not yet supported in the data_reducer')
+        return
     else:
-        print('{} file is not a known format'.format(param_dict['input_file_format']))
+        logger.debug('{} file is not a known format'.format(param_dict['input_file_format']))
+        return
 
     nBinHisto = param_dict['nBinHisto']
     dKE = (param_dict['maxKE'] - param_dict['minKE'])/nBinHisto
 
     # Creating the root file
-    print("Output data is: {}".format(param_dict['output_file_name']))
+    logger.info("Output data is: {}".format(param_dict['output_file_name']))
     if param_dict['output_file_format']=='root':
         myfile = ROOT.TFile(param_dict['output_file_name'],"RECREATE")
     elif param_dict['output_file_format']=='h5':
-        print('h5 file is not yet supported in the data_reducer')
+        logger.debug('h5 file is not yet supported in the data_reducer')
+        return
     else:
-        print('{} file is not a known format'.format(param_dict['output_file_format']))
+        logger.debug('{} file is not a known format'.format(param_dict['output_file_format']))
+        return
 
 
     if 'Poisson_redistribution' not in param_dict:
@@ -180,7 +179,6 @@ def data_reducer(param_dict):
                 tmp_x_axis_data[0] = list_x_axis_data[i]
                 tmp_number_events[0] = int(list_fakespectrum_data[i] )
                 tree_KE_spectrum.Fill()
-                print list_x_axis_data[i], list_fakespectrum_data[i] , list_spectrum_data[i]
         else:
             #Not a fake spectrum
             for i in range(0,len(list_x_axis_data)):
@@ -191,7 +189,6 @@ def data_reducer(param_dict):
         heFakeData.Write()
         heavg.Write()
 
-        print 'Total number of events : ', heavg.Integral()
 
     # cane = ROOT.TCanvas("cane","cane",200,10,600,400)
     # heavg.Draw()
@@ -258,11 +255,11 @@ def data_reducer(param_dict):
     tuple.Write()
     # f.close()
     myfile.Close()
-    print('Prostprocessing complete!')
+    logger.info('Prostprocessing complete!')
 
 
 def readTTree(root_file_path,tree_name):
-    print('Reading {}'.format(root_file_path))
+    logger.info('Reading {}'.format(root_file_path))
     myfile = ROOT.TFile(root_file_path,"READ")
     tree = myfile.Get(tree_name)
     n = int(tree.GetEntries())

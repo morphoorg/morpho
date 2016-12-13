@@ -40,7 +40,7 @@ def set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style.cd()
 
 def timeseries(param_dict):
-
+    logger.info('Plotting timeseries')
     # Preparing the canvas
     if 'title' in param_dict and param_dict['title']!='':
         title = param_dict['title']
@@ -68,12 +68,10 @@ def timeseries(param_dict):
         xtitle = param_dict['x_title']
     else:
         xtitle = ['']*ntimeseries
-    print(xtitle)
     if 'y_title' in param_dict:
         ytitle = param_dict['y_title']
     else:
         ytitle = ['']*ntimeseries
-    print(ytitle)
 
     if 'draw_opt' in param_dict:
         drawing_options = param_dict['draw_opt']
@@ -85,10 +83,8 @@ def timeseries(param_dict):
     myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
     tree = myfile.Get(param_dict['input_tree'])
     n = tree.GetEntries()
-    print(n)
     iCanvas = 0
     for dataname in param_dict['data']:
-        print(dataname)
         list_datax = [0.]*n
         list_datay = [0.]*n
         for i in range(0,n):

@@ -15,6 +15,12 @@ To do:
     - Add log scales
 """
 
+import logging
+logger = logging.getLogger('histo.py')
+logger.setLevel(logging.DEBUG)
+base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
+logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
+
 import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
 import cmath as math
 from array import array
@@ -60,7 +66,7 @@ def preparingCanvas(param_dict):
         height = 400
     return title, width, height
 
-def preparingTitles(paramdict):
+def preparingTitles(param_dict):
     # Setting the titles
     if 'x_title' in param_dict:
         xtitle = param_dict['x_title']
@@ -76,10 +82,13 @@ def preparingTitles(paramdict):
 def histo(param_dict):
 
     # Preparing the canvas
+    logger.info("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
 
     # Setting the titles
+    logger.info("Preparing Titles")
+
     xtitle, ytitle = preparingTitles(param_dict)
 
     gSave = []
@@ -96,7 +105,6 @@ def histo(param_dict):
         myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
         for namedata in param_dict['data']:
             list_data = []
-            print(namedata)
             # myfile.Close()
             tree = myfile.Get(param_dict['input_tree'])
             n = tree.GetEntries()
@@ -148,13 +156,11 @@ def histo(param_dict):
                         ymin,ytemp = autoRangeContent(list_histo[j])
                         ymax = param_dict['y_range'][1]
                         list_histo[j].GetYaxis().SetRangeUser(ymin,ymax)
-                print(xtitle)
             else:
                 list_histo[j].Draw("SAME")
             # gSave.append(list_histo[j])
             can.Update()
 
-            print(j)
 
             j=j+1
     gSave.append(can)
@@ -193,17 +199,15 @@ def histo2D(param_dict):
 
 
 def autoRangeList(list):
-    print('Using autoRange')
+    logger.info('Using autoRange')
     xmin = min(list)
     xmax = max(list)  # need to be done
-    print(xmin,xmax)
     return xmin, xmax
 def autoRangeContent(hist):
-    print('Using autoRange')
+    logger.info('Using autoRange')
     list = []
     for i in range(0,hist.GetNbinsX()):
         list.append(hist.GetBinContent(i))
     xmin = min(list)*0.9
     xmax = max(list)*1.1  # need to be done
-    print(xmin,xmax)
     return xmin, xmax

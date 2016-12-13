@@ -2,7 +2,7 @@
   "morpho":
   {
     "do_stan": True,
-    "do_postprocessing": False,
+    "do_postprocessing": True,
     "do_plots": True,
     "wait_at_the_end":True
   },

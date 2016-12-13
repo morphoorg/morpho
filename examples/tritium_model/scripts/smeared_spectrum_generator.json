@@ -12,21 +12,21 @@
         "name": "spectrum_generator",
 
         "model":   {
-            "file": "./MassHierarchy/models/smeared_spectrum_generator.stan",
+            "file": "./tritium_model/models/smeared_spectrum_generator.stan",
             "function_file": [
                               {"name" : "constants", "file" : "../functions/constants.functions"},
                               {"name" : "func_routines", "file" : "../functions/func_routines.functions"},
                               {"name" : "neutrino_mass_functions", "file" : "../functions/neutrino_mass_functions.functions"},
                               {"name" : "tritium_functions", "file" : "../functions/tritium_functions.functions"}
                               ],
-            "cache": "./MassHierarchy/cache"
+            "cache": "./tritium_model/cache"
         },
 
         "data": {
             "type": "mc",
             "files": [
                       {
-                      "name": "./MassHierarchy/data/spectrum_information.data",
+                      "name": "./tritium_model/data/spectrum_information.data",
                       "format":"R"
                       }
                       ],
@@ -48,7 +48,7 @@
             "chain": 10},
 
         "output":{
-            "name": "./MassHierarchy/results/smeared_spectrum",
+            "name": "./tritium_model/results/smeared_spectrum",
             "format": "root",
             "tree" : "generated",
             "branches" : [
@@ -67,13 +67,13 @@
         "module_name": "data_reducer",
         "which_spectrum": ["KE"],
         "Poisson_redistribution": True,
-        "input_file_name" : "./MassHierarchy/results/smeared_spectrum.root",
+        "input_file_name" : "./tritium_model/results/smeared_spectrum.root",
         "input_file_format" : "root",
         "input_tree": "generated",
         "minKE":18574.1,
         "maxKE":18575.05,
         "nBinHisto":45,
-        "output_file_name" : "./MassHierarchy/results/smeared_spectrum_reduced.root",
+        "output_file_name" : "./tritium_model/results/smeared_spectrum_reduced.root",
         "output_file_format": "root",
         "output_KE_spectrum_tree": "spectrum"
       }
@@ -87,16 +87,16 @@
 
          {
          "method_name": "histo",
-         "module_name": "histo",
+         "module_name": "spectra",
          "title": "",
-         "input_file_name" : "./MassHierarchy/results/smeared_spectrum.root",
+         "input_file_name" : "./tritium_model/results/smeared_spectrum.root",
          "input_file_format" : "root",
          "input_tree": "generated",
-         "output_path": "./MassHierarchy/results/",
+         "output_path": "./tritium_model/results/",
          "output_format":"pdf",
          "output_width": 600,
          "output_height": 400,
-         "data": ["KE_data"],
+         "data": [["KE_data","n_spectrum_data"]],
          "x_title": "Kinetic Energy (eV)",
          "y_title": "",
          "x_range":[18573.95, 18575.10],

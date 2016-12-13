@@ -38,7 +38,7 @@ Below is a  to-do list:
 '''
 
 import logging
-logger = logging.getLogger('data_reducer.py')
+logger = logging.getLogger('data_reducer')
 logger.setLevel(logging.DEBUG)
 base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
 logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')

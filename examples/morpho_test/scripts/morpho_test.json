@@ -1,0 +1,54 @@
+{
+   "morpho":
+   {
+     "do_stan": True,
+     "do_postprocessing": False,
+     "do_plots": False
+   },
+    "stan": {
+
+        "name": "morpho_test",
+
+        "model":   {
+            "file": "./morpho_test/models/morpho_test.stan",
+            "function_file": [
+                              ],
+            "cache": "./morpho_test/cache"
+        },
+
+        "run": {
+            "algorithm": "NUTS",
+            "iter": 2000,
+            "warmup" : 1000,
+            "chain": 4},
+
+
+        "sample": "./morpho_test/results/morpho_test.out",
+
+        "output":
+        {
+            "name" : "./morpho_test/results/morpho_test",
+            "format": "root",
+            "tree" : "morpho_test",
+            "branches": [
+                 {"variable":"theta", "root_alias":"theta"}
+                        ]
+         }
+    },
+
+"postprocessing":
+  {
+    "which_pp":[
+      {
+      }
+   ]
+   },
+
+"plot":
+    {
+      "which_plot":[
+        {
+        }
+        ]
+    }
+}

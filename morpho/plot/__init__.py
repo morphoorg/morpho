@@ -3,6 +3,9 @@
 
 from __future__ import absolute_import
 
-import pkg_resources
-__version__ = pkg_resources.require("morpho")[0].version.split('-')[0]
-__commit__ = pkg_resources.require("morpho")[0].version.split('-')[-1]
+from .contours import *
+from .histo import *
+from .plotting_routines import *
+from .neutrino_params import *
+from .spectra import *
+from .timeseries import *

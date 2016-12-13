@@ -20,3 +20,4 @@ python/doc/_build/*
 
 *.out
 *.txt
+examples/krypton_run/data/events_combined_full.root

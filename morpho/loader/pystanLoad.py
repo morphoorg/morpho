@@ -1,7 +1,7 @@
 # Definitions for loading and using pystan for analysis using root or hdf5
 
 import logging
-logger = logging.getLogger('pystanLoad.py')
+logger = logging.getLogger('pystanLoad')
 logger.setLevel(logging.DEBUG)
 base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
 logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')

@@ -8,15 +8,13 @@
 
 from __future__ import absolute_import
 
-
-
 import os,sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
 
 import logging
-logger = logging.getLogger('morpho.py')
+logger = logging.getLogger('morpho')
 logger.setLevel(logging.DEBUG)
 base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
 logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
@@ -25,7 +23,7 @@ logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
 import time
 import fileinput
 import json
-import pystanLoad as pyL
+from morpho.loader import pystanLoad as pyL
 import re
 import random
 

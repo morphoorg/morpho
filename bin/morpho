@@ -8,15 +8,13 @@
 
 from __future__ import absolute_import
 
-
-
 import os,sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
 
 import logging
-logger = logging.getLogger('morpho.py')
+logger = logging.getLogger('morpho')
 logger.setLevel(logging.DEBUG)
 base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
 logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
@@ -25,7 +23,6 @@ logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
 import time
 import fileinput
 import json
-import pystanLoad as pyL
 import re
 import random
 
@@ -125,6 +122,7 @@ class morpho(object):
             datafiles = self.read_param(yd, 'stan.data', None)
             if datafiles is not None:
                 logger.debug("Loading datafiles")
+                from morpho.loader import pystanLoad as pyL
                 self.data = pyL.stan_data_files(datafiles)
 
             # STAN run conditions
@@ -275,6 +273,7 @@ def plot_result(conf, stanres):
 
 def write_result(conf, stanres):
     logger.info("Writing results!")
+    from morpho.loader import pystanLoad as pyL
     ofilename = sa.out_fname
     if (args.job_id>0):
         ofilename = ofilename+'_'+args.job_id
@@ -322,7 +321,13 @@ def save_object(obj, filename):
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
-    logger.info("Welcome to morpho")
+    print('\n\
+    ███╗   ███╗ ██████╗ ██████╗ ██████╗ ██╗  ██╗ ██████╗ \n\
+    ████╗ ████║██╔═══██╗██╔══██╗██╔══██╗██║  ██║██╔═══██╗\n\
+    ██╔████╔██║██║   ██║██████╔╝██████╔╝███████║██║   ██║\n\
+    ██║╚██╔╝██║██║   ██║██╔══██╗██╔═══╝ ██╔══██║██║   ██║\n\
+    ██║ ╚═╝ ██║╚██████╔╝██║  ██║██║     ██║  ██║╚██████╔╝\n\
+    ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝ ╚═════╝ \n')
     args = parse_args()
     with open(args.config, 'r') as cfile:
         try:

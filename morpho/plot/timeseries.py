@@ -20,6 +20,12 @@ from array import array
 import re
 import uuid
 
+import logging
+logger = logging.getLogger('timeseries')
+logger.setLevel(logging.DEBUG)
+base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
+logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
+
 def set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style = ROOT.TStyle(ROOT.gStyle)
     style.SetOptStat("emr")

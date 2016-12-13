@@ -1,7 +1,7 @@
 {
    "morpho":
    {
-     "do_stan": False,
+     "do_stan": True,
      "do_postprocessing": True,
      "do_plots": True,
      "wait_at_the_end": False
@@ -89,9 +89,9 @@
          "method_name": "histo",
          "module_name": "histo",
          "title": "",
-         "input_file_name" : "./MassHierarchy/results/smeared_spectrum_reduced.root",
+         "input_file_name" : "./MassHierarchy/results/smeared_spectrum.root",
          "input_file_format" : "root",
-         "input_tree": "spectrum",
+         "input_tree": "generated",
          "output_path": "./MassHierarchy/results/",
          "output_format":"pdf",
          "output_width": 600,
@@ -100,9 +100,7 @@
          "x_title": "Kinetic Energy (eV)",
          "y_title": "",
          "x_range":[18573.95, 18575.10],
-         "y_range":[0.,6000],
          "n_bins":100,
-         "options": "logy"
         }
       ]
     }

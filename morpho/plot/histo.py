@@ -16,8 +16,8 @@ To do:
 """
 
 import logging
-logger = logging.getLogger('histo.py')
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger('histo')
+logger.setLevel(logging.INFO)
 base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
 logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
 
@@ -138,7 +138,6 @@ def histo(param_dict):
             list_histo.append(ROOT.TH1F(namedata,namedata,nbins,xmin,xmax))
             for i in range(0,n):
                 list_histo[j].Fill(list_data[i])
-                # print(list_data[i])
             can.cd()
             if (j==0):
                 list_histo[j].Draw('hist')
@@ -226,9 +225,9 @@ def spectra(param_dict):
                 tree.GetEntry(i)
                 list_dataX.append(getattr(tree,namedata[0]))
                 list_dataY.append(getattr(tree,namedata[1]))
-                # list_data.append(20*j+18510)
 
             # list_histo.append()
+            logger.debug('Setting x axis')
             if 'x_range' in param_dict:
                 if isinstance(param_dict['x_range'],list):
 
@@ -250,10 +249,10 @@ def spectra(param_dict):
                     xmin,xmax = autoRangeList(list_dataX)
             else:
                 xmin,xmax = autoRangeList(list_dataX)
-            list_histo.append(ROOT.TH1F(namedata[1]+'_vs_' + namedata[0],namedata[1]+'_vs_' + namedata[0],nbins,xmin,xmax))
+            histo_title = '{}_vs_{}'.format(namedata[1],namedata[0])
+            list_histo.append(ROOT.TH1F(histo_title,histo_title,nbins,xmin,xmax))
             for i in range(0,n):
                 list_histo[j].Fill(list_dataX[i],list_dataY[i])
-                # print(list_data[i])
             can.cd()
             if (j==0):
                 list_histo[j].Draw('hist')
@@ -292,7 +291,8 @@ def spectra(param_dict):
     else:
         figurefullpath = path
     for namedata in param_dict['data']:
-        figurefullpath += namedata + '_'
+        figurefullpath += namedata[1] + '_vs_'
+        figurefullpath += namedata[0] + '_'
     if figurefullpath.endswith('_'):
         figurefullpath = figurefullpath[:-1]
     if 'output_format' in param_dict:

@@ -115,7 +115,7 @@ class morpho(object):
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
-            self.functions_code = self.read_param(yd, 'stan.model.function_file', None)
+            self.function_files_location = self.read_param(yd, 'stan.model.function_files_location', None)
             self.model_name = self.read_param(yd, 'stan.model.model_name', None)
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
@@ -174,16 +174,28 @@ class morpho(object):
         except Exception as err:
             raise err
 
-def stan_cache(model_code, functions_code, model_name=None, cashe_dir='.',**kwargs):
+def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
 
+    logger.debug('Looking for the functions to import in {}'.format(function_files_location))
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*=\s*(?P<function_name>\w+)\s*;*',theModel)
+    from os import listdir
+    from os.path import isfile, join
+    onlyfiles = [f for f in listdir(function_files_location) if isfile(join(function_files_location, f))]
     for matches in match:
-        for key in functions_code:
-            if (key['name']==matches):
-                StanFunctions = open(key['file'],'r+').read()
-                theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
+        found = False
+        for filename in onlyfiles:
+            if filename.endswith('.functions'):
+                key = filename[:-10]
+                if (key==matches):
+                    StanFunctions = open(function_files_location+'/'+filename,'r+').read()
+                    theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
+                    found = True
+                    continue
+        if found == False:
+            logger.critical('A function <{}> to import is missing'.format(matches))
+    logger.debug('Import functions: complete')
 
     code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:

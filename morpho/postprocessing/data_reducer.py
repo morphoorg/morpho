@@ -33,7 +33,7 @@ Below is a  to-do list:
 - harder tasks:
     - make this data reducer very generic (to be able to choose between frequency, energ or time spectrum) or add the energy spectrum by default
     - implement the h5 reader and writter
-    - integrate the "additional_file_name" content into the "output_file" (this will require --in the case of root-- to be able to read single values directly from a root file).
+    - (done) integrate the "additional_file_name" content into the "output_file" (this will require --in the case of root-- to be able to read single values directly from a root file)
     A possibility is also to make a tree with n branches with only one element, these elements are then read in the analyzer as the number of bin/data to be analyzed
 '''
 
@@ -48,6 +48,8 @@ import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend
 import cmath as math
 from array import array
 import re
+import random
+
 
 def data_reducer(param_dict):
     logger.info("Reducing the generated data!")
@@ -69,9 +71,21 @@ def data_reducer(param_dict):
     dKE = (param_dict['maxKE'] - param_dict['minKE'])/nBinHisto
 
     # Creating the root file
-    logger.info("Output data is: {}".format(param_dict['output_file_name']))
+    if 'output_file_format' not in param_dict:
+        param_dict['output_file_format']='root' # setting root as default
     if param_dict['output_file_format']=='root':
-        myfile = ROOT.TFile(param_dict['output_file_name'],"RECREATE")
+        if 'output_file_name' not in param_dict:
+            param_dict['output_file_name'] = param_dict['input_file_name']
+        logger.info("Output data is: {}".format(param_dict['output_file_name']))
+
+        if param_dict['output_file_name'] == param_dict['input_file_name']:
+            myfile = ROOT.TFile(param_dict['output_file_name'],"UPDATE")
+        else:
+            if 'output_file_option' in param_dict:
+                myfile = ROOT.TFile(param_dict['output_file_name'],param_dict['output_file_option'])
+            else:
+                myfile = ROOT.TFile(param_dict['output_file_name'],"RECREATE")
+
     elif param_dict['output_file_format']=='h5':
         logger.debug('h5 file is not yet supported in the data_reducer')
         return
@@ -83,7 +97,9 @@ def data_reducer(param_dict):
     if 'Poisson_redistribution' not in param_dict:
         param_dict['Poisson_redistribution']=False
 
+    # Use ROOT.Random and python random as a seed generator (based on current time)
     ran = ROOT.TRandom3()
+    ran.SetSeed(int(random.random()*1000000))
 
     tmp_x_axis_data = array('f',[ 0 ])
     tmp_number_events = array('i',[ 0 ])

@@ -40,7 +40,6 @@ class morpho(object):
     def read_param(self, yaml_data, node, default):
         data = yaml_data
         xpath = node.split('.')
-
         try:
             for path in xpath:
                 data = data[path]
@@ -177,12 +176,16 @@ class morpho(object):
 def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
 
-    logger.debug('Looking for the functions to import in {}'.format(function_files_location))
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*=\s*(?P<function_name>\w+)\s*;*',theModel)
-    from os import listdir
-    from os.path import isfile, join
-    onlyfiles = [f for f in listdir(function_files_location) if isfile(join(function_files_location, f))]
+    if function_files_location is not None:
+        logger.debug('Looking for the functions to import in {}'.format(function_files_location))
+        from os import listdir
+        from os.path import isfile, join
+        onlyfiles = [f for f in listdir(function_files_location) if isfile(join(function_files_location, f))]
+    else:
+        logger.debug('No functions file location given')
+        onlyfiles = []
     for matches in match:
         found = False
         for filename in onlyfiles:
@@ -392,18 +395,24 @@ ___  ___                 _            \n\
 
     args = parse_args()
     with open(args.config, 'r') as cfile:
-        # try:
-        cdata = yload(cfile)
-        if args.param:
-            cdata = update_from_arguments(cdata,args.param)
-        sa = morpho(cdata)
+        try:
+            cdata = yload(cfile)
+            if args.param:
+                cdata = update_from_arguments(cdata,args.param)
+            sa = morpho(cdata)
+        except Exception as err:
+            logger.debug(err)
+
         if (sa.get_do_Stan()):
-            logger.info("Doing MC with Stan")
-            result = stan_cache(**(sa.gen_arg_dict()))
-            stanres = write_result(sa, result)
-            if sa.out_fit != None:
-                save_object(stanres, sa.out_fit)
-                logger.debug('Saved fit in {}'.format(sa.out_fit))
+            try:
+                logger.info("Doing MC with Stan")
+                result = stan_cache(**(sa.gen_arg_dict()))
+                stanres = write_result(sa, result)
+                if sa.out_fit != None:
+                    save_object(stanres, sa.out_fit)
+                    logger.debug('Saved fit in {}'.format(sa.out_fit))
+            except Exception as err:
+                logger.debug(err)
         if (sa.get_do_pp()):
             postprocessing(sa)
         if (sa.get_do_plots()):

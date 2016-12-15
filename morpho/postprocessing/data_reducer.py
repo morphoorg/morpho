@@ -19,6 +19,7 @@ Here is an example of such new dictionary:
         "nBinHisto":50, # number of bins wanted for the output spectrum
         "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root", #path to the root file where to save the spectrum data
         "output_file_format": "root", #format of the output file
+        output_file_option: RECREATE #give an option for the output file (RECREATE will erase and recreate the output file, UPDATE will open (after creating if not existing) and update the file)
         "output_freq_spectrum_tree": "spectrum", #name of the tree (in case of root file) which contains the frequency spectrum
         "output_KE_spectrum_tree": "spectrum", #name of the tree (in case of root file) which contains the KE spectrum
         "output_time_spectrum_tree": "time", #name of the tree (in case of root file) which contains the time spectrum

@@ -82,7 +82,6 @@ class morpho(object):
             return self.init_per_chain
 
     def get_do_Stan(self):
-        print(self.do_stan)
         if self.do_stan==True:
             return True
         else:
@@ -268,17 +267,13 @@ def update_from_arguments(the_dict,args):
 
 def change_and_format(b):
     if b == 'True':
-        print('Is bool')
         return True
     elif b == 'False':
-        print('Is bool')
         return False
     else:
         try:
             a = float(b)
-            print('Is float')
         except:
-            print('Is else')
             return b
 
 def merge(a, b, path=None):

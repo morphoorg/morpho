@@ -87,6 +87,7 @@ def stan_data_files(theData):
                                     insertIntoDataStruct(aname, aint[0], alist)
 
                 elif atype =='root':
+                    logger.debug('Getting {} in {}'.format(key['tree'],key['name']))
                     afile = TFile.Open(key['name'],'read')
                     atree = TTree()
                     afile.GetObject(str(key['tree']), atree)

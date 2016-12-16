@@ -360,7 +360,7 @@ def postprocessing(sa):
         try:
             getattr(i,minidict['method_name'])(minidict)
         except Exception as err:
-            logger.debug(err)
+            logger.critical(err)
     return 1
 
 def plotting(sa):
@@ -373,7 +373,8 @@ def plotting(sa):
         try:
             list_canvas.append(getattr(i,minidict['method_name'])(minidict))
         except Exception as err:
-            logger.debug(err)
+            logger.critical(err)
+            return 0
 
     return list_canvas
 
@@ -412,7 +413,8 @@ ___  ___                 _            \n\
                     save_object(stanres, sa.out_fit)
                     logger.debug('Saved fit in {}'.format(sa.out_fit))
             except Exception as err:
-                logger.debug(err)
+                logger.critical(err)
+                sys.exit(2)
         if (sa.get_do_pp()):
             postprocessing(sa)
         if (sa.get_do_plots()):

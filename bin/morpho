@@ -130,6 +130,7 @@ class morpho(object):
             self.iter = self.read_param(yd, 'stan.run.iter', 2000)
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
+            self.n_jobs = self.read_param(yd, 'stan.run.n_jobs',-1) # number of jobs to run (-1: all, 1: good for debugging)
             # Adding a seed based on extra arguments, current time
             if isinstance(args.seed,int):
                 self.seed=args.seed

@@ -149,6 +149,7 @@ class morpho(object):
             # output information
             self.out_format = self.read_param(yd, 'stan.output.format', 'root')
             self.out_fname = self.read_param(yd, 'stan.output.name','stan_out.root')
+            self.out_option = self.read_param(yd, 'stan.output.option','RECREATE')
 
             self.out_tree = self.read_param(yd, 'stan.output.tree', None)
             self.out_branches = self.read_param(yd, 'stan.output.branches', None)
@@ -163,8 +164,6 @@ class morpho(object):
             self.out_cache_fn = self.read_param(yd, 'stan.output.save_cache_name', None)
 
             # Post-processing configuration
-            # self.pp_out_fname = self.read_param(yd, 'postprocessing.output.name', 'processed_stan_out.root')
-            # self.pp_out_format = self.read_param(yd, 'postprocessing.output.format', 'root')
             self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
 
             # Plot configuration

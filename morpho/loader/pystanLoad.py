@@ -172,7 +172,10 @@ def write_result_hdf5(conf, ofilename, stanres):
 
 def stan_write_root(conf, theFileName, theOutput):
 
-    afile = TFile.Open(theFileName, "recreate")
+    if conf.out_option:
+        afile = TFile.Open(theFileName, conf.out_option)
+    else:
+        afile = TFile.Open(theFileName, "RECREATE")
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
     theOutputData = {}

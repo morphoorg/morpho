@@ -130,7 +130,7 @@ class morpho(object):
             self.iter = self.read_param(yd, 'stan.run.iter', 2000)
             self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
             self.chains = self.read_param(yd, 'stan.run.chain', 4)
-            self.n_jobs = self.read_param(yd, 'stan.run.n_jobs',-1) # number of jobs to run (-1: all, 1: good for debugging)
+            self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
             # Adding a seed based on extra arguments, current time
             if isinstance(args.seed,int):
                 self.seed=args.seed
@@ -230,6 +230,10 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
         cache_name_file.write(cache_fn)
 
     logger.info("Starting the sampling")
+    text = "Parameters: \n"
+    for key, value in kwargs.iteritems():
+        text = text + "{}\t{}\n".format(key,value)
+    logger.info(text)
     return sm.sampling(**kwargs)
 
 def parse_args():
@@ -289,6 +293,7 @@ def change_and_format(b):
     else:
         try:
             a = float(b)
+            return a
         except:
             return b
 

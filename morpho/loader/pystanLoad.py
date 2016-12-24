@@ -87,6 +87,7 @@ def stan_data_files(theData):
                                     insertIntoDataStruct(aname, aint[0], alist)
 
                 elif atype =='root':
+                    logger.debug('Getting {} in {}'.format(key['tree'],key['name']))
                     afile = TFile.Open(key['name'],'read')
                     atree = TTree()
                     afile.GetObject(str(key['tree']), atree)
@@ -172,7 +173,10 @@ def write_result_hdf5(conf, ofilename, stanres):
 
 def stan_write_root(conf, theFileName, theOutput):
 
-    afile = TFile.Open(theFileName, "recreate")
+    if conf.out_option:
+        afile = TFile.Open(theFileName, conf.out_option)
+    else:
+        afile = TFile.Open(theFileName, "RECREATE")
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
     theOutputData = {}

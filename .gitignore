@@ -17,7 +17,6 @@ python/doc/_build/*
 *.root
 *.pdf
 *.pkl
-
 *.out
 *.txt
 

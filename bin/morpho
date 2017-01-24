@@ -195,11 +195,11 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
                     StanFunctions = open(function_files_location+'/'+filename,'r+').read()
                     theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
                     found = True
-                    logger.debug('A function <{}> to import was found'.format(matches))
+                    logger.debug('Function file <{}> to import was found'.format(matches))
                     continue
         if found == False:
             logger.critical('A function <{}> to import is missing'.format(matches))
-    logger.debug('Import functions: complete')
+    logger.debug('Import functions files: complete')
 
     code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:
@@ -234,6 +234,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     for key, value in kwargs.iteritems():
         text = text + "{}\t{}\n".format(key,value)
     logger.info(text)
+
     return sm.sampling(**kwargs)
 
 def parse_args():

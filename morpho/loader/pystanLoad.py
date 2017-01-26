@@ -40,6 +40,8 @@ def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
     theResult = str(theString.format(theVariable,theSecondVariable,theThirdVariable))
     return theResult
 
+
+
 # Reading dict data file (in R) and other input files (hdf5 or root).
 
 def stan_data_files(theData):
@@ -156,7 +158,7 @@ def stan_data_files(theData):
     return alist
 
 
-def write_result_hdf5(conf, ofilename, stanres):
+def write_result_hdf5(conf, ofilename, stanres, input_param):
     """
     Write the STAN result to an HDF5 file.
     """
@@ -174,18 +176,76 @@ def write_result_hdf5(conf, ofilename, stanres):
     logger.info('The file has been written to {}'.format(ofilename))
 
 
-def stan_write_root(conf, theFileName, theOutput):
+def build_tree_from_dict(treename,input_param):
+    atree = TTree(treename,treename)
 
+    dictToFill = {}
+    for key,value in input_param.iteritems():
+        if isinstance(value,int) or isinstance(value,float):
+            nSize = 1
+            if isinstance(value, float):
+                nType = 'float'
+                pType = '/D'
+            elif isinstance(value, int):
+                nType = 'int'
+                pType = '/I'
+            exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key),nSize,nType))
+            exec(theHack("atree.Branch(str(key), theVariable_{}, key+'{}')",str(key),pType))
+        elif isinstance(value,str):
+            nSize = 1
+            stringLength = len(value)
+            if stringLength<1:
+                continue
+            pType = '/C'
+            exec(theHack("theVariable_{} = np.chararray({},itemsize={})",str(key),nSize,stringLength))
+            exec(theHack("atree.Branch(str(key), theVariable_{}, key+'{}')",str(key),pType))
+
+        elif isinstance(value,list):
+            nSize = len(value)
+            if isinstance(value[0], float):
+                nType = 'float'
+                pType = '/D'
+            elif isinstance(value[0], int):
+                nType = 'int'
+                pType = '/I'
+            exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key),nSize,nType))
+            exec(theHack("atree.Branch(str(key), theVariable_{}, key+'[{}]{}')",str(key),nSize,pType))
+        dictToFill.update({key:value})
+
+
+    # Filling the input param tree
+    for key,value in dictToFill.iteritems():
+        if not isinstance(value,list):
+            exec(theHack("theVariable_{}[0] = value",str(key)))
+        else :
+            for iNum in range(0,len(value)):
+                exec(theHack("theVariable_{}[{}] = value[{}]",str(key),iNum,iNum))
+    atree.Fill()
+    return atree
+
+def stan_write_root(conf, theFileName, theOutput, input_param):
+
+    logger.debug("Creating ROOT file {}".format("theFileName"+".root"))
     if conf.out_option:
         afile = TFile.Open(theFileName, conf.out_option)
     else:
         afile = TFile.Open(theFileName, "RECREATE")
+
+    # save the input parameters
+    logger.debug("saving input parameters")
+    input_data = input_param.pop("data")
+    tree = build_tree_from_dict("input_data",input_data)
+    tree.Write()
+    tree2 = build_tree_from_dict("stan_model_param",input_param)
+    tree2.Write()
+
+    # save results
+    logger.debug("Saving results")
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
     theOutputData = {}
 
     nBranches = len(theOutputVar)
-
     iBranch = 0
     for key in theOutputVar:
         nSize = readLabel(key,'ndim',1)

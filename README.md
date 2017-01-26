@@ -44,7 +44,6 @@ Running
 ======
 
   See the documentation on the Stan homepage for more detail about the Stan models.
-  A sample executable is shown in the examples directory:
 
 	  	morpho --config  model_folder/<name_of_json_config_file> --other_options
 
@@ -66,7 +65,7 @@ Running
 
       morpho --help
 
-  An simple example of script and model can be find in the examples folder.
+  An simple example of script and model can be found in the examples folder.
 
 Known bugs and solutions
 ======	  

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-
-#
-# morpho.py
-#
-# author: j.n. kofron <jared.kofron@gmail.com>
+# Morpho
+#  -----------------------------------------------------
+#  Authors: J. A. Formaggio <josephf@mit.edu>
+# 			T. E. Weiss
+#  			M. Guigue <mathieu.guigue@pnnl.gov>
+#           J. N. Kofron <jared.kofron@gmail.com>
 #
 
 from __future__ import absolute_import

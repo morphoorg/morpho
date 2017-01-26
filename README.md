@@ -32,13 +32,13 @@ Install
 ======
   PyStan and the required packages may be installed from the Python Index Package using pip inside a virtual environment.
 
-  	  	virtualenv ~/path/to/the/virtualenvironment/env
-	  	  pip install -r ~/path/to/morpho/requirements.txt
-	  	  pip install -r ~/path/to/morpho/optional-requirements.txt
+      virtualenv ~/path/to/the/virtualenvironment/env
+      pip install -r ~/path/to/morpho/requirements.txt
+      pip install -r ~/path/to/morpho/optional-requirements.txt
 
   Once all the required packages are installed on the virtualenvironment, one can load it using
 
-	  	  source ~/path/to/the/virtualenvironment/env/bin/activate
+      source ~/path/to/the/virtualenvironment/env/bin/activate
 
 Running
 ======
@@ -48,23 +48,25 @@ Running
 
 	  	morpho --config  model_folder/<name_of_json_config_file> --other_options
 
-		  Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
+  Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 
-		  1.  The script looks for cached versions of the .stan model file.  If not, it generates a new one and saves it.  The cached models exist in the cache directory.
+  1.  The script looks for cached versions of the .stan model file.  If not, it generates a new one and saves it.  The cached models exist in the cache directory.
 
-		  2.  The input files are read into the system.  The input files can be in R, root or hdf5. Input values can be directly given directly in the script.
+  2.  The input files are read into the system.  The input files can be in R, root or hdf5. Input values can be directly given directly in the script.
 
-      3. The information relative to the model such as the seed or the algorithm to be used are read from the script or from the command line.
+  3. The information relative to the model such as the seed or the algorithm to be used are read from the script or from the command line.
 
-		  4.  The model generates a number of Markov Chain files (in the specified directory) according to the specific model.  If there is no data, this in principle can be used to generate fake data.  That feature isn't quite implemented yet.
+  4.  The model generates a number of Markov Chain files (in the specified directory) according to the specific model.  If there is no data, this in principle can be used to generate fake data.  That feature isn't quite implemented yet.
 
-		  5.  Postprocessing routines defined in python within the script can occur at the end of the Markov chains in order to generate fake data for example (data_reducer postprocessing).
+  5.  Postprocessing routines defined in python within the script can occur at the end of the Markov chains in order to generate fake data for example (data_reducer postprocessing).
 
-      6. Very generic plots and screen outputs can created.
+  6. Very generic plots and screen outputs can created.
 
   "Help will always be given to those who ask for it":
 
       morpho --help
+
+  An simple example of script and model can be find in the examples folder.
 
 Known bugs and solutions
 ======	  

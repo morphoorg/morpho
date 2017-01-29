@@ -135,7 +135,7 @@ class morpho(object):
             # Adding a seed based on extra arguments, current time
             if isinstance(args.seed,int):
                 self.seed=args.seed
-            elif args.autoseed:
+            elif args.noautoseed:
                 self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
                 logger.debug("Autoseed activated: seed = {}".format(self.seed))
             else:
@@ -196,11 +196,11 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
                     StanFunctions = open(function_files_location+'/'+filename,'r+').read()
                     theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
                     found = True
-                    logger.debug('A function <{}> to import was found'.format(matches))
+                    logger.debug('Function file <{}> to import was found'.format(matches))
                     continue
         if found == False:
             logger.critical('A function <{}> to import is missing'.format(matches))
-    logger.debug('Import functions: complete')
+    logger.debug('Import function files: complete')
 
     code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:
@@ -240,7 +240,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     for key, value in kwargs.iteritems():
         text = text + "{}\t{}\n".format(key,value)
     logger.info(text)
-    return sm.sampling(**kwargs)
+    return kwargs, sm.sampling(**kwargs)
 
 def parse_args():
     '''
@@ -266,9 +266,9 @@ def parse_args():
                    default=False,
                    help='Force the creation of a new cache',
                    required=False)
-    p.add_argument('-as','--autoseed',
-                   action='store_true',
-                   default=False,
+    p.add_argument('-nas','--noautoseed',
+                   action='store_false',
+                   default=True,
                    help='Generate the seed based on the current time in ms',
                    required=False)
     p.add_argument('param',nargs='*',
@@ -345,23 +345,23 @@ def plot_result(conf, stanres):
             else:
                 stanres.plot(parname)
 
-def write_result(conf, stanres):
+def write_result(conf, stanres, input_param):
     logger.info("Writing results!")
     from morpho.loader import pystanLoad as pyL
-    ofilename = sa.out_fname
+    ofilename = conf.out_fname
     rdir = os.path.dirname(ofilename)
     if not os.path.exists(rdir):
         os.makedirs(rdir)
         logger.info("Creating 'results' folder")
     if (args.job_id>0):
         ofilename = ofilename+'_'+args.job_id
-    if sa.out_format == 'hdf5':
+    if conf.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
         pyL.write_result_hdf5(sa, ofilename, stanres)
 
-    if sa.out_format == 'root':
+    if conf.out_format == 'root':
         ofilename = ofilename+'.root'
-        pyL.stan_write_root(sa, ofilename, stanres)
+        pyL.stan_write_root(conf, ofilename, stanres, input_param)
     return stanres
 
 def sampleFunc(arg):
@@ -423,8 +423,13 @@ ___  ___                 _            \n\
         if (sa.get_do_Stan()):
             try:
                 logger.info("Doing MC with Stan")
-                result = stan_cache(**(sa.gen_arg_dict()))
-                stanres = write_result(sa, result)
+                input_param, result = stan_cache(**(sa.gen_arg_dict()))
+            except Exception as err:
+                logger.critical(err)
+                sys.exit(2)
+            try:
+                logger.info("Saving results")
+                stanres = write_result(sa, result, input_param)
                 if sa.out_fit != None:
                     save_object(stanres, sa.out_fit)
                     logger.debug('Saved fit in {}'.format(sa.out_fit))

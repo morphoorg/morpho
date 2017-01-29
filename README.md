@@ -28,6 +28,15 @@ Requirements
 	- hdf5: libhdf5-serial-dev libhdf5-dev
 	- root: root-system from apt-get or sources from https://root.cern.ch
 
+	You will need to install via a package manager (such as apt-get):
+	- python-matplotlib
+	- python-pip
+	- git
+	- virtualenv
+	To read and save files, you will need either hdf5 or root:
+	- hdf5: libhdf5-serial-dev libhdf5-dev
+	- root: root-system from apt-get or sources from https://root.cern.ch
+
 Install
 ======
   PyStan and the required packages may be installed from the Python Index Package using pip inside a virtual environment.
@@ -78,3 +87,4 @@ Known bugs and solutions
     Matplotlib in Virtual environments' in the Matplotlib FAQ.
     ```
     A solution is given [here](http://stackoverflow.com/questions/21784641/installation-issue-with-matplotlib-python)
+>>>>>>> develop

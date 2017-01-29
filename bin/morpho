@@ -361,7 +361,7 @@ def write_result(conf, stanres, input_param):
 
     if conf.out_format == 'root':
         ofilename = ofilename+'.root'
-        pyL.stan_write_root(sa, ofilename, stanres)
+        pyL.stan_write_root(conf, ofilename, stanres, input_param)
     return stanres
 
 def sampleFunc(arg):

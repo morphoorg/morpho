@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-
-#
-# morpho.py
-#
-# author: j.n. kofron <jared.kofron@gmail.com>
+# Morpho
+#  -----------------------------------------------------
+#  Authors: J. A. Formaggio <josephf@mit.edu>
+# 			T. E. Weiss <tweiss@mit.edu>
+#  			M. Guigue <mathieu.guigue@pnnl.gov>
+#           J. N. Kofron <jared.kofron@gmail.com>
 #
 
 from __future__ import absolute_import
@@ -199,13 +200,18 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
                     continue
         if found == False:
             logger.critical('A function <{}> to import is missing'.format(matches))
-    logger.debug('Import functions files: complete')
+    logger.debug('Import function files: complete')
 
     code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:
         cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
     else:
         cache_fn = '{}/cached-{}-{}.pkl'.format(cashe_dir, model_name, code_hash)
+
+    cdir = os.path.dirname(cache_fn)
+    if not os.path.exists(cdir):
+        os.makedirs(cdir)
+        logger.info("Creating 'cache' folder")
 
     if (args.force_restart):
         logger.debug("Forced to create Stan cache!")
@@ -234,7 +240,6 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     for key, value in kwargs.iteritems():
         text = text + "{}\t{}\n".format(key,value)
     logger.info(text)
-
     return kwargs, sm.sampling(**kwargs)
 
 def parse_args():
@@ -344,15 +349,19 @@ def write_result(conf, stanres, input_param):
     logger.info("Writing results!")
     from morpho.loader import pystanLoad as pyL
     ofilename = conf.out_fname
+    rdir = os.path.dirname(ofilename)
+    if not os.path.exists(rdir):
+        os.makedirs(rdir)
+        logger.info("Creating 'results' folder")
     if (args.job_id>0):
         ofilename = ofilename+'_'+args.job_id
     if conf.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        pyL.write_result_hdf5(conf, ofilename, stanres, input_param)
+        pyL.write_result_hdf5(sa, ofilename, stanres)
 
     if conf.out_format == 'root':
         ofilename = ofilename+'.root'
-        pyL.stan_write_root(conf, ofilename, stanres, input_param)
+        pyL.stan_write_root(sa, ofilename, stanres)
     return stanres
 
 def sampleFunc(arg):

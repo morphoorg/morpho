@@ -161,7 +161,6 @@ def theTrick(thedict,uppertreename=""):
 
     newdict = {}
     for key,value in thedict.iteritems():
-        print(uppertreename+key,value)
         if isinstance(value, dict):
             subdict = theTrick(value,uppertreename+key+".")
             newdict.update(subdict)
@@ -190,29 +189,22 @@ def write_result_hdf5(conf, ofilename, stanres, input_param):
 # transform a dictionary into a tree
 
 def build_tree_from_dict(treename,input_param):
-    print(treename,input_param)
+    logger.debug("Creating tree '{}'".format(treename))
     atree = TTree(treename,treename)
-
     dictToFill = {}
     treeToAddFriend = {}
     for key,value in input_param.iteritems():
-        print(key,value)
         if isinstance(value,int) or isinstance(value,float):
             nSize = 1
             if isinstance(value, float):
-                print(value,"float")
                 nType = 'float'
                 pType = '/D'
             elif isinstance(value, int):
-                print(value,"int")
                 nType = 'int'
                 pType = '/I'
-            print(key,str(key))
             exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key).replace(".","_"),nSize,nType))
             exec(theHack("atree.Branch(str(key), theVariable_{}, key+'{}')",str(key).replace(".","_"),pType))
         elif isinstance(value,str):
-            print(value,"str")
-
             nSize = 1
             stringLength = len(value)
             if stringLength<1:
@@ -222,7 +214,6 @@ def build_tree_from_dict(treename,input_param):
             exec(theHack("atree.Branch(str(key), theVariable_{}, key+'{}')",str(key).replace(".","_"),pType))
 
         elif isinstance(value,list):
-            print(value,"list")
             nSize = len(value)
             if isinstance(value[0], float):
                 nType = 'float'
@@ -232,37 +223,20 @@ def build_tree_from_dict(treename,input_param):
                 pType = '/I'
             exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key).replace(".","_"),nSize,nType))
             exec(theHack("atree.Branch(str(key), theVariable_{}, key+'[{}]{}')",str(key).replace(".","_"),nSize,pType))
-        # elif isinstance(value, dict):
-        #     print("dict",key,value)
-        #     subtree=build_tree_from_dict(key,value)
-        #     treeToAddFriend.update({key:subtree})
-        #     print(subtree)
-        #     # continue
-        #     # exec(theHack("theVariable_{} = TTree(str(key),str(key))",str(key)))
-        #     # exec(theHack("atree.Branch(str(key), TTree, theVariable_{})",str(key)))
-        dictToFill.update({key:value})
 
+        dictToFill.update({key:value})
 
     # Filling the input param tree
     for key,value in dictToFill.iteritems():
         if isinstance(value,list):
             for iNum in range(0,len(value)):
                 exec(theHack("theVariable_{}[{}] = value[{}]",str(key).replace(".","_"),iNum,iNum))
-        # elif isinstance(value,dict):
-        #     print("dict to tree")
         else:
-            print(key,value)
             exec(theHack("theVariable_{}[0] = value",str(key).replace(".","_")))
     atree.Fill()
-
-    # for name,subtree in treeToAddFriend.iteritems():
-    #     print(subtree)
-        # atree.AddFriend(subtree)
-        # atree.Write()
     return atree
 
 # save Stan input and output into a root file
-
 def stan_write_root(conf, theFileName, theOutput, input_param):
 
     logger.debug("Creating ROOT file {}".format(theFileName+".root"))
@@ -272,26 +246,19 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
         afile = TFile.Open(theFileName, "RECREATE")
 
     # save the input parameters
-    logger.debug("saving input parameters")
-    # input_data = input_param.pop("data")
-    # tree = build_tree_from_dict("input_data",input_data)
-    # tree.Write()
+    logger.debug("saving Stan input parameters")
     newdict = theTrick(input_param)
-    # for key,value in newdict.iteritems():
-    #     print(key,value)
-    tree2 = build_tree_from_dict("stan_model_param",newdict)
-    tree2.Write()
-    # for name,subtree in listToAdd.iteritems():
-    #     print(subtree)
-    #     subfile = TFile.Open("temp_"+name, "RECREATE")
-    #     subfile.cd()
-    #     subtree.Write()
-    #     subfile.Close()
-        # tree2.AddFriend(subtree  )
-        # tree2.AddFriend(name,subfile)
+    treeinputdata = build_tree_from_dict("stan_model_param",newdict)
+    treeinputdata.Write()
 
     # save results
-    logger.debug("Saving results")
+    logger.debug("saving Stan results")
+    # theOutputVar = conf.out_branches
+    # theOutputData = {}
+    # for key in theOutputVar:
+    #     theOutputData.update({key['root_alias']:theOutput.extract(key['variable'])[key['variable']].tolist()})
+    # atree = build_tree_from_dict(conf.out_tree,theOutputData)
+    # atree.Write()
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
     theOutputData = {}

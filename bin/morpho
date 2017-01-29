@@ -412,17 +412,21 @@ ___  ___                 _            \n\
             logger.debug(err)
 
         if (sa.get_do_Stan()):
-            # try:
-            logger.info("Doing MC with Stan")
-            input_param, result = stan_cache(**(sa.gen_arg_dict()))
-            print("here")
-            stanres = write_result(sa, result, input_param)
-            if sa.out_fit != None:
-                save_object(stanres, sa.out_fit)
-                logger.debug('Saved fit in {}'.format(sa.out_fit))
-        # except Exception as err:
-            # logger.critical(err)
-            # sys.exit(2)
+            try:
+                logger.info("Doing MC with Stan")
+                input_param, result = stan_cache(**(sa.gen_arg_dict()))
+            except Exception as err:
+                logger.critical(err)
+                sys.exit(2)
+            try:
+                logger.info("Saving results")
+                stanres = write_result(sa, result, input_param)
+                if sa.out_fit != None:
+                    save_object(stanres, sa.out_fit)
+                    logger.debug('Saved fit in {}'.format(sa.out_fit))
+            except Exception as err:
+                logger.critical(err)
+                sys.exit(2)
         if (sa.get_do_pp()):
             postprocessing(sa)
         if (sa.get_do_plots()):

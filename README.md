@@ -87,4 +87,3 @@ Known bugs and solutions
     Matplotlib in Virtual environments' in the Matplotlib FAQ.
     ```
     A solution is given [here](http://stackoverflow.com/questions/21784641/installation-issue-with-matplotlib-python)
->>>>>>> develop

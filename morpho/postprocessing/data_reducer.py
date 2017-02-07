@@ -266,13 +266,15 @@ def data_reducer(param_dict):
         value2 =htime.GetNbinsX()
     else:
         value2=0
+    #logger.info("Type of h.GetNbinsX()"+str(type(value)))
+    #logger.info("Type of nBinHisto"+str(type(nBinHisto)))
     tuple.Fill(value,value2)
 
     myfile.cd()
     tuple.Write()
     # f.close()
     myfile.Close()
-    logger.info('Prostprocessing complete!')
+    logger.info('Postprocessing complete!')
 
 
 def readTTree(root_file_path,tree_name):

@@ -221,6 +221,8 @@ def build_tree_from_dict(treename,input_param):
             elif isinstance(value[0], int):
                 nType = 'int'
                 pType = '/I'
+            else:
+                continue
             exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key).replace(".","_"),nSize,nType))
             exec(theHack("atree.Branch(str(key), theVariable_{}, key+'[{}]{}')",str(key).replace(".","_"),nSize,pType))
 

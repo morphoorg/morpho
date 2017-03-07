@@ -15,7 +15,9 @@ except Exception as err:
     verstr = 'v0.0.0-???'
 
 extras_require={
-    'other': ['colorlog', 'ipython', 'ipdb'],
+    'postprocessing': ['matplotlib','numpy'],
+    'h5': ['h5py<=2.4.0b1'],
+    'colorlog': ['colorlog'],
 }
 everything = set()
 for deps in extras_require.values():
@@ -27,7 +29,7 @@ setup(
     version=verstr,
     packages=['morpho','morpho/loader', 'morpho/plot', 'morpho/postprocessing'],
     scripts=['bin/morpho'],
-    install_requires=['PyYAML', 'msgpack-python'],
+    install_requires=['PyYAML','numpy','pystan<=2.14'],
     extras_require=extras_require,
     # url='http://www.github.com/project8/morpho',
     # tests_require=['pytest'],

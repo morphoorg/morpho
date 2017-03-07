@@ -143,10 +143,16 @@ class morpho(object):
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
-            self.init = self.init_Stan_function();
+            self.init = self.init_Stan_function()
+            if isinstance(self.read_param(yd, 'stan.run.control', None),dict):
+                self.control = self.read_param(yd, 'stan.run.control', None)
+            else:
+                if self.read_param(yd, 'stan.run.control', None) is not None:
+                    logger.debug("stan.run.control should be a dict: {}",str(self.read_param(yd, 'stan.run.control', None)))
 
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
+
 
             # output information
             self.out_format = self.read_param(yd, 'stan.output.format', 'root')

@@ -29,7 +29,7 @@ setup(
     version=verstr,
     packages=['morpho','morpho/loader', 'morpho/plot', 'morpho/postprocessing'],
     scripts=['bin/morpho'],
-    install_requires=['PyYAML','numpy','pystan<=2.14'],
+    install_requires=['PyYAML','pyparsing<=2.1.5','numpy','pystan<=2.14'],
     extras_require=extras_require,
     # url='http://www.github.com/project8/morpho',
     # tests_require=['pytest'],

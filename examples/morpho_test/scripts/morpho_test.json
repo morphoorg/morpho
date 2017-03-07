@@ -22,7 +22,8 @@
             "warmup" : 1000,
             "chain": 4,
             "control": {
-                "adapt_kappa": 0.75
+                "adapt_kappa": 0.75,
+                "adapt_engaged": false
               }
             },
 

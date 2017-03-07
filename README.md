@@ -35,6 +35,7 @@ Install
       virtualenv ~/path/to/the/virtualenvironment/env
       pip install .
       pip install .[h5] #if you want to output h5 files
+      pip install .[all] #if you want everything available
 
   Once all the required packages are installed on the virtualenvironment, one can load it using
 

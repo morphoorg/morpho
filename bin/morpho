@@ -23,8 +23,6 @@ logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
 
 
 import time
-import fileinput
-import json
 import re
 import random
 

@@ -46,7 +46,6 @@ logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
 
 
 import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
-import cmath as math
 from array import array
 import re
 import random

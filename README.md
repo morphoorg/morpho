@@ -33,7 +33,8 @@ Install
   PyStan and the required packages may be installed from the Python Index Package using pip inside a virtual environment.
 
       virtualenv ~/path/to/the/virtualenvironment/env
-      pip install .
+      source ~/path/to/the/virtualenvironment/env/bin/activate
+      pip install . #inside the morpho repository
       pip install .[h5] #if you want to output h5 files
       pip install .[all] #if you want everything available
 

@@ -282,8 +282,17 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
         else :
             exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]{}')",str(key['root_alias']),nSize,pType))
 
-        theOutputData[iBranch] = theOutput.extract(key['variable'])
+        theOutputData[iBranch] = theOutput.extract(key['variable'],inc_warmup=conf.out_inc_warmup)
         nEvents = len(theOutputData[iBranch][key['variable']])
+        iBranch += 1
+
+    # add an extra branch for warmup or sampling status
+    if conf.out_inc_warmup:
+        logger.debug("Adding a branch for warmup/sampling state")
+        sequence_warmup_sample = ([0] * conf.warmup + [1] * (conf.warmup)) * conf.chains
+        thevariable_is_sample = np.zeros(1,dtype=int)
+        print("here")
+        atree.Branch("is_sample", "thevariable_is_sample", "thevariable_is_sample/I")
         iBranch += 1
 
     for iEvent in range(0,nEvents):
@@ -296,6 +305,9 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
             else :
                 for iNum in range(0,nSize):
                     exec(theHack("theVariable_{}[{}] = theValue[{}]",str(key['root_alias']),iNum,iNum))
+            iBranch +=1
+        if conf.out_inc_warmup:
+            thevariable_is_sample[0] = int(sequence_warmup_sample[iEvent])
             iBranch +=1
         atree.Fill()
 

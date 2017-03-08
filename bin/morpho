@@ -153,7 +153,6 @@ class morpho(object):
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
 
-
             # output information
             self.out_format = self.read_param(yd, 'stan.output.format', 'root')
             self.out_fname = self.read_param(yd, 'stan.output.name','stan_out.root')
@@ -161,6 +160,7 @@ class morpho(object):
 
             self.out_tree = self.read_param(yd, 'stan.output.tree', None)
             self.out_branches = self.read_param(yd, 'stan.output.branches', None)
+            self.out_inc_warmup = self.read_param(yd,'stan.output.inc_warmup',False)
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
             self.out_vars = self.read_param(yd, 'stan.output.data', None)

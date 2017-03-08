@@ -37,7 +37,8 @@
             "tree" : "morpho_test",
             "branches": [
                  {"variable":"theta", "root_alias":"theta"}
-                        ]
+               ],
+            "inc_warmup": true
          }
     },
 

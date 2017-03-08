@@ -36,9 +36,10 @@
             "format": "root",
             "tree" : "morpho_test",
             "branches": [
-                 {"variable":"theta", "root_alias":"theta"}
+                 {"variable":"theta", "root_alias":"theta"},
+                 {"variable":"theta2", "root_alias":"theta2"}
                ],
-            "inc_warmup": true
+            "inc_warmup": false
          }
     },
 

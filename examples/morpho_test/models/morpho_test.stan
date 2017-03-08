@@ -29,13 +29,15 @@ transformed data{
 
 parameters{
 
-	real<lower=-10, upper=10> theta;
+		real<lower=7, upper=13> theta2;
+		real<lower=-3, upper=3> theta;
 
 }
 
 
 model{
 
-        theta ~ normal(0,1);
+	theta ~ normal(0,1);
+  theta2 ~ normal(10,1);
 
 }

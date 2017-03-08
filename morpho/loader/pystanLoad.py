@@ -282,7 +282,9 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
         else :
             exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]{}')",str(key['root_alias']),nSize,pType))
 
-        theOutputData[iBranch] = theOutput.extract(key['variable'],inc_warmup=conf.out_inc_warmup)
+        theOutputData[iBranch] = theOutput.extract(key['variable'],permuted=False,inc_warmup=conf.out_inc_warmup)
+        # print(theOutput.model_pars)
+        # print((key['variable']),theOutputData[iBranch])
         nEvents = len(theOutputData[iBranch][key['variable']])
         iBranch += 1
 

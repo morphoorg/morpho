@@ -39,7 +39,7 @@
                  {"variable":"theta", "root_alias":"theta"},
                  {"variable":"theta2", "root_alias":"theta2","ndim":2}
                ],
-            "inc_warmup": false
+            "inc_warmup": true
          }
     },
 

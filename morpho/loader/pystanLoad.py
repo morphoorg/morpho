@@ -29,21 +29,18 @@ def readLabel(aDict, name, default=None):
         return aDict[name]
 
 # Inserting data into dict
-
 def insertIntoDataStruct(name,aValue,aDict):
     if not name in aDict:
         aDict[name] = [aValue]
     else:
         aDict[name].append(aValue)
 
+# execute the command of several combined strings
 def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
     theResult = str(theString.format(theVariable,theSecondVariable,theThirdVariable))
     return theResult
 
-
-
 # Reading dict data file (in R) and other input files (hdf5 or root).
-
 def stan_data_files(theData):
     alist = {}
     for tags in theData.keys():
@@ -157,8 +154,49 @@ def stan_data_files(theData):
 
     return alist
 
-def theTrick(thedict,uppertreename=""):
+def extract_data_from_outputdata(conf,theOutput):
+    # Extract the data into a dictionary
+    # when permuted is False, the entire thing is returned (key['variable'] is ignored)
+    theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
+    nEventsPerChain = len(theOutputData)
+    flatnames = theOutput.flatnames
 
+    # Clustering the data together
+    theOutputDataDict = {}
+    for key in flatnames:
+        theOutputDataDict.update({str(key):[]})
+    theOutputDataDict.update({"lp_prob":[]})
+    theOutputDataDict.update({"is_sample":[]})
+    for iChain in range(0,conf.chains):
+        for iEvents in range(0,nEventsPerChain):
+            for iKey,key in enumerate(flatnames):
+                theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
+            theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(flatnames)])
+            if conf.out_inc_warmup:
+                theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)
+            else:
+                theOutputDataDict["is_sample"].append(1)
+    return theOutputDataDict
+
+def write_result_hdf5(conf, ofilename, stanres, input_param):
+    """
+    Write the STAN result to an HDF5 file.
+    """
+    theOutputDataDict = extract_data_from_outputdata(conf,stanres)
+    with HDF5(ofilename,'w') as ofile:
+        g = open_or_create(ofile, conf.out_cfg['group'])
+        for var in conf.out_vars:
+            stan_parname = var['variable']
+            if stan_parname not in fit:
+                warning = """WARNING: data {0} not found in fit!  Skipping...
+                """.format(stan_parname)
+                logger.debug(warning)
+            else:
+                g[var['output_name']] = fit[stan_parname]
+    logger.info('The file has been written to {}'.format(ofilename))
+
+# transform dict into items where the depth is indicated with "."
+def theTrick(thedict,uppertreename=""):
     newdict = {}
     for key,value in thedict.iteritems():
         if isinstance(value, dict):
@@ -168,28 +206,7 @@ def theTrick(thedict,uppertreename=""):
             newdict.update({uppertreename+key:value})
     return newdict
 
-
-def write_result_hdf5(conf, ofilename, stanres, input_param):
-    """
-    Write the STAN result to an HDF5 file.
-    """
-    if conf.out_inc_warmup:
-        logger.error("HDF5 does not support include warmup")
-    with HDF5(ofilename,'w') as ofile:
-        g = open_or_create(ofile, conf.out_cfg['group'])
-        fit = stanres.extract()
-        for var in conf.out_vars:
-            stan_parname = var['stan_parameter']
-            if stan_parname not in fit:
-                warning = """WARNING: data {0} not found in fit!  Skipping...
-                """.format(stan_parname)
-                logger.debug(warning)
-            else:
-                g[var['output_name']] = fit[stan_parname]
-    logger.info('The file has been written to {}'.format(ofilename))
-
 # transform a dictionary into a tree
-
 def build_tree_from_dict(treename,input_param):
     logger.debug("Creating tree '{}'".format(treename))
     atree = TTree(treename,treename)
@@ -262,26 +279,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     # Extract the data into a dictionary
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
-    theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
-    nEventsPerChain = len(theOutputData)
-    flatnames = theOutput.flatnames
-
-    # Clustering the data together
-    theOutputDataDict = {}
-    for key in flatnames:
-        theOutputDataDict.update({str(key):[]})
-    theOutputDataDict.update({"lp_prob":[]})
-    theOutputDataDict.update({"is_sample":[]})
-    print theOutputDataDict
-    for iChain in range(0,conf.chains):
-        for iEvents in range(0,nEventsPerChain):
-            for iKey,key in enumerate(flatnames):
-                theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
-            theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(flatnames)])
-            if conf.out_inc_warmup:
-                theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)
-            else:
-                theOutputDataDict["is_sample"].append(1)
+    theOutputDataDict = extract_data_from_outputdata(conf,theOutput)
 
     # Create branches for any variable of interest
     nBranches = len(theOutputVar)
@@ -309,7 +307,6 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     nEvents = len(theOutputDataDict['lp_prob'])
     nSample = 0
     nWarmup = 0
-    print nEvents
     for iEvent in range(0,nEvents):
         for key in theOutputVar:
             nSize = readLabel(key,'ndim',1)
@@ -329,5 +326,4 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     atree.Write()
     afile.Close()
-    print nWarmup
-    # logger.info('The file has been written to {}'.format(theFileName))
+    logger.info('The file has been written to {}'.format(theFileName))

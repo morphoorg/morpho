@@ -173,6 +173,8 @@ def write_result_hdf5(conf, ofilename, stanres, input_param):
     """
     Write the STAN result to an HDF5 file.
     """
+    if conf.out_inc_warmup:
+        logger.error("HDF5 does not support include warmup")
     with HDF5(ofilename,'w') as ofile:
         g = open_or_create(ofile, conf.out_cfg['group'])
         fit = stanres.extract()
@@ -255,21 +257,36 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     # save results
     logger.debug("saving Stan results")
-    # theOutputVar = conf.out_branches
-    # theOutputData = {}
-    # for key in theOutputVar:
-    #     theOutputData.update({key['root_alias']:theOutput.extract(key['variable'])[key['variable']].tolist()})
-    # atree = build_tree_from_dict(conf.out_tree,theOutputData)
-    # atree.Write()
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
-    theOutputData = {}
 
+    # Extract the data into a dictionary
+    # when permuted is False, the entire thing is returned (key['variable'] is ignored)
+    theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
+    nEventsPerChain = len(theOutputData)
+    flatnames = theOutput.flatnames
+
+    # Clustering the data together
+    theOutputDataDict = {}
+    for key in flatnames:
+        theOutputDataDict.update({str(key):[]})
+    theOutputDataDict.update({"lp_prob":[]})
+    theOutputDataDict.update({"is_sample":[]})
+    print theOutputDataDict
+    for iChain in range(0,conf.chains):
+        for iEvents in range(0,nEventsPerChain):
+            for iKey,key in enumerate(flatnames):
+                theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
+            theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(flatnames)])
+            if conf.out_inc_warmup:
+                theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)
+            else:
+                theOutputDataDict["is_sample"].append(1)
+
+    # Create branches for any variable of interest
     nBranches = len(theOutputVar)
-    iBranch = 0
     for key in theOutputVar:
         nSize = readLabel(key,'ndim',1)
-
         pType = '/D'
         nType = readLabel(key,'type','float')
         if (nType=='int') :
@@ -281,39 +298,36 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
             exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'{}')",str(key['root_alias']),pType))
         else :
             exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]{}')",str(key['root_alias']),nSize,pType))
-
-        theOutputData[iBranch] = theOutput.extract(key['variable'],permuted=False,inc_warmup=conf.out_inc_warmup)
-        # print(theOutput.model_pars)
-        # print((key['variable']),theOutputData[iBranch])
-        nEvents = len(theOutputData[iBranch][key['variable']])
-        iBranch += 1
+    # Create a branch for lp_prob
+    thevariable_lp_prob = np.zeros(1,dtype=float)
+    atree.Branch("lp_prob", thevariable_lp_prob, "thevariable_lp_prob/D")
 
     # add an extra branch for warmup or sampling status
-    if conf.out_inc_warmup:
-        logger.debug("Adding a branch for warmup/sampling state")
-        sequence_warmup_sample = ([0] * conf.warmup + [1] * (conf.warmup)) * conf.chains
-        thevariable_is_sample = np.zeros(1,dtype=int)
-        print("here")
-        atree.Branch("is_sample", "thevariable_is_sample", "thevariable_is_sample/I")
-        iBranch += 1
+    thevariable_is_sample = np.zeros(1,dtype=int)
+    atree.Branch("is_sample", thevariable_is_sample, "thevariable_is_sample/I")
 
+    nEvents = len(theOutputDataDict['lp_prob'])
+    nSample = 0
+    nWarmup = 0
+    print nEvents
     for iEvent in range(0,nEvents):
-        iBranch = 0
         for key in theOutputVar:
-            theValue = theOutputData[iBranch][key['variable']][iEvent]
             nSize = readLabel(key,'ndim',1)
             if (nSize == 1) :
+                stanVariable = key['variable']
+                theValue = theOutputDataDict[stanVariable][iEvent]
                 exec(theHack("theVariable_{}[0] = theValue",str(key['root_alias'])))
             else :
                 for iNum in range(0,nSize):
-                    exec(theHack("theVariable_{}[{}] = theValue[{}]",str(key['root_alias']),iNum,iNum))
-            iBranch +=1
-        if conf.out_inc_warmup:
-            thevariable_is_sample[0] = int(sequence_warmup_sample[iEvent])
-            iBranch +=1
+                    stanVariable = "{}[{}]".format(key['variable'],iNum)
+                    theValue = theOutputDataDict[stanVariable][iEvent]
+                    exec(theHack("theVariable_{}[{}] = theValue",str(key['root_alias']),iNum))
+        thevariable_is_sample[0] = int(theOutputDataDict['is_sample'][iEvent])
+        thevariable_lp_prob[0] = theOutputDataDict['lp_prob'][iEvent]
+
         atree.Fill()
 
     atree.Write()
     afile.Close()
-
-    logger.info('The file has been written to {}'.format(theFileName))
+    print nWarmup
+    # logger.info('The file has been written to {}'.format(theFileName))

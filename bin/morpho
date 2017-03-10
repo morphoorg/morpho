@@ -163,7 +163,6 @@ class morpho(object):
             self.out_inc_warmup = self.read_param(yd,'stan.output.inc_warmup',False)
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
-            self.out_vars = self.read_param(yd, 'stan.output.data', None)
 
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
@@ -246,6 +245,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     for key, value in kwargs.iteritems():
         text = text + "{}\t{}\n".format(key,value)
     logger.info(text)
+    # returns the arguments for sampling and the result of the sampling
     return kwargs, sm.sampling(**kwargs)
 
 def parse_args():
@@ -363,7 +363,7 @@ def write_result(conf, stanres, input_param):
         ofilename = ofilename+'_'+args.job_id
     if conf.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        pyL.write_result_hdf5(sa, ofilename, stanres)
+        pyL.write_result_hdf5(sa, ofilename, stanres, input_param)
 
     if conf.out_format == 'root':
         ofilename = ofilename+'.root'
@@ -397,7 +397,6 @@ def plotting(sa):
         except Exception as err:
             logger.critical(err)
             return 0
-
     return list_canvas
 
 def save_object(obj, filename):
@@ -448,6 +447,4 @@ ___  ___                 _            \n\
             list_canvas = plotting(sa)
         if(sa.get_wait()):
             raw_input('Press <ret> to end -> ')
-        # except Exception as err:
-        #     logger.debug(err)
     logger.info("This is all for now!")

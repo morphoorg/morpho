@@ -178,22 +178,37 @@ def extract_data_from_outputdata(conf,theOutput):
                 theOutputDataDict["is_sample"].append(1)
     return theOutputDataDict
 
-def write_result_hdf5(conf, ofilename, stanres, input_param):
+def write_result_hdf5(conf, theFileName, stanres, input_param):
     """
     Write the STAN result to an HDF5 file.
     """
+    try:
+        import h5py
+    except ImportError:
+        logger.debug("Cannot import h5py")
+        raise Exception
     theOutputDataDict = extract_data_from_outputdata(conf,stanres)
-    with HDF5(ofilename,'w') as ofile:
+    with h5py(theFileName,'w') as ofile:
         g = open_or_create(ofile, conf.out_cfg['group'])
-        for var in conf.out_vars:
-            stan_parname = var['variable']
-            if stan_parname not in fit:
-                warning = """WARNING: data {0} not found in fit!  Skipping...
-                """.format(stan_parname)
-                logger.debug(warning)
+        for key in conf.out_branches:
+            stan_parname = key['variable']
+            nSize = readLabel(key,'ndim',1)
+            if nSize==1:
+                if stan_parname not in theOutputDataDict:
+                    logger.warning("data {} not found".format(stan_parname))
+                else:
+                    g[key['hdf5_alias']] = theOutputDataDict[stan_parname]
             else:
-                g[var['output_name']] = fit[stan_parname]
-    logger.info('The file has been written to {}'.format(ofilename))
+                vector = []
+                for iDim in range(0,nSize):
+                    component_name = "{}[{}]".format(key(stan_parname),iDim)
+                    if component_name not in theOutputDataDict:
+                        logger.warning("data {} not found".format(stan_parname))
+                        continue
+                    else:
+                        vector.append(theOutputDataDict[component_name])
+                g[key['hdf5_alias']] = vector
+    logger.info('The file has been written to {}'.format(theFileName))
 
 # transform dict into items where the depth is indicated with "."
 def theTrick(thedict,uppertreename=""):

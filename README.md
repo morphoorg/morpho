@@ -34,9 +34,10 @@ Install
 
       virtualenv ~/path/to/the/virtualenvironment/env
       source ~/path/to/the/virtualenvironment/env/bin/activate
-      pip install . #inside the morpho repository
-      pip install .[h5] #if you want to output h5 files
-      pip install .[all] #if you want everything available
+      pip install -U pip # must update pip to >= 7.0.0
+      pip install . # inside the morpho repository
+      pip install .[h5] # if you want to output h5 files
+      pip install .[all] # if you want everything available
 
   Once all the required packages are installed on the virtualenvironment, one can load it using
 

@@ -29,21 +29,18 @@ def readLabel(aDict, name, default=None):
         return aDict[name]
 
 # Inserting data into dict
-
 def insertIntoDataStruct(name,aValue,aDict):
     if not name in aDict:
         aDict[name] = [aValue]
     else:
         aDict[name].append(aValue)
 
+# execute the command of several combined strings
 def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
     theResult = str(theString.format(theVariable,theSecondVariable,theThirdVariable))
     return theResult
 
-
-
 # Reading dict data file (in R) and other input files (hdf5 or root).
-
 def stan_data_files(theData):
     alist = {}
     for tags in theData.keys():
@@ -157,8 +154,76 @@ def stan_data_files(theData):
 
     return alist
 
-def theTrick(thedict,uppertreename=""):
+def extract_data_from_outputdata(conf,theOutput):
+    # Extract the data into a dictionary
+    # when permuted is False, the entire thing is returned (key['variable'] is ignored)
+    theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
+    nEventsPerChain = len(theOutputData)
+    flatnames = theOutput.flatnames
 
+    # Clustering the data together
+    theOutputDataDict = {}
+    for key in flatnames:
+        theOutputDataDict.update({str(key):[]})
+    theOutputDataDict.update({"lp_prob":[]})
+    theOutputDataDict.update({"is_sample":[]})
+    for iChain in range(0,conf.chains):
+        for iEvents in range(0,nEventsPerChain):
+            for iKey,key in enumerate(flatnames):
+                theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
+            theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(flatnames)])
+            if conf.out_inc_warmup:
+                theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)
+            else:
+                theOutputDataDict["is_sample"].append(1)
+    return theOutputDataDict
+
+def open_or_create(hdf5obj, groupname):
+    """
+    Create a group within an hdf5 object if it doesn't already exist,
+    and return the resulting group.
+    """
+    if groupname != "/" and groupname not in hdf5obj.keys():
+        hdf5obj.create_group(groupname)
+    return hdf5obj[groupname]
+
+def write_result_hdf5(conf, theFileName, stanres, input_param):
+    """
+    Write the STAN result to an HDF5 file.
+    """
+    try:
+        import h5py
+    except ImportError:
+        logger.debug("Cannot import h5py")
+        raise Exception
+    theOutputDataDict = extract_data_from_outputdata(conf,stanres)
+    with h5py.File(theFileName+'.h5','w') as ofile:
+        g = open_or_create(ofile, conf.out_tree)
+        for key in conf.out_branches:
+            stan_parname = key['variable']
+            nSize = readLabel(key,'ndim',1)
+            if nSize==1:
+                if stan_parname not in theOutputDataDict:
+                    logger.warning("data {} not found".format(stan_parname))
+                else:
+                    g[key['hdf5_alias']] = theOutputDataDict[stan_parname]
+            else:
+                vector = []
+                for iDim in range(0,nSize):
+                    print(stan_parname,key[stan_parname],iDim)
+                    component_name = "{}[{}]".format(key[stan_parname],iDim)
+                    if component_name not in theOutputDataDict:
+                        logger.warning("data {} not found".format(stan_parname))
+                        continue
+                    else:
+                        vector.append(theOutputDataDict[component_name])
+                g[key['hdf5_alias']] = vector
+        g['lp_prob']=theOutputDataDict['lp_prob']
+        g['is_sample']=theOutputDataDict['is_sample']
+    logger.info('The file has been written to {}'.format(theFileName+'.h5'))
+
+# transform dict into items where the depth is indicated with "."
+def theTrick(thedict,uppertreename=""):
     newdict = {}
     for key,value in thedict.iteritems():
         if isinstance(value, dict):
@@ -168,26 +233,7 @@ def theTrick(thedict,uppertreename=""):
             newdict.update({uppertreename+key:value})
     return newdict
 
-
-def write_result_hdf5(conf, ofilename, stanres, input_param):
-    """
-    Write the STAN result to an HDF5 file.
-    """
-    with HDF5(ofilename,'w') as ofile:
-        g = open_or_create(ofile, conf.out_cfg['group'])
-        fit = stanres.extract()
-        for var in conf.out_vars:
-            stan_parname = var['stan_parameter']
-            if stan_parname not in fit:
-                warning = """WARNING: data {0} not found in fit!  Skipping...
-                """.format(stan_parname)
-                logger.debug(warning)
-            else:
-                g[var['output_name']] = fit[stan_parname]
-    logger.info('The file has been written to {}'.format(ofilename))
-
 # transform a dictionary into a tree
-
 def build_tree_from_dict(treename,input_param):
     logger.debug("Creating tree '{}'".format(treename))
     atree = TTree(treename,treename)
@@ -255,21 +301,17 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     # save results
     logger.debug("saving Stan results")
-    # theOutputVar = conf.out_branches
-    # theOutputData = {}
-    # for key in theOutputVar:
-    #     theOutputData.update({key['root_alias']:theOutput.extract(key['variable'])[key['variable']].tolist()})
-    # atree = build_tree_from_dict(conf.out_tree,theOutputData)
-    # atree.Write()
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
-    theOutputData = {}
 
+    # Extract the data into a dictionary
+    # when permuted is False, the entire thing is returned (key['variable'] is ignored)
+    theOutputDataDict = extract_data_from_outputdata(conf,theOutput)
+
+    # Create branches for any variable of interest
     nBranches = len(theOutputVar)
-    iBranch = 0
     for key in theOutputVar:
         nSize = readLabel(key,'ndim',1)
-
         pType = '/D'
         nType = readLabel(key,'type','float')
         if (nType=='int') :
@@ -281,25 +323,34 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
             exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'{}')",str(key['root_alias']),pType))
         else :
             exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]{}')",str(key['root_alias']),nSize,pType))
+    # Create a branch for lp_prob
+    thevariable_lp_prob = np.zeros(1,dtype=float)
+    atree.Branch("lp_prob", thevariable_lp_prob, "thevariable_lp_prob/D")
 
-        theOutputData[iBranch] = theOutput.extract(key['variable'])
-        nEvents = len(theOutputData[iBranch][key['variable']])
-        iBranch += 1
+    # add an extra branch for warmup or sampling status
+    thevariable_is_sample = np.zeros(1,dtype=int)
+    atree.Branch("is_sample", thevariable_is_sample, "thevariable_is_sample/I")
 
+    nEvents = len(theOutputDataDict['lp_prob'])
+    nSample = 0
+    nWarmup = 0
     for iEvent in range(0,nEvents):
-        iBranch = 0
         for key in theOutputVar:
-            theValue = theOutputData[iBranch][key['variable']][iEvent]
             nSize = readLabel(key,'ndim',1)
             if (nSize == 1) :
+                stanVariable = key['variable']
+                theValue = theOutputDataDict[stanVariable][iEvent]
                 exec(theHack("theVariable_{}[0] = theValue",str(key['root_alias'])))
             else :
                 for iNum in range(0,nSize):
-                    exec(theHack("theVariable_{}[{}] = theValue[{}]",str(key['root_alias']),iNum,iNum))
-            iBranch +=1
+                    stanVariable = "{}[{}]".format(key['variable'],iNum)
+                    theValue = theOutputDataDict[stanVariable][iEvent]
+                    exec(theHack("theVariable_{}[{}] = theValue",str(key['root_alias']),iNum))
+        thevariable_is_sample[0] = int(theOutputDataDict['is_sample'][iEvent])
+        thevariable_lp_prob[0] = theOutputDataDict['lp_prob'][iEvent]
+
         atree.Fill()
 
     atree.Write()
     afile.Close()
-
     logger.info('The file has been written to {}'.format(theFileName))

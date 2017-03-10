@@ -19,8 +19,13 @@
         "run": {
             "algorithm": "NUTS",
             "iter": 2000,
-            "warmup" : 1000,
-            "chain": 4},
+            "warmup" : 200,
+            "chain": 4,
+            "control": {
+                "adapt_kappa": 0.75,
+                "adapt_engaged": false
+              }
+            },
 
 
         "sample": "./morpho_test/results/morpho_test.out",
@@ -28,11 +33,13 @@
         "output":
         {
             "name" : "./morpho_test/results/morpho_test",
-            "format": "root",
-            "tree" : "morpho_test",
+            "format": "hdf5",
+            "group" : "morpho_test",
             "branches": [
-                 {"variable":"theta", "root_alias":"theta"}
-                        ]
+                 {"variable":"theta", "root_alias":"theta"},
+                 {"variable":"theta2", "root_alias":"theta2","ndim":2}
+               ],
+            "inc_warmup": true
          }
     },
 

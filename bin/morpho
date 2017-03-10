@@ -142,7 +142,12 @@ class morpho(object):
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
-            self.init = self.init_Stan_function();
+            self.init = self.init_Stan_function()
+            if isinstance(self.read_param(yd, 'stan.run.control', None),dict):
+                self.control = self.read_param(yd, 'stan.run.control', None)
+            else:
+                if self.read_param(yd, 'stan.run.control', None) is not None:
+                    logger.debug("stan.run.control should be a dict: {}",str(self.read_param(yd, 'stan.run.control', None)))
 
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
@@ -154,9 +159,9 @@ class morpho(object):
 
             self.out_tree = self.read_param(yd, 'stan.output.tree', None)
             self.out_branches = self.read_param(yd, 'stan.output.branches', None)
+            self.out_inc_warmup = self.read_param(yd,'stan.output.inc_warmup',False)
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
-            self.out_vars = self.read_param(yd, 'stan.output.data', None)
 
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
@@ -239,6 +244,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     for key, value in kwargs.iteritems():
         text = text + "{}\t{}\n".format(key,value)
     logger.info(text)
+    # returns the arguments for sampling and the result of the sampling
     return kwargs, sm.sampling(**kwargs)
 
 def parse_args():
@@ -319,16 +325,6 @@ def merge(a, b, path=None):
             a[key] = change_and_format( b[key])
     return a
 
-
-def open_or_create(hdf5obj, groupname):
-    """
-    Create a group within an hdf5 object if it doesn't already exist,
-    and return the resulting group.
-    """
-    if groupname != "/" and groupname not in hdf5obj.keys():
-        hdf5obj.create_group(groupname)
-    return hdf5obj[groupname]
-
 def plot_result(conf, stanres):
     """
     Plot variables as specified.
@@ -356,7 +352,7 @@ def write_result(conf, stanres, input_param):
         ofilename = ofilename+'_'+args.job_id
     if conf.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        pyL.write_result_hdf5(sa, ofilename, stanres)
+        pyL.write_result_hdf5(sa, ofilename, stanres, input_param)
 
     if conf.out_format == 'root':
         ofilename = ofilename+'.root'
@@ -390,7 +386,6 @@ def plotting(sa):
         except Exception as err:
             logger.critical(err)
             return 0
-
     return list_canvas
 
 def save_object(obj, filename):
@@ -426,21 +421,19 @@ ___  ___                 _            \n\
             except Exception as err:
                 logger.critical(err)
                 sys.exit(2)
-            try:
-                logger.info("Saving results")
-                stanres = write_result(sa, result, input_param)
-                if sa.out_fit != None:
-                    save_object(stanres, sa.out_fit)
-                    logger.debug('Saved fit in {}'.format(sa.out_fit))
-            except Exception as err:
-                logger.critical(err)
-                sys.exit(2)
+            # try:
+            logger.info("Saving results")
+            stanres = write_result(sa, result, input_param)
+            if sa.out_fit != None:
+                save_object(stanres, sa.out_fit)
+                logger.debug('Saved fit in {}'.format(sa.out_fit))
+            # except Exception as err:
+                # logger.critical(err)
+                # sys.exit(2)
         if (sa.get_do_pp()):
             postprocessing(sa)
         if (sa.get_do_plots()):
             list_canvas = plotting(sa)
         if(sa.get_wait()):
             raw_input('Press <ret> to end -> ')
-        # except Exception as err:
-        #     logger.debug(err)
     logger.info("This is all for now!")

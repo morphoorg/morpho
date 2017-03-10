@@ -326,16 +326,6 @@ def merge(a, b, path=None):
             a[key] = change_and_format( b[key])
     return a
 
-
-def open_or_create(hdf5obj, groupname):
-    """
-    Create a group within an hdf5 object if it doesn't already exist,
-    and return the resulting group.
-    """
-    if groupname != "/" and groupname not in hdf5obj.keys():
-        hdf5obj.create_group(groupname)
-    return hdf5obj[groupname]
-
 def plot_result(conf, stanres):
     """
     Plot variables as specified.
@@ -432,15 +422,15 @@ ___  ___                 _            \n\
             except Exception as err:
                 logger.critical(err)
                 sys.exit(2)
-            try:
-                logger.info("Saving results")
-                stanres = write_result(sa, result, input_param)
-                if sa.out_fit != None:
-                    save_object(stanres, sa.out_fit)
-                    logger.debug('Saved fit in {}'.format(sa.out_fit))
-            except Exception as err:
-                logger.critical(err)
-                sys.exit(2)
+            # try:
+            logger.info("Saving results")
+            stanres = write_result(sa, result, input_param)
+            if sa.out_fit != None:
+                save_object(stanres, sa.out_fit)
+                logger.debug('Saved fit in {}'.format(sa.out_fit))
+            # except Exception as err:
+                # logger.critical(err)
+                # sys.exit(2)
         if (sa.get_do_pp()):
             postprocessing(sa)
         if (sa.get_do_plots()):

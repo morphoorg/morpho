@@ -178,6 +178,15 @@ def extract_data_from_outputdata(conf,theOutput):
                 theOutputDataDict["is_sample"].append(1)
     return theOutputDataDict
 
+def open_or_create(hdf5obj, groupname):
+    """
+    Create a group within an hdf5 object if it doesn't already exist,
+    and return the resulting group.
+    """
+    if groupname != "/" and groupname not in hdf5obj.keys():
+        hdf5obj.create_group(groupname)
+    return hdf5obj[groupname]
+
 def write_result_hdf5(conf, theFileName, stanres, input_param):
     """
     Write the STAN result to an HDF5 file.
@@ -188,8 +197,8 @@ def write_result_hdf5(conf, theFileName, stanres, input_param):
         logger.debug("Cannot import h5py")
         raise Exception
     theOutputDataDict = extract_data_from_outputdata(conf,stanres)
-    with h5py(theFileName,'w') as ofile:
-        g = open_or_create(ofile, conf.out_cfg['group'])
+    with h5py.File(theFileName+'.h5','w') as ofile:
+        g = open_or_create(ofile, conf.out_tree)
         for key in conf.out_branches:
             stan_parname = key['variable']
             nSize = readLabel(key,'ndim',1)
@@ -201,14 +210,17 @@ def write_result_hdf5(conf, theFileName, stanres, input_param):
             else:
                 vector = []
                 for iDim in range(0,nSize):
-                    component_name = "{}[{}]".format(key(stan_parname),iDim)
+                    print(stan_parname,key[stan_parname],iDim)
+                    component_name = "{}[{}]".format(key[stan_parname],iDim)
                     if component_name not in theOutputDataDict:
                         logger.warning("data {} not found".format(stan_parname))
                         continue
                     else:
                         vector.append(theOutputDataDict[component_name])
                 g[key['hdf5_alias']] = vector
-    logger.info('The file has been written to {}'.format(theFileName))
+        g['lp_prob']=theOutputDataDict['lp_prob']
+        g['is_sample']=theOutputDataDict['is_sample']
+    logger.info('The file has been written to {}'.format(theFileName+'.h5'))
 
 # transform dict into items where the depth is indicated with "."
 def theTrick(thedict,uppertreename=""):

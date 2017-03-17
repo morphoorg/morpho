@@ -34,13 +34,13 @@ transformed parameters {}
 
 model{
 
-  y ~ normal(slope * x + intercept, sigma);
+	y ~ normal(slope * x + intercept, sigma);
 
 }
 
 generated quantities{
 
 	real variance_y;
-  variance_y = sigma * sigma;
+	variance_y = sigma * sigma;
 
 }

@@ -1,0 +1,41 @@
+# This is a testing script which is supposed to make a linear fit.
+morpho:
+  do_stan: True
+  do_postprocessing: False
+  do_plots: False
+stan:
+  # Name of the model
+  name: "morpho_test"
+  # Model, associated functions, cache folder
+  model:
+    file: "./morpho_test/models/morpho_linear_fit.stan"
+    function_file: None
+    cache: "./morpho_test/cache"
+  # Input data
+  data:
+    files:
+      - name: "./morpho_test/data/input.data"
+        format: "R"
+    # parameters: None
+  # Run parameters
+  run:
+    algorithm: "NUTS"
+    iter: 4000
+    warmup: 1000
+    chain: 12
+    n_jobs: 2
+    init_off: None
+  # Output destination
+  output:
+    name: "./morpho_test/results/morpho_linear_fit"
+    format: "root"
+    tree: "morpho_test"
+    branches:
+      - variable: "slope"
+        root_alias: "a"
+      - variable: "intercept"
+        root_alias: "b"
+      - variable: "variance_y"
+        root_alias: "variance"
+      - variable: "lp__"
+        root_alias: "LogLikelihood"

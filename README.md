@@ -48,27 +48,30 @@ Running
 
   See the documentation on the Stan homepage for more detail about the Stan models.
 
-	  	morpho --config  model_folder/<name_of_json_config_file> --other_options
+	  	morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
 
   Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 
-  1.  The script looks for cached versions of the .stan model file.  If not, it generates a new one and saves it.  The cached models exist in the cache directory.
+  1.  The information relative to the model such as the seed or the algorithm to be used are read from the json/yaml script or from the command line.
 
   2.  The input files are read into the system.  The input files can be in R, root or hdf5. Input values can be directly given directly in the script.
 
-  3. The information relative to the model such as the seed or the algorithm to be used are read from the script or from the command line.
+  3. The script looks for cached versions of the .stan model file.  If not, it generates a new one and saves it.  The cached models exist in the cache directory.
 
-  4.  The model generates a number of Markov Chain files (in the specified directory) according to the specific model.  If there is no data, this in principle can be used to generate fake data.  That feature isn't quite implemented yet.
+  4.  The model generates sample the Likelihood function defined in the model and save the samplesin the specified directory.  If there is no data, this in principle can be used to generate fake data.
 
   5.  Postprocessing routines defined in python within the script can occur at the end of the Markov chains in order to generate fake data for example (data_reducer postprocessing).
 
-  6. Very generic plots and screen outputs can created.
+  6. Very generic plots and screen outputs can be created.
 
   "Help will always be given to those who ask for it":
 
       morpho --help
 
   An simple example of script and model can be found in the examples folder.
+  You can execute it using:
+  
+      morpho --config morpho_test/scripts/morpho_linear_fit.yaml
 
 Known bugs and solutions
 ======	  

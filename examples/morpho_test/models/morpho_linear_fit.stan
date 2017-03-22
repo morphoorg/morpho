@@ -11,6 +11,8 @@
 *
 */
 
+functions{}
+
 data{
 
 	int<lower=0> N;

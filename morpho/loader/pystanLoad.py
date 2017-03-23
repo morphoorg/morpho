@@ -157,9 +157,20 @@ def stan_data_files(theData):
 def extract_data_from_outputdata(conf,theOutput):
     # Extract the data into a dictionary
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
+
+
+    print(theOutput.get_sampler_params(inc_warmup=conf.out_inc_warmup))
+    theOutputDiagnostics = theOutput.get_sampler_params(inc_warmup=conf.out_inc_warmup)
+
     theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
     nEventsPerChain = len(theOutputData)
+    # get the variables in the Stan4Model
     flatnames = theOutput.flatnames
+    flatnames.append('lp_prob')
+    # add the diagnostic variable names
+    diagnosticVariableName = ['accept_stat__','stepsize__','n_leapfrog__','treedepth__','divergent__','energy__']
+    flatnames.extend(diagnosticVariableName)
+    print(flatnames)
 
     # Clustering the data together
     theOutputDataDict = {}
@@ -170,8 +181,13 @@ def extract_data_from_outputdata(conf,theOutput):
     for iChain in range(0,conf.chains):
         for iEvents in range(0,nEventsPerChain):
             for iKey,key in enumerate(flatnames):
-                theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
-            theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(flatnames)])
+                if key in diagnosticVariableName:
+                    # print(key,iChain,diagnosticVariableName.index(key),iEvents)
+                    # print(theOutputDiagnostics[iChain][key])
+                    theOutputDataDict[str(key)].append(theOutputDiagnostics[iChain][key][iEvents])
+                else:
+                    theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
+            theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(theOutput.flatnames)])
             if conf.out_inc_warmup:
                 theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)
             else:
@@ -210,7 +226,7 @@ def write_result_hdf5(conf, theFileName, stanres, input_param):
             else:
                 vector = []
                 for iDim in range(0,nSize):
-                    print(stan_parname,key[stan_parname],iDim)
+                    # print(stan_parname,key[stan_parname],iDim)
                     component_name = "{}[{}]".format(key[stan_parname],iDim)
                     if component_name not in theOutputDataDict:
                         logger.warning("data {} not found".format(stan_parname))
@@ -218,7 +234,7 @@ def write_result_hdf5(conf, theFileName, stanres, input_param):
                     else:
                         vector.append(theOutputDataDict[component_name])
                 g[key['hdf5_alias']] = vector
-        g['lp_prob']=theOutputDataDict['lp_prob']
+        # g['lp_prob']=theOutputDataDict['lp_prob']
         g['is_sample']=theOutputDataDict['is_sample']
     logger.info('The file has been written to {}'.format(theFileName+'.h5'))
 
@@ -293,11 +309,12 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     else:
         afile = TFile.Open(theFileName, "RECREATE")
 
-    # save the input parameters
+    # save input parameters
     logger.debug("saving Stan input parameters")
     newdict = theTrick(input_param)
     treeinputdata = build_tree_from_dict("stan_model_param",newdict)
     treeinputdata.Write()
+
 
     # save results
     logger.debug("saving Stan results")
@@ -323,22 +340,26 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
             exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'{}')",str(key['root_alias']),pType))
         else :
             exec(theHack("atree.Branch(str(key['root_alias']), theVariable_{}, key['root_alias']+'[{}]{}')",str(key['root_alias']),nSize,pType))
-    # Create a branch for lp_prob
-    thevariable_lp_prob = np.zeros(1,dtype=float)
-    atree.Branch("lp_prob", thevariable_lp_prob, "thevariable_lp_prob/D")
+    # # Create a branch for lp_prob
+    # thevariable_lp_prob = np.zeros(1,dtype=float)
+    # atree.Branch("lp_prob", thevariable_lp_prob, "thevariable_lp_prob/D")
 
     # add an extra branch for warmup or sampling status
     thevariable_is_sample = np.zeros(1,dtype=int)
     atree.Branch("is_sample", thevariable_is_sample, "thevariable_is_sample/I")
 
-    nEvents = len(theOutputDataDict['lp_prob'])
+    nEvents = len(theOutputDataDict[theOutputDataDict.keys()[0]])
+    print(nEvents)
+
     nSample = 0
     nWarmup = 0
+    # print(theOutputDataDict.keys())
     for iEvent in range(0,nEvents):
         for key in theOutputVar:
             nSize = readLabel(key,'ndim',1)
             if (nSize == 1) :
                 stanVariable = key['variable']
+
                 theValue = theOutputDataDict[stanVariable][iEvent]
                 exec(theHack("theVariable_{}[0] = theValue",str(key['root_alias'])))
             else :
@@ -347,7 +368,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
                     theValue = theOutputDataDict[stanVariable][iEvent]
                     exec(theHack("theVariable_{}[{}] = theValue",str(key['root_alias']),iNum))
         thevariable_is_sample[0] = int(theOutputDataDict['is_sample'][iEvent])
-        thevariable_lp_prob[0] = theOutputDataDict['lp_prob'][iEvent]
+        # thevariable_lp_prob[0] = theOutputDataDict['lp_prob'][iEvent]
 
         atree.Fill()
 

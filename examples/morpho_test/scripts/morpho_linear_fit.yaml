@@ -30,7 +30,7 @@ stan:
     name: "./morpho_test/results/morpho_linear_fit"
     format: "root"
     tree: "morpho_test"
-    inc_warmup: True
+    inc_warmup: False
     branches:
       - variable: "slope"
         root_alias: "a"
@@ -44,3 +44,5 @@ stan:
         root_alias: "divergence"
       - variable: "energy__"
         root_alias: "energy"
+      - variable: "delta_energy__"
+        root_alias: "delta_energy"

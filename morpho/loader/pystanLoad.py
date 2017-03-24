@@ -165,7 +165,6 @@ def extract_data_from_outputdata(conf,theOutput):
     nEventsPerChain = len(theOutputData)
     # get the variables in the Stan4Model
     flatnames = theOutput.flatnames
-    flatnames.append('lp_prob')
     # add the diagnostic variable names
     diagnosticVariableName = ['accept_stat__','stepsize__','n_leapfrog__','treedepth__','divergent__','energy__']
     flatnames.extend(diagnosticVariableName)
@@ -175,6 +174,7 @@ def extract_data_from_outputdata(conf,theOutput):
     for key in flatnames:
         theOutputDataDict.update({str(key):[]})
     theOutputDataDict.update({"lp_prob":[]})
+    theOutputDataDict.update({"delta_energy__":[]})
     theOutputDataDict.update({"is_sample":[]})
     for iChain in range(0,conf.chains):
         for iEvents in range(0,nEventsPerChain):
@@ -183,6 +183,10 @@ def extract_data_from_outputdata(conf,theOutput):
                     theOutputDataDict[str(key)].append(theOutputDiagnostics[iChain][key][iEvents])
                 else:
                     theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
+            if iEvents is not 0:
+                theOutputDataDict["delta_energy__"].append(theOutputDiagnostics[iChain]['energy__'][iEvents]-theOutputDiagnostics[iChain]['energy__'][iEvents-1])
+            else:
+                theOutputDataDict["delta_energy__"].append(0)
             theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(theOutput.flatnames)])
             if conf.out_inc_warmup:
                 theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)

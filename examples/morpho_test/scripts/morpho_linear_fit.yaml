@@ -30,6 +30,7 @@ stan:
     name: "./morpho_test/results/morpho_linear_fit"
     format: "root"
     tree: "morpho_test"
+    inc_warmup: True
     branches:
       - variable: "slope"
         root_alias: "a"

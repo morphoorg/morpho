@@ -262,6 +262,8 @@ def build_tree_from_dict(treename,input_param):
                 pType = '/I'
             exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key).replace(".","_"),nSize,nType))
             exec(theHack("atree.Branch(str(key), theVariable_{}, key+'{}')",str(key).replace(".","_"),pType))
+            dictToFill.update({key:value})
+            continue
         elif isinstance(value,str):
             nSize = 1
             stringLength = len(value)
@@ -270,6 +272,8 @@ def build_tree_from_dict(treename,input_param):
             pType = '/C'
             exec(theHack("theVariable_{} = np.chararray({},itemsize={})",str(key).replace(".","_"),nSize,stringLength))
             exec(theHack("atree.Branch(str(key), theVariable_{}, key+'{}')",str(key).replace(".","_"),pType))
+            dictToFill.update({key:value})
+            continue
 
         elif isinstance(value,list):
             nSize = len(value)
@@ -278,35 +282,41 @@ def build_tree_from_dict(treename,input_param):
                 pType = '/D'
                 exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key).replace(".","_"),nSize,nType))
                 exec(theHack("atree.Branch(str(key), theVariable_{}, key+'[{}]{}')",str(key).replace(".","_"),nSize,pType))
+                dictToFill.update({key:value})
+                continue
             elif isinstance(value[0], int):
                 nType = 'int'
                 pType = '/I'
                 exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(key).replace(".","_"),nSize,nType))
                 exec(theHack("atree.Branch(str(key), theVariable_{}, key+'[{}]{}')",str(key).replace(".","_"),nSize,pType))
+                dictToFill.update({key:value})
+                continue
             elif isinstance(value[0],dict):
-                temp_dict = theTrick(value[0],str(key))
+
+                temp_dict = theTrick(value[0],str(key)+".")
+                dictoflist = {}
                 for subkey, subitem in temp_dict.iteritems():
                     if isinstance(subitem,int):
                         nType = 'int'
                         pType = '/I'
+                        dictoflist.update({subkey:[]})
                     elif isinstance(subitem,float):
                         nType = 'float'
                         pType = '/D'
+                        dictoflist.update({subkey:[]})
                     else:
                         logger.debug('{} has not a supported type'.format(subitem))
-                    key=str(key.replace(".","_"))
-                    exec(theHack("theVariable_{} = np.zeros({}, dtype={})",key,nSize,nType))
-                    exec(theHack("atree.Branch(str(key), theVariable_{}, key+'[{}]{}')",key,nSize,pType))
-                    # transform a list of dict branch to a list
-                    newlist = []
-                    for iDict, dictValue in list.enumerate():
-                        newlist.append(value[iDict][str(key)])
-                    print(newlist)
-                    value=newlist
+                    exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(subkey.replace(".","_")),nSize,nType))
+                    exec(theHack("atree.Branch(str(subkey), theVariable_{}, subkey+'[{}]{}')",str(subkey.replace(".","_")),nSize,pType))
+                for dictValue in value:
+                    for subkey in dictValue:
+                        var = str(key+"."+subkey)
+                        dictoflist[var].append(dictValue[subkey])
+                for subkey,subvalue in dictoflist.iteritems():
+                    dictToFill.update({subkey:subvalue})
+                continue
             else:
                 continue
-        dictToFill.update({key:value})
-
     # Filling the input param tree
     for key,value in dictToFill.iteritems():
         if isinstance(value,list):

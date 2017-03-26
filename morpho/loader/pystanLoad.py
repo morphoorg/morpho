@@ -248,6 +248,7 @@ def theTrick(thedict,uppertreename=""):
 
 # transform a dictionary into a tree
 def build_tree_from_dict(treename,input_param):
+    logger.debug("Creating tree '{}'".format(treename))
     atree = TTree(treename,treename)
     dictToFill = {}
     treeToAddFriend = {}
@@ -344,6 +345,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     # save results
     logger.debug("Saving Stan results")
+    logger.debug("Creating tree '{}'".format(conf.out_tree))
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
 

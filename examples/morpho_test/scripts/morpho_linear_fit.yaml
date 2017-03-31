@@ -51,3 +51,13 @@ stan:
         root_alias: "energy"
       - variable: "delta_energy__"
         root_alias: "delta_energy"
+plot:
+  which_plot:
+    - method_name: histo
+      module_name: histo
+      title: "histo"
+      input_file_name : "./morpho_test/results/morpho_linear_fit.root"
+      input_tree: "morpho_test"
+      output_path: ./morpho_test/results/
+      data:
+        - a

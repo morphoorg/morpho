@@ -80,6 +80,9 @@ def preparingTitles(param_dict):
 
 
 def histo(param_dict):
+    '''
+    Create a histogram using a list of X
+    '''
 
     # Preparing the canvas
     logger.info("Preparing Canvas")
@@ -193,7 +196,9 @@ def histo(param_dict):
 
 
 def spectra(param_dict):
-
+    '''
+    Create a spectrum using a (X,Y) list
+    '''
     # Preparing the canvas
     logger.debug("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)

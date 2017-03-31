@@ -3,7 +3,7 @@ morpho:
   # do_preprocessing: True
   do_stan: True
   # do_postprocessing: True
-  # do_plots: True
+  do_plots: True
 stan:
   # Name of the model
   name: "morpho_test"
@@ -61,3 +61,19 @@ plot:
       output_path: ./morpho_test/results/
       data:
         - a
+    - method_name: histo
+      module_name: histo
+      title: "histo"
+      input_file_name : "./morpho_test/results/morpho_linear_fit.root"
+      input_tree: "morpho_test"
+      output_path: ./morpho_test/results/
+      data:
+        - b
+    - method_name: histo
+      module_name: histo
+      title: "histo"
+      input_file_name : "./morpho_test/results/morpho_linear_fit.root"
+      input_tree: "morpho_test"
+      output_path: ./morpho_test/results/
+      data:
+        - variance

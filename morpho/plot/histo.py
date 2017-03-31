@@ -17,7 +17,7 @@ To do:
 
 import logging
 logger = logging.getLogger('histo')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
 logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
 
@@ -85,7 +85,10 @@ def histo(param_dict):
     logger.info("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
-
+    if param_dict['options'] is not None:
+        if any("logy" in s for s in param_dict['options']):
+            logger.debug("Setting Log Y")
+            can.SetLogy()
     # Setting the titles
     logger.info("Preparing Titles")
 
@@ -195,6 +198,8 @@ def spectra(param_dict):
     logger.debug("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
+    if "logy" in param_dict.options:
+        can.SetLogy()
 
     # Setting the titles
     logger.debug("Preparing Titles")

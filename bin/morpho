@@ -85,6 +85,11 @@ class morpho(object):
             return True
         else:
             return False
+    def get_do_prep(self):
+        if self.do_preprocessing:
+            return True
+        else:
+            return False
     def get_do_pp(self):
         if self.do_postprocessing:
             return True
@@ -104,9 +109,10 @@ class morpho(object):
     def __init__(self, yd):
         try:
             # Morpho steps
-            self.do_stan = self.read_param(yd, 'morpho.do_stan', 'required')
-            self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', 'required')
-            self.do_plots = self.read_param(yd, 'morpho.do_plots', 'required')
+            self.do_preprocessing = self.read_param(yd, 'morpho.do_preprocessing', False)
+            self.do_stan = self.read_param(yd, 'morpho.do_stan', True)
+            self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', False)
+            self.do_plots = self.read_param(yd, 'morpho.do_plots', False)
             self.wait = self.read_param(yd, 'morpho.wait_at_the_end', False)
 
             # Identifications
@@ -168,6 +174,9 @@ class morpho(object):
 
             # Outputted text file containing name of cache file
             self.out_cache_fn = self.read_param(yd, 'stan.output.save_cache_name', None)
+
+            # Pre-processing configuration
+            self.prep_dict = self.read_param(yd, 'preprocessing.which_pp', None)
 
             # Post-processing configuration
             self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
@@ -362,6 +371,18 @@ def write_result(conf, stanres, input_param):
 def sampleFunc(arg):
     logger.info('you called sampleFunc({})'.format(arg))
 
+def preprocessing(sa):
+    # Generic function for creating the PostProcessing class
+    for minidict in sa.prep_dict:
+        logger.info("Doing preprocessing {}".format(minidict['method_name']))
+        modulename = 'morpho.preprocessing.'+minidict['module_name']
+        i = importlib.import_module("{}".format(modulename))
+        try:
+            getattr(i,minidict['method_name'])(minidict)
+        except Exception as err:
+            logger.critical(err)
+    return 1
+
 def postprocessing(sa):
     # Generic function for creating the PostProcessing class
     for minidict in sa.pp_dict:
@@ -445,6 +466,9 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
         except Exception as err:
             logger.debug(err)
 
+        if (sa.get_do_prep()):
+            postprocessing(sa)
+
         if (sa.get_do_Stan()):
             try:
                 logger.info("Doing MC with Stan")
@@ -452,19 +476,23 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
             except Exception as err:
                 logger.critical(err)
                 sys.exit(2)
-            # try:
-            logger.info("Saving results")
-            stanres = write_result(sa, result, input_param)
-            if sa.out_fit != None:
-                save_object(stanres, sa.out_fit)
-                logger.debug('Saved fit in {}'.format(sa.out_fit))
-            # except Exception as err:
-                # logger.critical(err)
-                # sys.exit(2)
+            try:
+                logger.info("Saving results")
+                stanres = write_result(sa, result, input_param)
+                if sa.out_fit != None:
+                    save_object(stanres, sa.out_fit)
+                    logger.debug('Saved fit in {}'.format(sa.out_fit))
+            except Exception as err:
+                logger.critical(err)
+                sys.exit(2)
+
         if (sa.get_do_pp()):
             postprocessing(sa)
+
         if (sa.get_do_plots()):
             list_canvas = plotting(sa)
+
         if(sa.get_wait()):
             raw_input('Press <ret> to end -> ')
+
     logger.info("This is all for now!")

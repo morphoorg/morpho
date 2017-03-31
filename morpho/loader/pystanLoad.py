@@ -331,7 +331,7 @@ def build_tree_from_dict(treename,input_param):
 # save Stan input and output into a root file
 def stan_write_root(conf, theFileName, theOutput, input_param):
 
-    logger.debug("Creating ROOT file {}".format(theFileName+".root"))
+    logger.debug("Creating ROOT file {}".format(theFileName))
     if conf.out_option:
         afile = TFile.Open(theFileName, conf.out_option)
     else:

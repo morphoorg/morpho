@@ -372,7 +372,7 @@ def sampleFunc(arg):
     logger.info('you called sampleFunc({})'.format(arg))
 
 def preprocessing(sa):
-    # Generic function for creating the PostProcessing class
+    # Generic function for creating the PreProcessing class
     for minidict in sa.prep_dict:
         logger.info("Doing preprocessing {}".format(minidict['method_name']))
         modulename = 'morpho.preprocessing.'+minidict['module_name']
@@ -396,7 +396,7 @@ def postprocessing(sa):
     return 1
 
 def plotting(sa):
-    # Generic function for creating the PostProcessing class
+    # Generic function for plotting
     list_canvas = []
     for minidict in sa.plot_dict:
         logger.info("Doing plot {}".format(minidict['method_name']))

@@ -1,8 +1,9 @@
 # This is a testing script which is supposed to make a linear fit.
 morpho:
+  # do_preprocessing: True
   do_stan: True
-  do_postprocessing: False
-  do_plots: False
+  # do_postprocessing: True
+  # do_plots: True
 stan:
   # Name of the model
   name: "morpho_test"

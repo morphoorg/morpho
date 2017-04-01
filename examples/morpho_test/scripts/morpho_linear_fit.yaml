@@ -10,7 +10,7 @@ stan:
   # Model, associated functions, cache folder
   model:
     file: "./morpho_test/models/morpho_linear_fit.stan"
-    function_file: None
+    function_files_location: None   
     cache: "./morpho_test/cache"
   # Input data
   data:

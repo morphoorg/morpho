@@ -280,6 +280,11 @@ def parse_args():
                    default=False,
                    help='Force the creation of a new cache',
                    required=False)
+    p.add_argument('-nc','--no-cache',
+                    action='store_true',
+                    default=False,
+                    help='Do not save the Stan cache file',
+                    required=False)
     p.add_argument('-nas','--noautoseed',
                    action='store_false',
                    default=True,

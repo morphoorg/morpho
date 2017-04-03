@@ -236,12 +236,12 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
             logger.debug("Trying to load cached StanModel")
             sm = pickle.load(open(cache_fn, 'rb'))
         except:
-            logger.debug("Creating Stan cache: {}".format(cache_fn))
+            logger.debug("Creating Stan cache")
             sm = pystan.StanModel(model_code=theModel)
             with open(cache_fn, 'wb') as f:
                 pickle.dump(sm, f)
         else:
-            logger.debug("Using cached StanModel")
+            logger.debug("Using cached StanModel: {}".format(cache_fn))
 
     if sa.out_cache_fn is not None:
         logger.debug("Saving cache file to {}".format(sa.out_cache_fn))

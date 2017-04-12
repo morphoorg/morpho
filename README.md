@@ -1,8 +1,6 @@
 morpho
 ======
-The morpho package:
-
-    A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
+  A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
 
 
 Requirements
@@ -35,9 +33,9 @@ Install
       virtualenv ~/path/to/the/virtualenvironment/env
       source ~/path/to/the/virtualenvironment/env/bin/activate
       pip install -U pip # must update pip to >= 7.0.0
-      pip install . # inside the morpho repository
-      pip install .[h5] # if you want to output h5 files
-      pip install .[all] # if you want everything available
+      # inside the morpho repository
+      pip install . 
+      pip install .[all]
 
   Once all the required packages are installed on the virtualenvironment, one can load it using
 
@@ -48,7 +46,7 @@ Running
 
   See the documentation on the Stan homepage for more detail about the Stan models.
 
-	  	morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
+	morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
 
   Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 

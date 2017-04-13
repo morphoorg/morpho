@@ -17,7 +17,7 @@ To do:
 
 import logging
 logger = logging.getLogger('histo')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
 logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
 
@@ -80,15 +80,20 @@ def preparingTitles(param_dict):
 
 
 def histo(param_dict):
+    '''
+    Create a histogram using a list of X
+    '''
 
     # Preparing the canvas
-    logger.info("Preparing Canvas")
+    logger.debug("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
-
+    if 'options' in param_dict.keys():
+        if any("logy" in s for s in param_dict['options']):
+            logger.debug("Setting Log Y")
+            can.SetLogy()
     # Setting the titles
-    logger.info("Preparing Titles")
-
+    logger.debug("Preparing Titles")
     xtitle, ytitle = preparingTitles(param_dict)
 
     gSave = []
@@ -190,11 +195,15 @@ def histo(param_dict):
 
 
 def spectra(param_dict):
-
+    '''
+    Create a spectrum using a (X,Y) list
+    '''
     # Preparing the canvas
     logger.debug("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
+    if "logy" in param_dict.options:
+        can.SetLogy()
 
     # Setting the titles
     logger.debug("Preparing Titles")
@@ -304,26 +313,13 @@ def spectra(param_dict):
 
     return can
 
-
-
-
-
-def histo2D(param_dict):
-    # Preparing the canvas
-    title, width, height = preparingCanvas(param_dict)
-    can = ROOT.TCanvas(title,title,width,height)
-
-    # Setting the titles
-    xtitle, ytitle = preparingTitles(paramdict)
-
-
 def autoRangeList(list):
-    logger.info('Using autoRange')
+    logger.debug('Using autoRange')
     xmin = min(list)
     xmax = max(list)  # need to be done
     return xmin, xmax
 def autoRangeContent(hist):
-    logger.info('Using autoRange')
+    logger.debug('Using autoRange')
     list = []
     for i in range(0,hist.GetNbinsX()):
         list.append(hist.GetBinContent(i))

@@ -85,6 +85,11 @@ class morpho(object):
             return True
         else:
             return False
+    def get_do_prep(self):
+        if self.do_preprocessing:
+            return True
+        else:
+            return False
     def get_do_pp(self):
         if self.do_postprocessing:
             return True
@@ -104,9 +109,10 @@ class morpho(object):
     def __init__(self, yd):
         try:
             # Morpho steps
-            self.do_stan = self.read_param(yd, 'morpho.do_stan', 'required')
-            self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', 'required')
-            self.do_plots = self.read_param(yd, 'morpho.do_plots', 'required')
+            self.do_preprocessing = self.read_param(yd, 'morpho.do_preprocessing', False)
+            self.do_stan = self.read_param(yd, 'morpho.do_stan', True)
+            self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', False)
+            self.do_plots = self.read_param(yd, 'morpho.do_plots', False)
             self.wait = self.read_param(yd, 'morpho.wait_at_the_end', False)
 
             # Identifications
@@ -169,6 +175,9 @@ class morpho(object):
             # Outputted text file containing name of cache file
             self.out_cache_fn = self.read_param(yd, 'stan.output.save_cache_name', None)
 
+            # Pre-processing configuration
+            self.prep_dict = self.read_param(yd, 'preprocessing.which_pp', None)
+
             # Post-processing configuration
             self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
 
@@ -215,7 +224,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     cdir = os.path.dirname(cache_fn)
     if not os.path.exists(cdir):
         os.makedirs(cdir)
-        logger.info("Creating 'cache' folder")
+        logger.info("Creating 'cache' folder: {}".format(cdir))
 
     if (args.force_restart):
         logger.debug("Forced to create Stan cache!")
@@ -227,7 +236,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
             logger.debug("Trying to load cached StanModel")
             sm = pickle.load(open(cache_fn, 'rb'))
         except:
-            logger.debug("Creating Stan cache!")
+            logger.debug("Creating Stan cache: {}".format(cache_fn))
             sm = pystan.StanModel(model_code=theModel)
             with open(cache_fn, 'wb') as f:
                 pickle.dump(sm, f)
@@ -347,7 +356,7 @@ def write_result(conf, stanres, input_param):
     rdir = os.path.dirname(ofilename)
     if not os.path.exists(rdir):
         os.makedirs(rdir)
-        logger.info("Creating 'results' folder")
+        logger.info("Creating 'results' folder: {}".format(rdir))
     if (args.job_id>0):
         ofilename = ofilename+'_'+args.job_id
     if conf.out_format == 'hdf5':
@@ -359,15 +368,50 @@ def write_result(conf, stanres, input_param):
         pyL.stan_write_root(conf, ofilename, stanres, input_param)
     return stanres
 
-def sampleFunc(arg):
-    logger.info('you called sampleFunc({})'.format(arg))
+def preprocessing(sa):
+    # Generic function for creating the PreProcessing class
+    for minidict in sa.prep_dict:
+        try:
+            modulename = 'morpho.preprocessing.'+minidict['module_name']
+            i = importlib.import_module("{}".format(modulename))
+        except Exception as err:
+            try:
+                import imp
+                i = imp.load_source(minidict['module_name'], minidict['module_name']+'.py')
+                # i = importlib.import_module("{}".format(minidict['module_name']))
+            except Exception as err:
+                logger.critical(err)
+                return 0
+            else:
+                logger.info("Doing preprocessing {} using {}".format(minidict['method_name'],minidict['module_name']+'.py'))
+        else:
+            logger.info("Doing preprocessing {} using {}".format(minidict['method_name'],modulename))
+
+        try:
+            getattr(i,minidict['method_name'])(minidict)
+        except Exception as err:
+            logger.critical(err)
+    return 1
 
 def postprocessing(sa):
     # Generic function for creating the PostProcessing class
     for minidict in sa.pp_dict:
-        logger.info("Doing postprocessing {}".format(minidict['method_name']))
-        modulename = 'morpho.postprocessing.'+minidict['module_name']
-        i = importlib.import_module("{}".format(modulename))
+        try:
+            modulename = 'morpho.postprocessing.'+minidict['module_name']
+            i = importlib.import_module("{}".format(modulename))
+        except Exception as err:
+            try:
+                import imp
+                i = imp.load_source(minidict['module_name'], minidict['module_name']+'.py')
+                # i = importlib.import_module("{}".format(minidict['module_name']))
+            except Exception as err:
+                logger.critical(err)
+                return 0
+            else:
+                logger.info("Doing postprocessing {} using {}".format(minidict['method_name'],minidict['module_name']+'.py'))
+        else:
+            logger.info("Doing postprocessing {} using {}".format(minidict['method_name'],modulename))
+
         try:
             getattr(i,minidict['method_name'])(minidict)
         except Exception as err:
@@ -375,12 +419,25 @@ def postprocessing(sa):
     return 1
 
 def plotting(sa):
-    # Generic function for creating the PostProcessing class
+    # Generic function for plotting
     list_canvas = []
     for minidict in sa.plot_dict:
-        logger.info("Doing plot {}".format(minidict['method_name']))
-        modulename = 'morpho.plot.'+minidict['module_name']
-        i = importlib.import_module("{}".format(modulename))
+        try:
+            modulename = 'morpho.plot.'+minidict['module_name']
+            i = importlib.import_module("{}".format(modulename))
+        except Exception as err:
+            try:
+                import imp
+                i = imp.load_source(minidict['module_name'], minidict['module_name']+'.py')
+                # i = importlib.import_module("{}".format(minidict['module_name']))
+            except Exception as err:
+                logger.critical(err)
+                return 0
+            else:
+                logger.info("Doing plot {} using {}".format(minidict['method_name'],minidict['module_name']+'.py'))
+        else:
+            logger.info("Doing plot {} using {}".format(minidict['method_name'],modulename))
+
         try:
             list_canvas.append(getattr(i,minidict['method_name'])(minidict))
         except Exception as err:
@@ -445,6 +502,9 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
         except Exception as err:
             logger.debug(err)
 
+        if (sa.get_do_prep()):
+            postprocessing(sa)
+
         if (sa.get_do_Stan()):
             try:
                 logger.info("Doing MC with Stan")
@@ -452,19 +512,23 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
             except Exception as err:
                 logger.critical(err)
                 sys.exit(2)
-            # try:
-            logger.info("Saving results")
-            stanres = write_result(sa, result, input_param)
-            if sa.out_fit != None:
-                save_object(stanres, sa.out_fit)
-                logger.debug('Saved fit in {}'.format(sa.out_fit))
-            # except Exception as err:
-                # logger.critical(err)
-                # sys.exit(2)
+            try:
+                logger.info("Saving results")
+                stanres = write_result(sa, result, input_param)
+                if sa.out_fit != None:
+                    save_object(stanres, sa.out_fit)
+                    logger.debug('Saved fit in {}'.format(sa.out_fit))
+            except Exception as err:
+                logger.critical(err)
+                sys.exit(2)
+
         if (sa.get_do_pp()):
             postprocessing(sa)
+
         if (sa.get_do_plots()):
             list_canvas = plotting(sa)
+
         if(sa.get_wait()):
             raw_input('Press <ret> to end -> ')
+
     logger.info("This is all for now!")

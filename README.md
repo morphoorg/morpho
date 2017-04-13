@@ -1,8 +1,6 @@
 morpho
 ======
-The morpho package:
-
-    A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
+  A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
 
 
 Requirements
@@ -23,7 +21,7 @@ Requirements
 	- python-matplotlib
 	- python-pip
 	- git
-	- virtualenv
+
 	To read and save files, you will need either hdf5 or root:
 	- hdf5: libhdf5-serial-dev libhdf5-dev
 	- root: root-system from apt-get or sources from https://root.cern.
@@ -32,23 +30,23 @@ Install
 ======
   PyStan and the required packages may be installed from the Python Index Package using pip inside a virtual environment.
 
-      virtualenv ~/path/to/the/virtualenvironment/env
-      source ~/path/to/the/virtualenvironment/env/bin/activate
-      pip install -U pip # must update pip to >= 7.0.0
-      pip install . # inside the morpho repository
-      pip install .[h5] # if you want to output h5 files
-      pip install .[all] # if you want everything available
+	virtualenv ~/path/to/the/virtualenvironment/env
+	source ~/path/to/the/virtualenvironment/env/bin/activate
+	pip install -U pip # must update pip to >= 7.0.0
+	# inside the morpho repository
+	pip install . 
+	pip install .[all]
 
   Once all the required packages are installed on the virtualenvironment, one can load it using
 
-      source ~/path/to/the/virtualenvironment/env/bin/activate
+	source ~/path/to/the/virtualenvironment/env/bin/activate
 
 Running
 ======
 
   See the documentation on the Stan homepage for more detail about the Stan models.
 
-	  	morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
+	morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
 
   Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
 
@@ -66,12 +64,12 @@ Running
 
   "Help will always be given to those who ask for it":
 
-      morpho --help
+	morpho --help
 
   An simple example of script and model can be found in the examples folder.
   You can execute it using:
   
-      morpho --config morpho_test/scripts/morpho_linear_fit.yaml
+	morpho --config morpho_test/scripts/morpho_linear_fit.yaml
 
 Known bugs and solutions
 ======	  

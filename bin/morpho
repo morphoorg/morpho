@@ -232,17 +232,21 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     if (args.force_restart):
         logger.debug("Forced to create Stan cache!")
         sm = pystan.StanModel(model_code=theModel)
-        with open(cache_fn, 'wb') as f:
-            pickle.dump(sm, f)
+        if not args.no_cache:
+            logger.debug("Saving Stan cache in {}".format(cache_fn))
+            with open(cache_fn, 'wb') as f:
+                pickle.dump(sm, f)
     else:
         try:
             logger.debug("Trying to load cached StanModel")
             sm = pickle.load(open(cache_fn, 'rb'))
         except:
-            logger.debug("Creating Stan cache")
+            logger.debug("None exists -> creating Stan cache")
             sm = pystan.StanModel(model_code=theModel)
-            with open(cache_fn, 'wb') as f:
-                pickle.dump(sm, f)
+            if not args.no_cache:
+                logger.debug("Saving Stan cache in {}".format(cache_fn))
+                with open(cache_fn, 'wb') as f:
+                    pickle.dump(sm, f)
         else:
             logger.debug("Using cached StanModel: {}".format(cache_fn))
 
@@ -288,13 +292,12 @@ def parse_args():
                    default=False,
                    help='Manualy change of a parameter and its value')
 
-    group = p.add_mutually_exclusive_group(required=False)
-    group.add_argument('-f','--force-restart',
+    p.add_argument('-f','--force-restart',
                    action='store_true',
                    default=False,
-                   help='Force the creation of a new cache',
+                   help='Force the recompilation',
                    required=False)
-    group.add_argument('-nc','--no-cache',
+    p.add_argument('-nc','--no-cache',
                     action='store_true',
                     default=False,
                     help='Do not save the Stan cache file',

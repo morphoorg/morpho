@@ -176,13 +176,16 @@ class morpho(object):
             self.out_cache_fn = self.read_param(yd, 'stan.output.save_cache_name', None)
 
             # Pre-processing configuration
-            self.prep_dict = self.read_param(yd, 'preprocessing.which_pp', None)
+            if self.do_preprocessing:
+                self.prep_dict = self.read_param(yd, 'preprocessing.which_pp', None)
 
             # Post-processing configuration
-            self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
+            if self.do_postprocessing:
+                self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
 
             # Plot configuration
-            self.plot_dict = self.read_param(yd, 'plot.which_plot', None)
+            if self.do_plots:
+                self.plot_dict = self.read_param(yd, 'plot.which_plot', None)
 
         except Exception as err:
             raise err
@@ -275,16 +278,7 @@ def parse_args():
                    metavar='<seed>',
                    help='Add random seed number to file',
                    required=False)
-    p.add_argument('-f','--force-restart',
-                   action='store_true',
-                   default=False,
-                   help='Force the creation of a new cache',
-                   required=False)
-    p.add_argument('-nc','--no-cache',
-                    action='store_true',
-                    default=False,
-                    help='Do not save the Stan cache file',
-                    required=False)
+
     p.add_argument('-nas','--noautoseed',
                    action='store_false',
                    default=True,
@@ -293,6 +287,18 @@ def parse_args():
     p.add_argument('param',nargs='*',
                    default=False,
                    help='Manualy change of a parameter and its value')
+
+    group = p.add_mutually_exclusive_group(required=False)
+    group.add_argument('-f','--force-restart',
+                   action='store_true',
+                   default=False,
+                   help='Force the creation of a new cache',
+                   required=False)
+    group.add_argument('-nc','--no-cache',
+                    action='store_true',
+                    default=False,
+                    help='Do not save the Stan cache file',
+                    required=False)
     return p.parse_args()
 
 def update_from_arguments(the_dict,args):
@@ -375,6 +381,9 @@ def write_result(conf, stanres, input_param):
 
 def preprocessing(sa):
     # Generic function for creating the PreProcessing class
+    if sa.prep_dict is None:
+        logger.critical("preprocessing dict is None")
+        return 0
     for minidict in sa.prep_dict:
         try:
             modulename = 'morpho.preprocessing.'+minidict['module_name']
@@ -400,6 +409,9 @@ def preprocessing(sa):
 
 def postprocessing(sa):
     # Generic function for creating the PostProcessing class
+    if sa.pp_dict is None:
+        logger.critical("postprocessing dict is None")
+        return 0
     for minidict in sa.pp_dict:
         try:
             modulename = 'morpho.postprocessing.'+minidict['module_name']
@@ -426,6 +438,9 @@ def postprocessing(sa):
 def plotting(sa):
     # Generic function for plotting
     list_canvas = []
+    if sa.plot_dict is None:
+        logger.critical("plot dict is None")
+        return 0
     for minidict in sa.plot_dict:
         try:
             modulename = 'morpho.plot.'+minidict['module_name']

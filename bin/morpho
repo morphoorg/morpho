@@ -25,6 +25,7 @@ logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
 import time
 import re
 import random
+import ast
 
 import pystan
 from pystan import stan
@@ -313,7 +314,7 @@ def update_from_arguments(the_dict,args):
     for a_arg in args:
         result = a_arg.split('=')
         xpath = result[0].split('.')
-        to_update_dict = {xpath[-1]:result[1]}
+        to_update_dict = {xpath[-1]:ast.literal_eval(result[1])}
         for path in reversed(xpath[:-1]):
             to_update_dict = {path:to_update_dict}
         new_dict = merge(new_dict,to_update_dict)

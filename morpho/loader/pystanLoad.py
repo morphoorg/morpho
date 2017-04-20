@@ -157,8 +157,6 @@ def stan_data_files(theData):
 def extract_data_from_outputdata(conf,theOutput):
     # Extract the data into a dictionary
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
-
-
     theOutputDiagnostics = theOutput.get_sampler_params(inc_warmup=conf.out_inc_warmup)
 
     theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)

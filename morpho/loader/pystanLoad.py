@@ -1,10 +1,7 @@
 # Definitions for loading and using pystan for analysis using root or hdf5
 
 import logging
-logger = logging.getLogger('pystanLoad')
-logger.setLevel(logging.DEBUG)
-base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
-logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
+logger = logging.getLogger(__name__)
 
 try:
     from ROOT import *
@@ -50,6 +47,7 @@ def stan_data_files(theData):
                 afile = None
 
                 if atype =='R' :
+                    logger.debug('Getting {}'.format(key['name']))
                     afile = pystan.misc.read_rdump(key['name'])
                     alist = dict(alist.items() + afile.items())
                     for key, value in alist.iteritems():
@@ -57,6 +55,7 @@ def stan_data_files(theData):
                         alist.update({key: translist})
 
                 elif atype =='hdf5' :
+                    logger.debug('Getting {}'.format(key['name']))
                     afile = h5py.File(key['name'], 'r') #Reading from hdf5 file
 
                     areal = array.array('d',[0.])

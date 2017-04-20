@@ -17,10 +17,20 @@ sys.setdefaultencoding("utf-8")
 
 import logging
 logger = logging.getLogger('morpho')
+logger.propagate = False
 logger.setLevel(logging.DEBUG)
-base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
-logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
+logger.handlers = []
 
+base_format = '%(asctime)s{}[%(levelname)-8s] %(name)s(%(lineno)d) -> {}%(message)s'
+import colorlog
+fmt = colorlog.ColoredFormatter(
+        base_format.format('%(log_color)s', '%(purple)s'),
+        datefmt = '%Y-%m-%dT%H:%M:%SZ'[:-1],
+        reset=True,
+        )
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(fmt)
+logger.addHandler(handler)
 
 import time
 import re
@@ -527,7 +537,7 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
             logger.debug(err)
 
         if (sa.get_do_prep()):
-            postprocessing(sa)
+            preprocessing(sa)
 
         if (sa.get_do_Stan()):
             try:

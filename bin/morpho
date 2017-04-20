@@ -534,7 +534,8 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                 cdata = update_from_arguments(cdata,args.param)
             sa = morpho(cdata)
         except Exception as err:
-            logger.debug(err)
+            logger.critical(err)
+            sys.exit(2)
 
         if (sa.get_do_prep()):
             preprocessing(sa)

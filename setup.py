@@ -15,7 +15,7 @@ except Exception as err:
     verstr = 'v0.0.0-???'
 
 extras_require={
-    'postprocessing': ['matplotlib'],
+    'postprocessing': ['matplotlib==1.5.1'],
     'h5': ['h5py<=2.6'],
 }
 everything = set()

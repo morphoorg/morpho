@@ -31,6 +31,11 @@ def bootstrapping(param_dict):
     file = root.TFile(input_file_name,"READ")
     tree = file.Get(input_tree)
     nEntries = tree.GetEntries()
+    if input_file_name is not output_file_name:
+        g=root.TFile(output_file_name,"RECREATE")
+    else:
+        g = root.TFile(input_file_name,"UPDATE")
+    # g.cd()
     logger.debug("Sampling {} points from {} in {}:{}".format(number_interation,nEntries,input_file_name,input_tree))
     newtree=tree.CloneTree(0)
     newtree.SetName(output_tree)
@@ -39,11 +44,10 @@ def bootstrapping(param_dict):
         n = root.gRandom.Uniform()*nEntries
         tree.GetEntry(int(n))
         newtree.Fill()
-    if input_file_name is not output_file_name:
-        g=root.TFile(output_file_name,"RECREATE")
-    else:
-        g = root.TFile(input_file_name,"UPDATE")
+
+    # if g.GetListOfKeys().Contains(output_tree):
     g.cd()
+
     newtree.Write()
     g.Close()
     file.Close()

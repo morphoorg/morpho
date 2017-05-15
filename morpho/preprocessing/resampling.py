@@ -28,11 +28,16 @@ def bootstrapping(param_dict):
         logger.critical("indentical input and output. filename: {}; tree: {}".format(input_file_name,input_tree))
         raise
 
+    if 'rootfile_option' in param_dict:
+        rootfile_option=param_dict['rootfile_option']
+    else:
+        rootfile_option = "RECREATE"
+
     file = root.TFile(input_file_name,"READ")
     tree = file.Get(input_tree)
     nEntries = tree.GetEntries()
     if input_file_name is not output_file_name:
-        g=root.TFile(output_file_name,"RECREATE")
+        g=root.TFile(output_file_name,rootfile_option)
     else:
         g = root.TFile(input_file_name,"UPDATE")
     # g.cd()

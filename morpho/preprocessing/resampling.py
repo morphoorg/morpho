@@ -28,8 +28,8 @@ def bootstrapping(param_dict):
         logger.critical("indentical input and output. filename: {}; tree: {}".format(input_file_name,input_tree))
         raise
 
-    if 'rootfile_option' in param_dict:
-        rootfile_option=param_dict['rootfile_option']
+    if 'option' in param_dict:
+        rootfile_option=param_dict['option']
     else:
         rootfile_option = "RECREATE"
 

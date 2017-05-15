@@ -45,6 +45,7 @@ def bootstrapping(param_dict):
     newtree=tree.CloneTree(0)
     newtree.SetName(output_tree)
     root.gRandom.SetSeed()
+    logger.debug("Seed used: {}".format(root.gRandom.GetSeed()))
     for i in range(number_interation):
         n = root.gRandom.Uniform()*nEntries
         tree.GetEntry(int(n))

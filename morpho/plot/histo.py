@@ -189,7 +189,6 @@ def histo(param_dict):
     else:
         figurefullpath += '.pdf'
     can.SaveAs(figurefullpath)
-    # raw_input('Press <ret> to end -> ')
 
     return can
 

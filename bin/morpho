@@ -144,9 +144,9 @@ class morpho(object):
 
             # STAN run conditions
             self.algorithm = self.read_param(yd, 'stan.run.algorithm', 'NUTS')
-            self.iter = self.read_param(yd, 'stan.run.iter', 2000)
-            self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
-            self.chains = self.read_param(yd, 'stan.run.chain', 4)
+            self.iter = int(self.read_param(yd, 'stan.run.iter', 2000))
+            self.warmup = int(self.read_param(yd, 'stan.run.warmup', self.iter/2))
+            self.chains = int(self.read_param(yd, 'stan.run.chain', 4))
             self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
             # Adding a seed based on extra arguments, current time
             if isinstance(args.seed,int):
@@ -155,7 +155,7 @@ class morpho(object):
                 self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
                 logger.debug("Autoseed activated: seed = {}".format(self.seed))
             else:
-                self.seed = self.read_param(yd, 'stan.run.seed', None)
+                self.seed = int(self.read_param(yd, 'stan.run.seed', None))
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')

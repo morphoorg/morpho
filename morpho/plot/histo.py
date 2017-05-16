@@ -105,10 +105,15 @@ def histo(param_dict):
         list_histo = []
 
         myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+        print(myfile)
+        print(param_dict['input_file_name'])
         for namedata in param_dict['data']:
             list_data = []
             # myfile.Close()
+            print(namedata)
             tree = myfile.Get(param_dict['input_tree'])
+            print(param_dict['input_tree'])
+            print(tree)
             n = tree.GetEntries()
             for i in range(0,n):
                 tree.GetEntry(i)
@@ -317,8 +322,9 @@ def histo2D(param_dict):
     logger.debug("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
-    if "logy" in param_dict.options:
-        can.SetLogy()
+    if 'options' in param_dict:
+        if "logy" in param_dict['options']:
+            can.SetLogy()
 
     # Setting the titles
     logger.debug("Preparing Titles")
@@ -327,18 +333,39 @@ def histo2D(param_dict):
     gSave = []
     j = 0
 
-    if isinstance(param_dict['data'],list):
-        if 'n_bins_x' in param_dict:
-            nbins_x = param_dict['n_bins_x']
-        else:
-            nbins_x = 100
-        if 'n_bins_y' in param_dict:
-            nbins_y = param_dict['n_bins_y']
-        else:
-            nbins_y = 100
-        list_histo = []
+    if 'n_bins_x' in param_dict:
+        nbins_x = param_dict['n_bins_x']
+    else:
+        nbins_x = 100
+    if 'n_bins_y' in param_dict:
+        nbins_y = param_dict['n_bins_y']
+    else:
+        nbins_y = 100
+    list_histo = []
 
-        myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+    myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+    if 'data' in param_dict:
+        namedata = param_dict['data']
+    print(namedata)
+    if not isinstance(namedata, list):
+        logger.critical(' {} is not a list of list; required for spectra ploting; skipping'.format(namedata))
+        return
+    list_dataX = []
+    list_dataY = []
+    # myfile.Close()
+    tree = myfile.Get(param_dict['input_tree'])
+    n = tree.GetEntries()
+    for i in range(0,n):
+        tree.GetEntry(i)
+        list_dataX.append(getattr(tree,namedata[0]))
+        list_dataY.append(getattr(tree,namedata[1]))
+    histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y], [0,0], title)
+    histo.GetXaxis().SetTitle(namedata[0])
+    histo.GetYaxis().SetTitle(namedata[1])
+
+    histo.Draw('colz')
+    can.SaveAs('temp.pdf')
+    return
 
 def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
     '''
@@ -372,19 +399,25 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
                 ymin = y_range[0]
                 ymax = y_range[1]
             else:
-                ymin,ymax = autoRangeList(list_dataX)
+                ymin,ymax = autoRangeList(list_dataY)
         elif isinstance(y_range[0],(float,int)):
-            ytemp,ymax = autoRangeList(list_dataX)
+            ytemp,ymax = autoRangeList(list_dataY)
             ymin = y_range[0]
         elif isinstance(y_range[1],(float,int)):
-            ymin,ytemp = autoRangeList(list_dataX)
+            ymin,ytemp = autoRangeList(list_dataY)
             ymax = y_range[1]
         else:
-            ymin,ymax = autoRangeList(list_dataX)
+            ymin,ymax = autoRangeList(list_dataY)
     else:
-        ymin,ymax = autoRangeList(list_dataX)
+        ymin,ymax = autoRangeList(list_dataY)
 
-    temphisto = ROOT.TH1F(histo_title,histo_title,nbins,xmin,xmax)
+    temphisto = ROOT.TH2F(histo_title,histo_title,nbins[0],xmin,xmax,nbins[1],ymin,ymax)
+    if len(list_dataX)!=len(list_dataX):
+        logger.critical("list of data does not have the same size. x: {}; y: {}".format(len(list_dataX),len(list_dataY)))
+        return 0
+    for i in range(0,len(list_dataX)):
+        temphisto.Fill(list_dataX[i],list_dataY[i])
+    return temphisto
 
 def autoRangeList(list):
     logger.debug('Using autoRange')

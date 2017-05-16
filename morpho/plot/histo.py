@@ -78,19 +78,19 @@ def histo(param_dict):
                             xmin = param_dict['x_range'][0]
                             xmax = param_dict['x_range'][1]
                         else:
-                            xmin,xmax = autoRangeList(list_data)
+                            xmin,xmax = _autoRangeList(list_data)
                     elif isinstance(param_dict['x_range'][0],float):
-                        xtemp,xmax = autoRangeList(list_data)
+                        xtemp,xmax = _autoRangeList(list_data)
                         xmin = param_dict['x_range'][0]
                     elif isinstance(param_dict['x_range'][1],float):
-                        xmin,xtemp = autoRangeList(list_data)
+                        xmin,xtemp = _autoRangeList(list_data)
                         xmax = param_dict['x_range'][1]
                     else:
-                        xmin,xmax = autoRangeList(list_data)
+                        xmin,xmax = _autoRangeList(list_data)
                 else:
-                    xmin,xmax = autoRangeList(list_data)
+                    xmin,xmax = _autoRangeList(list_data)
             else:
-                xmin,xmax = autoRangeList(list_data)
+                xmin,xmax = _autoRangeList(list_data)
             list_histo.append(ROOT.TH1F(namedata,namedata,nbins,xmin,xmax))
             for i in range(0,n):
                 list_histo[j].Fill(list_data[i])
@@ -104,11 +104,11 @@ def histo(param_dict):
                         if  param_dict['y_range'][0] < param_dict['y_range'][1]:
                             list_histo[j].GetYaxis().SetRangeUser(param_dict['y_range'][0],param_dict['y_range'][1])
                     elif isinstance(param_dict['y_range'][0],float):
-                        ytemp,ymax = autoRangeContent(list_histo[j])
+                        ytemp,ymax = _autoRangeContent(list_histo[j])
                         ymin = param_dict['y_range'][0]
                         list_histo[j].GetYaxis().SetRangeUser(ymin,ymax)
                     elif isinstance(param_dict['y_range'][1],float):
-                        ymin,ytemp = autoRangeContent(list_histo[j])
+                        ymin,ytemp = _autoRangeContent(list_histo[j])
                         ymax = param_dict['y_range'][1]
                         list_histo[j].GetYaxis().SetRangeUser(ymin,ymax)
             else:
@@ -195,19 +195,19 @@ def spectra(param_dict):
                             xmin = param_dict['x_range'][0]
                             xmax = param_dict['x_range'][1]
                         else:
-                            xmin,xmax = autoRangeList(list_dataX)
+                            xmin,xmax = _autoRangeList(list_dataX)
                     elif isinstance(param_dict['x_range'][0],float):
-                        xtemp,xmax = autoRangeList(list_dataX)
+                        xtemp,xmax = _autoRangeList(list_dataX)
                         xmin = param_dict['x_range'][0]
                     elif isinstance(param_dict['x_range'][1],float):
-                        xmin,xtemp = autoRangeList(list_dataX)
+                        xmin,xtemp = _autoRangeList(list_dataX)
                         xmax = param_dict['x_range'][1]
                     else:
-                        xmin,xmax = autoRangeList(list_dataX)
+                        xmin,xmax = _autoRangeList(list_dataX)
                 else:
-                    xmin,xmax = autoRangeList(list_dataX)
+                    xmin,xmax = _autoRangeList(list_dataX)
             else:
-                xmin,xmax = autoRangeList(list_dataX)
+                xmin,xmax = _autoRangeList(list_dataX)
             histo_title = '{}_vs_{}'.format(namedata[1],namedata[0])
             list_histo.append(ROOT.TH1F(histo_title,histo_title,nbins,xmin,xmax))
             for i in range(0,n):
@@ -222,11 +222,11 @@ def spectra(param_dict):
                         if  param_dict['y_range'][0] < param_dict['y_range'][1]:
                             list_histo[j].GetYaxis().SetRangeUser(param_dict['y_range'][0],param_dict['y_range'][1])
                     elif isinstance(param_dict['y_range'][0],float):
-                        ytemp,ymax = autoRangeContent(list_histo[j])
+                        ytemp,ymax = _autoRangeContent(list_histo[j])
                         ymin = param_dict['y_range'][0]
                         list_histo[j].GetYaxis().SetRangeUser(ymin,ymax)
                     elif isinstance(param_dict['y_range'][1],float):
-                        ymin,ytemp = autoRangeContent(list_histo[j])
+                        ymin,ytemp = _autoRangeContent(list_histo[j])
                         ymax = param_dict['y_range'][1]
                         list_histo[j].GetYaxis().SetRangeUser(ymin,ymax)
             else:
@@ -520,17 +520,17 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
                 xmin = x_range[0]
                 xmax = x_range[1]
             else:
-                xmin,xmax = autoRangeList(list_dataX)
+                xmin,xmax = _autoRangeList(list_dataX)
         elif isinstance(x_range[0],(float,int)):
-            xtemp,xmax = autoRangeList(list_dataX)
+            xtemp,xmax = _autoRangeList(list_dataX)
             xmin = x_range[0]
         elif isinstance(x_range[1],(float,int)):
-            xmin,xtemp = autoRangeList(list_dataX)
+            xmin,xtemp = _autoRangeList(list_dataX)
             xmax = x_range[1]
         else:
-            xmin,xmax = autoRangeList(list_dataX)
+            xmin,xmax = _autoRangeList(list_dataX)
     else:
-        xmin,xmax = autoRangeList(list_dataX)
+        xmin,xmax = _autoRangeList(list_dataX)
 
     logger.debug('Setting y axis')
     y_range = ranges[0]
@@ -540,17 +540,17 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
                 ymin = y_range[0]
                 ymax = y_range[1]
             else:
-                ymin,ymax = autoRangeList(list_dataY)
+                ymin,ymax = _autoRangeList(list_dataY)
         elif isinstance(y_range[0],(float,int)):
-            ytemp,ymax = autoRangeList(list_dataY)
+            ytemp,ymax = _autoRangeList(list_dataY)
             ymin = y_range[0]
         elif isinstance(y_range[1],(float,int)):
-            ymin,ytemp = autoRangeList(list_dataY)
+            ymin,ytemp = _autoRangeList(list_dataY)
             ymax = y_range[1]
         else:
-            ymin,ymax = autoRangeList(list_dataY)
+            ymin,ymax = _autoRangeList(list_dataY)
     else:
-        ymin,ymax = autoRangeList(list_dataY)
+        ymin,ymax = _autoRangeList(list_dataY)
 
     temphisto = ROOT.TH2F(histo_title,histo_title,nbins[0],xmin,xmax,nbins[1],ymin,ymax)
     if len(list_dataX)!=len(list_dataX):
@@ -560,7 +560,7 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
         temphisto.Fill(list_dataX[i],list_dataY[i])
     return temphisto
 
-def autoRangeList(list):
+def _autoRangeList(list):
     logger.debug('Using autoRange')
     xmin = min(list)
     xmax = max(list)
@@ -569,7 +569,7 @@ def autoRangeList(list):
     xmax = xmax + dx*0.05
     return xmin, xmax
 
-def autoRangeContent(hist):
+def _autoRangeContent(hist):
     logger.debug('Using autoRange')
     list = []
     for i in range(0,hist.GetNbinsX()):

@@ -83,9 +83,10 @@ plot:
       input_tree: "morpho_test"
       root_plot_option: "cont"
       output_path: ./morpho_test/results/
+      title: aposteriori_morpho_test
       output_format: pdf
       output_width: 12000
-      output_height: 900
+      output_height: 1100
       data:
         - a
         - b

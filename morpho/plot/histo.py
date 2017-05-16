@@ -29,7 +29,7 @@ def set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style.SetOptStat("emr")
     style.SetLabelOffset(0.01,'xy')
     style.SetLabelSize(0.05,'xy')
-    style.SetTitleOffset(1.2,'y')
+    style.SetTitleOffset(0.8,'y')
     style.SetTitleSize(0.05,'x')
     style.SetTitleSize(0.05,'y')
     # style.SetLabelSize(0.05,'y')
@@ -44,14 +44,6 @@ def set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style.cd()
 
 def preparingCanvas(param_dict):
-    # Preparing the canvas
-    if 'title' in param_dict and param_dict['title']!='':
-        title = param_dict['title']
-        set_style_options(0.04,0.1,0.07,0.12)
-
-    else:
-        title = ' ' #canvas_'+uuid.uuid4().get_hex()
-        set_style_options(0.04,0.1,0.03,0.12)
 
     if 'output_width' in param_dict:
         width = param_dict['output_width']
@@ -61,6 +53,15 @@ def preparingCanvas(param_dict):
         height = param_dict['output_height']
     else:
         height = 400
+    # Preparing the canvas
+    if 'title' in param_dict and param_dict['title']!='':
+        title = param_dict['title']
+        set_style_options(0.04,0.1,0.07,0.12)
+
+    else:
+        title = 'can_{}_{}'.format(height,width) #canvas_'+uuid.uuid4().get_hex()
+        set_style_options(0.04,0.1,0.03,0.12)
+
     return title, width, height
 
 def preparingTitles(param_dict):
@@ -305,7 +306,6 @@ def spectra(param_dict):
     else:
         figurefullpath += '.pdf'
     can.SaveAs(figurefullpath)
-    # raw_input('Press <ret> to end -> ')
 
     return can
 
@@ -317,6 +317,7 @@ def histo2D(param_dict):
     logger.debug("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
+
     if 'options' in param_dict:
         if "logy" in param_dict['options']:
             can.SetLogy()
@@ -353,6 +354,7 @@ def histo2D(param_dict):
         list_dataX.append(getattr(tree,namedata[0]))
         list_dataY.append(getattr(tree,namedata[1]))
     histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y], [0,0], title)
+    histo.SetTitle("")
     histo.GetXaxis().SetTitle(namedata[0])
     histo.GetYaxis().SetTitle(namedata[1])
 
@@ -392,6 +394,7 @@ def aposteriori_distribution(param_dict):
     logger.debug("Preparing Canvas")
     title, width, height = preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
+    can.Draw()
     if 'options' in param_dict:
         if "logy" in param_dict['options']:
             can.SetLogy()
@@ -431,12 +434,13 @@ def aposteriori_distribution(param_dict):
             tree.GetEntry(i)
             list_dataX.append(getattr(tree,item[0]))
             list_dataY.append(getattr(tree,item[1]))
-        histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y], [0,0], title)
+        histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y], [0,0], '{}_{}'.format(item[0],item[1]))
         histo.GetXaxis().SetTitle(item[0])
         histo.GetYaxis().SetTitle(item[1])
         list_histo.append(histo)
 
     Ndiv = len(namedata)-1
+    ROOT.gStyle.SetOptStat(0)
     can.Divide(Ndiv,Ndiv)
     ix = 0
     iy = 1
@@ -471,6 +475,8 @@ def aposteriori_distribution(param_dict):
         figurefullpath += '.' + param_dict['output_format']
     else:
         figurefullpath += '.pdf'
+    can.Update()
+
     can.SaveAs(figurefullpath)
 
     return can

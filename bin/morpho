@@ -126,8 +126,11 @@ class morpho(object):
             self.do_plots = self.read_param(yd, 'morpho.do_plots', False)
             self.wait = self.read_param(yd, 'morpho.wait_at_the_end', False)
 
-            # Identifications
-            self.job_id = self.read_param(yd, 'stan.job_id', '0')
+            # batch identification
+            if isinstance(args.job_id,(int,float,str)):
+                self.seed=int(args.job_id)
+            else:
+                self.job_id = 0
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
@@ -145,13 +148,15 @@ class morpho(object):
             self.chains = int(self.read_param(yd, 'stan.run.chain', 4))
             self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
             # Adding a seed based on extra arguments, current time
-            if isinstance(args.seed,int):
-                self.seed=args.seed
+            if isinstance(args.seed,(int,float,str)):
+                self.seed=int(args.seed)
             elif args.noautoseed:
                 self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
-                logger.debug("Autoseed activated: seed = {}".format(self.seed))
+                logger.debug("Autoseed activated")
             else:
                 self.seed = int(self.read_param(yd, 'stan.run.seed', None))
+            logger.debug("seed = {}".format(self.seed))
+
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
@@ -382,8 +387,8 @@ def write_result(conf, stanres, input_param):
     if not os.path.exists(rdir):
         os.makedirs(rdir)
         logger.info("Creating 'results' folder: {}".format(rdir))
-    if (args.job_id>0):
-        ofilename = ofilename+'_'+args.job_id
+    if (conf.job_id>0):
+        ofilename = ofilename+'_'+conf.job_id
     if conf.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
         pyL.write_result_hdf5(sa, ofilename, stanres, input_param)

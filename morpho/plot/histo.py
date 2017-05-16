@@ -341,7 +341,6 @@ def histo2D(param_dict):
         nbins_y = param_dict['n_bins_y']
     else:
         nbins_y = 100
-    list_histo = []
 
     myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
     if 'data' in param_dict:
@@ -363,13 +362,143 @@ def histo2D(param_dict):
     histo.GetXaxis().SetTitle(namedata[0])
     histo.GetYaxis().SetTitle(namedata[1])
 
-    histo.Draw('colz')
-    can.SaveAs('temp.pdf')
-    return
+    if 'root_plot_option' in param_dict:
+        histo.Draw(param_dict['root_plot_option'])
+    else:
+        histo.Draw('contz')
+    # Setting the picture file name
+    if 'output_path' in param_dict:
+        path = param_dict['output_path']
+    else:
+        path = "./"
+    if path.endswith('/')==False:
+        path = path + '/'
+    if title!=' ':
+        figurefullpath = path+title+'_'
+    else:
+        figurefullpath = path
+    for namedata in param_dict['data']:
+        figurefullpath += namedata + '_'
+    if figurefullpath.endswith('_'):
+        figurefullpath = figurefullpath[:-1]
+    if 'output_format' in param_dict:
+        figurefullpath += '.' + param_dict['output_format']
+    else:
+        figurefullpath += '.pdf'
+    can.SaveAs(figurefullpath)
+
+    return can
+
+
+def aposteriori_distribution(param_dict):
+    '''
+    Plot a disposition of 2D histogram
+    '''
+    # Preparing the canvas
+    logger.debug("Preparing Canvas")
+    title, width, height = preparingCanvas(param_dict)
+    can = ROOT.TCanvas(title,title,width,height)
+    if 'options' in param_dict:
+        if "logy" in param_dict['options']:
+            can.SetLogy()
+
+    # Setting the titles
+    logger.debug("Preparing Titles")
+    xtitle, ytitle = preparingTitles(param_dict)
+
+    gSave = []
+    j = 0
+
+    if 'n_bins_x' in param_dict:
+        nbins_x = param_dict['n_bins_x']
+    else:
+        nbins_x = 100
+    if 'n_bins_y' in param_dict:
+        nbins_y = param_dict['n_bins_y']
+    else:
+        nbins_y = 100
+    list_histo = []
+
+    myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+    if 'data' in param_dict:
+        namedata = param_dict['data']
+    print(namedata)
+    list_2Dhisto = _prepare_couples(namedata)
+    list_histo = []
+    for item in list_2Dhisto:
+        print(item)
+        if not isinstance(item, list):
+            logger.critical(' {} is not a list of list; required for spectra ploting; skipping'.format(namedata))
+            return
+        list_dataX = []
+        list_dataY = []
+        # myfile.Close()
+        tree = myfile.Get(param_dict['input_tree'])
+        n = tree.GetEntries()
+        for i in range(0,n):
+            tree.GetEntry(i)
+            list_dataX.append(getattr(tree,item[0]))
+            list_dataY.append(getattr(tree,item[1]))
+        histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y], [0,0], title)
+        histo.GetXaxis().SetTitle(item[0])
+        histo.GetYaxis().SetTitle(item[1])
+        list_histo.append(histo)
+
+    Ndiv = len(namedata)-1
+    print(Ndiv)
+    can.Divide(Ndiv,Ndiv)
+    ix = 0
+    iy = 1
+    for hist in list_histo:
+        ix = ix + 1
+        ican = (iy-1)*Ndiv + ix
+        can.cd(ican)
+        print(ix,iy,ican)
+        if 'root_plot_option' in param_dict:
+            hist.Draw(param_dict['root_plot_option'])
+        else:
+            hist.Draw('contz')
+        if (ix==iy):
+            iy = iy+1
+            ix = 0
+
+    # Setting the picture file name
+    if 'output_path' in param_dict:
+        path = param_dict['output_path']
+    else:
+        path = "./"
+    if path.endswith('/')==False:
+        path = path + '/'
+    if title!=' ':
+        figurefullpath = path+title+'_'
+    else:
+        figurefullpath = path
+    for namedata in param_dict['data']:
+        figurefullpath += namedata + '_'
+    if figurefullpath.endswith('_'):
+        figurefullpath = figurefullpath[:-1]
+    if 'output_format' in param_dict:
+        figurefullpath += '.' + param_dict['output_format']
+    else:
+        figurefullpath += '.pdf'
+    can.SaveAs(figurefullpath)
+
+    return can
+
+def _prepare_couples(list_data):
+    N = len(list_data)
+    print(N)
+    newlist = []
+    for i in range(1,N): #y
+        for j in range(0,i): #x
+            newlist.append([list_data[j],list_data[i]])
+            print([list_data[j],list_data[i]])
+    return newlist
+
 
 def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
     '''
-    Internal function to create 2D histograms
+    Internal function: return TH2F
     '''
     logger.debug('Setting x axis')
     x_range = ranges[0]
@@ -422,7 +551,15 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
 def autoRangeList(list):
     logger.debug('Using autoRange')
     xmin = min(list)
-    xmax = max(list)  # need to be done
+    xmax = max(list)
+    dx = xmax - xmin
+
+    xmin = xmin - dx*0.05
+    xmax = xmax + dx*0.05
+    # if xmax <=0:
+    #     xmax = xmax*0.99
+    # else:
+    #     xmax = xmax*1.01
     return xmin, xmax
 def autoRangeContent(hist):
     logger.debug('Using autoRange')

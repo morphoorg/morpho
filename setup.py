@@ -27,10 +27,6 @@ setup(
     version=verstr,
     packages=['morpho','morpho/loader', 'morpho/plot','morpho/preprocessing', 'morpho/postprocessing'],
     scripts=['bin/morpho'],
-    #install_requires=['PyYAML>=3.11'],
     install_requires=['matplotlib==1.5.1','colorlog','PyYAML==3.11','pyparsing>=2.1.5','numpy==1.11.0','pystan==2.14','dnspython==1.12.0','pbr==0.10.8','wsgiref==0.1.2','cycler==0.10.0','python-dateutil==2.5.3'],
-    extras_require=extras_require,
-    # url='http://www.github.com/project8/morpho',
-    # tests_require=['pytest'],
-    # cmdclass={'test': PyTest}
+    extras_require=extras_require
 )

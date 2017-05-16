@@ -51,6 +51,7 @@ stan:
         root_alias: "energy"
       - variable: "delta_energy__"
         root_alias: "delta_energy"
+# plot to do
 plot:
   which_plot:
     - method_name: histo

@@ -105,15 +105,10 @@ def histo(param_dict):
         list_histo = []
 
         myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
-        print(myfile)
-        print(param_dict['input_file_name'])
         for namedata in param_dict['data']:
             list_data = []
             # myfile.Close()
-            print(namedata)
             tree = myfile.Get(param_dict['input_tree'])
-            print(param_dict['input_tree'])
-            print(tree)
             n = tree.GetEntries()
             for i in range(0,n):
                 tree.GetEntry(i)
@@ -345,7 +340,6 @@ def histo2D(param_dict):
     myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
     if 'data' in param_dict:
         namedata = param_dict['data']
-    print(namedata)
     if not isinstance(namedata, list):
         logger.critical(' {} is not a list of list; required for spectra ploting; skipping'.format(namedata))
         return
@@ -422,11 +416,9 @@ def aposteriori_distribution(param_dict):
     myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
     if 'data' in param_dict:
         namedata = param_dict['data']
-    print(namedata)
     list_2Dhisto = _prepare_couples(namedata)
     list_histo = []
     for item in list_2Dhisto:
-        print(item)
         if not isinstance(item, list):
             logger.critical(' {} is not a list of list; required for spectra ploting; skipping'.format(namedata))
             return
@@ -445,7 +437,6 @@ def aposteriori_distribution(param_dict):
         list_histo.append(histo)
 
     Ndiv = len(namedata)-1
-    print(Ndiv)
     can.Divide(Ndiv,Ndiv)
     ix = 0
     iy = 1
@@ -453,7 +444,6 @@ def aposteriori_distribution(param_dict):
         ix = ix + 1
         ican = (iy-1)*Ndiv + ix
         can.cd(ican)
-        print(ix,iy,ican)
         if 'root_plot_option' in param_dict:
             hist.Draw(param_dict['root_plot_option'])
         else:
@@ -487,12 +477,10 @@ def aposteriori_distribution(param_dict):
 
 def _prepare_couples(list_data):
     N = len(list_data)
-    print(N)
     newlist = []
     for i in range(1,N): #y
         for j in range(0,i): #x
             newlist.append([list_data[j],list_data[i]])
-            print([list_data[j],list_data[i]])
     return newlist
 
 

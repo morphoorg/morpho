@@ -18,7 +18,7 @@ To do:
 import logging
 logger = logging.getLogger(__name__)
 
-import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
+import ROOT as ROOT
 import cmath as math
 from array import array
 import re
@@ -308,6 +308,83 @@ def spectra(param_dict):
     # raw_input('Press <ret> to end -> ')
 
     return can
+
+def histo2D(param_dict):
+    '''
+    Plot 2D histogram
+    '''
+    # Preparing the canvas
+    logger.debug("Preparing Canvas")
+    title, width, height = preparingCanvas(param_dict)
+    can = ROOT.TCanvas(title,title,width,height)
+    if "logy" in param_dict.options:
+        can.SetLogy()
+
+    # Setting the titles
+    logger.debug("Preparing Titles")
+    xtitle, ytitle = preparingTitles(param_dict)
+
+    gSave = []
+    j = 0
+
+    if isinstance(param_dict['data'],list):
+        if 'n_bins_x' in param_dict:
+            nbins_x = param_dict['n_bins_x']
+        else:
+            nbins_x = 100
+        if 'n_bins_y' in param_dict:
+            nbins_y = param_dict['n_bins_y']
+        else:
+            nbins_y = 100
+        list_histo = []
+
+        myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+
+def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
+    '''
+    Internal function to create 2D histograms
+    '''
+    logger.debug('Setting x axis')
+    x_range = ranges[0]
+    if isinstance(x_range,list):
+        if isinstance(x_range[0],(float,int)) and isinstance(x_range[1],(float,int)):
+            if  x_range[0] < x_range[1]:
+                xmin = x_range[0]
+                xmax = x_range[1]
+            else:
+                xmin,xmax = autoRangeList(list_dataX)
+        elif isinstance(x_range[0],(float,int)):
+            xtemp,xmax = autoRangeList(list_dataX)
+            xmin = x_range[0]
+        elif isinstance(x_range[1],(float,int)):
+            xmin,xtemp = autoRangeList(list_dataX)
+            xmax = x_range[1]
+        else:
+            xmin,xmax = autoRangeList(list_dataX)
+    else:
+        xmin,xmax = autoRangeList(list_dataX)
+
+    logger.debug('Setting y axis')
+    y_range = ranges[0]
+    if isinstance(y_range,list):
+        if isinstance(y_range[0],(float,int)) and isinstance(y_range[1],(float,int)):
+            if  y_range[0] < y_range[1]:
+                ymin = y_range[0]
+                ymax = y_range[1]
+            else:
+                ymin,ymax = autoRangeList(list_dataX)
+        elif isinstance(y_range[0],(float,int)):
+            ytemp,ymax = autoRangeList(list_dataX)
+            ymin = y_range[0]
+        elif isinstance(y_range[1],(float,int)):
+            ymin,ytemp = autoRangeList(list_dataX)
+            ymax = y_range[1]
+        else:
+            ymin,ymax = autoRangeList(list_dataX)
+    else:
+        ymin,ymax = autoRangeList(list_dataX)
+
+    temphisto = ROOT.TH1F(histo_title,histo_title,nbins,xmin,xmax)
 
 def autoRangeList(list):
     logger.debug('Using autoRange')

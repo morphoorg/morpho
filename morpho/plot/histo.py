@@ -10,9 +10,14 @@
 #=======================================================
 
 """
-To do:
-    - Clean up
-    - Add log scales
+Contains generic methods to plot ROOT histograms (1D and 2D)
+List of methods:
+- histo: plot a 1D histogram using a list of data (x)
+- spectra: plot a 1D histogram using two lists of data (x,bin_content)
+- histo2D: plot a 2D histogram using two lists of data (x,y)
+- aposteriori_distribution: plot a serie of 2D histograms using a list of data names (>=3).
+It will form pairs of variables (x,y) and arrange the 2D histograms to get a view
+of the aposteriori distributio for these parameters
 """
 
 import logging
@@ -24,58 +29,6 @@ from array import array
 import re
 import uuid
 
-def set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
-    style = ROOT.TStyle(ROOT.gStyle)
-    style.SetOptStat("emr")
-    style.SetLabelOffset(0.01,'xy')
-    style.SetLabelSize(0.05,'xy')
-    style.SetTitleOffset(0.8,'y')
-    style.SetTitleSize(0.05,'x')
-    style.SetTitleSize(0.05,'y')
-    # style.SetLabelSize(0.05,'y')
-    # style.SetLabelOffset(0,'y')
-    # style.SetLabelSize(0.05,'x')
-    style.SetTitleOffset(1.02,'x')
-
-    style.SetPadRightMargin(rightMargin)
-    style.SetPadTopMargin(topMargin)
-    style.SetPadBottomMargin(botMargin)
-    style.SetPadLeftMargin(leftMargin)
-    style.cd()
-
-def preparingCanvas(param_dict):
-
-    if 'output_width' in param_dict:
-        width = param_dict['output_width']
-    else:
-        width = 600
-    if 'output_height' in param_dict:
-        height = param_dict['output_height']
-    else:
-        height = 400
-    # Preparing the canvas
-    if 'title' in param_dict and param_dict['title']!='':
-        title = param_dict['title']
-        set_style_options(0.04,0.1,0.07,0.12)
-
-    else:
-        title = 'can_{}_{}'.format(height,width) #canvas_'+uuid.uuid4().get_hex()
-        set_style_options(0.04,0.1,0.03,0.12)
-
-    return title, width, height
-
-def preparingTitles(param_dict):
-    # Setting the titles
-    if 'x_title' in param_dict:
-        xtitle = param_dict['x_title']
-    else:
-        xtitle = ''
-    if 'y_title' in param_dict:
-        ytitle = param_dict['y_title']
-    else:
-        ytitle = ''
-    return xtitle, ytitle
-
 
 def histo(param_dict):
     '''
@@ -84,7 +37,7 @@ def histo(param_dict):
 
     # Preparing the canvas
     logger.debug("Preparing Canvas")
-    title, width, height = preparingCanvas(param_dict)
+    title, width, height = _preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
     if 'options' in param_dict.keys():
         if any("logy" in s for s in param_dict['options']):
@@ -92,7 +45,7 @@ def histo(param_dict):
             can.SetLogy()
     # Setting the titles
     logger.debug("Preparing Titles")
-    xtitle, ytitle = preparingTitles(param_dict)
+    xtitle, ytitle = _preparingTitles(param_dict)
 
     gSave = []
     j = 0
@@ -197,14 +150,14 @@ def spectra(param_dict):
     '''
     # Preparing the canvas
     logger.debug("Preparing Canvas")
-    title, width, height = preparingCanvas(param_dict)
+    title, width, height = _preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
     if "logy" in param_dict.options:
         can.SetLogy()
 
     # Setting the titles
     logger.debug("Preparing Titles")
-    xtitle, ytitle = preparingTitles(param_dict)
+    xtitle, ytitle = _preparingTitles(param_dict)
 
     gSave = []
     j = 0
@@ -315,7 +268,7 @@ def histo2D(param_dict):
     '''
     # Preparing the canvas
     logger.debug("Preparing Canvas")
-    title, width, height = preparingCanvas(param_dict)
+    title, width, height = _preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
 
     if 'options' in param_dict:
@@ -324,7 +277,7 @@ def histo2D(param_dict):
 
     # Setting the titles
     logger.debug("Preparing Titles")
-    xtitle, ytitle = preparingTitles(param_dict)
+    xtitle, ytitle = _preparingTitles(param_dict)
 
     gSave = []
     j = 0
@@ -391,7 +344,7 @@ def aposteriori_distribution(param_dict):
     '''
     # Preparing the canvas
     logger.debug("Preparing Canvas")
-    title, width, height = preparingCanvas(param_dict)
+    title, width, height = _preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
     can.Draw()
     if 'options' in param_dict:
@@ -400,7 +353,7 @@ def aposteriori_distribution(param_dict):
 
     # Setting the titles
     logger.debug("Preparing Titles")
-    xtitle, ytitle = preparingTitles(param_dict)
+    xtitle, ytitle = _preparingTitles(param_dict)
 
     gSave = []
     j = 0
@@ -481,7 +434,72 @@ def aposteriori_distribution(param_dict):
 
     return can
 
+
+def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
+    '''
+    Change ROOT Style of the canvas
+    '''
+    style = ROOT.TStyle(ROOT.gStyle)
+    style.SetOptStat("emr")
+    style.SetLabelOffset(0.01,'xy')
+    style.SetLabelSize(0.05,'xy')
+    style.SetTitleOffset(0.8,'y')
+    style.SetTitleSize(0.05,'x')
+    style.SetTitleSize(0.05,'y')
+    # style.SetLabelSize(0.05,'y')
+    # style.SetLabelOffset(0,'y')
+    # style.SetLabelSize(0.05,'x')
+    style.SetTitleOffset(1.02,'x')
+
+    style.SetPadRightMargin(rightMargin)
+    style.SetPadTopMargin(topMargin)
+    style.SetPadBottomMargin(botMargin)
+    style.SetPadLeftMargin(leftMargin)
+    style.cd()
+
+def _preparingCanvas(param_dict):
+    '''
+    Extract the title, width and height of the TCanvas
+    '''
+    if 'output_width' in param_dict:
+        width = param_dict['output_width']
+    else:
+        width = 600
+    if 'output_height' in param_dict:
+        height = param_dict['output_height']
+    else:
+        height = 400
+    # Preparing the canvas
+    if 'title' in param_dict and param_dict['title']!='':
+        title = param_dict['title']
+        _set_style_options(0.04,0.1,0.07,0.12)
+
+    else:
+        title = 'can_{}_{}'.format(height,width) #canvas_'+uuid.uuid4().get_hex()
+        _set_style_options(0.04,0.1,0.03,0.12)
+
+    return title, width, height
+
+def _preparingTitles(param_dict):
+    '''
+    Extract the titles of the X and Y axis
+    '''
+    # Setting the titles
+    if 'x_title' in param_dict:
+        xtitle = param_dict['x_title']
+    else:
+        xtitle = ''
+    if 'y_title' in param_dict:
+        ytitle = param_dict['y_title']
+    else:
+        ytitle = ''
+    return xtitle, ytitle
+
+
 def _prepare_couples(list_data):
+    '''
+    Prepare a list of pairs of variables for the a posteriori distribution
+    '''
     N = len(list_data)
     newlist = []
     for i in range(1,N): #y
@@ -547,14 +565,10 @@ def autoRangeList(list):
     xmin = min(list)
     xmax = max(list)
     dx = xmax - xmin
-
     xmin = xmin - dx*0.05
     xmax = xmax + dx*0.05
-    # if xmax <=0:
-    #     xmax = xmax*0.99
-    # else:
-    #     xmax = xmax*1.01
     return xmin, xmax
+
 def autoRangeContent(hist):
     logger.debug('Using autoRange')
     list = []

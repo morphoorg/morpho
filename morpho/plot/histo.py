@@ -354,6 +354,7 @@ def histo2D(param_dict):
         list_dataX.append(getattr(tree,namedata[0]))
         list_dataY.append(getattr(tree,namedata[1]))
     histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y], [0,0], title)
+    histo.SetTitle("")
     histo.GetXaxis().SetTitle(namedata[0])
     histo.GetYaxis().SetTitle(namedata[1])
 

@@ -271,10 +271,12 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     logger.info("Starting the sampling")
     text = "Parameters: \n"
     for key, value in kwargs.iteritems():
-        if key is not "data":
+        if key != "data" and key != "init" :
             text = text + "{}\t{}\n".format(key,value)
-        else:
+        elif key == "data":
             text = text + "data\t[...]\n"
+        elif key == "init":
+            text = text + "init\t[...]\n"
     logger.info(text)
     # returns the arguments for sampling and the result of the sampling
     return kwargs, sm.sampling(**kwargs)

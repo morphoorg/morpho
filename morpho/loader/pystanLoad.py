@@ -156,9 +156,11 @@ def stan_data_files(theData):
 def extract_data_from_outputdata(conf,theOutput):
     # Extract the data into a dictionary
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
+    logger.debug("Extracting samples from pyStan output")
     theOutputDiagnostics = theOutput.get_sampler_params(inc_warmup=conf.out_inc_warmup)
 
     theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
+    logger.debug("Transformation into a dict")
     nEventsPerChain = len(theOutputData)
     # get the variables in the Stan4Model
     flatnames = theOutput.flatnames
@@ -173,13 +175,22 @@ def extract_data_from_outputdata(conf,theOutput):
     theOutputDataDict.update({"lp_prob":[]})
     theOutputDataDict.update({"delta_energy__":[]})
     theOutputDataDict.update({"is_sample":[]})
+
+    # make list of desired variables
+    desired_var = []
+    for key in conf.out_branches:
+        if key['variable'] not in diagnosticVariableName:
+            desired_var.append(key['variable'])
+    print(desired_var)
+
     for iChain in range(0,conf.chains):
         for iEvents in range(0,nEventsPerChain):
             for iKey,key in enumerate(flatnames):
                 if key in diagnosticVariableName:
                     theOutputDataDict[str(key)].append(theOutputDiagnostics[iChain][key][iEvents])
                 else:
-                    theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
+                    if key in desired_var:
+                        theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
             if iEvents is not 0:
                 theOutputDataDict["delta_energy__"].append(theOutputDiagnostics[iChain]['energy__'][iEvents]-theOutputDiagnostics[iChain]['energy__'][iEvents-1])
             else:
@@ -350,6 +361,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
     theOutputDataDict = extract_data_from_outputdata(conf,theOutput)
 
+    logger.debug("Filling tree")
     # Create branches for any variable of interest
     nBranches = len(theOutputVar)
     for key in theOutputVar:

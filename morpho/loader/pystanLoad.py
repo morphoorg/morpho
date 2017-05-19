@@ -181,7 +181,6 @@ def extract_data_from_outputdata(conf,theOutput):
     for key in conf.out_branches:
         if key['variable'] not in diagnosticVariableName:
             desired_var.append(key['variable'])
-    print(desired_var)
 
     for iChain in range(0,conf.chains):
         for iEvents in range(0,nEventsPerChain):
@@ -346,10 +345,10 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
         afile = TFile.Open(theFileName, "RECREATE")
 
     # save the input parameters
-    logger.debug("Saving Stan input parameters")
-    newdict = theTrick(input_param)
-    treeinputdata = build_tree_from_dict("stan_model_param",newdict)
-    treeinputdata.Write()
+    # logger.debug("Saving Stan input parameters")
+    # newdict = theTrick(input_param)
+    # treeinputdata = build_tree_from_dict("stan_model_param",newdict)
+    # treeinputdata.Write()
 
     # save results
     logger.debug("Saving Stan results")
@@ -383,7 +382,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     atree.Branch("is_sample", thevariable_is_sample, "thevariable_is_sample/I")
 
     # add the data to the tree
-    nEvents = len(theOutputDataDict[theOutputDataDict.keys()[0]])
+    nEvents = len(theOutputDataDict['lp_prob'])
     nSample = 0
     nWarmup = 0
     for iEvent in range(0,nEvents):

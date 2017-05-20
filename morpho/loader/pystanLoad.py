@@ -198,22 +198,22 @@ def extract_data_from_outputdata(conf,theOutput):
                 else:
                     theOutputDataDict["delta_energy__"].append(0)
                 theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(theOutput.flatnames)])
-                if conf.out_inc_warmup:
-                    theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)
-                else:
-                    theOutputDataDict["is_sample"].append(1)
+                theOutputDataDict["is_sample"].append(1)
     else:
         # make list of desired variables
         theOutputDataDict = {}
         desired_data = []
         for key in conf.out_branches:
-            if key['variable'] not in diagnosticVariableName:
+            if key['variable'] not in diagnosticVariableName and key['variable'] not in ['delta_energy__','is_sample','lp_prob']:
                 desired_data.append(key['variable'])
-        if "lp_prob" not in desired_data:
-            desired_data.append("lp_prob")
-        if "is_sample" not in desired_data:
-            desired_data.append("is_sample")
-        theOutputData = theOutput.extract(permuted=True)
+        if "lp__" not in desired_data:
+            desired_data.append("lp__")
+        theOutputData = theOutput.extract(pars=desired_data,permuted=True)
+        logger.debug('Adding missing field')
+        desired_data.append("is_sample")
+        desired_data.append("delta_energy__")
+
+        logger.debug('Transformation into a dict')
         desired_data.extend(diagnosticVariableName)
         for key in desired_data:
             if key in diagnosticVariableName:
@@ -221,12 +221,12 @@ def extract_data_from_outputdata(conf,theOutput):
                 for item in theOutputDiagnostics:
                     list_value.extend(item[str(key)].tolist())
                 theOutputDataDict.update({str(key) : list_value})
-            elif key == 'lp_prob':
-                theOutputDataDict.update({str(key):theOutputData[str('lp__')].tolist()})
+            elif key == 'lp__':
+                theOutputDataDict.update({'lp__':theOutputData[str('lp__')].tolist()})
+                theOutputDataDict.update({'lp_prob':theOutputData[str('lp__')].tolist()})
             elif key == 'delta_energy__':
                 list_value = []
                 dE_list_value = []
-
                 for item in theOutputDiagnostics:
                     list_value.extend(item['energy__'].tolist())
                 for i, value in enumerate(list_value):

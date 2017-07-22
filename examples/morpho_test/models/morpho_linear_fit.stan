@@ -36,7 +36,10 @@ transformed parameters {}
 
 model{
 
+	// Possible synthax: describe the behaviour of the data/parameter
 	y ~ normal(slope * x + intercept, sigma);
+	// Other possible and equivalent synthax: increment the LogLikelihood with the desired quantity
+	// target += normal_lpdf(y|slope * x + intercept, sigma);
 
 }
 

@@ -156,39 +156,97 @@ def stan_data_files(theData):
 def extract_data_from_outputdata(conf,theOutput):
     # Extract the data into a dictionary
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
+    logger.debug("Extracting samples from pyStan output")
     theOutputDiagnostics = theOutput.get_sampler_params(inc_warmup=conf.out_inc_warmup)
 
-    theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
-    nEventsPerChain = len(theOutputData)
-    # get the variables in the Stan4Model
-    flatnames = theOutput.flatnames
-    # add the diagnostic variable names
     diagnosticVariableName = ['accept_stat__','stepsize__','n_leapfrog__','treedepth__','divergent__','energy__']
-    flatnames.extend(diagnosticVariableName)
 
-    # Clustering the data together
-    theOutputDataDict = {}
-    for key in flatnames:
-        theOutputDataDict.update({str(key):[]})
-    theOutputDataDict.update({"lp_prob":[]})
-    theOutputDataDict.update({"delta_energy__":[]})
-    theOutputDataDict.update({"is_sample":[]})
-    for iChain in range(0,conf.chains):
-        for iEvents in range(0,nEventsPerChain):
-            for iKey,key in enumerate(flatnames):
-                if key in diagnosticVariableName:
-                    theOutputDataDict[str(key)].append(theOutputDiagnostics[iChain][key][iEvents])
+    # if include warmupm we have to extract the entire data and parse it to get the
+    if conf.out_inc_warmup:
+        theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
+        logger.debug("Transformation into a dict")
+        nEventsPerChain = len(theOutputData)
+        # get the variables in the Stan4Model
+        flatnames = theOutput.flatnames
+        # add the diagnostic variable names
+        flatnames.extend(diagnosticVariableName)
+
+        # Clustering the data together
+        theOutputDataDict = {}
+        for key in flatnames:
+            theOutputDataDict.update({str(key):[]})
+        theOutputDataDict.update({"lp_prob":[]})
+        theOutputDataDict.update({"delta_energy__":[]})
+        theOutputDataDict.update({"is_sample":[]})
+
+        # make list of desired variables
+        desired_var = []
+        for key in conf.out_branches:
+            if key['variable'] not in diagnosticVariableName:
+                desired_var.append(key['variable'])
+
+        for iChain in range(0,conf.chains):
+            for iEvents in range(0,nEventsPerChain):
+                for iKey,key in enumerate(flatnames):
+                    if key in diagnosticVariableName:
+                        theOutputDataDict[str(key)].append(theOutputDiagnostics[iChain][key][iEvents])
+                    else:
+                        if key in desired_var:
+                            theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
+                if iEvents is not 0:
+                    theOutputDataDict["delta_energy__"].append(theOutputDiagnostics[iChain]['energy__'][iEvents]-theOutputDiagnostics[iChain]['energy__'][iEvents-1])
                 else:
-                    theOutputDataDict[str(key)].append(theOutputData[iEvents][iChain][iKey])
-            if iEvents is not 0:
-                theOutputDataDict["delta_energy__"].append(theOutputDiagnostics[iChain]['energy__'][iEvents]-theOutputDiagnostics[iChain]['energy__'][iEvents-1])
-            else:
-                theOutputDataDict["delta_energy__"].append(0)
-            theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(theOutput.flatnames)])
-            if conf.out_inc_warmup:
-                theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)
-            else:
+                    theOutputDataDict["delta_energy__"].append(0)
+                theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(theOutput.flatnames)])
                 theOutputDataDict["is_sample"].append(1)
+    else:
+        # make list of desired variables
+        theOutputDataDict = {}
+        desired_data = []
+        for key in conf.out_branches:
+            if key['variable'] not in diagnosticVariableName and key['variable'] not in ['delta_energy__','is_sample','lp_prob']:
+                desired_data.append(key['variable'])
+        if "lp__" not in desired_data:
+            desired_data.append("lp__")
+        theOutputData = theOutput.extract(pars=desired_data,permuted=True)
+        logger.debug('Adding missing field')
+        desired_data.append("is_sample")
+        desired_data.append("delta_energy__")
+
+        logger.debug('Transformation into a dict')
+        desired_data.extend(diagnosticVariableName)
+        for key in desired_data:
+            if key in diagnosticVariableName:
+                list_value = []
+                for item in theOutputDiagnostics:
+                    list_value.extend(item[str(key)].tolist())
+                theOutputDataDict.update({str(key) : list_value})
+            elif key == 'lp__':
+                theOutputDataDict.update({'lp__':theOutputData[str('lp__')].tolist()})
+                theOutputDataDict.update({'lp_prob':theOutputData[str('lp__')].tolist()})
+            elif key == 'delta_energy__':
+                list_value = []
+                dE_list_value = []
+                for item in theOutputDiagnostics:
+                    list_value.extend(item['energy__'].tolist())
+                for i, value in enumerate(list_value):
+                    if i ==0:
+                        dE_list_value.append(0)
+                    else:
+                        dE_list_value.append(list_value[i]-list_value[i-1])
+                theOutputDataDict.update({str(key) : dE_list_value})
+            elif key == 'is_sample':
+                list_is_sample = [1]*len(theOutputData[str('lp__')])
+                theOutputDataDict.update({'is_sample':list_is_sample})
+            else:
+                obj=theOutputData[str(key)]
+                if isinstance(obj[0],np.ndarray):
+                    list_obj = obj.tolist()
+                    result = map(list, zip(*list_obj))
+                    for i in range(0,len(result)):
+                        theOutputDataDict.update({'{}[{}]'.format(str(key),i) : result[i]})
+                else:
+                    theOutputDataDict.update({str(key) : obj.tolist()})
     return theOutputDataDict
 
 def open_or_create(hdf5obj, groupname):
@@ -335,10 +393,10 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
         afile = TFile.Open(theFileName, "RECREATE")
 
     # save the input parameters
-    logger.debug("Saving Stan input parameters")
-    newdict = theTrick(input_param)
-    treeinputdata = build_tree_from_dict("stan_model_param",newdict)
-    treeinputdata.Write()
+    # logger.debug("Saving Stan input parameters")
+    # newdict = theTrick(input_param)
+    # treeinputdata = build_tree_from_dict("stan_model_param",newdict)
+    # treeinputdata.Write()
 
     # save results
     logger.debug("Saving Stan results")
@@ -350,6 +408,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
     theOutputDataDict = extract_data_from_outputdata(conf,theOutput)
 
+    logger.debug("Filling tree")
     # Create branches for any variable of interest
     nBranches = len(theOutputVar)
     for key in theOutputVar:
@@ -371,7 +430,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     atree.Branch("is_sample", thevariable_is_sample, "thevariable_is_sample/I")
 
     # add the data to the tree
-    nEvents = len(theOutputDataDict[theOutputDataDict.keys()[0]])
+    nEvents = len(theOutputDataDict['lp_prob'])
     nSample = 0
     nWarmup = 0
     for iEvent in range(0,nEvents):

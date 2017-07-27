@@ -38,7 +38,15 @@ import random
 import ast
 
 import pystan
-from pystan import stan
+
+logger_stan = logging.getLogger('pystan')
+logger_stan.propagate = False
+logger_stan.setLevel(logging.DEBUG)
+logger_stan.handlers = []
+handler_stan= logging.StreamHandler(sys.stdout)
+handler_stan.setFormatter(fmt)
+logger_stan.addHandler(handler_stan)
+
 from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
@@ -68,7 +76,7 @@ class morpho(object):
     def gen_arg_dict(self):
         d = self.__dict__
         sca = getargspec(stan_cache)
-        sa = getargspec(stan)
+        sa = getargspec(pystan.stan)
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_Stan_function(self):

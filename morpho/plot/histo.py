@@ -186,7 +186,7 @@ def spectra(param_dict):
                 list_dataY.append(getattr(tree,namedata[1]))
 
             # list_histo.append()
-            logger.debug('Setting x axis')
+            # logger.debug('Setting x axis')
             if 'x_range' in param_dict:
                 if isinstance(param_dict['x_range'],list):
 
@@ -274,6 +274,8 @@ def histo2D(param_dict):
     if 'options' in param_dict:
         if "logy" in param_dict['options']:
             can.SetLogy()
+        if "logx" in param_dict['options']:
+            can.SetLogx()
 
     # Setting the titles
     logger.debug("Preparing Titles")
@@ -512,7 +514,7 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
     '''
     Internal function: return TH2F
     '''
-    logger.debug('Setting x axis')
+    # logger.debug('Setting x axis')
     x_range = ranges[0]
     if isinstance(x_range,list):
         if isinstance(x_range[0],(float,int)) and isinstance(x_range[1],(float,int)):
@@ -532,7 +534,7 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
     else:
         xmin,xmax = _autoRangeList(list_dataX)
 
-    logger.debug('Setting y axis')
+    # logger.debug('Setting y axis')
     y_range = ranges[0]
     if isinstance(y_range,list):
         if isinstance(y_range[0],(float,int)) and isinstance(y_range[1],(float,int)):
@@ -561,7 +563,7 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
     return temphisto
 
 def _autoRangeList(list):
-    logger.debug('Using autoRange')
+    # logger.debug('Using autoRange')
     xmin = min(list)
     xmax = max(list)
     dx = xmax - xmin
@@ -570,7 +572,7 @@ def _autoRangeList(list):
     return xmin, xmax
 
 def _autoRangeContent(hist):
-    logger.debug('Using autoRange')
+    # logger.debug('Using autoRange')
     list = []
     for i in range(0,hist.GetNbinsX()):
         list.append(hist.GetBinContent(i))

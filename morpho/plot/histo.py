@@ -18,6 +18,8 @@ List of methods:
 - aposteriori_distribution: plot a serie of 2D histograms using a list of data names (>=3).
 It will form pairs of variables (x,y) and arrange the 2D histograms to get a view
 of the aposteriori distributio for these parameters
+- correlation_factors: Plot a grid where a color represents the
+correlation factor between each pair of variables.
 """
 
 import logging
@@ -28,6 +30,7 @@ import cmath as math
 from array import array
 import re
 import uuid
+import numpy as np
 
 
 def histo(param_dict):
@@ -342,6 +345,33 @@ def aposteriori_distribution(param_dict):
     '''
     Plot a disposition of 2D histogram
     '''
+   # Populate a grid of histograms with the parameters
+    if 'n_bins_x' in param_dict:
+        nbins_x = param_dict['n_bins_x']
+    else:
+        nbins_x = 100
+    if 'n_bins_y' in param_dict:
+        nbins_y = param_dict['n_bins_y']
+    else:
+        nbins_y = 100
+
+    if 'data' in param_dict:
+        namedata = param_dict['data']
+        
+
+    if 'root_plot_option' in param_dict:
+        draw_opt_2d = param_dict['root_plot_option']
+    else:
+        draw_opt_2d = 'contz'
+
+    name_grid, draw_opts_grid = _fill_variable_grid(namedata,
+                                                    draw_opt_2d)
+
+    myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+    input_tree_name = param_dict['input_tree']
+    hist_grid = _fill_hist_grid(input_tree_name, name_grid, myfile,
+                                nbins_x, nbins_y)
+    
     # Preparing the canvas
     logger.debug("Preparing Canvas")
     title, width, height = _preparingCanvas(param_dict)
@@ -356,35 +386,7 @@ def aposteriori_distribution(param_dict):
     xtitle, ytitle = _preparingTitles(param_dict)
 
     gSave = []
-    j = 0
-
-    if 'n_bins_x' in param_dict:
-        nbins_x = param_dict['n_bins_x']
-    else:
-        nbins_x = 100
-    if 'n_bins_y' in param_dict:
-        nbins_y = param_dict['n_bins_y']
-    else:
-        nbins_y = 100
-
-    # Populate a grid of histograms with the parameters
-    myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
-    
-    if 'data' in param_dict:
-        namedata = param_dict['data']
-        
-
-    if 'root_plot_option' in param_dict:
-        draw_opt_2d = param_dict['root_plot_option']
-    else:
-        draw_opt_2d = 'contz'
-
-    name_grid, draw_opts_grid = _fill_variable_grid(namedata,
-                                                    draw_opt_2d)
-    intput_tree_name = param_dict['input_tree']
-    hist_grid = _fill_hist_grid(intput_tree_name, name_grid, myfile,
-                                nbins_x, nbins_y)
-
+ 
     # Plot all histograms
     ROOT.gStyle.SetOptStat(0)
     rows = len(hist_grid)
@@ -419,8 +421,110 @@ def aposteriori_distribution(param_dict):
     can.Update()
 
     can.SaveAs(figurefullpath)
-
     return can
+
+def correlation_factors(param_dict):
+    """
+    Create a plot with all variables along each axis,
+    where the correlation factor between each pair
+    of variables is represented by color.
+    """
+   # Populate a grid of histograms with the parameters
+    if 'n_bins_x' in param_dict:
+        nbins_x = param_dict['n_bins_x']
+    else:
+        nbins_x = 100
+    if 'n_bins_y' in param_dict:
+        nbins_y = param_dict['n_bins_y']
+    else:
+        nbins_y = 100
+
+    if 'data' in param_dict:
+        namedata = param_dict['data']
+        
+
+    if 'root_plot_option' in param_dict:
+        draw_opt_2d = param_dict['root_plot_option']
+    else:
+        draw_opt_2d = 'contz'
+
+    name_grid = _fill_variable_grid_corr_plot(namedata)
+
+    myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+    input_tree_name = param_dict['input_tree']
+    hist_grid = _fill_hist_grid(input_tree_name, name_grid, myfile,
+                                nbins_x, nbins_y)
+
+    # Get correlation factors
+    corr_grid = np.zeros((len(hist_grid), len(hist_grid[0])))
+    for (idx, elt) in np.ndenumerate(corr_grid):
+        corr_grid[idx] = hist_grid[idx[0]][idx[1]].GetCorrelationFactor()
+        '''if(idx[0]==idx[1]):
+            corr_grid[idx] = 1
+        elif(idx[0]>idx[1]):
+            corr_grid[idx] = 0
+        else:
+            corr_grid[idx] = -1'''
+    print("corr_grid=%s" % corr_grid)
+    
+    # Preparing the canvas
+    logger.debug("Preparing Canvas")
+    title, width, height = _preparingCanvas(param_dict)
+    can = ROOT.TCanvas(title,title,width,height)
+    can.Draw()
+    if 'options' in param_dict:
+        if "logy" in param_dict['options']:
+            can.SetLogy()
+
+
+    # Setting the titles
+    logger.debug("Preparing Titles")
+    xtitle, ytitle = _preparingTitles(param_dict)
+
+    gSave = []
+ 
+    # Plot all histograms
+    ROOT.gStyle.SetOptStat(0)
+    rows, cols = corr_grid.shape
+
+    hist = ROOT.TH2F(title, title,
+                     cols, 0.5, cols+0.5,
+                     rows, 0.5, rows+0.5)
+    for (idx, corr_fac) in np.ndenumerate(corr_grid):
+        hist.Fill(idx[0]+1, idx[1]+1, corr_fac)
+    hist.Draw("colz")
+
+    '''for r in range(rows):
+        for c in range(cols):
+            if(not hist_grid[r][c] is None):
+                ican = 1+r*cols+c
+                can.cd(ican)
+                hist_grid[r][c].Draw("col")'''
+                
+    # Save the plot
+    if 'output_path' in param_dict:
+        path = param_dict['output_path']
+    else:
+        path = "./"
+    if path.endswith('/')==False:
+        path = path + '/'
+    if title!=' ':
+        figurefullpath = path+title+'_'
+    else:
+        figurefullpath = path
+    for namedata in param_dict['data']:
+        figurefullpath += namedata + '_'
+    if figurefullpath.endswith('_'):
+        figurefullpath = figurefullpath[:-1]
+    if 'output_format' in param_dict:
+        figurefullpath += '.' + param_dict['output_format']
+    else:
+        figurefullpath += '.pdf'
+    can.Update()
+
+    can.SaveAs(figurefullpath)
+    return can
+
 
 
 def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
@@ -604,8 +708,8 @@ def _fill_variable_grid_corr_plot(variable_names):
     """
     rows, cols = len(variable_names), len(variable_names)
     name_grid = [[None]*cols for i in range(rows)]
-    for i in range(0,variable_names):
-        for j in range(0,variable_names):
+    for i in range(rows):
+        for j in range(cols):
             name_grid[i][j] = [variable_names[i],
                                variable_names[j]]
     return name_grid

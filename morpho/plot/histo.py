@@ -81,7 +81,7 @@ def histo(param_dict):
                             xmin = param_dict['x_range'][0]
                             xmax = param_dict['x_range'][1]
                         else:
-                            xmin,xmax = _autoRangeListx(list_data)
+                            xmin,xmax = _autoRangeList(list_data)
                     elif isinstance(param_dict['x_range'][0],float):
                         xtemp,xmax = _autoRangeList(list_data)
                         xmin = param_dict['x_range'][0]

@@ -364,8 +364,8 @@ def aposteriori_distribution(param_dict):
     else:
         draw_opt_2d = 'contz'
 
-    name_grid, draw_opts_grid = _fill_variable_grid(namedata,
-                                                    draw_opt_2d)
+    name_grid, draw_opts_grid, colors_grid =_fill_variable_grid(namedata,
+                                                                draw_opt_2d)
 
     myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
     input_tree_name = param_dict['input_tree']
@@ -392,12 +392,44 @@ def aposteriori_distribution(param_dict):
     rows = len(hist_grid)
     cols = len(hist_grid[0])
     can.Divide(cols,rows)
+    # Histograms must still be in memory when the pdf is saved
+    additional_hists = list()
     for r in range(rows):
         for c in range(cols):
             if(not hist_grid[r][c] is None):
                 ican = 1+r*cols+c
                 can.cd(ican)
+                if(not colors_grid[r][c] is None):
+                    color = colors_grid[r][c]
+                else:
+                    color = ROOT.kRed
+                hist_grid[r][c].SetFillColor(color+2)
                 hist_grid[r][c].Draw(draw_opts_grid[r][c])
+                if(draw_opts_grid[r][c]=="bar" or
+                   draw_opts_grid[r][c]=="hbar"):
+                    # Overlay separate histograms for 1 and 2+ sigma
+                    mean = hist_grid[r][c].GetMean()
+                    sigma = hist_grid[r][c].GetStdDev()
+                    name = hist_grid[r][c].GetName()
+                    bins = hist_grid[r][c].GetNbinsX()
+                    xmin = hist_grid[r][c].GetXaxis().GetXmin()
+                    xmax = hist_grid[r][c].GetXaxis().GetXmax()
+                    hist_1_sig = ROOT.TH1F("%s%s" % (name, "_1sig"),
+                                           name, bins, xmin, xmax)
+                    hist_1_sig.SetFillColor(color)
+                    hist_2_sig = ROOT.TH1F("%s%s" % (name, "_2sig"),
+                                           name, bins, xmin, xmax)
+                    hist_2_sig.SetFillColor(color-4)
+                    for i in range(1,bins):
+                        bin_val = hist_grid[r][c].GetBinCenter(i)
+                        if(bin_val<mean-2*sigma or bin_val>mean+2*sigma):
+                            hist_2_sig.SetBinContent(i, hist_grid[r][c].GetBinContent(i))
+                        elif(bin_val<mean-sigma or bin_val>mean+sigma):
+                            hist_1_sig.SetBinContent(i, hist_grid[r][c].GetBinContent(i))
+                    hist_1_sig.Draw("%s%s" % (draw_opts_grid[r][c], "same"))
+                    hist_2_sig.Draw("%s%s" % (draw_opts_grid[r][c], "same"))
+                    additional_hists.append(hist_1_sig)
+                    additional_hists.append(hist_2_sig)
                 
     # Save the plot
     if 'output_path' in param_dict:
@@ -459,18 +491,15 @@ def correlation_factors(param_dict):
     corr_grid = np.zeros((len(hist_grid), len(hist_grid[0])))
     for (idx, elt) in np.ndenumerate(corr_grid):
         corr_grid[idx] = hist_grid[idx[0]][idx[1]].GetCorrelationFactor()
-        '''if(idx[0]==idx[1]):
-            corr_grid[idx] = 1
-        elif(idx[0]>idx[1]):
-            corr_grid[idx] = 0
-        else:
-            corr_grid[idx] = -1'''
-    print("corr_grid=%s" % corr_grid)
     
     # Preparing the canvas
     logger.debug("Preparing Canvas")
     title, width, height = _preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
+    # Set margins so all variables and the scale appear
+    can.SetLeftMargin(0.175)
+    can.SetRightMargin(0.13)
+    can.SetBottomMargin(0.175)
     can.Draw()
     if 'options' in param_dict:
         if "logy" in param_dict['options']:
@@ -492,15 +521,12 @@ def correlation_factors(param_dict):
                      rows, 0.5, rows+0.5)
     for (idx, corr_fac) in np.ndenumerate(corr_grid):
         hist.Fill(idx[0]+1, idx[1]+1, corr_fac)
+    for (i,name) in enumerate(namedata):
+        hist.GetXaxis().SetBinLabel(i+1, name)
+        hist.GetYaxis().SetBinLabel(i+1, name)
+    hist.GetXaxis().LabelsOption("v")
     hist.Draw("colz")
 
-    '''for r in range(rows):
-        for c in range(cols):
-            if(not hist_grid[r][c] is None):
-                ican = 1+r*cols+c
-                can.cd(ican)
-                hist_grid[r][c].Draw("col")'''
-                
     # Save the plot
     if 'output_path' in param_dict:
         path = param_dict['output_path']
@@ -684,20 +710,28 @@ def _fill_variable_grid(variable_names, draw_opt_2d):
     rows, cols = len(variable_names), len(variable_names)
     name_grid = [[None]*cols for i in range(rows)]
     draw_opts_grid = [[None]*cols for i in range(rows)]
+    colors_grid = [[None]*cols for i in range(rows)]
+
+    colors_arr = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen,
+                  ROOT.kYellow, ROOT.kMagenta, ROOT.kCyan,
+                  ROOT.kOrange, ROOT.kViolet, ROOT.kTeal,
+                  ROOT.kSpring, ROOT.kPink, ROOT.kAzure]
     for i in range(0,len(variable_names)):
         for j in range(0,len(variable_names)):
             if(i==0 and j<cols-1):
                 # First Row
                 name_grid[i][j] = [variable_names[j]]
                 draw_opts_grid[i][j] = "bar"
+                colors_grid[i][j] = colors_arr[j%len(colors_arr)]
             elif(j==cols-1 and i>0):
                 # Last Column
                 name_grid[i][j] = [variable_names[(i-2)%cols]]
                 draw_opts_grid[i][j] = "hbar"
+                colors_grid[i][j] = colors_arr[((i-2)%cols)%len(colors_arr)]
             elif(i>0 and i+(cols-j)<=cols+1):
                 name_grid[i][j] = [variable_names[(i-2)%cols], variable_names[j]]
                 draw_opts_grid[i][j] = draw_opt_2d
-    return (name_grid, draw_opts_grid)
+    return (name_grid, draw_opts_grid, colors_grid)
 
 def _fill_variable_grid_corr_plot(variable_names):
     """ 

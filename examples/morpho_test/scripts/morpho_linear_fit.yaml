@@ -87,7 +87,20 @@ plot:
       title: aposteriori_morpho_test
       output_format: pdf
       output_width: 12000
-      output_height: 1100
+      output_height: 11000
+      data:
+        - a
+        - b
+        - variance
+    - method_name: correlation_factors
+      module_name: histo
+      input_file_name : "./morpho_test/results/morpho_linear_fit.root"
+      input_tree: "morpho_test"
+      output_path: ./morpho_test/results/
+      title: corr_factors_morpho_test
+      output_format: pdf
+      output_width: 12000
+      output_height: 12000
       data:
         - a
         - b

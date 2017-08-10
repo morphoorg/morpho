@@ -1,8 +1,10 @@
-version: "1"
+version: "3"
 
 services:
      p8-morpho:
           build: .
+          environment:
+            - PYTHONPATH=/usr/local/root/lib/root
           volumes:
                # share $HOME or any subdirectory from the host to /host in the docker
                - ~:/host

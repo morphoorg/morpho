@@ -1,5 +1,9 @@
-FROM lukasheinrich/cern-root:latest
+FROM rootproject/root-ubuntu16:6.10
 
-ADD . /morpho
-RUN which python
-RUN /usr/local/bin/pip install /morpho
+MAINTAINER Mathieu Guigue "Mathieu.Guigue@pnnl.gov"
+
+RUN export PYTHONPATH=/usr/local/root/lib/root
+RUN apt-get update && apt-get -y upgrade
+RUN apt-get install -y libhdf5-serial-dev python-pip
+RUN git clone -b docker https://github.com/project8/morpho
+RUN pip install pip --upgrade && pip install /morpho/.

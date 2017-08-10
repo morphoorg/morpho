@@ -1,0 +1,8 @@
+version: "1"
+
+services:
+     p8-morpho:
+          build: .
+          volumes:
+               # share $HOME or any subdirectory from the host to /host in the docker
+               - ~:/host

@@ -301,6 +301,41 @@ def theTrick(thedict,uppertreename=""):
             newdict.update({uppertreename+key:value})
     return newdict
 
+def transform_list_of_dict_into_dict(thedict):
+    ''' 
+    First, look for a list of dict inside the dict and transform it into lists.
+    Then, flatten any list of list into new list (aka transform {'xxx':[[1,2],[2,3]]} into
+    {'xxx_1':[1,2],'xxx_2':[2,3]}) 
+    '''
+
+    result_dict = {}
+    for key,item in thedict.iteritems():
+        if isinstance(item,list):
+            if isinstance(item[0],dict):
+                newdict={}
+                for k,v in [(subkey,d[subkey]) for d in item for subkey in d]:
+                    if k not in newdict: newdict[k]=[v]
+                    else: newdict[k].append(v)
+                # flatten the dictionary
+                flattened_dict = {}
+                for subkey,subitem in newdict.iteritems():
+                    if isinstance(subitem[0],list):
+                        for i in range(len(subitem[0])):
+                            flattened_dict.update({'{}_{}'.format(subkey,i):[]})
+                        for sublist in subitem:
+                            for i,value in enumerate(sublist):
+                                newlist = flattened_dict['{}_{}'.format(subkey,i)]
+                                newlist.append(value)
+                                flattened_dict.update({'{}_{}'.format(subkey,i):newlist})
+                    else:
+                        flattened_dict.update({subkey:subitem})
+                result_dict.update({key:flattened_dict})
+            else:
+                result_dict.update({key:item})
+        else:
+            result_dict.update({key:item})
+    return result_dict
+
 # transform a dictionary into a tree
 def build_tree_from_dict(treename,input_param):
     logger.debug("Creating tree '{}'".format(treename))
@@ -347,30 +382,6 @@ def build_tree_from_dict(treename,input_param):
                 exec(theHack("atree.Branch(str(key), theVariable_{}, key+'[{}]{}')",str(key).replace(".","_"),nSize,pType))
                 dictToFill.update({key:value})
                 continue
-            elif isinstance(value[0],dict):
-
-                temp_dict = theTrick(value[0],str(key)+".")
-                dictoflist = {}
-                for subkey, subitem in temp_dict.iteritems():
-                    if isinstance(subitem,int):
-                        nType = 'int'
-                        pType = '/I'
-                        dictoflist.update({subkey:[]})
-                    elif isinstance(subitem,float):
-                        nType = 'float'
-                        pType = '/D'
-                        dictoflist.update({subkey:[]})
-                    else:
-                        logger.debug('{} has not a supported type'.format(subitem))
-                    exec(theHack("theVariable_{} = np.zeros({}, dtype={})",str(subkey.replace(".","_")),nSize,nType))
-                    exec(theHack("atree.Branch(str(subkey), theVariable_{}, subkey+'[{}]{}')",str(subkey.replace(".","_")),nSize,pType))
-                for dictValue in value:
-                    for subkey in dictValue:
-                        var = str(key+"."+subkey)
-                        dictoflist[var].append(dictValue[subkey])
-                for subkey,subvalue in dictoflist.iteritems():
-                    dictToFill.update({subkey:subvalue})
-                continue
             else:
                 continue
     # Filling the input param tree
@@ -393,10 +404,12 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
         afile = TFile.Open(theFileName, "RECREATE")
 
     # save the input parameters
-    # logger.debug("Saving Stan input parameters")
-    # newdict = theTrick(input_param)
-    # treeinputdata = build_tree_from_dict("stan_model_param",newdict)
-    # treeinputdata.Write()
+    logger.debug("Saving Stan input parameters")
+    newdict = theTrick(input_param)
+    flatdict = transform_list_of_dict_into_dict(newdict)
+    newflatdict = theTrick(flatdict)
+    treeinputdata = build_tree_from_dict("stan_model_param",newflatdict)
+    treeinputdata.Write()
 
     # save results
     logger.debug("Saving Stan results")

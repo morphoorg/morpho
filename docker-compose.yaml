@@ -1,8 +1,9 @@
 version: "3"
 
 services:
-     p8-morpho:
+     morpho:
           build: .
+          command: bash
           environment:
             - PYTHONPATH=/usr/local/root/lib/root
           volumes:

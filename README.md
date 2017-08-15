@@ -28,18 +28,33 @@ Requirements
 
 Install
 ======
+
+  _Virtual environment installation_
+
   PyStan and the required packages may be installed from the Python Index Package using pip inside a virtual environment.
 
 	virtualenv ~/path/to/the/virtualenvironment/env
 	source ~/path/to/the/virtualenvironment/env/bin/activate
 	pip install -U pip # must update pip to >= 7.0.0
 	# inside the morpho repository
-	pip install . 
+	pip install .
 	pip install .[all]
 
   Once all the required packages are installed on the virtualenvironment, one can load it using
 
 	source ~/path/to/the/virtualenvironment/env/bin/activate
+
+  _Docker installation_
+
+  Docker can provide a uniform test bed for development and bug testing.
+
+  - Install Docker (Desktop version): https://docs.docker.com/engine/installation/
+  - Clone and pull the latest master version of morpho
+  - Inside the morpho folder, execute ```docker-compose run morpho```.
+  The container prompter should appear at the end of the installation.
+  Your home directory should be mounted under the ```/host``` folder: you can modify this by editing the docker-compose file.
+  - When reinstalling, you can remove the image using ```docker rmi morpho_morpho```
+
 
 Running
 ======
@@ -68,7 +83,7 @@ Running
 
   An simple example of script and model can be found in the examples folder.
   You can execute it using:
-  
+
 	morpho --config morpho_test/scripts/morpho_linear_fit.yaml
 
 Known bugs and solutions

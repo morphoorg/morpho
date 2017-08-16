@@ -7,5 +7,5 @@ services:
           environment:
             - PYTHONPATH=/usr/local/root/lib/root
           volumes:
-               # share $HOME or any subdirectory from the host to /host in the docker
-               - ~:/host
+               # share a subdirectory from the host to /host in the docker (can be edited)
+               - ~/morpho_share:/host

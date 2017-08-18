@@ -15,6 +15,7 @@ List of methods:
 - histo: plot a 1D histogram using a list of data (x)
 - spectra: plot a 1D histogram using two lists of data (x,bin_content)
 - histo2D: plot a 2D histogram using two lists of data (x,y)
+- histo2D_divergence
 - aposteriori_distribution: plot a serie of 2D histograms using a list of data names (>=3).
 It will form pairs of variables (x,y) and arrange the 2D histograms to get a view
 of the aposteriori distributio for these parameters
@@ -265,10 +266,8 @@ def spectra(param_dict):
 
     return can
 
-def histo2D(param_dict):
-    '''
-    Plot 2D histogram
-    '''
+def _prepare_canvas_2d(param_dict):
+    '''Prepare a canvas for a 2D histogram'''
     # Preparing the canvas
     logger.debug("Preparing Canvas")
     title, width, height = _preparingCanvas(param_dict)
@@ -285,7 +284,6 @@ def histo2D(param_dict):
     xtitle, ytitle = _preparingTitles(param_dict)
 
     gSave = []
-    j = 0
 
     if 'n_bins_x' in param_dict:
         nbins_x = param_dict['n_bins_x']
@@ -296,12 +294,16 @@ def histo2D(param_dict):
     else:
         nbins_y = 100
 
-    myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+    return can, title, nbins_x, nbins_y
+
+def _get_root_data_2d(param_dict, myfile):
+    '''Get data for a 2D histogram
+    The corresponding root file must already be open'''
     if 'data' in param_dict:
         namedata = param_dict['data']
     if not isinstance(namedata, list):
         logger.critical(' {} is not a list of list; required for spectra ploting; skipping'.format(namedata))
-        return
+        return None, None, namedata
     list_dataX = []
     list_dataY = []
     # myfile.Close()
@@ -311,14 +313,42 @@ def histo2D(param_dict):
         tree.GetEntry(i)
         list_dataX.append(getattr(tree,namedata[0]))
         list_dataY.append(getattr(tree,namedata[1]))
-    histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y], [0,0], title)
-    histo.GetXaxis().SetTitle(namedata[0])
-    histo.GetYaxis().SetTitle(namedata[1])
+    return list_dataX, list_dataY, namedata
 
-    if 'root_plot_option' in param_dict:
-        histo.Draw(param_dict['root_plot_option'])
-    else:
-        histo.Draw('contz')
+def _get_root_data_2d_divergence(param_dict, myfile):
+    '''Get data for a 2D histogram
+    The corresponding root file must already be open'''
+    if 'data' in param_dict:
+        namedata = param_dict['data']
+    if not isinstance(namedata, list):
+        logger.critical(' {} is not a list of list; required for spectra ploting; skipping'.format(namedata))
+        return None, None, None, None, namedata
+
+    tree = myfile.Get(param_dict['input_tree'])
+
+    # Check that the tree has divergence
+    tree.GetEntry(0)
+    if not hasattr(tree, "divergence"):
+        logger.critical('Tree %s does not contain divergence; skipping' % param_dict['input_tree'])
+        return None, None, None, None, namedata
+
+    n = tree.GetEntries()
+    list_dataX_div0 = []
+    list_dataX_div1 = []
+    list_dataY_div0 = []
+    list_dataY_div1 = []
+
+    for i in range(0,n):
+        tree.GetEntry(i)
+        if(getattr(tree, "divergence")==0):
+            list_dataX_div0.append(getattr(tree,namedata[0]))
+            list_dataY_div0.append(getattr(tree,namedata[1]))
+        else:
+            list_dataX_div1.append(getattr(tree,namedata[0]))
+            list_dataY_div1.append(getattr(tree,namedata[1]))
+    return list_dataX_div0, list_dataY_div0, list_dataX_div1, list_dataY_div1, namedata
+
+def _save_histo(param_dict, title, file_prefix, can):
     # Setting the picture file name
     if 'output_path' in param_dict:
         path = param_dict['output_path']
@@ -330,6 +360,7 @@ def histo2D(param_dict):
         figurefullpath = path+title+'_'
     else:
         figurefullpath = path
+    figurefullpath += file_prefix
     for namedata in param_dict['data']:
         figurefullpath += namedata + '_'
     if figurefullpath.endswith('_'):
@@ -339,9 +370,84 @@ def histo2D(param_dict):
     else:
         figurefullpath += '.pdf'
     can.SaveAs(figurefullpath)
+    return
 
+def histo2D(param_dict):
+    '''
+    Plot 2D histogram
+    '''
+    can, title, nbins_x, nbins_y = _prepare_canvas_2d(param_dict)
+    myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+    list_dataX, list_dataY, namedata = _get_root_data_2d(param_dict, myfile)
+    if(list_dataX is None):
+        return
+
+    histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y], [0,0], title)
+    histo.GetXaxis().SetTitle(namedata[0])
+    histo.GetYaxis().SetTitle(namedata[1])
+
+    if 'root_plot_option' in param_dict:
+        histo.Draw(param_dict['root_plot_option'])
+    else:
+        histo.Draw('contz')
+    _save_histo(param_dict, title, "", can)
     return can
 
+def histo2D_divergence(param_dict):
+    '''
+    Plot 2D histogram
+    '''
+    can, title, nbins_x, nbins_y = _prepare_canvas_2d(param_dict)
+    myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
+    list_dataX_div0, list_dataY_div0, \
+        list_dataX_div1, list_dataY_div1, \
+        namedata = _get_root_data_2d_divergence(param_dict, myfile)
+
+    if(list_dataX_div0 is None):
+        return
+
+    xmin = min(list_dataX_div0+list_dataX_div1)
+    xmax = max(list_dataX_div0+list_dataX_div1)
+    dx = xmax-xmin
+    xmin = xmin-dx*0.05
+    xmax = xmax+dx*0.05
+    ymin = min(list_dataY_div0+list_dataY_div1)
+    ymax = max(list_dataY_div0+list_dataY_div1)
+    dy = ymax-ymin
+    ymin = ymin-dx*0.05
+    ymax = ymax+dx*0.05
+    ranges = [[xmin,xmax],[ymin,ymax]]
+
+    gSave = []
+
+    histo_div0 = _get2Dhisto(list_dataX_div0, list_dataY_div0, [nbins_x,nbins_y], ranges, title)
+    histo_div0.SetMarkerStyle(20)
+    histo_div0.GetXaxis().SetTitle(namedata[0])
+    histo_div0.GetYaxis().SetTitle(namedata[1])
+
+    histo_div1 = _get2Dhisto(list_dataX_div1, list_dataY_div1, [nbins_x,nbins_y], ranges, title)
+    histo_div1.SetMarkerStyle(20)
+    #histo_div1.GetXaxis().SetTitle(namedata[0])
+    #histo_div1.GetYaxis().SetTitle(namedata[1])
+
+    if 'color0' in param_dict:
+        histo_div0.SetMarkerColor(getattr(ROOT, param_dict['color0']))
+    else:
+        histo_div0.SetMarkerColor(ROOT.kBlack)
+    if 'color1' in param_dict:
+        histo_div1.SetMarkerColor(getattr(ROOT, param_dict['color1']))
+    else:
+        histo_div1.SetMarkerColor(ROOT.kRed)
+
+    if 'root_plot_option' in param_dict:
+        histo_div0.Draw(param_dict['root_plot_option'])
+        histo_div1.Draw("%s%s" % (param_dict['root_plot_option'], "same"))
+    else:
+        histo_div0.Draw()
+        histo_div1.Draw("same")
+        #histo_div1.Draw()
+    _save_histo(param_dict, title, "divergence_", can)
+    return can
 
 def aposteriori_distribution(param_dict):
     '''
@@ -653,7 +759,7 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
         xmin,xmax = _autoRangeList(list_dataX)
 
     # logger.debug('Setting y axis')
-    y_range = ranges[0]
+    y_range = ranges[1]
     if isinstance(y_range,list):
         if isinstance(y_range[0],(float,int)) and isinstance(y_range[1],(float,int)):
             if  y_range[0] < y_range[1]:
@@ -681,6 +787,7 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
 
 def _autoRangeList(list):
     # logger.debug('Using autoRange')
+
     xmin = min(list)
     xmax = max(list)
     dx = xmax - xmin

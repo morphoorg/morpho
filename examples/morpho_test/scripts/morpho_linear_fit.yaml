@@ -78,6 +78,17 @@ plot:
       output_path: ./morpho_test/results/
       data:
         - variance
+    - method_name: histo2D_divergence
+      module_name: histo
+      title: "histo"
+      input_file_name : "./morpho_test/results/morpho_linear_fit.root"
+      input_tree: "morpho_test"
+      output_path: ./morpho_test/results/
+      data:
+        - a
+        - b
+      color0: "kBlack"
+      color1: "kRed"
     - method_name: aposteriori_distribution
       module_name: histo
       input_file_name : "./morpho_test/results/morpho_linear_fit.root"

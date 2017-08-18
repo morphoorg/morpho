@@ -15,7 +15,8 @@ List of methods:
 - histo: plot a 1D histogram using a list of data (x)
 - spectra: plot a 1D histogram using two lists of data (x,bin_content)
 - histo2D: plot a 2D histogram using two lists of data (x,y)
-- histo2D_divergence
+- histo2D_divergence: plot a 2D histogram using two lists of data (x,y), and color points
+                      with divergence==1 differently from divergence==0
 - aposteriori_distribution: plot a serie of 2D histograms using a list of data names (>=3).
 It will form pairs of variables (x,y) and arrange the 2D histograms to get a view
 of the aposteriori distributio for these parameters
@@ -406,13 +407,17 @@ def histo2D_divergence(param_dict):
     if(list_dataX_div0 is None):
         return
 
-    xmin = min(list_dataX_div0+list_dataX_div1)
-    xmax = max(list_dataX_div0+list_dataX_div1)
+    xmin = min(min(list_dataX_div0),
+               min(list_dataX_div1))
+    xmax = max(max(list_dataX_div0),
+               max(list_dataX_div1))
     dx = xmax-xmin
     xmin = xmin-dx*0.05
     xmax = xmax+dx*0.05
-    ymin = min(list_dataY_div0+list_dataY_div1)
-    ymax = max(list_dataY_div0+list_dataY_div1)
+    ymin = min(min(list_dataY_div0),
+               min(list_dataY_div1))
+    ymax = max(max(list_dataY_div0),
+               max(list_dataY_div1))
     dy = ymax-ymin
     ymin = ymin-dx*0.05
     ymax = ymax+dx*0.05

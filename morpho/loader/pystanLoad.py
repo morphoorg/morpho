@@ -49,11 +49,11 @@ def stan_data_files(theData):
                 if atype =='R' :
                     logger.debug('Getting {}'.format(key['name']))
                     afile = pystan.misc.read_rdump(key['name'])
+                    for key, value in afile.iteritems():
+                        if(hasattr(value,"tolist")):
+                            translist = value.tolist()
+                            afile.update({key: translist})
                     alist = dict(alist.items() + afile.items())
-                    for key, value in alist.iteritems():
-                        translist = value.tolist()
-                        alist.update({key: translist})
-
                 elif atype =='hdf5' :
                     logger.debug('Getting {}'.format(key['name']))
                     afile = h5py.File(key['name'], 'r') #Reading from hdf5 file

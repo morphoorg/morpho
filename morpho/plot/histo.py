@@ -347,7 +347,11 @@ def _get_root_data_2d_divergence(param_dict, myfile):
         else:
             list_dataX_div1.append(getattr(tree,namedata[0]))
             list_dataY_div1.append(getattr(tree,namedata[1]))
-    return list_dataX_div0, list_dataY_div0, list_dataX_div1, list_dataY_div1, namedata
+    arr_x0 = np.array(list_dataX_div0)
+    arr_y0 = np.array(list_dataY_div0)
+    arr_x1 = np.array(list_dataX_div1)
+    arr_y1 = np.array(list_dataY_div1)
+    return arr_x0, arr_y0, arr_x1, arr_y1, namedata
 
 def _save_histo(param_dict, title, file_prefix, can):
     # Setting the picture file name
@@ -400,24 +404,23 @@ def histo2D_divergence(param_dict):
     '''
     can, title, nbins_x, nbins_y = _prepare_canvas_2d(param_dict)
     myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
-    list_dataX_div0, list_dataY_div0, \
-        list_dataX_div1, list_dataY_div1, \
+    arr_X_div0, arr_Y_div0, \
+        arr_X_div1, arr_Y_div1, \
         namedata = _get_root_data_2d_divergence(param_dict, myfile)
 
-    if(list_dataX_div0 is None):
+    if(arr_X_div0 is None):
         return
-
-    xmin = min(min(list_dataX_div0),
-               min(list_dataX_div1))
-    xmax = max(max(list_dataX_div0),
-               max(list_dataX_div1))
+    xmin = np.amin(np.concatenate((arr_X_div0,
+                                   arr_X_div1),axis=0))
+    xmax = np.amax(np.concatenate((arr_X_div0,
+                                   arr_X_div1),axis=0))
     dx = xmax-xmin
     xmin = xmin-dx*0.05
     xmax = xmax+dx*0.05
-    ymin = min(min(list_dataY_div0),
-               min(list_dataY_div1))
-    ymax = max(max(list_dataY_div0),
-               max(list_dataY_div1))
+    ymin = np.amin(np.concatenate((arr_Y_div0,
+                                   arr_Y_div1),axis=0))
+    ymax = np.amax(np.concatenate((arr_Y_div0,
+                                   arr_Y_div1),axis=0))
     dy = ymax-ymin
     ymin = ymin-dx*0.05
     ymax = ymax+dx*0.05
@@ -425,12 +428,12 @@ def histo2D_divergence(param_dict):
 
     gSave = []
 
-    histo_div0 = _get2Dhisto(list_dataX_div0, list_dataY_div0, [nbins_x,nbins_y], ranges, title)
+    histo_div0 = _get2Dhisto(arr_X_div0, arr_Y_div0, [nbins_x,nbins_y], ranges, title)
     histo_div0.SetMarkerStyle(20)
     histo_div0.GetXaxis().SetTitle(namedata[0])
     histo_div0.GetYaxis().SetTitle(namedata[1])
 
-    histo_div1 = _get2Dhisto(list_dataX_div1, list_dataY_div1, [nbins_x,nbins_y], ranges, title)
+    histo_div1 = _get2Dhisto(arr_X_div1, arr_Y_div1, [nbins_x,nbins_y], ranges, title)
     histo_div1.SetMarkerStyle(20)
     #histo_div1.GetXaxis().SetTitle(namedata[0])
     #histo_div1.GetYaxis().SetTitle(namedata[1])

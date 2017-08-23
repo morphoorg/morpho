@@ -182,12 +182,14 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
     var_1d = [] # Will be true if all inputs are a single value
     for line in open(rdump_filename, 'r'):
         splitline = map(str.strip,line.split("<-"))
+        if(len(splitline)<2):
+            continue
         name = splitline[0]
         data = splitline[1]
         # Ignore data that is not a 1d array or numeric
         if(('0'<=data[0] and data[0]<='9') or data[0]=='.'
-           or data[0:2]=='c('):
-            if(data[0:2]=='c('):
+           or data[0]=='c'):
+            if(data[0]=='c'):
                 data = list(map(float,data[2:-1].split(',')))
                 array = True
             elif('.' in data):

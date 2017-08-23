@@ -1,21 +1,10 @@
 morpho
 ======
-  A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
 
+  A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
 
 Requirements
 ======
-	We will need PyStan in order to run this system.
-
-	The PyStan (and mc-stan) module can be downloaded via GitHub or directly.
-
-	see   http://mc-stan.org
-	and   http://mc-stan.org/pystan.html.
-
-	PyStan has the following dependencies:
-	Python: 2.7 or 3.3
-	Cython: 0.19 or greater
-	NumPy: 1.7 or greater
 
 	You will need to install via a package manager (such as apt-get):
 	- python-matplotlib
@@ -25,6 +14,9 @@ Requirements
 	To read and save files, you will need either hdf5 or root:
 	- hdf5: libhdf5-serial-dev libhdf5-dev
 	- root: root-system from apt-get or sources from https://root.cern.
+
+  PyStan (see http://mc-stan.org/pystan.html) (a Python implementation of Stan) needs to be installed (version 2.15).
+  Using the following installation methods should take care of this requirement.
 
 Install
 ======
@@ -52,9 +44,8 @@ Install
   - Clone and pull the latest master version of morpho
   - Inside the morpho folder, execute ```docker-compose run morpho```.
   The container prompter should appear at the end of the installation.
-  Your home directory should be mounted under the ```/host``` folder: you can modify this by editing the docker-compose file.
+  A directory (```morpho_share```) should be created in your home and mounted under the ```/host``` folder: you can modify this by editing the docker-compose file.
   - When reinstalling, you can remove the image using ```docker rmi morpho_morpho```
-
 
 Running
 ======
@@ -88,6 +79,7 @@ Running
 
 Known bugs and solutions
 ======	  
+
 1.  When running matplotlib in a virtual environment, the following error can be encountered:
 
     ```

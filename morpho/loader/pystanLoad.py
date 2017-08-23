@@ -18,6 +18,7 @@ except ImportError:
 import pystan
 import numpy as np
 import array
+import bisect
 
 def readLabel(aDict, name, default=None):
     if not name in aDict:
@@ -49,11 +50,12 @@ def stan_data_files(theData):
                 if atype =='R' :
                     logger.debug('Getting {}'.format(key['name']))
                     afile = pystan.misc.read_rdump(key['name'])
+                    _save_repeated_as_arr(key['name'], afile)
+                    for key, value in afile.iteritems():
+                        if(hasattr(value,"tolist")):
+                            translist = value.tolist()
+                            afile.update({key: translist})
                     alist = dict(alist.items() + afile.items())
-                    for key, value in alist.iteritems():
-                        translist = value.tolist()
-                        alist.update({key: translist})
-
                 elif atype =='hdf5' :
                     logger.debug('Getting {}'.format(key['name']))
                     afile = h5py.File(key['name'], 'r') #Reading from hdf5 file
@@ -152,6 +154,70 @@ def stan_data_files(theData):
                 alist = dict(alist.items() + key.items())
 
     return alist
+
+def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
+    """If a variable name is repeated in an rdump file, pystan.misc.read_rdump
+    saves the last value of the variable and discards the rest. This method
+    finds all variable names that are repeated, and for each name, it saves the
+    corresponding data in a 2d array (for array inputs) or a 1d array (for scalar
+    inputs). For example:
+      x <- c(1,2)
+      x <- c(3,4)
+      x <- c(5,6)
+    will result in a dictionary element {'x': numpy.array([[1,2],[3,4],[5,6]])}. Similarly,
+      y <- 1
+      y <- 2
+      y <- 3
+    will result in a dictionary element {'y' = numpy.array([1,2,3])}. Note that lines
+    containing any other r data structures will be ignored.
+    Input:
+      rdump_filename- rdump formatted file
+      data_dict- dictionary that will be modified to include repeated variables
+    Output:
+      Returns data_dict, modified to include the arrays corresponding to each
+      repeated variable
+    """
+    var_names = []
+    var_data = []
+    var_1d = [] # Will be true if all inputs are a single value
+    for line in open(rdump_filename, 'r'):
+        splitline = map(str.strip,line.split("<-"))
+        name = splitline[0]
+        data = splitline[1]
+        # Ignore data that is not a 1d array or numeric
+        if(('0'<=data[0] and data[0]<='9') or data[0]=='.'
+           or data[0:2]=='c('):
+            if(data[0:2]=='c('):
+                data = list(map(float,data[2:-1].split(',')))
+                array = True
+            elif('.' in data):
+                data = [float(data)]
+                array = False
+            else:
+                data = [int(data)]
+                array = False
+
+            idx = bisect.bisect_left(var_names, name)
+            if(idx<len(var_names) and var_names[idx]==name):
+                # This is a duplicate
+                if(len(data)!=len(var_data[idx][-1])):
+                    logger.warn('Array %s in file %s is jagged. PyStan cannot handle jagged arrays.'
+                                % (name, rdump_filename))
+                var_data[idx].append(data)
+                var_1d[idx] = not (array and var_1d[idx])
+            else:
+                # This is the first ofccurence of this variable
+                var_names.insert(idx, name)
+                var_data.insert(idx, [data])
+                var_1d.insert(idx, not array)
+    for i in range(0,len(var_names)):
+        if(len(var_data[i])>1):
+            # This variable was duplicated at least once
+            var_data[i] = np.array(var_data[i])
+            if(var_1d[i]):
+                var_data[i] = np.ndarray.flatten(var_data[i])
+            data_dict.update({var_names[i]: var_data[i]})
+    return data_dict
 
 def extract_data_from_outputdata(conf,theOutput):
     # Extract the data into a dictionary

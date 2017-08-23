@@ -32,6 +32,7 @@ import importlib
 import logging
 import colorlog
 
+
 def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,
                       level=logging.DEBUG, propagate=False):
     """Return a logger object with the given settings that prints

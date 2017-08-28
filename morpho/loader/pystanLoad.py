@@ -239,7 +239,7 @@ def build_tree_from_dict(treename,input_param):
 # save Stan input and output into a root file
 def stan_write_root(conf, theFileName, theOutput, input_param):
 
-    logger.debug("Creating ROOT file {}".format(theFileName+".root"))
+    logger.debug("Creating ROOT file {}".format(theFileName))
     if conf.out_option:
         afile = TFile.Open(theFileName, conf.out_option)
     else:
@@ -253,12 +253,12 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     # save results
     logger.debug("saving Stan results")
-    # theOutputVar = conf.out_branches
-    # theOutputData = {}
-    # for key in theOutputVar:
-    #     theOutputData.update({key['root_alias']:theOutput.extract(key['variable'])[key['variable']].tolist()})
-    # atree = build_tree_from_dict(conf.out_tree,theOutputData)
-    # atree.Write()
+    theOutputVar = conf.out_branches
+    theOutputData = {}
+    for key in theOutputVar:
+        theOutputData.update({key['root_alias']:theOutput.extract(key['variable'])[key['variable']].tolist()})
+    atree = build_tree_from_dict(conf.out_tree,theOutputData)
+    atree.Write()
     atree = TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
     theOutputData = {}

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#
 # Morpho
 #  -----------------------------------------------------
 #  Authors: J. A. Formaggio <josephf@mit.edu>
@@ -13,22 +14,13 @@ import os,sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-
-import logging
-logger = logging.getLogger('morpho')
-logger.setLevel(logging.DEBUG)
-base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
-logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
-
-
 import time
-import fileinput
-import json
 import re
 import random
+import ast
 
 import pystan
-from pystan import stan
+
 from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
@@ -36,6 +28,68 @@ from inspect import getargspec
 import pickle
 from hashlib import md5
 import importlib
+
+import logging
+import colorlog
+
+def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,
+                      level=logging.DEBUG, propagate=False):
+    """Return a logger object with the given settings that prints
+    messages greater than or equal to a given level to stderr instead of stdout
+    name: Name of the logger. Loggers are conceptually arranged
+          in a namespace hierarchy using periods as separators.
+          For example, a logger named morpho is the parent of a
+          logger named morpho.plot, and by default the child logger
+          will display messages with the same settings as the parent
+    formatter: A Formatter object used to format output
+    stderr_lb: Messages with level equal to or greaterthan stderr_lb
+               will be printed to stderr instead of stdout
+    level: Initial level for the logger
+    propagate: Whether messages to this logger should be passed to
+               the handlers of its ancestor"""
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.propagate = propagate
+
+    class LessThanFilter(logging.Filter):
+        """Filter to get messages less than a given level
+        """
+        def __init__(self, exclusive_maximum, name=""):
+            super(LessThanFilter, self).__init__(name)
+            self.max_level = exclusive_maximum
+
+        def filter(self, record):
+            #non-zero return means we log this message
+            return 1 if record.levelno < self.max_level else 0
+
+    logger.handlers = []
+    handler_stdout = logging.StreamHandler(sys.stdout)
+    handler_stdout.setFormatter(formatter)
+    handler_stdout.setLevel(logging.DEBUG)
+    handler_stdout.addFilter(LessThanFilter(stderr_lb))
+    logger.addHandler(handler_stdout)
+    handler_stderr = logging.StreamHandler(sys.stderr)
+    handler_stderr.setFormatter(formatter)
+    handler_stderr.setLevel(stderr_lb)
+    logger.addHandler(handler_stderr)
+    return logger
+
+# Create morpho and pystan loggers
+# Will be reinstantiated after parsing command line args if __main__ is run
+base_format = '%(asctime)s{}[%(levelname)-8s] %(name)s(%(lineno)d) -> {}%(message)s'
+morpho_formatter = colorlog.ColoredFormatter(
+        base_format.format('%(log_color)s', '%(purple)s'),
+        datefmt = '%Y-%m-%dT%H:%M:%SZ'[:-1],
+        reset=True,
+        )
+propagate_morpho_loggers=False
+logger = get_logger_stderr('morpho', morpho_formatter,
+                           stderr_lb=logging.WARNING,
+                           propagate=propagate_morpho_loggers)
+logger_stan = get_logger_stderr('pystan', morpho_formatter,
+                                stderr_lb=logging.WARNING,
+                                propagate=propagate_morpho_loggers)
 
 class morpho(object):
     def read_param(self, yaml_data, node, default):
@@ -58,7 +112,7 @@ class morpho(object):
     def gen_arg_dict(self):
         d = self.__dict__
         sca = getargspec(stan_cache)
-        sa = getargspec(stan)
+        sa = getargspec(pystan.stan)
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_Stan_function(self):
@@ -86,6 +140,11 @@ class morpho(object):
             return True
         else:
             return False
+    def get_do_prep(self):
+        if self.do_preprocessing:
+            return True
+        else:
+            return False
     def get_do_pp(self):
         if self.do_postprocessing:
             return True
@@ -105,13 +164,17 @@ class morpho(object):
     def __init__(self, yd):
         try:
             # Morpho steps
-            self.do_stan = self.read_param(yd, 'morpho.do_stan', 'required')
-            self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', 'required')
-            self.do_plots = self.read_param(yd, 'morpho.do_plots', 'required')
+            self.do_preprocessing = self.read_param(yd, 'morpho.do_preprocessing', False)
+            self.do_stan = self.read_param(yd, 'morpho.do_stan', True)
+            self.do_postprocessing = self.read_param(yd, 'morpho.do_postprocessing', False)
+            self.do_plots = self.read_param(yd, 'morpho.do_plots', False)
             self.wait = self.read_param(yd, 'morpho.wait_at_the_end', False)
 
-            # Identifications
-            self.job_id = self.read_param(yd, 'stan.job_id', '0')
+            # batch identification
+            if isinstance(args.job_id,(int,float,str)):
+                self.seed=int(args.job_id)
+            else:
+                self.job_id = 0
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
@@ -120,30 +183,33 @@ class morpho(object):
             self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
 
             # STAN data
-            datafiles = self.read_param(yd, 'stan.data', None)
-            if datafiles is not None:
-                logger.debug("Loading datafiles")
-                from morpho.loader import pystanLoad as pyL
-                self.data = pyL.stan_data_files(datafiles)
+            self.datafiles = self.read_param(yd, 'stan.data', None)
 
             # STAN run conditions
             self.algorithm = self.read_param(yd, 'stan.run.algorithm', 'NUTS')
-            self.iter = self.read_param(yd, 'stan.run.iter', 2000)
-            self.warmup = self.read_param(yd, 'stan.run.warmup', self.iter/2)
-            self.chains = self.read_param(yd, 'stan.run.chain', 4)
+            self.iter = int(self.read_param(yd, 'stan.run.iter', 2000))
+            self.warmup = int(self.read_param(yd, 'stan.run.warmup', self.iter/2))
+            self.chains = int(self.read_param(yd, 'stan.run.chain', 4))
             self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
             # Adding a seed based on extra arguments, current time
-            if isinstance(args.seed,int):
-                self.seed=args.seed
+            if isinstance(args.seed,(int,float,str)):
+                self.seed=int(args.seed)
             elif args.noautoseed:
                 self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
-                logger.debug("Autoseed activated: seed = {}".format(self.seed))
+                logger.debug("Autoseed activated")
             else:
-                self.seed = self.read_param(yd, 'stan.run.seed', None)
+                self.seed = int(self.read_param(yd, 'stan.run.seed', None))
+            logger.debug("seed = {}".format(self.seed))
+
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
-            self.init = self.init_Stan_function();
+            self.init = self.init_Stan_function()
+            if isinstance(self.read_param(yd, 'stan.run.control', None),dict):
+                self.control = self.read_param(yd, 'stan.run.control', None)
+            else:
+                if self.read_param(yd, 'stan.run.control', None) is not None:
+                    logger.debug("stan.run.control should be a dict: {}",str(self.read_param(yd, 'stan.run.control', None)))
 
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
@@ -155,9 +221,9 @@ class morpho(object):
 
             self.out_tree = self.read_param(yd, 'stan.output.tree', None)
             self.out_branches = self.read_param(yd, 'stan.output.branches', None)
+            self.out_inc_warmup = self.read_param(yd,'stan.output.inc_warmup',False)
 
             self.out_cfg = self.read_param(yd, 'stan.output.config', None)
-            self.out_vars = self.read_param(yd, 'stan.output.data', None)
 
             # Outputted pickled fit filename
             self.out_fit = self.read_param(yd, 'stan.output.fit', None)
@@ -165,17 +231,24 @@ class morpho(object):
             # Outputted text file containing name of cache file
             self.out_cache_fn = self.read_param(yd, 'stan.output.save_cache_name', None)
 
+            # Pre-processing configuration
+            if self.do_preprocessing:
+                self.prep_dict = self.read_param(yd, 'preprocessing.which_pp', None)
+
             # Post-processing configuration
-            self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
+            if self.do_postprocessing:
+                self.pp_dict = self.read_param(yd, 'postprocessing.which_pp', None)
 
             # Plot configuration
-            self.plot_dict = self.read_param(yd, 'plot.which_plot', None)
+            if self.do_plots:
+                self.plot_dict = self.read_param(yd, 'plot.which_plot', None)
 
         except Exception as err:
             raise err
 
 def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='.',**kwargs):
     """Use just as you would `stan`"""
+
 
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*=\s*(?P<function_name>\w+)\s*;*',theModel)
@@ -211,24 +284,28 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     cdir = os.path.dirname(cache_fn)
     if not os.path.exists(cdir):
         os.makedirs(cdir)
-        logger.info("Creating 'cache' folder")
+        logger.info("Creating 'cache' folder: {}".format(cdir))
 
     if (args.force_restart):
         logger.debug("Forced to create Stan cache!")
         sm = pystan.StanModel(model_code=theModel)
-        with open(cache_fn, 'wb') as f:
-            pickle.dump(sm, f)
+        if not args.no_cache:
+            logger.debug("Saving Stan cache in {}".format(cache_fn))
+            with open(cache_fn, 'wb') as f:
+                pickle.dump(sm, f)
     else:
         try:
             logger.debug("Trying to load cached StanModel")
             sm = pickle.load(open(cache_fn, 'rb'))
         except:
-            logger.debug("Creating Stan cache!")
+            logger.debug("None exists -> creating Stan cache")
             sm = pystan.StanModel(model_code=theModel)
-            with open(cache_fn, 'wb') as f:
-                pickle.dump(sm, f)
+            if not args.no_cache:
+                logger.debug("Saving Stan cache in {}".format(cache_fn))
+                with open(cache_fn, 'wb') as f:
+                    pickle.dump(sm, f)
         else:
-            logger.debug("Using cached StanModel")
+            logger.debug("Using cached StanModel: {}".format(cache_fn))
 
     if sa.out_cache_fn is not None:
         logger.debug("Saving cache file to {}".format(sa.out_cache_fn))
@@ -238,8 +315,14 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
     logger.info("Starting the sampling")
     text = "Parameters: \n"
     for key, value in kwargs.iteritems():
-        text = text + "{}\t{}\n".format(key,value)
+        if key != "data" and key != "init" :
+            text = text + "{}\t{}\n".format(key,value)
+        elif key == "data":
+            text = text + "data\t[...]\n"
+        elif key == "init":
+            text = text + "init\t[...]\n"
     logger.info(text)
+    # returns the arguments for sampling and the result of the sampling
     return kwargs, sm.sampling(**kwargs)
 
 def parse_args():
@@ -261,11 +344,7 @@ def parse_args():
                    metavar='<seed>',
                    help='Add random seed number to file',
                    required=False)
-    p.add_argument('-f','--force-restart',
-                   action='store_true',
-                   default=False,
-                   help='Force the creation of a new cache',
-                   required=False)
+
     p.add_argument('-nas','--noautoseed',
                    action='store_false',
                    default=True,
@@ -274,6 +353,27 @@ def parse_args():
     p.add_argument('param',nargs='*',
                    default=False,
                    help='Manualy change of a parameter and its value')
+
+    p.add_argument('-f','--force-restart',
+                   action='store_true',
+                   default=False,
+                   help='Force the recompilation',
+                   required=False)
+    p.add_argument('-nc','--no-cache',
+                    action='store_true',
+                    default=False,
+                    help='Do not save the Stan cache file',
+                    required=False)
+    p.add_argument('-v', '--verbosity', default='DEBUG',
+                   metavar='<verbosity>',
+                   help="Specify verbosity of the logger, with options DEBUG, INFO, WARNING, ERROR, or CRITICAL (Default: DEBUG)",
+                   choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'],
+                   required=False)
+    p.add_argument('-sev', '--stderr-verbosity', default='WARNING',
+                   metavar='<stderr_verbosity>',
+                   help="Messages with level greater than or equal to the given verbosity will be redirected to stderr (Default: WARNING)",
+                   choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'],
+                   required=False)
     return p.parse_args()
 
 def update_from_arguments(the_dict,args):
@@ -285,7 +385,7 @@ def update_from_arguments(the_dict,args):
     for a_arg in args:
         result = a_arg.split('=')
         xpath = result[0].split('.')
-        to_update_dict = {xpath[-1]:result[1]}
+        to_update_dict = {xpath[-1]:ast.literal_eval(result[1])}
         for path in reversed(xpath[:-1]):
             to_update_dict = {path:to_update_dict}
         new_dict = merge(new_dict,to_update_dict)
@@ -320,16 +420,6 @@ def merge(a, b, path=None):
             a[key] = change_and_format( b[key])
     return a
 
-
-def open_or_create(hdf5obj, groupname):
-    """
-    Create a group within an hdf5 object if it doesn't already exist,
-    and return the resulting group.
-    """
-    if groupname != "/" and groupname not in hdf5obj.keys():
-        hdf5obj.create_group(groupname)
-    return hdf5obj[groupname]
-
 def plot_result(conf, stanres):
     """
     Plot variables as specified.
@@ -352,27 +442,68 @@ def write_result(conf, stanres, input_param):
     rdir = os.path.dirname(ofilename)
     if not os.path.exists(rdir):
         os.makedirs(rdir)
-        logger.info("Creating 'results' folder")
-    if (args.job_id>0):
-        ofilename = ofilename+'_'+args.job_id
+        logger.info("Creating 'results' folder: {}".format(rdir))
+    if (conf.job_id>0):
+        ofilename = ofilename+'_'+conf.job_id
     if conf.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
-        pyL.write_result_hdf5(sa, ofilename, stanres)
+        pyL.write_result_hdf5(sa, ofilename, stanres, input_param)
 
     if conf.out_format == 'root':
         ofilename = ofilename+'.root'
         pyL.stan_write_root(conf, ofilename, stanres, input_param)
     return stanres
 
-def sampleFunc(arg):
-    logger.info('you called sampleFunc({})'.format(arg))
+def preprocessing(sa):
+    # Generic function for creating the PreProcessing class
+    if sa.prep_dict is None:
+        logger.critical("preprocessing dict is None")
+        return 0
+    for minidict in sa.prep_dict:
+        try:
+            modulename = 'morpho.preprocessing.'+minidict['module_name']
+            i = importlib.import_module("{}".format(modulename))
+        except Exception as err:
+            try:
+                import imp
+                i = imp.load_source(minidict['module_name'], minidict['module_name']+'.py')
+                # i = importlib.import_module("{}".format(minidict['module_name']))
+            except Exception as err:
+                logger.critical(err)
+                return 0
+            else:
+                logger.info("Doing preprocessing {} using {}".format(minidict['method_name'],minidict['module_name']+'.py'))
+        else:
+            logger.info("Doing preprocessing {} using {}".format(minidict['method_name'],modulename))
+
+        try:
+            getattr(i,minidict['method_name'])(minidict)
+        except Exception as err:
+            logger.critical(err)
+    return 1
 
 def postprocessing(sa):
     # Generic function for creating the PostProcessing class
+    if sa.pp_dict is None:
+        logger.critical("postprocessing dict is None")
+        return 0
     for minidict in sa.pp_dict:
-        logger.info("Doing postprocessing {}".format(minidict['method_name']))
-        modulename = 'morpho.postprocessing.'+minidict['module_name']
-        i = importlib.import_module("{}".format(modulename))
+        try:
+            modulename = 'morpho.postprocessing.'+minidict['module_name']
+            i = importlib.import_module("{}".format(modulename))
+        except Exception as err:
+            try:
+                import imp
+                i = imp.load_source(minidict['module_name'], minidict['module_name']+'.py')
+                # i = importlib.import_module("{}".format(minidict['module_name']))
+            except Exception as err:
+                logger.critical(err)
+                return 0
+            else:
+                logger.info("Doing postprocessing {} using {}".format(minidict['method_name'],minidict['module_name']+'.py'))
+        else:
+            logger.info("Doing postprocessing {} using {}".format(minidict['method_name'],modulename))
+
         try:
             getattr(i,minidict['method_name'])(minidict)
         except Exception as err:
@@ -380,18 +511,33 @@ def postprocessing(sa):
     return 1
 
 def plotting(sa):
-    # Generic function for creating the PostProcessing class
+    # Generic function for plotting
     list_canvas = []
+    if sa.plot_dict is None:
+        logger.critical("plot dict is None")
+        return 0
     for minidict in sa.plot_dict:
-        logger.info("Doing plot {}".format(minidict['method_name']))
-        modulename = 'morpho.plot.'+minidict['module_name']
-        i = importlib.import_module("{}".format(modulename))
+        try:
+            modulename = 'morpho.plot.'+minidict['module_name']
+            i = importlib.import_module("{}".format(modulename))
+        except Exception as err:
+            try:
+                import imp
+                i = imp.load_source(minidict['module_name'], minidict['module_name']+'.py')
+                # i = importlib.import_module("{}".format(minidict['module_name']))
+            except Exception as err:
+                logger.critical(err)
+                return 0
+            else:
+                logger.info("Doing plot {} using {}".format(minidict['method_name'],minidict['module_name']+'.py'))
+        else:
+            logger.info("Doing plot {} using {}".format(minidict['method_name'],modulename))
+
         try:
             list_canvas.append(getattr(i,minidict['method_name'])(minidict))
         except Exception as err:
             logger.critical(err)
             return 0
-
     return list_canvas
 
 def save_object(obj, filename):
@@ -400,17 +546,56 @@ def save_object(obj, filename):
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
+
     print('\n\
-___  ___                 _            \n\
-|  \/  |                | |           \n\
-| .  . | ___  _ __ _ __ | |__   ___   \n\
-| |\/| |/ _ \|  __|  _ \|  _ \ / _ \  \n\
-| |  | | (_) | |  | |_) | | | | (_) | \n\
-\_|  |_/\___/|_|  | .__/|_| |_|\___/  \n\
-                  | |                 \n\
-                  |_|                 \n')
+                                                   ..ZDD8.\n\
+                                                .?D?I.DD$D\n\
+                                               D$???8$IDD,$\n\
+                                             8N7ZI?III?DDD\n\
+                                           8DIII?I$???ID.,\n\
+                                         .$D78?OI?I7?INDDD\n\
+                                  ..    DN$7$7IO8??+I?DDD\n\
+                                  8    $D$$77I$7I?I??IDD\n\
+ ~ND+II??I7NOO8.          D,     O    ZDZ$$7$8OZI77$O?DD)\n\
+O.NN.I7?III?787INNZD..      M.   1   ZO$$ZZ$$777III?ID.8\n\
+DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
+ D,DD?I????II87I77$$$ZZDD$~   N M  ZOOZZO$$$$$7I7II?OD.O\n\
+  .:,NII$I?II7I8$$7$$ZZZZON8N  ND:ZDZZ8Z88OOO8777I?INDD.\n\
+   DDDD7?IIII??77$$ZO$ZZZOOZND$DDZNZOZZZZ$$$$$$7III7N?\n\
+     O.$8I?III?II$$$$$ZZZO8OND$DO8ZZZ$$Z$$$7$77ZIIIN\n\
+      .DDNII?7IIZ7$$$8$7ZZZZ$ZZ8D$Z$Z7ZZZ$77$777I$D\n\
+       D.,D??I?II7I7$$$$$$$ZZ$$DDD$$$$$7O$7777IIIZDD\n\
+         DDDOI?7I7777D$$O$ZO7$8ZD8N$$$O7$$7IOIII??DD.\n\
+          MDDD+?IIIZ$7$77$7$$$8$7MDD77I7ZIIIII??7IDD\n\
+           =D.DDII?III777Z777787I.D?I7O???IZ???I?8D.$\n\
+              ...DID?7I7I777I?I7ID  8I?III?7?II8?DDD.\n\
+                DDD77I$III?8?II??D  DI??????Z?I?DN.N\n\
+                 NNDI????8???I?$??D N7?I?????OI?NDD.\n\
+                  DDD??II?I??I?II?D +DI?I?I?II7ND+N\n\
+                  `?D8?I+?I?I7II??NN D8?7?I???DNDN\n\
+                   .D,DD??Z?III???DN  NN7?IIDDM.D\n\
+                    `DDDDIO???IIINN    N.DDDNDNN\n\
+                      .D.DDDN7IND~M     DNDDD.\n\
+                        DDD.DDN.DD        ..\n\
+                          .7..ID$\n\
+                            ...')
+
+    print('\n\
+                              _        \n\
+           _ __  ___ _ _ _ __| |_  ___ \n\
+          |    \/ _ \  _|  _ \   \/ _ \ \n\
+          |_|_|_\___/_| | .__/_||_\___/ \n\
+                        |_|            ')
 
     args = parse_args()
+    logger = get_logger_stderr('morpho', morpho_formatter,
+                               level=getattr(logging,args.verbosity),
+                               stderr_lb=getattr(logging,args.stderr_verbosity),
+                               propagate=propagate_morpho_loggers)
+    logger_stan = get_logger_stderr('pystan', morpho_formatter,
+                               level=getattr(logging,args.verbosity),
+                               stderr_lb=getattr(logging,args.stderr_verbosity),
+                               propagate=propagate_morpho_loggers)
     with open(args.config, 'r') as cfile:
         try:
             cdata = yload(cfile)
@@ -418,12 +603,21 @@ ___  ___                 _            \n\
                 cdata = update_from_arguments(cdata,args.param)
             sa = morpho(cdata)
         except Exception as err:
-            logger.debug(err)
+            logger.critical(err)
+            sys.exit(2)
+
+        if (sa.get_do_prep()):
+            preprocessing(sa)
 
         if (sa.get_do_Stan()):
             try:
                 logger.info("Doing MC with Stan")
+                if sa.datafiles is not None:
+                    logger.debug("Loading datafiles")
+                    from morpho.loader import pystanLoad as pyL
+                    sa.data = pyL.stan_data_files(sa.datafiles)
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
+                logger.info('Result of the sampling: \n{}'.format(result))
             except Exception as err:
                 logger.critical(err)
                 sys.exit(2)
@@ -436,12 +630,14 @@ ___  ___                 _            \n\
             except Exception as err:
                 logger.critical(err)
                 sys.exit(2)
+
         if (sa.get_do_pp()):
             postprocessing(sa)
+
         if (sa.get_do_plots()):
             list_canvas = plotting(sa)
+
         if(sa.get_wait()):
             raw_input('Press <ret> to end -> ')
-        # except Exception as err:
-        #     logger.debug(err)
+
     logger.info("This is all for now!")

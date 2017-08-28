@@ -39,14 +39,10 @@ Below is a  to-do list:
 '''
 
 import logging
-logger = logging.getLogger('data_reducer')
-logger.setLevel(logging.DEBUG)
-base_format = '%(asctime)s[%(levelname)-8s] %(name)s(%(lineno)d) -> %(message)s'
-logging.basicConfig(format=base_format, datefmt='%m/%d/%Y %H:%M:%S')
+logger = logging.getLogger(__name__)
 
 
 import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
-import cmath as math
 from array import array
 import re
 import random

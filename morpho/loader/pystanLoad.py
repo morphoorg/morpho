@@ -179,25 +179,27 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
     """
     var_names = []
     var_data = []
-    var_1d = [] # Will be true if all inputs are a single value
+    var_flatten = [] # Will be true if all inputs are a single value
     for line in open(rdump_filename, 'r'):
         splitline = map(str.strip,line.split("<-"))
         if(len(splitline)<2):
             continue
         name = splitline[0]
         data = splitline[1]
+        if(len(name)==0 or len(data)==0):
+            continue
         # Ignore data that is not a 1d array or numeric
         if(('0'<=data[0] and data[0]<='9') or data[0]=='.'
            or data[0]=='c'):
             if(data[0]=='c'):
                 data = list(map(float,data[2:-1].split(',')))
-                array = True
+                arr_data = True
             elif('.' in data):
                 data = [float(data)]
-                array = False
+                arr_data = False
             else:
                 data = [int(data)]
-                array = False
+                arr_data = False
 
             idx = bisect.bisect_left(var_names, name)
             if(idx<len(var_names) and var_names[idx]==name):
@@ -206,17 +208,17 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
                     logger.warn('Array %s in file %s is jagged. PyStan cannot handle jagged arrays.'
                                 % (name, rdump_filename))
                 var_data[idx].append(data)
-                var_1d[idx] = not (array and var_1d[idx])
+                var_flatten[idx] = var_flatten[idx] or not arr_data
             else:
                 # This is the first ofccurence of this variable
                 var_names.insert(idx, name)
                 var_data.insert(idx, [data])
-                var_1d.insert(idx, not array)
+                var_flatten.insert(idx, not arr_data)
     for i in range(0,len(var_names)):
         if(len(var_data[i])>1):
             # This variable was duplicated at least once
             var_data[i] = np.array(var_data[i])
-            if(var_1d[i]):
+            if(var_flatten[i]):
                 var_data[i] = np.ndarray.flatten(var_data[i])
             data_dict.update({var_names[i]: var_data[i]})
     return data_dict

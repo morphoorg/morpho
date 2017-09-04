@@ -56,7 +56,6 @@ def stan_data_files(theData):
                             translist = value.tolist()
                             afile.update({key: translist})
                     alist = dict(alist.items() + afile.items())
-                    logger.debug('File {} added to data'.format(key['name']))
                 elif atype =='hdf5' :
                     logger.debug('Getting {}'.format(key['name']))
                     afile = h5py.File(key['name'], 'r') #Reading from hdf5 file
@@ -89,8 +88,6 @@ def stan_data_files(theData):
                                     integer = int(dataset[iEntry]) #Converting to integer array
                                     aint[0] = integer
                                     insertIntoDataStruct(aname, aint[0], alist)
-                    logger.debug('File {} added to data'.format(key['name']))
-
 
                 elif atype =='root':
                     logger.debug('Getting {} in {}'.format(key['tree'],key['name']))
@@ -150,12 +147,10 @@ def stan_data_files(theData):
                         if len(alist[aname])==1:
                             alist.update({aname: alist[aname][0]})
                     afile.Close()
-                    logger.debug('File {} added to data'.format(key['name']))
 
                 else:
                     logger.warning('{} format not yet implemented.'.format(atype))
             elif tags=='parameters':
-                logger.debug('Adding parameters from config file to data')
                 alist = dict(alist.items() + key.items())
 
     return alist
@@ -184,27 +179,25 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
     """
     var_names = []
     var_data = []
-    var_flatten = [] # Will be true if all inputs are a single value
+    var_1d = [] # Will be true if all inputs are a single value
     for line in open(rdump_filename, 'r'):
         splitline = map(str.strip,line.split("<-"))
         if(len(splitline)<2):
             continue
         name = splitline[0]
         data = splitline[1]
-        if(len(name)==0 or len(data)==0):
-            continue
         # Ignore data that is not a 1d array or numeric
         if(('0'<=data[0] and data[0]<='9') or data[0]=='.'
            or data[0]=='c'):
             if(data[0]=='c'):
                 data = list(map(float,data[2:-1].split(',')))
-                arr_data = True
+                array = True
             elif('.' in data):
                 data = [float(data)]
-                arr_data = False
+                array = False
             else:
                 data = [int(data)]
-                arr_data = False
+                array = False
 
             idx = bisect.bisect_left(var_names, name)
             if(idx<len(var_names) and var_names[idx]==name):
@@ -213,17 +206,17 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
                     logger.warn('Array %s in file %s is jagged. PyStan cannot handle jagged arrays.'
                                 % (name, rdump_filename))
                 var_data[idx].append(data)
-                var_flatten[idx] = var_flatten[idx] or not arr_data
+                var_1d[idx] = not (array and var_1d[idx])
             else:
                 # This is the first ofccurence of this variable
                 var_names.insert(idx, name)
                 var_data.insert(idx, [data])
-                var_flatten.insert(idx, not arr_data)
+                var_1d.insert(idx, not array)
     for i in range(0,len(var_names)):
         if(len(var_data[i])>1):
             # This variable was duplicated at least once
             var_data[i] = np.array(var_data[i])
-            if(var_flatten[i]):
+            if(var_1d[i]):
                 var_data[i] = np.ndarray.flatten(var_data[i])
             data_dict.update({var_names[i]: var_data[i]})
     return data_dict

@@ -38,7 +38,7 @@ Install
 
   _Docker installation_
 
-  Docker provides a uniform test bed for development and bug testing.
+  Docker can provide a uniform test bed for development and bug testing.
 
   - Install Docker (Desktop version): https://docs.docker.com/engine/installation/
   - Clone and pull the latest master version of morpho

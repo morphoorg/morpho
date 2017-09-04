@@ -3,9 +3,8 @@
 # Morpho
 #  -----------------------------------------------------
 #  Authors: J. A. Formaggio <josephf@mit.edu>
-#           J. Johnston <jpj13@mit.edu>
-#           T. E. Weiss <tweiss@mit.edu>
-#           M. Guigue <mathieu.guigue@pnnl.gov>
+# 			T. E. Weiss <tweiss@mit.edu>
+#  			M. Guigue <mathieu.guigue@pnnl.gov>
 #           J. N. Kofron <jared.kofron@gmail.com>
 #
 
@@ -117,7 +116,7 @@ class morpho(object):
         return {k: d[k] for k in (sa.args + sca.args) if k in d}
 
     def init_Stan_function(self):
-        if isinstance(self.init_per_chain,list): 
+        if isinstance(self.init_per_chain,list): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)):
             # init_per_chain is a list of dictionaries
             if self.chains >1 and len(self.init_per_chain)==1:
                 dict_list = [self.init_per_chain[0]] * self.chains
@@ -127,7 +126,7 @@ class morpho(object):
             else:
                 logger.error('Number of chains is not equal to the size of the list of dictionaries')
                 return self.init_per_chain
-        elif isinstance(self.init_per_chain,dict): 
+        elif isinstance(self.init_per_chain,dict): # and self.init_per_chain.GetType().IsGenericType and self.init_per_chain.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)):
             # init_per_chain is a dictionary
             if self.chains >1:
                 return [self.init_per_chain] * self.chains
@@ -248,9 +247,9 @@ class morpho(object):
             raise err
 
 def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='.',**kwargs):
-    '''
-    Use just as you would `stan`
-    '''
+    """Use just as you would `stan`"""
+
+
     theModel = open(model_code,'r+').read()
     match =  re.findall(r'\s*include\s*=\s*(?P<function_name>\w+)\s*;*',theModel)
     if function_files_location is not None:
@@ -345,6 +344,7 @@ def parse_args():
                    metavar='<seed>',
                    help='Add random seed number to file',
                    required=False)
+
     p.add_argument('-nas','--noautoseed',
                    action='store_false',
                    default=True,
@@ -353,6 +353,7 @@ def parse_args():
     p.add_argument('param',nargs='*',
                    default=False,
                    help='Manualy change of a parameter and its value')
+
     p.add_argument('-f','--force-restart',
                    action='store_true',
                    default=False,

@@ -56,6 +56,7 @@ def stan_data_files(theData):
                             translist = value.tolist()
                             afile.update({key: translist})
                     alist = dict(alist.items() + afile.items())
+                    logger.debug('File {} added to data'.format(key['name']))
                 elif atype =='hdf5' :
                     logger.debug('Getting {}'.format(key['name']))
                     afile = h5py.File(key['name'], 'r') #Reading from hdf5 file
@@ -88,6 +89,8 @@ def stan_data_files(theData):
                                     integer = int(dataset[iEntry]) #Converting to integer array
                                     aint[0] = integer
                                     insertIntoDataStruct(aname, aint[0], alist)
+                    logger.debug('File {} added to data'.format(key['name']))
+
 
                 elif atype =='root':
                     logger.debug('Getting {} in {}'.format(key['tree'],key['name']))
@@ -147,10 +150,12 @@ def stan_data_files(theData):
                         if len(alist[aname])==1:
                             alist.update({aname: alist[aname][0]})
                     afile.Close()
+                    logger.debug('File {} added to data'.format(key['name']))
 
                 else:
                     logger.warning('{} format not yet implemented.'.format(atype))
             elif tags=='parameters':
+                logger.debug('Adding parameters from config file to data')
                 alist = dict(alist.items() + key.items())
 
     return alist

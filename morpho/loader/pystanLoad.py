@@ -51,10 +51,10 @@ def stan_data_files(theData):
                     logger.debug('Getting {}'.format(key['name']))
                     afile = pystan.misc.read_rdump(key['name'])
                     _save_repeated_as_arr(key['name'], afile)
-                    for key, value in afile.iteritems():
+                    for key_r, value in afile.iteritems():
                         if(hasattr(value,"tolist")):
                             translist = value.tolist()
-                            afile.update({key: translist})
+                            afile.update({key_r: translist})
                     alist = dict(alist.items() + afile.items())
                     logger.debug('File {} added to data'.format(key['name']))
                 elif atype =='hdf5' :

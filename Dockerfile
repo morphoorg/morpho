@@ -1,4 +1,4 @@
-FROM guiguem/root:latest
+FROM guiguem/root-docker:latest
 
 MAINTAINER Mathieu Guigue "Mathieu.Guigue@pnnl.gov"
 

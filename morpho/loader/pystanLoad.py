@@ -273,7 +273,10 @@ def extract_data_from_outputdata(conf,theOutput):
                 else:
                     theOutputDataDict["delta_energy__"].append(0)
                 theOutputDataDict["lp_prob"].append(theOutputData[iEvents][iChain][len(theOutput.flatnames)])
-                theOutputDataDict["is_sample"].append(1)
+                if conf.out_inc_warmup:
+                    theOutputDataDict["is_sample"].append(0 if iEvents< conf.warmup else 1)
+                else:
+                    theOutputDataDict["is_sample"].append(1)
     else:
         # make list of desired variables
         theOutputDataDict = {}

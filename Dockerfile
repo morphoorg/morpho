@@ -1,9 +1,13 @@
-FROM rootproject/root-ubuntu16:6.10
+FROM guiguem/root-docker:latest
 
 MAINTAINER Mathieu Guigue "Mathieu.Guigue@pnnl.gov"
 
-RUN export PYTHONPATH=/usr/local/root/lib/root
-RUN apt-get update && apt-get -y upgrade
-RUN apt-get install -y libhdf5-serial-dev python-pip
-RUN git clone -b master https://github.com/project8/morpho
-RUN pip install pip --upgrade && pip install /morpho/.
+ADD . /morpho
+
+RUN /bin/bash -c "apt-get remove -y python-pip &&\
+    source /setup.sh &&\
+    wget https://bootstrap.pypa.io/get-pip.py &&\
+    python  get-pip.py setuptools pip wheel &&\
+    pip install /morpho/."
+
+CMD ['source /setup.sh']

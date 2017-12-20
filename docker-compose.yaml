@@ -3,9 +3,8 @@ version: "3"
 services:
   morpho:
     image: project8/morpho
-    command: bash
-    environment:
-      - PYTHONPATH=/usr/local/root/lib/root
+    command: >
+      bash -c "source /setup.sh && bash"
     volumes:
       # share a subdirectory from the host to /host in the docker (can be edited)
       - ~/morpho_share:/host

@@ -2,9 +2,12 @@ FROM guiguem/root-docker:latest
 
 MAINTAINER Mathieu Guigue "Mathieu.Guigue@pnnl.gov"
 
-RUN /bin/bash -c "pip install pip --upgrade &&\
+ADD . /morpho
+
+RUN /bin/bash -c "apt-get remove -y python-pip &&\
     source /setup.sh &&\
-    pip -V &&\
-    git clone -b master https://github.com/project8/morpho &&\
-    pip install /morpho/. &&\
-    cd /morpho/examples && morpho -c morpho_test/scripts/morpho_linear_fit.yaml"
+    wget https://bootstrap.pypa.io/get-pip.py &&\
+    python  get-pip.py setuptools pip wheel &&\
+    pip install /morpho/."
+
+CMD ['source /setup.sh']

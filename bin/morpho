@@ -266,12 +266,16 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
         for filename in onlyfiles:
             if filename.endswith('.functions'):
                 key = filename[:-10]
-                if (key==matches):
-                    StanFunctions = open(function_files_location+'/'+filename,'r+').read()
-                    theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
-                    found = True
-                    logger.debug('Function file <{}> to import was found'.format(matches))
-                    continue
+            elif  filename.endswith('.stan'):
+                key = filename[:-5]
+            else:
+                continue
+            if (key==matches):
+                StanFunctions = open(function_files_location+'/'+filename,'r+').read()
+                theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
+                found = True
+                logger.debug('Function file <{}> to import was found'.format(matches))
+                continue
         if found == False:
             logger.critical('A function <{}> to import is missing'.format(matches))
     logger.debug('Import function files: complete')

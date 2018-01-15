@@ -278,6 +278,7 @@ def readTTree(root_file_path,tree_name):
     myfile = ROOT.TFile(root_file_path,"READ")
     tree = myfile.Get(tree_name)
     n = int(tree.GetEntries())
+    print('Found {} entries'.format(n))    
     time_data = []
     freq_data = []
     spectrum_data = []
@@ -297,6 +298,7 @@ def readTTree(root_file_path,tree_name):
         if 'spectrum_data' in tree.GetListOfBranches():
         # print('there is spectrum!')
             spectrum_data.append(tree.spectrum_data)
+
     # print(tree_name)
 
 

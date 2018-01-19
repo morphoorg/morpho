@@ -31,7 +31,7 @@ if not on_rtd:
     requirements.append(standard_requirements)
     ...
 else:
-    requirements.append('better_apidoc')
+    requirements.append('doc')
 
 extras_require = {
     'h5': ['h5py<=2.6'],

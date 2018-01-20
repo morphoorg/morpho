@@ -32,11 +32,11 @@ import os
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    #'sphinx.ext.autodoc',
+    'sphinx.ext.autodoc',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     #'sphinxcontrib.programoutput',
-    #'sphinx.ext.napoleon',
+    'sphinx.ext.napoleon',
     #'sphinxarg.ext',
 ]
 
@@ -52,7 +52,7 @@ better_apidoc.main([
 
 todo_include_todos = True
 
-#autoclass_content = "both"
+autoclass_content = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
@@ -235,10 +235,10 @@ latex_elements = {
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, #  author, documentclass [howto, manual, or own class]).
-#latex_documents = [
-#  ('index', 'morpho.tex', 'morpho Documentation',
-#   'The Project 8 Collaboration', 'manual'),
-#]
+latex_documents = [
+ ('index', 'morpho.tex', 'morpho Documentation',
+  'The Project 8 Collaboration', 'manual'),
+]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -265,10 +265,10 @@ latex_elements = {
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-#man_pages = [
-#    ('index', 'morpho', 'morpho Documentation',
-#     ['The Project 8 Collaboration'], 1)
-#]
+man_pages = [
+   ('index', 'morpho', 'morpho Documentation',
+    ['The Project 8 Collaboration'], 1)
+]
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
@@ -279,11 +279,11 @@ latex_elements = {
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-#texinfo_documents = [
-#  ('index', 'morpho', 'morpho Documentation',
-#   'The Project 8 Collaboration', 'morpho', 'One line description of project.',
-#   'Miscellaneous'),
-#]
+texinfo_documents = [
+ ('index', 'morpho', 'morpho Documentation',
+  'The Project 8 Collaboration', 'morpho', 'One line description of project.',
+  'Miscellaneous'),
+]
 
 # Documents to append as an appendix to all manuals.
 #texinfo_appendices = []

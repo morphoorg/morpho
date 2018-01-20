@@ -6,5 +6,5 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    testDocumentation.rst
+    testDocumentation
     better_apidoc_out/modules

@@ -616,9 +616,21 @@ def correlation_factors(param_dict):
     title, width, height = _preparingCanvas(param_dict)
     can = ROOT.TCanvas(title,title,width,height)
     # Set margins so all variables and the scale appear
-    can.SetLeftMargin(0.175)
-    can.SetRightMargin(0.13)
-    can.SetBottomMargin(0.175)
+    if 'left_margin' in param_dict:
+        can.SetLeftMargin(param_dict['left_margin'])
+    else:
+        can.SetLeftMargin(0.175)
+    if 'right_margin' in param_dict:
+        can.SetRightMargin(param_dict['right_margin'])
+    else:
+        can.SetRightMargin(0.13)
+    if 'bottom_margin' in param_dict:
+        can.SetBottomMargin(param_dict['bottom_margin'])
+    else:
+        can.SetBottomMargin(0.175)
+    if 'top_margin' in param_dict:
+        can.SetTopMargin(param_dict['top_margin'])
+
     can.Draw()
     if 'options' in param_dict:
         if "logy" in param_dict['options']:

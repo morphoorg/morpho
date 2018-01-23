@@ -33,6 +33,7 @@ import importlib
 import logging
 import colorlog
 
+
 def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,
                       level=logging.DEBUG, propagate=False):
     """Return a logger object with the given settings that prints
@@ -620,7 +621,10 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                     from morpho.loader import pystanLoad as pyL
                     sa.data = pyL.stan_data_files(sa.datafiles)
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
+                #from morpho.postprocessing import stan_utility as util
+                #util.check_energy(result)
                 logger.info('Result of the sampling: \n{}'.format(result))
+                #logger.info('Diagnostic info: '.format(checks))
             except Exception as err:
                 logger.critical(err)
                 sys.exit(2)

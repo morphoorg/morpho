@@ -1,9 +1,11 @@
-# Source: Michael Betancourt and Sean Talts, 
+# Source: Michael Betancourt,
 # jupyter_case_studies/pystan_workflow/stan_utility.py 
+# Modified by Talia Weiss, 1-23-18
 
 import pystan
 import pickle
 import numpy
+
 
 def check_div(fit):
     """Check transitions that ended with a divergence"""
@@ -11,10 +13,12 @@ def check_div(fit):
     divergent = [x for y in sampler_params for x in y['divergent__']]
     n = sum(divergent)
     N = len(divergent)
-    print('{} of {} iterations ended with a divergence ({}%)'.format(n, N,
-            100 * n / N))
     if n > 0:
-        print('  Try running with larger adapt_delta to remove the divergences')
+        return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
+            100 * n / N)+' Try running with larger adapt_delta to remove the divergences.')
+    else:
+        return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
+            100 * n / N))
 
 def check_treedepth(fit, max_depth = 10):
     """Check transitions that ended prematurely due to maximum tree depth limit"""
@@ -22,10 +26,12 @@ def check_treedepth(fit, max_depth = 10):
     depths = [x for y in sampler_params for x in y['treedepth__']]
     n = sum(1 for x in depths if x == max_depth)
     N = len(depths)
-    print(('{} of {} iterations saturated the maximum tree depth of {}'
-            + ' ({}%)').format(n, N, max_depth, 100 * n / N))
     if n > 0:
-        print('  Run again with max_depth set to a larger value to avoid saturation')
+        return(('{} of {} iterations saturated the maximum tree depth of {}.'
+               + ' ({}%)').format(n, N, max_depth, 100 * n / N)+' Run again with max_depth set to a larger value to avoid saturation.')
+    else:
+        return(('{} of {} iterations saturated the maximum tree depth of {}.'
+            + ' ({}%)').format(n, N, max_depth, 100 * n / N))
 
 def check_energy(fit):
     """Checks the energy Bayesian fraction of missing information (E-BFMI)"""
@@ -39,9 +45,9 @@ def check_energy(fit):
             print('Chain {}: E-BFMI = {}'.format(chain_num, numer / denom))
             no_warning = False
     if no_warning:
-        print('E-BFMI indicated no pathological behavior')
+        return('E-BFMI indicated no pathological behavior.')
     else:
-        print('  E-BFMI below 0.2 indicates you may need to reparameterize your model')
+        return('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
 
 def check_n_eff(fit):
     """Checks the effective sample size per iteration"""
@@ -55,12 +61,12 @@ def check_n_eff(fit):
         ratio = n_eff / n_iter
         if (ratio < 0.001):
             print('n_eff / iter for parameter {} is {}!'.format(name, ratio))
-            print('E-BFMI below 0.2 indicates you may need to reparameterize your model')
+            print('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
             no_warning = False
     if no_warning:
-        print('n_eff / iter looks reasonable for all parameters')
+        return('n_eff / iter looks reasonable for all parameters.')
     else:
-        print('  n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated')
+        return('  n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated.')
 
 def check_rhat(fit):
     """Checks the potential scale reduction factors"""
@@ -77,17 +83,13 @@ def check_rhat(fit):
             print('Rhat for parameter {} is {}!'.format(name, rhat))
             no_warning = False
     if no_warning:
-        print('Rhat looks reasonable for all parameters')
+        return('Rhat looks reasonable for all parameters.')
     else:
-        print('  Rhat above 1.1 indicates that the chains very likely have not mixed')
+        return('Rhat above 1.1 indicates that the chains very likely have not mixed.')
 
 def check_all_diagnostics(fit):
     """Checks all MCMC diagnostics"""
-    check_n_eff(fit)
-    check_rhat(fit)
-    check_div(fit)
-    check_treedepth(fit)
-    check_energy(fit)
+    return(check_n_eff(fit) + '\n' + check_rhat(fit) + '\n' + check_div(fit)+ '\n' + check_treedepth(fit) + '\n' + check_energy(fit))
 
 def _by_chain(unpermuted_extraction):
     num_chains = len(unpermuted_extraction[0])
@@ -142,3 +144,4 @@ def compile_model(filename, model_name=None, **kwargs):
         else:
             print("Using cached StanModel")
         return sm
+

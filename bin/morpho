@@ -621,10 +621,10 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                     from morpho.loader import pystanLoad as pyL
                     sa.data = pyL.stan_data_files(sa.datafiles)
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
-                #from morpho.postprocessing import stan_utility as util
-                #util.check_energy(result)
+                from morpho.postprocessing import stan_utility as util
+                checks = util.check_all_diagnostics(result)
                 logger.info('Result of the sampling: \n{}'.format(result))
-                #logger.info('Diagnostic info: '.format(checks))
+                logger.info('Diagnostic info: \n' + checks)
             except Exception as err:
                 logger.critical(err)
                 sys.exit(2)

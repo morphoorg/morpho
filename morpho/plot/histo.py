@@ -429,12 +429,12 @@ def histo2D_divergence(param_dict):
     gSave = []
 
     histo_div0 = _get2Dhisto(arr_X_div0, arr_Y_div0, [nbins_x,nbins_y], ranges, title)
-    histo_div0.SetMarkerStyle(1)
+    histo_div0.SetMarkerStyle(2)
     histo_div0.GetXaxis().SetTitle(namedata[0])
     histo_div0.GetYaxis().SetTitle(namedata[1])
 
     histo_div1 = _get2Dhisto(arr_X_div1, arr_Y_div1, [nbins_x,nbins_y], ranges, title)
-    histo_div1.SetMarkerStyle(1)
+    histo_div1.SetMarkerStyle(2)
     #histo_div1.GetXaxis().SetTitle(namedata[0])
     #histo_div1.GetYaxis().SetTitle(namedata[1])
 

@@ -19,7 +19,7 @@ on_rtd = os.environ.get("READTHEDOCS", None) == 'True'
 requirements = []
 extras_require = {
     'h5': ['h5py<=2.6'],
-    'core':['matplotlib==1.5.1','colorlog', 'PyYAML==3.11','pyparsing>=2.1.5','numpy==1.13.1','pystan==2.17.0.0','dnspython==1.12.0','pbr==0.10.8','cycler==0.10.0','python-dateutil==2.5.3'],
+    'core':['matplotlib==1.5.1','colorlog', 'PyYAML==3.11','pyparsing>=2.1.5','numpy>=1.14','pystan==2.17.0.0','dnspython==1.12.0','pbr==0.10.8','cycler==0.10.0','python-dateutil==2.5.3'],
     'doc': ['sphinx', 'sphinx_rtd_theme', 'sphinxcontrib-programoutput']
 }
 

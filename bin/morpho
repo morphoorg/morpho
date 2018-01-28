@@ -327,7 +327,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
 
     logger.info("Starting the sampling")
     text = "Parameters: \n"
-    for key, value in kwargs.iteritems():
+    for key, value in kwargs.items():
         if key != "data" and key != "init" :
             text = text + "{}\t{}\n".format(key,value)
         elif key == "data":

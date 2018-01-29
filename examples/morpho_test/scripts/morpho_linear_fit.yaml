@@ -17,7 +17,8 @@ stan:
     files:
       - name: "./morpho_test/data/input.data"
         format: "R"
-    # parameters: None
+    parameters: 
+      - N: 30
   # Run parameters
   run:
     algorithm: "NUTS"

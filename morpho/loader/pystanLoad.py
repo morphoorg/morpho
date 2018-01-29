@@ -4,9 +4,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-    from ROOT import *
+    import ROOT
 except ImportError:
     logger.debug("Cannot import ROOT")
+    raise
     pass
 
 try:
@@ -51,11 +52,11 @@ def stan_data_files(theData):
                     logger.debug('Getting {}'.format(key['name']))
                     afile = pystan.misc.read_rdump(key['name'])
                     _save_repeated_as_arr(key['name'], afile)
-                    for key_r, value in afile.iteritems():
+                    for key_r, value in afile.items():
                         if(hasattr(value,"tolist")):
                             translist = value.tolist()
                             afile.update({key_r: translist})
-                    alist = dict(alist.items() + afile.items())
+                    alist.update(afile.items())
                     logger.debug('File {} added to data'.format(key['name']))
                 elif atype =='hdf5' :
                     logger.debug('Getting {}'.format(key['name']))
@@ -91,11 +92,10 @@ def stan_data_files(theData):
                                     insertIntoDataStruct(aname, aint[0], alist)
                     logger.debug('File {} added to data'.format(key['name']))
 
-
                 elif atype =='root':
                     logger.debug('Getting {} in {}'.format(key['tree'],key['name']))
-                    afile = TFile.Open(key['name'],'read')
-                    atree = TTree()
+                    afile = ROOT.TFile.Open(key['name'],'read')
+                    atree = ROOT.TTree()
                     afile.GetObject(str(key['tree']), atree)
 
                     aCut = readLabel(key,'cut',None)
@@ -156,7 +156,7 @@ def stan_data_files(theData):
                     logger.warning('{} format not yet implemented.'.format(atype))
             elif tags=='parameters':
                 logger.debug('Adding parameters from config file to data')
-                alist = dict(alist.items() + key.items())
+                alist.update(key)
 
     return alist
 
@@ -187,7 +187,8 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
     var_flatten = [] # Will be true if all inputs are a single value
     for line in open(rdump_filename, 'r'):
         splitline = map(str.strip,line.split("<-"))
-        if(len(splitline)<2):
+        a= (list(splitline))
+        if(len(list(splitline))<2):
             continue
         name = splitline[0]
         data = splitline[1]
@@ -369,7 +370,7 @@ def write_result_hdf5(conf, theFileName, stanres, input_param):
 # transform dict into items where the depth is indicated with "."
 def theTrick(thedict,uppertreename=""):
     newdict = {}
-    for key,value in thedict.iteritems():
+    for key,value in thedict.items():
         if isinstance(value, dict):
             subdict = theTrick(value,uppertreename+key+".")
             newdict.update(subdict)
@@ -385,7 +386,7 @@ def transform_list_of_dict_into_dict(thedict):
     '''
 
     result_dict = {}
-    for key,item in thedict.iteritems():
+    for key,item in thedict.items():
         if isinstance(item,list):
             if isinstance(item[0],dict):
                 newdict={}
@@ -394,7 +395,7 @@ def transform_list_of_dict_into_dict(thedict):
                     else: newdict[k].append(v)
                 # flatten the dictionary
                 flattened_dict = {}
-                for subkey,subitem in newdict.iteritems():
+                for subkey,subitem in newdict.items():
                     if isinstance(subitem[0],list):
                         for i in range(len(subitem[0])):
                             flattened_dict.update({'{}_{}'.format(subkey,i):[]})
@@ -415,10 +416,10 @@ def transform_list_of_dict_into_dict(thedict):
 # transform a dictionary into a tree
 def build_tree_from_dict(treename,input_param):
     logger.debug("Creating tree '{}'".format(treename))
-    atree = TTree(treename,treename)
+    atree = ROOT.TTree(treename,treename)
     dictToFill = {}
     treeToAddFriend = {}
-    for key,value in input_param.iteritems():
+    for key,value in input_param.items():
         if isinstance(value,int) or isinstance(value,float):
             nSize = 1
             if isinstance(value, float):
@@ -461,7 +462,7 @@ def build_tree_from_dict(treename,input_param):
             else:
                 continue
     # Filling the input param tree
-    for key,value in dictToFill.iteritems():
+    for key,value in dictToFill.items():
         if isinstance(value,list):
             for iNum in range(0,len(value)):
                 exec(theHack("theVariable_{}[{}] = value[{}]",str(key).replace(".","_"),iNum,iNum))
@@ -475,9 +476,9 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     logger.debug("Creating ROOT file {}".format(theFileName))
     if conf.out_option:
-        afile = TFile.Open(theFileName, conf.out_option)
+        afile = ROOT.TFile.Open(theFileName, conf.out_option)
     else:
-        afile = TFile.Open(theFileName, "RECREATE")
+        afile = ROOT.TFile.Open(theFileName, "RECREATE")
 
     # save the input parameters
     logger.debug("Saving Stan input parameters")
@@ -490,7 +491,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     # save results
     logger.debug("Saving Stan results")
     logger.debug("Creating tree '{}'".format(conf.out_tree))
-    atree = TTree(conf.out_tree,conf.out_tree)
+    atree = ROOT.TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
 
     # Extract the data into a dictionary

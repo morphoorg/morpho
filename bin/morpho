@@ -12,8 +12,15 @@
 from __future__ import absolute_import
 
 import os,sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
+try:
+    reload  # Python 2.7
+except NameError:
+    try:
+        from importlib import reload  # Python 3.4+
+    except ImportError:
+        from imp import reload  # Python 3.0 - 3.3
+    reload(sys)
+# sys.setdefaultencoding("utf-8")
 
 import time
 import re
@@ -320,7 +327,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
 
     logger.info("Starting the sampling")
     text = "Parameters: \n"
-    for key, value in kwargs.iteritems():
+    for key, value in kwargs.items():
         if key != "data" and key != "init" :
             text = text + "{}\t{}\n".format(key,value)
         elif key == "data":
@@ -607,7 +614,8 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                 cdata = update_from_arguments(cdata,args.param)
             sa = morpho(cdata)
         except Exception as err:
-            logger.critical(err)
+            logger.critical("Caught exception")
+            raise
             sys.exit(2)
 
         if (sa.get_do_prep()):
@@ -617,7 +625,6 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
             try:
                 logger.info("Doing MC with Stan")
                 if sa.datafiles is not None:
-                    logger.debug("Loading datafiles")
                     from morpho.loader import pystanLoad as pyL
                     sa.data = pyL.stan_data_files(sa.datafiles)
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
@@ -626,7 +633,8 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                 logger.info('Result of the sampling: \n{}'.format(result))
                 logger.info('Diagnostic info: \n' + checks)
             except Exception as err:
-                logger.critical(err)
+                logger.critical("Caught exception")
+                raise
                 sys.exit(2)
             try:
                 logger.info("Saving results")
@@ -635,7 +643,8 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                     save_object(stanres, sa.out_fit)
                     logger.debug('Saved fit in {}'.format(sa.out_fit))
             except Exception as err:
-                logger.critical(err)
+                logger.critical("Caught exception")
+                raise
                 sys.exit(2)
 
         if (sa.get_do_pp()):

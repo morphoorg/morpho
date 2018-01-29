@@ -11,10 +11,8 @@ except NameError:
     reload(sys)
 # sys.setdefaultencoding("utf-8")
 
-
 import logging
 import colorlog
-
 
 def getLogger(name, stderr_lb=logging.ERROR,
                       level=logging.DEBUG, propagate=False):

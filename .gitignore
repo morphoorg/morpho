@@ -10,3 +10,4 @@ build/*
 *.pkl
 *.out
 *.txt
+.vscode

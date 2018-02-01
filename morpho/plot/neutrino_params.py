@@ -32,8 +32,16 @@ import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 from pylab import *
 
-import plotting_routines as pr
-
+# Adaptable import
+try:
+    #python2
+    import plotting_routines as pr
+except:
+    try:
+        #python3
+        from . import plotting_routines as pr
+    except:
+        pass
 
 def plot_neutrino_masses(param_dict, ModelFit, data):
     """

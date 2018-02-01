@@ -8,13 +8,13 @@ import json
 import os
 
 from morpho.utilities import morphologging, reader
-from morpho.processors import SamplingBaseProcessor
+from morpho.processors import BaseProcessor
 logger=morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
 
-class GaussianSamplingProcessor(SamplingBaseProcessor):
+class GaussianSamplingProcessor(BaseProcessor):
     '''
     Sampling processor that will generate a simple gaussian distribution (mean: 0, width: 1).
     Does not require input data nor model (as they are define in the class itself)

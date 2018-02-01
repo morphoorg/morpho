@@ -2,9 +2,23 @@
 
 from __future__ import absolute_import
 
-from morpho.processors import SamplingBaseProcessor, GaussianSamplingProcessor
+from morpho.processors import TRacePlotProcessor, RootFileReader, StanSampler
 
-myProcessor = GaussianSamplingProcessor('name')
-myProcessor.Configure({'iter': 50})
+# mySampler = StanSampler()
+# mySampler.Confirgure(....)
+# sampleroutput = mySampler.Run()
+
+myfilereader = RootFileReader()
+myfilereader.Confirgure(....)
+sampleroutput = myfilereader.Run()
+
+myProcessor = TRacePlotProcessor('name')
+myProcessor.Configure({'nBinHisto': 50,
+                        'Xmin':10,
+                        'Xmax':100})
+myProcessor = _set_data(sampleroutput)
+
+def _set_data(self,data):
+    self.data = data
 output = myProcessor.Run()
 print(output)

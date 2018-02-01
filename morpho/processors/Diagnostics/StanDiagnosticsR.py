@@ -15,9 +15,9 @@ logger=morphologging.getLogger(__name__)
 __all__ = []
 __all__.append(__name__)
 
-class StanDiagnostics(SamplingBaseProcessor):
+class StanDiagnosticsR(SamplingBaseProcessor):
     '''                                                                                                                                
-    Describe.
+    Reads an R script (bayesplot_diag.R) to create Stan diagnostic plots specified in Configure. Untested.
 
     '''
     def __init__(self, *args, **kwargs):

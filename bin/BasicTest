@@ -2,7 +2,8 @@
 
 from __future__ import absolute_import
 
-from morpho.processors import SamplingBaseProcessor, GaussianSamplingProcessor
+from morpho.processors import BaseProcessor
+from morpho.processors.sampling import GaussianSamplingProcessor
 
 myProcessor = GaussianSamplingProcessor('name')
 myProcessor.Configure({'iter': 50})

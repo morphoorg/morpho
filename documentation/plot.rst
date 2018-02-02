@@ -3,9 +3,7 @@ Plots
 ========================================
 
 Plotting is a useful set of routines to make quick plots and
-diagnostic tests, usualluy after the Stan main executable has been run.
-
-::
+diagnostic tests, usualluy after the Stan main executable has been run.::
    morpho:
      do_plots: true
 

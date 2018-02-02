@@ -42,8 +42,9 @@ If you develop new features or identify bugs, please open a github issue or emai
 ------------------
 
 See the documentation on the Stan homepage for more detail about the Stan models.
-
+::
   morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
+
 Essentially, the following takes place. One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan). The sequence for events is as follows
 
 The information relative to the model such as the seed or the algorithm to be used are read from the json/yaml script or from the command line.

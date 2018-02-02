@@ -10,31 +10,21 @@ Preprocessing can be set as a flag in the beginning of the
 configuration file.  As an example
 
 ::
-morpho:
+   morpho:
     do_preprocessing: true
 
 Later in the configuration file, you can set up the commands to
 pre-process data
 ::
-
-preprocessing:
-
-   which_pp:
-   
+   preprocessing:
+   which_pp:  
     - method_name: bootstrapping
-
-      module_name: resampling
-      
+      module_name: resampling      
       input_file_name: ./my_spectrum.root
-      
       input_tree: input
-      
       output_file_name: ./my_fit_data.root
-      
       output_tree: bootstrapped_data
-      
       option: "RECREATE"
-      
       number_data: 5000
 
 

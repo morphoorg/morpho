@@ -1,58 +1,57 @@
 morpho
 ======
 
-  A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
+   Morpho bridges between Stan and data input as well as output. It employs Pystan (see http://mc-stan.org/pystan.html), a python interface to Stan.
 
-Requirements
-======
+Discuss value of morpho.
 
-  You will need to install via a package manager (such as apt-get):    
-  * python (2.7.x; 3.x not supported)   
-  * python-matplotlib   
-  * python-pip   
-  * git   
+Features
+---------------
 
-  To read and save files, you will need either hdf5 or root:   
-  * **hdf5:** libhdf5-serial-dev libhdf5-dev 
-  * **root:** root-system from apt-get or sources from https://root.cern (with python enabled).   
-
-  PyStan (see http://mc-stan.org/pystan.html) (a Python implementation of Stan) needs to be installed (version 2.15).
-  Using the following installation methods should take care of this requirement.
+Directory Structure
+---------------
 
 Install
-======
+---------------
 
-  _Virtual environment installation_
+###Dependencies###
 
-  PyStan and the required packages may be installed from the Python Index Package using pip inside a virtual environment.
+The following dependencies should be installed (using a package manager) before installing morpho:
+  - python (2.7.x; 3.x not yet supported)
+  - python-pip
+  - git
+  - python-matplotlib
+
+  Morpho can read and save files in either **R** or **root.** If you would like to use root, install root-system or see https://root.cern.
+
+###Virtual environment installation###
+
+  We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, include PyStan 2.15.
+  
+  If necessary, install virtualenv, then execute:
   ```bash
-	virtualenv ~/path/to/the/virtualenvironment/env
-	source ~/path/to/the/virtualenvironment/env/bin/activate
-	pip install -U pip # must update pip to >= 7.0.0
-	# inside the morpho repository
+	virtualenv ~/path/to/the/virtualenvironment
+	source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment. Use```bash deactivate``` to exit the environment.
+	pip install -U pip # Update pip to >= 7.0.0
+	cd ~/path/to/morpho
 	pip install .
 	pip install .[all]
   ```
 
-  Once all the required packages are installed on the virtualenvironment, one can load it using
-  ```bash
-	source ~/path/to/the/virtualenvironment/env/bin/activate
-  ```
+###Docker installation###
 
-  _Docker installation_
+   If you would like to modify your local installation of morpho (including working to resolve any bugs), we recommend you use a [**Docker** container](https://docs.docker.com/get-started/) instead of a python virtual environment.
 
-  Docker provides a uniform test bed for development and bug testing.
-  Please use this environment to testing/resolving bugs.
-
-  - Install Docker (Desktop version): https://docs.docker.com/engine/installation/
+  - Install Docker: https://docs.docker.com/engine/installation/
   - Clone and pull the latest master version of morpho
-  - Inside the morpho folder, execute ```docker-compose run morpho```.
-  The container prompter should appear at the end of the installation.
-  A directory (```morpho_share```) should be created in your home and mounted under the ```/host``` folder: you can modify this by editing the docker-compose file.
-  - When reinstalling, you can remove the image using ```docker rmi morpho_morpho```
+  - Inside the morpho folder, execute ```docker-compose run morpho```. A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
+  A directory (```morpho_share```) should be created in your home and mounted under the ```/host``` folder. You can modify this by editing the docker-compose file.
+  - You can remove the container image using ```docker rmi morpho_morpho```.
+
+   If you develop new features or identify bugs, please open a github issue or email nsoblath@mit.edu.
 
 Running
-======
+---------------
 
   See the documentation on the Stan homepage for more detail about the Stan models.
   ```bash
@@ -85,7 +84,7 @@ Running
   ```
 
 Known bugs and solutions
-======	  
+---------------
 
 1.  When running matplotlib in a virtual environment, the following error can be encountered:
 

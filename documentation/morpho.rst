@@ -14,7 +14,6 @@ Stan:     http://mc-stan.org
 
 PyStan: https://pystan.readthedocs.io/en/latest/index.html
 
-========================================
 An Example File
 ========================================
 

@@ -1,15 +1,16 @@
 morpho
 ======
 
-   Morpho bridges between Stan, a platform for Bayesian statistical modeling and computation, and data input/output. It employs Pystan (see http://mc-stan.org/pystan.html), a python interface to Stan.
+   Morpho bridges between [**Stan**](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and data input and output. It is especially useful for a) generating pseudo data and b) performing Bayesian statistical analyses of real or fake data---that is, extracting posterior distributions for parameters of interest using data and a model.
 
-Discuss value of morpho.
+Morpho interfaces with Stan using [Pystan](http://mc-stan.org/pystan.html), but it is designed to be employed by Stan users, generally (not only PyStan users).
 
-Features
----------------
+___Why morpho?___
+   1. Morpho enables users to load data, run Stan, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations---all as part of an individual analysis. Users can control all of these processes using a single [configuration file](http://morpho.readthedocs.io/en/latest/index.html).
+   2. Morpho helps users to organize and run multiple related Stan models (for example, models that share input data and Stan functions).
+   3. Morpho minimizes the need to recompile Stan models using cache files.
+   4. Morpho automatically performs some convergence checks after running Stan, and it provides additional options for convergence analysis and plotting.
 
-Directory Structure
----------------
 
 Install
 ---------------
@@ -22,7 +23,7 @@ The following dependencies should be installed (using a package manager) before 
   - git
   - python-matplotlib
 
-  Morpho can read and save files in either **R** or **root.** If you would like to use root, install root-system or see https://root.cern.
+  Morpho can read and save files in either **R** or **root.** If you would like to use root, install root-system or see https://root.cern (and ensure that morpho and PyROOT use the same version of python).
 
 ### Virtual environment installation ###
 
@@ -43,56 +44,76 @@ The following dependencies should be installed (using a package manager) before 
 
    If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a [**Docker** container](https://docs.docker.com/get-started/) instead of a python virtual environment. To do so:
 
-  - Install Docker: https://docs.docker.com/engine/installation/
-  - Clone and pull the latest master version of morpho
-  - Inside the morpho folder, execute ```docker-compose run morpho```. A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
+  1. Install Docker: https://docs.docker.com/engine/installation/
+  2. Clone and pull the latest master version of morpho
+  3. Inside the morpho folder, execute ```docker-compose run morpho```. A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
   You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under a ```/host``` folder.
-  - You can remove the container image using ```docker rmi morpho_morpho```.
+  4. You can remove the container image using ```docker rmi morpho_morpho```.
 
-   If you develop new features or identify bugs, please open a github issue or email nsoblath@mit.edu.
+   If you develop new features or identify bugs, please open a GitHub issue or email nsoblath@mit.edu.
 
-Running
+
+
+Instructions for Use
+---------------
+### Before You Run Morpho ###
+
+Morpho reads a **configuration file** (.json or .yaml), which determines whether morpho runs a Stan model, what model it should run, and what pre- and/or post-processing operations it should perform. The configuration file also specifies input parameters that the user may wish to change on a run-to-run basis, such as Stan initialization and data-block values and the desired number of Stan iterations. See http://morpho.readthedocs.io/en/latest/morpho.html#an-example-file for more information.
+
+We recommend organizing your directory of configuration files, Stan models and data files like the **examples** folder in morpho. Your directory structure should be of the form:
+
+```bash
+examples
+|
++---analysis_dir1
+|         |
+|         +---data_dir
+|         |       |
+|     	  |	  +---fileA.data
+|	  |       +---fileB.data
+|	  |
+|	  +---model_dir
+|	  |	  |
+|	  |	  +---modelA.stan
+|	  |	  +---modelB.stan
+|	  |
+|	  +---scripts_dir
+|	  	  |
+|	  	  +---configA.yaml
+|	  	  +---configB.yaml
+|
++---analysis_dir2
+|	  |
+...	  ...
+```
+
+### Running Morpho ###
+
+Once you have the relevant data, model and configuration files at your disposal, run morpho by executing:
+```bash
+   morpho --config  /path/to/json_or_yaml_config_file --other_options
+```
+
+You can test morpho using the example in the morpho_test directory:
+```bash
+   morpho --config morpho_test/scripts/morpho_linear_fit.yaml
+```
+
+When you run morpho, it may perform each of the following actions, in this order:
+   1. If data is specified in the configuration file, morpho reads any Stan data parameter values under ```type: mc``` in that file and loads any named R or ROOT files.
+   2. If ```do_preprocessing``` is ```true``` in the configuration file, morpho executes the methods named under ```preprocessing``` in that file. See preprocessing options [here](http://morpho.readthedocs.io/en/latest/preprocessing.html).
+   3. If ```do_Stan``` is ```true```, morpho searches for and uses a cached version of the compiled Stan model file. If the cache file does not exist, morpho compiles the model and creates a new cache file. Morpho then runs Stan, prints out summary statistics regarding posteriors and basic diagnostic information, and outputs results to an R or ROOT file, as specified under ```output``` in the configuration file.
+   4. If ```do_plots``` is ```true```, morpho executes the methods named under ```plot``` in the configuration file to create and save plots. See plotting options [here](http://morpho.readthedocs.io/en/latest/plot.html).
+   5. If ```do_postprocessing``` is ```true```, morpho executes the methods named under ```postprocessing``` in the configuration file and optionally saves results. See post-processing options [here](http://morpho.readthedocs.io/en/latest/postprocessing.html).
+   
+
+"Help will always be given to those who ask for it":
+```bash
+   morpho --help
+```
+
+
+Documentation
 ---------------
 
-  See the documentation on the Stan homepage for more detail about the Stan models.
-  ```bash
-	morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
-  ```
-
-  Essentially, the following takes place.  One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan).  The sequence for events is as follows
-
-  1.  The information relative to the model such as the seed or the algorithm to be used are read from the json/yaml script or from the command line.
-
-  2.  The input files are read into the system.  The input files can be in R, root or hdf5. Input values can be directly given directly in the script.
-
-  3. The script looks for cached versions of the .stan model file.  If not, it generates a new one and saves it.  The cached models exist in the cache directory.
-
-  4.  The model generates sample the Likelihood function defined in the model and save the samplesin the specified directory.  If there is no data, this in principle can be used to generate fake data.
-
-  5.  Postprocessing routines defined in python within the script can occur at the end of the Markov chains in order to generate fake data for example (data_reducer postprocessing).
-
-  6. Very generic plots and screen outputs can be created.
-
-  "Help will always be given to those who ask for it":
-  ```bash
-	morpho --help
-  ```
-
-  An simple example of script and model can be found in the examples folder.
-  You can execute it using:
-  ```bash
-	morpho --config morpho_test/scripts/morpho_linear_fit.yaml
-  ```
-
-Known bugs and solutions
----------------
-
-1.  When running matplotlib in a virtual environment, the following error can be encountered:
-
-    ```
-    Python is not installed as a framework. The Mac OS X backend will not be able to function correctly if Python is not installed as a
-    framework. See the Python documentation for more information on installing Python as a framework on Mac OS X. Please either reinstall
-    Python as a framework, or try one of the other backends. If you are Working with Matplotlib in a virtual enviroment see 'Working with
-    Matplotlib in Virtual environments' in the Matplotlib FAQ.
-    ```
-    A solution is given [here](http://stackoverflow.com/questions/21784641/installation-issue-with-matplotlib-python)
+Hosted at: http://www.project8.org/morpho.

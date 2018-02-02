@@ -7,10 +7,11 @@ Dependencies
 
 The following dependencies should be installed (using a package manager) before installing morpho:
 
-python (2.7.x; 3.x not yet supported)
-python-pip
-git
-python-matplotlib
+1) python (2.7.x; 3.x not yet supported)
+2) python-pip
+3) git
+4) python-matplotlib
+
 Morpho can read and save files in either R or root. If you would like to use root, install root-system or see https://root.cern.
 
 Virtual environment installation

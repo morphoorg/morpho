@@ -1,53 +1,65 @@
-Requirements
-======
-
-  You will need to install via a package manager (such as apt-get):    
-  * python (2.7.x; 3.x not supported)   
-  * python-matplotlib   
-  * python-pip   
-  * git   
-
-  To read and save files, you will need either hdf5 or root:   
-  * **hdf5:** libhdf5-serial-dev libhdf5-dev 
-  * **root:** root-system from apt-get or sources from https://root.cern (with python enabled).   
-
-  PyStan (see http://mc-stan.org/pystan.html) (a Python implementation of Stan) needs to be installed (version 2.15).
-  Using the following installation methods should take care of this requirement.
-
-
-Installation Instructions
 ------------------
+ Installation Instructions
+------------------
+
+Dependencies
+------------------
+
+The following dependencies should be installed (using a package manager) before installing morpho:
+
+python (2.7.x; 3.x not yet supported)
+python-pip
+git
+python-matplotlib
+Morpho can read and save files in either R or root. If you would like to use root, install root-system or see https://root.cern.
 
 Virtual environment installation
 
-  PyStan and the required packages may be installed from the Python Index Package using pip inside a virtual environment.
+We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, include PyStan 2.15.
 
-  1.  virtualenv ~/path/to/the/virtualenvironment/env
-  2.  source ~/path/to/the/virtualenvironment/env/bin/activate
-  3.  pip install -U pip # must update pip to >= 7.0.0
-  4.  Go inside the morpho repository
-  5.  pip install .
-  6.  pip install .[all]
-      
-  Once all the required packages are installed on the virtualenvironment, one can load it using
+If necessary, install virtualenv, then execute:
 
-  source ~/path/to/the/virtualenvironment/env/bin/activate
-
+  virtualenv ~/path/to/the/virtualenvironment
+  source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment.
+  #Use```bash deactivate``` to exit the environment.
+  pip install -U pip # Update pip to >= 7.0.0
+  cd ~/path/to/morpho
+  pip install .
+  pip install .[all]
 Docker installation
 
-   Docker provides a uniform test bed for development and bug testing. Please use this environment to testing/resolving bugs.
+If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a Docker container instead of a python virtual environment. To do so:
 
-   1. Install Docker (Desktop version): https://docs.docker.com/engine/installation/
-   2. Clone and pull the latest master version of morpho
-   3. Go inside morpho folder
-   4. Execute docker-compose run morpho.
+Install Docker: https://docs.docker.com/engine/installation/
+Clone and pull the latest master version of morpho
+Inside the morpho folder, execute docker-compose run morpho. A new terminal prompter (for example, root@413ab10d7a8f:) should appear. You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the morpho_share directory that is mounted under a /host folder.
+You can remove the container image using docker rmi morpho_morpho.
+If you develop new features or identify bugs, please open a github issue or email nsoblath@mit.edu.
 
-The container prompter should appear at the end of the installation. A directory (morpho_share) should be created in your home and mounted under the /host folder: you can modify this by editing the docker-compose file.
+------------------
+ Running
+------------------
 
-When reinstalling, you can remove the image using docker rmi morpho_morpho
+See the documentation on the Stan homepage for more detail about the Stan models.
 
+  morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
+Essentially, the following takes place. One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan). The sequence for events is as follows
 
+The information relative to the model such as the seed or the algorithm to be used are read from the json/yaml script or from the command line.
 
-  
+The input files are read into the system. The input files can be in R, root or hdf5. Input values can be directly given directly in the script.
 
-  
+The script looks for cached versions of the .stan model file. If not, it generates a new one and saves it. The cached models exist in the cache directory.
+
+The model generates sample the Likelihood function defined in the model and save the samplesin the specified directory. If there is no data, this in principle can be used to generate fake data.
+
+Postprocessing routines defined in python within the script can occur at the end of the Markov chains in order to generate fake data for example (data_reducer postprocessing).
+
+Very generic plots and screen outputs can be created.
+
+"Help will always be given to those who ask for it":
+
+  morpho --help
+An simple example of script and model can be found in the examples folder. You can execute it using:
+
+  morpho --config morpho_test/scripts/morpho_linear_fit.yaml

@@ -7,7 +7,7 @@ diagnostic tests, usualluy after the Stan main executable has been run.
 
 ::
    morpho:
-    do_plots: true
+     do_plots: true
 
 Later in the configuration file, you can set up the commands to
 plot data after the fitter is complete.

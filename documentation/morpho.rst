@@ -30,3 +30,43 @@ Let us start with the initiation portion of the configuration.
    do_postprocessing: False
    do_plots: True
   
+Under the morpho block, you can select how the processors will be
+run.  In this case, it will run the main Stan function and produce
+plots at the end of processing.
+
+Next, we come to the main Stan configuration block, where both running
+conditions, data and parameters can be fed into the Stan model.
+::
+   stan:
+   name: "morpho_test"
+   model:
+      file: "./morpho_test/models/morpho_linear_fit.stan"
+      function_file: None
+      cache: "./morpho_test/cache"
+    data:
+      files:
+      - name: "./morpho_test/data/input.data"
+         format: "R"
+      parameters: 
+       - N: 30
+    run:
+      algorithm: "NUTS"
+      iter: 4000
+      warmup: 1000
+      chain: 12
+      n_jobs: 2
+      init:
+       - slope : 2.0
+         intercept : 1.0
+         sigma: 1.0
+    output:
+      name: "./morpho_test/results/morpho_linear_fit"
+      format: "root"
+      tree: "morpho_test"
+      inc_warmup: False
+      branches:
+      - variable: "slope"
+        root_alias: "a"
+      - variable: "intercept"
+        root_alias: "b"
+

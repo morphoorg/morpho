@@ -31,7 +31,8 @@ The following dependencies should be installed (using a package manager) before 
   If necessary, install virtualenv, then execute:
   ```bash
 	virtualenv ~/path/to/the/virtualenvironment
-	source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment. Use```bash deactivate``` to exit the environment.
+	source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment.
+	#Use```bash deactivate``` to exit the environment.
 	pip install -U pip # Update pip to >= 7.0.0
 	cd ~/path/to/morpho
 	pip install .
@@ -40,12 +41,12 @@ The following dependencies should be installed (using a package manager) before 
 
 ### Docker installation ###
 
-   If you would like to modify your local installation of morpho (including working to resolve any bugs), we recommend you use a [**Docker** container](https://docs.docker.com/get-started/) instead of a python virtual environment.
+   If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a [**Docker** container](https://docs.docker.com/get-started/) instead of a python virtual environment. To do so:
 
   - Install Docker: https://docs.docker.com/engine/installation/
   - Clone and pull the latest master version of morpho
   - Inside the morpho folder, execute ```docker-compose run morpho```. A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
-  A directory (```morpho_share```) should be created in your home and mounted under the ```/host``` folder. You can modify this by editing the docker-compose file.
+  You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under a ```/host``` folder.
   - You can remove the container image using ```docker rmi morpho_morpho```.
 
    If you develop new features or identify bugs, please open a github issue or email nsoblath@mit.edu.

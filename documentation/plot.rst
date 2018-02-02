@@ -25,8 +25,7 @@ the *a* parameter plot and save it to ./morpho_test/results/histo_a.pdf
 
 We have plotting schemes that cover a number of functions:
 
-1)  Plotting contours, densities, and matricies (often to look for
-  correlations).
+1)  Plotting contours, densities, and matricies (often to look for correlations).
   
 2)  Time series to study convergences.
 

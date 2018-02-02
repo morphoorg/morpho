@@ -14,8 +14,9 @@ Stan:     http://mc-stan.org
 
 PyStan: https://pystan.readthedocs.io/en/latest/index.html
 
+
 An Example File
-========================================
+------------------
 
 The format allows the user to execute Stan using standarized scripts.
 Let us now take apart an example file to illustrate how morpho

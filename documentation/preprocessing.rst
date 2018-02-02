@@ -8,24 +8,19 @@ in advance of fitting.
 
 Preprocessing can be set as a flag in the beginning of the
 configuration file.  As an example
+
 ::
 morpho:
-
-do_preprocessing: true
-
-do_stan: true
-
-do_plots: true
-
-do_postprocessing: false
-
-wait_at_the_end: false 
-
+    do_preprocessing: true
 
 Later in the configuration file, you can set up the commands to
-pre-process data::
+pre-process data
+::
 
-which_pp:
+preprocessing:
+
+   which_pp:
+   
     - method_name: bootstrapping
 
       module_name: resampling

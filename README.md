@@ -2,16 +2,16 @@ morpho
 ======
 
    Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation. It is especially useful for
-  A) Generating **pseudo data**, and
-  B) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
+  1) Generating **pseudo data**, and
+  2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
 
 Morpho interfaces with Stan using [Pystan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
 
 _Why morpho?_
-  1. Morpho **streamlines Stan analyses**. It enables users to load data, run Stan, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](http://morpho.readthedocs.io/en/latest/morpho.html#an-example-file).
-  2. Morpho helps users organize and run multiple related Stan models (for example, models that share input data and Stan functions).
-  3. Morpho **minimizes the need to recompile** Stan models by using cache files.
-  4. Morpho automatically **performs convergence checks** after running Stan, and it provides additional options for convergence analysis and plotting.
+  - Morpho **streamlines Stan analyses**. It enables users to load data, run Stan, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](http://morpho.readthedocs.io/en/latest/morpho.html#an-example-file).
+  - Morpho helps users organize and run multiple related Stan models (for example, models that share input data and Stan functions).
+  - Morpho **minimizes the need to recompile** Stan models by using cache files.
+  - Morpho automatically **performs convergence checks** after running Stan, and it provides additional options for convergence analysis and plotting.
 
 
 Install

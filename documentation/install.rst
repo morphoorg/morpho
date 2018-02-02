@@ -37,7 +37,6 @@ Inside the morpho folder, execute docker-compose run morpho. A new terminal prom
 You can remove the container image using docker rmi morpho_morpho.
 If you develop new features or identify bugs, please open a github issue or email nsoblath@mit.edu.
 
-------------------
  Running
 ------------------
 

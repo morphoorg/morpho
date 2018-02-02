@@ -1,7 +1,7 @@
 morpho
 ======
 
-   Morpho bridges between Stan and data input as well as output. It employs Pystan (see http://mc-stan.org/pystan.html), a python interface to Stan.
+   Morpho bridges between Stan, a platform for Bayesian statistical modeling and computation, and data input/output. It employs Pystan (see http://mc-stan.org/pystan.html), a python interface to Stan.
 
 Discuss value of morpho.
 
@@ -14,7 +14,7 @@ Directory Structure
 Install
 ---------------
 
-###Dependencies###
+### Dependencies ###
 
 The following dependencies should be installed (using a package manager) before installing morpho:
   - python (2.7.x; 3.x not yet supported)
@@ -24,7 +24,7 @@ The following dependencies should be installed (using a package manager) before 
 
   Morpho can read and save files in either **R** or **root.** If you would like to use root, install root-system or see https://root.cern.
 
-###Virtual environment installation###
+### Virtual environment installation ###
 
   We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, include PyStan 2.15.
   
@@ -38,7 +38,7 @@ The following dependencies should be installed (using a package manager) before 
 	pip install .[all]
   ```
 
-###Docker installation###
+### Docker installation ###
 
    If you would like to modify your local installation of morpho (including working to resolve any bugs), we recommend you use a [**Docker** container](https://docs.docker.com/get-started/) instead of a python virtual environment.
 

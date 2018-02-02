@@ -22,10 +22,11 @@ Let us now take apart an example file to illustrate how morpho
 functions.  You can find the example file in::
   morpho/examples/morpho_test/scripts/morpho_linear_fit.yaml
 
-Let us start with the initiation portion of the configuration::
+Let us start with the initiation portion of the configuration.
+::
   morpho:
-  do_preprocessing: False
-  do_stan: True
-  do_postprocessing: False
-  do_plots: True
+   do_preprocessing: False
+   do_stan: True
+   do_postprocessing: False
+   do_plots: True
   

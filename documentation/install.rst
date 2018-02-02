@@ -58,9 +58,8 @@ Postprocessing routines defined in python within the script can occur at the end
 
 Very generic plots and screen outputs can be created.
 
-"Help will always be given to those who ask for it":
+"Help will always be given to those who ask for it"::
+morpho --help
 
-  morpho --help
-An simple example of script and model can be found in the examples folder. You can execute it using:
-
-  morpho --config morpho_test/scripts/morpho_linear_fit.yaml
+An simple example of script and model can be found in the examples folder. You can execute it using::
+morpho --config morpho_test/scripts/morpho_linear_fit.yaml

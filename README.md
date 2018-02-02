@@ -2,8 +2,9 @@ morpho
 ======
 
    Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation. It is especially useful for:
+   
    A) Generating **pseudo data**, and
-   B) Performing ***Bayesian statistical analyses*** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
+   B) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
 
 Morpho interfaces with Stan using [Pystan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
 

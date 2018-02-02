@@ -70,3 +70,19 @@ conditions, data and parameters can be fed into the Stan model.
       - variable: "intercept"
         root_alias: "b"
 
+The model block allows you to load in your Stan model file (for more
+on Stan models, see PyStan or Stan documentations).  The compiled code
+can be cached to reduce running time.  It is also possible to load in
+*external*  functions located in separated files elsewhere.
+
+The next block, the data block, reads in data.  File formats include
+R and root.  One can also load in parameters directly using the
+parameters block, as we do for the variable *N*.
+
+The next block, the run block, allows one to control how Stan is run
+(number of chains, warmup, algorithms, etc.).  Initializations can
+also be set here.  This block feeds directly into PyStan.
+
+The last block within the Stan block is the output.  In this example,
+we save to a root file, and maintain two variables, a and b.
+

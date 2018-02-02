@@ -17,8 +17,7 @@ Virtual environment installation
 
 We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, include PyStan 2.15.
 
-If necessary, install virtualenv, then execute:
-
+If necessary, install virtualenv, then execute::
   virtualenv ~/path/to/the/virtualenvironment
   source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment.
   #Use```bash deactivate``` to exit the environment.
@@ -26,6 +25,7 @@ If necessary, install virtualenv, then execute:
   cd ~/path/to/morpho
   pip install .
   pip install .[all]
+  
 Docker installation
 
 If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a Docker container instead of a python virtual environment. To do so:

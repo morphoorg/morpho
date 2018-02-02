@@ -12,3 +12,4 @@ Contents:
     preprocessing
     postprocessing
     plot
+    better_apidoc_out/modules

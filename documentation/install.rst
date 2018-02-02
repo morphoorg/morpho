@@ -58,7 +58,7 @@ Postprocessing routines defined in python within the script can occur at the end
 
 Very generic plots and screen outputs can be created.
 
-"Help will always be given to those who ask for it"::
+"Help will always be given to those who ask for it"  ::
   morpho --help
 
 An simple example of script and model can be found in the examples

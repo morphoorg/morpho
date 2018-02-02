@@ -1,4 +1,18 @@
-# Definitions for loading and using pystan for analysis using root or hdf5
+"""Import root and hdf5 files for use by pystan
+
+Functions:
+    readLabel: Get an item from a dictionary
+    insertIntoDataStruct: Insert item into dictionary
+    theHack: Format a string
+    stan_data_files: Read in a dictionary of data files
+    extract_data_from_output_data: Extract stan output into a dictionary
+    open_or_create: Create a group in an hdf5 object
+    write_result_hdf5: Write stan results to an hdf5 file
+    theTrick: Transform dictionary into items with depth indicated by "."
+    transform_list_of_dict_into_dict:  Transform a list into a dictionary
+    build_tree_from_dict: Create a root TTree object from a dictionary
+    stan_write_root: Save stan inputs and outputs into a root file
+"""
 
 import logging
 logger = logging.getLogger(__name__)
@@ -22,13 +36,33 @@ import array
 import bisect
 
 def readLabel(aDict, name, default=None):
+    """Get an item from a dictionary, or return default
+
+    Args:
+        aDict: Dictionary to search
+        name: Key used to search aDict
+        default: Default value returned if the given key does not exist.
+            Defaults to None.
+
+    Returns:
+        aDict[name], or default if name does not exist
+    """
     if not name in aDict:
         return default
     else :
         return aDict[name]
 
-# Inserting data into dict
 def insertIntoDataStruct(name,aValue,aDict):
+    """Insert an item into a dictionary
+
+    Args:
+        name: Key used to insert item
+        aValue: Value to insert
+        aDict: Dictionary value is inserted into
+    
+    Returns:
+        aDict with aValue inserted at name
+    """
     if not name in aDict:
         aDict[name] = [aValue]
     else:
@@ -36,6 +70,8 @@ def insertIntoDataStruct(name,aValue,aDict):
 
 # execute the command of several combined strings
 def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
+    """
+    """
     theResult = str(theString.format(theVariable,theSecondVariable,theThirdVariable))
     return theResult
 

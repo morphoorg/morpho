@@ -18,6 +18,7 @@ Morpho
 An Example File
 ========================================
 
+The format allows the user to execute Stan using standarized scripts.
 Let us now take apart an example file to illustrate how morpho
 functions.  You can find the example file in::
   morpho/examples/morpho_test/scripts/morpho_linear_fit.yaml
@@ -84,5 +85,27 @@ The next block, the run block, allows one to control how Stan is run
 also be set here.  This block feeds directly into PyStan.
 
 The last block within the Stan block is the output.  In this example,
-we save to a root file, and maintain two variables, a and b.
+we save to a root file, and maintain two variables, *a* and *b*.
+
+Since we specified the configure file to also make some plots, we can
+set up those conditions as well.  In our example again, we have::
+  plot:
+   which_plot:
+    - method_name: histo
+      module_name: histo
+      title: "histo"
+      input_file_name : "./morpho_test/results/morpho_linear_fit.root"
+      input_tree: "morpho_test"
+      output_path: ./morpho_test/results/
+      data:
+        - a
+
+The plot saves a PDF of the variable *a* based on the root file
+results.
+
+The flow is thus as follows.  Morpho is told to execute Stan and its
+plotting features.  The Stan execution reads in external data and sets
+the running in much the same way as PyStan does.  Results are then
+saved to the results folder (in this case, under root files).  Plots
+are also executed to ensure the quality of results.
 

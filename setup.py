@@ -38,9 +38,8 @@ print(requirements)
 setup(
     name='morpho',
     version=verstr,
-    packages=['morpho', 'morpho/utilities', 'morpho/processors'],
-    # packages=['morpho', 'morpho/loader','morpho/plot','morpho/preprocessing','morpho/postprocessing'],
-    scripts=['bin/morpho','bin/BasicTest'],
+    packages=['morpho', 'morpho/loader','morpho/plot','morpho/preprocessing','morpho/postprocessing'],
+    scripts=['bin/morpho'],
     install_requires=requirements,
     extras_require=extras_require,
     url='http://www.github.com/project8/morpho',

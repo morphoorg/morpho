@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 try:
     import ROOT as root
-except:
+except ImportError:
     pass
 
 def bootstrapping(param_dict):

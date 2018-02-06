@@ -33,7 +33,7 @@ except ImportError:
 try:
     import pystan
     import numpy as np
-except:
+except ImportError:
     pass
 import array
 import bisect

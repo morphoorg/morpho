@@ -23,18 +23,18 @@ try:
     mpl.rc('xtick', labelsize=8)
     import matplotlib.pyplot as plt
     from pylab import *
-except:
+except ImportError:
     pass
     
 # Adaptable import
 try:
     #python2
     import plotting_routines as pr
-except:
+except ImportError:
     try:
         #python3
         from . import plotting_routines as pr
-    except:
+    except ImportError:
         pass
 
 

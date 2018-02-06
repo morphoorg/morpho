@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
-except:
+except ImportError:
     pass
 from array import array
 import re

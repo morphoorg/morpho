@@ -31,17 +31,17 @@ try:
     import matplotlib.cm as cm
     from matplotlib.colors import LogNorm
     from pylab import *
-except:
+except ImportError:
     pass
 # Adaptable import
 try:
     #python2
     import plotting_routines as pr
-except:
+except ImportError:
     try:
         #python3
         from . import plotting_routines as pr
-    except:
+    except ImportError:
         pass
 
 def plot_neutrino_masses(param_dict, ModelFit, data):

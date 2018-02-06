@@ -20,7 +20,7 @@ Functions:
 try:
     import pystan
     import numpy
-except:
+except ImportError:
     pass
 import pickle
 

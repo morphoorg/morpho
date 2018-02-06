@@ -16,7 +16,7 @@ To do:
 
 try:
     import ROOT as ROOT
-except:
+except ImportError:
     pass
 import cmath as math
 from array import array

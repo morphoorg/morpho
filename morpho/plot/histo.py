@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 try:
     import ROOT as ROOT
     import numpy as np
-except:
+except ImportError:
     pass
 import cmath as math
 from array import array

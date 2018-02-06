@@ -25,7 +25,6 @@ def X():
 #     import ROOT
 # except ImportError:
 #     logger.debug("Cannot import ROOT")
-#     raise
 #     pass
 
 # try:

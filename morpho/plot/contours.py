@@ -37,7 +37,7 @@ try:
     import matplotlib.cm as cm
     from matplotlib.colors import LogNorm
     from pylab import *
-except:
+except ImportError:
     pass
 
 def uniquify(path, sep = ''):

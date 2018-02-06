@@ -27,18 +27,21 @@ import re
 import random
 import ast
 
-import pystan
+try:
+    import pystan
+    import pickle
+    import colorlog
+    from yaml import load as yload
+except:
+    pass
 
-from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
 
-import pickle
 from hashlib import md5
 import importlib
 
 import logging
-import colorlog
 
 
 def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,

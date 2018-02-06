@@ -6,8 +6,10 @@ Functions:
 
 import logging
 logger = logging.getLogger(__name__)
-
-import ROOT as root
+try:
+    import ROOT as root
+except:
+    pass
 
 def bootstrapping(param_dict):
     """

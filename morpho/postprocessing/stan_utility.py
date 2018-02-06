@@ -17,8 +17,10 @@ Functions:
     partition_div: Get divergent and non-divergent parameter arrays
     compile_model: Cache Stan model
 """
-
-import pystan
+try:
+    import pystan
+except:
+    pass
 import pickle
 import numpy
 

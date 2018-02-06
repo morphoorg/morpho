@@ -14,7 +14,10 @@ To do:
     - Clean up
 """
 
-import ROOT as ROOT
+try:
+    import ROOT as ROOT
+except:
+    pass
 import cmath as math
 from array import array
 import re

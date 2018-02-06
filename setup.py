@@ -26,7 +26,6 @@ extras_require = {
 if on_rtd:
     requirements.append('better-apidoc')
     requirements += extras_require['doc']
-    requirements += extras_require['core']
 else:
     requirements = extras_require['core']
 

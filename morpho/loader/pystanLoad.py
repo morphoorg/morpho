@@ -30,9 +30,11 @@ try:
 except ImportError:
     logger.debug("Cannot import h5py")
     pass
-
-import pystan
-import numpy as np
+try:
+    import pystan
+    import numpy as np
+except:
+    pass
 import array
 import bisect
 

@@ -26,8 +26,10 @@ correlation factor between each pair of variables.
 
 import logging
 logger = logging.getLogger(__name__)
-
-import ROOT as ROOT
+try:
+    import ROOT as ROOT
+except:
+    pass
 import cmath as math
 from array import array
 import re

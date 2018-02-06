@@ -41,8 +41,10 @@ Below is a  to-do list:
 import logging
 logger = logging.getLogger(__name__)
 
-
-import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
+try:
+    import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
+except:
+    pass
 from array import array
 import re
 import random

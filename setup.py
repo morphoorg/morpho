@@ -38,7 +38,7 @@ print(requirements)
 setup(
     name='morpho',
     version=verstr,
-    packages=['morpho', 'morpho/loader'],#,'morpho/plot','morpho/preprocessing','morpho/postprocessing'],
+    packages=['morpho', 'morpho/loader','morpho/plot','morpho/preprocessing','morpho/postprocessing'],
     scripts=['bin/morpho'],
     install_requires=requirements,
     extras_require=extras_require,

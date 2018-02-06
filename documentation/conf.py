@@ -47,7 +47,7 @@ better_apidoc.main([
     '--force', # overwrite existing files
     '--separate', # split the modules into their own files
     '-o', 'better_apidoc_out', # output location, be sure to update index.rst if you change this
-    '../morpho', # path to the package containing modules to document ##TODO update this with your path
+    # '../morpho', # path to the package containing modules to document ##TODO update this with your path
     ])
 
 todo_include_todos = True

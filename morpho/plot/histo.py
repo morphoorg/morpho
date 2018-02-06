@@ -28,13 +28,13 @@ import logging
 logger = logging.getLogger(__name__)
 try:
     import ROOT as ROOT
+    import numpy as np
 except:
     pass
 import cmath as math
 from array import array
 import re
 import uuid
-import numpy as np
 
 
 def histo(param_dict):

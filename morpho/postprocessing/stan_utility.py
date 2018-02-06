@@ -19,10 +19,10 @@ Functions:
 """
 try:
     import pystan
+    import numpy
 except:
     pass
 import pickle
-import numpy
 
 
 def check_div(fit):

@@ -181,9 +181,9 @@ class morpho(object):
 
             # batch identification
             if isinstance(args.job_id,(int,float,str)):
-                self.seed=int(args.job_id)
+                self.job_id = str(args.job_id)
             else:
-                self.job_id = 0
+                self.job_id = None
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
@@ -351,7 +351,7 @@ def parse_args():
                    required=True)
     p.add_argument('--job_id',
                    metavar='<job_id>',
-                   help='Job id number for batching',
+                   help='Job id number or string for batching',
                    required=False)
     p.add_argument('-s','--seed',
                    metavar='<seed>',
@@ -454,7 +454,7 @@ def write_result(conf, stanres, input_param):
     if not os.path.exists(rdir):
         os.makedirs(rdir)
         logger.info("Creating 'results' folder: {}".format(rdir))
-    if (conf.job_id>0):
+    if (not conf.job_id is None):
         ofilename = ofilename+'_'+conf.job_id
     if conf.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'

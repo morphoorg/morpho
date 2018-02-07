@@ -26,11 +26,11 @@ install:
   - conda info -a # Useful for debugging any issues with conda
   - conda config --add channels http://conda.anaconda.org/NLeSC  
   - conda config --set show_channel_urls yes
-  - conda create -q -n testenv python=${PYTHON} root=${ROOT}
+  - conda create -q -n testenv python=${PYTHON} root=${ROOT} pip=${PIP}
   - export CONDA_ENV_PATH=$HOME/miniconda/envs/testenv
   - source activate testenv
-# command to install dependencies
-  - ${PIP} install .
+# command to install dependencies and morpho
+  - pip install .
 # command for post installation
 script:
   - cd examples && morpho -c morpho_test/scripts/morpho_linear_fit.yaml

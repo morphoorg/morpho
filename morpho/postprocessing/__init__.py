@@ -1,9 +1,9 @@
 """Perform preprocessing routines designed to run before Stan
 
 Modules:
-    data_reducer: 
-    general_data_reducer:
-    stan_utility: Perform Stan diagnostic tests
+  - data_reducer:
+  - general_data_reducer:
+  - stan_utility: Perform Stan diagnostic tests
 """
 
 from __future__ import absolute_import

@@ -89,16 +89,16 @@ def stan_data_files(theData):
     follows:
 
     Args:
-      - theData.files.name: Name of the file to access
-      - theData.files.format: Filetype. Options are 'R', 'root' or 'hdf5'
-      - theData.files.datasets: List of datasets to be used when accessing\
-      an hdf5 file (required only if 'format'=='hdf5')
-      - theData.files.tree: Name of tree to access when accessing a root file\
-    (required only if 'format'=='root')
-      - theData.files.branches: Branches to be accessed in the given root tree
-                (required only if 'format'=='root')
-      - theData.files.cut: String specifying the cut for a root file (optional)
-      - theData.parameters: All values from this list are added to\
+        theData.files.name: Name of the file to access
+        theData.files.format: Filetype. Options are 'R', 'root' or 'hdf5'
+        theData.files.datasets: List of datasets to be used when accessing
+            an hdf5 file (required only if 'format'=='hdf5')
+        theData.files.tree: Name of tree to access when accessing a root
+            file (required only if 'format'=='root')
+        theData.files.branches: Branches to be accessed in the given root
+            tree (required only if 'format'=='root')
+        theData.files.cut: String specifying the cut for a root file (optional)
+        theData.parameters: All values from this list are added to
             the returned list
 
     Returns:
@@ -473,7 +473,7 @@ def theTrick(thedict,uppertreename=""):
     
     Returns:
         dictionary: Depth one dictionary containing the same values,
-            with key names equal to the path through thedict
+        with key names equal to the path through thedict
     """
     newdict = {}
     for key,value in thedict.items():
@@ -497,7 +497,7 @@ def transform_list_of_dict_into_dict(thedict):
 
     Returns:
        dictionary: the dict, with any elements that are lists separated
-           into separate dictionary entries
+       into separate dictionary entries
     '''
 
     result_dict = {}
@@ -608,7 +608,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     Returns:
         None: The given theOutput and input_param values are saved to a
-            root file named theFileName.
+        root file named theFileName.
     """
     logger.debug("Creating ROOT file {}".format(theFileName))
     if conf.out_option:

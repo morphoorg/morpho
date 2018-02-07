@@ -1,4 +1,5 @@
-"""Import root and hdf5 files for use by pystan
+"""
+Import root and hdf5 files for use by pystan
 
 Functions:
     readLabel: Get an item from a dictionary
@@ -22,7 +23,6 @@ try:
     import ROOT
 except ImportError:
     logger.debug("Cannot import ROOT")
-    raise
     pass
 
 try:
@@ -30,9 +30,11 @@ try:
 except ImportError:
     logger.debug("Cannot import h5py")
     pass
-
-import pystan
-import numpy as np
+try:
+    import pystan
+    import numpy as np
+except ImportError:
+    pass
 import array
 import bisect
 

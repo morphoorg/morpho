@@ -27,18 +27,21 @@ import re
 import random
 import ast
 
-import pystan
+try:
+    import pystan
+    import pickle
+    import colorlog
+    from yaml import load as yload
+except ImportError:
+    pass
 
-from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
 
-import pickle
 from hashlib import md5
 import importlib
 
 import logging
-import colorlog
 
 
 def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,
@@ -448,7 +451,10 @@ def plot_result(conf, stanres):
 
 def write_result(conf, stanres, input_param):
     logger.info("Writing results!")
-    from morpho.loader import pystanLoad as pyL
+    try:
+        from morpho.loader import pystanLoad as pyL
+    except ImportError:
+        pass
     ofilename = conf.out_fname
     rdir = os.path.dirname(ofilename)
     if not os.path.exists(rdir):
@@ -625,10 +631,16 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
             try:
                 logger.info("Doing MC with Stan")
                 if sa.datafiles is not None:
-                    from morpho.loader import pystanLoad as pyL
+                    try:
+                        from morpho.loader import pystanLoad as pyL
+                    except ImportError:
+                        pass
                     sa.data = pyL.stan_data_files(sa.datafiles)
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
-                from morpho.postprocessing import stan_utility as util
+                try:
+                    from morpho.postprocessing import stan_utility as util
+                except ImportError:
+                    pass
                 checks = util.check_all_diagnostics(result)
                 logger.info('Result of the sampling: \n{}'.format(result))
                 logger.info('Diagnostic info: \n' + checks)

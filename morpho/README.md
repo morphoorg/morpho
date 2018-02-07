@@ -16,7 +16,7 @@ See http://morpho.readthedocs.io/en/latest/better_apidoc_out/morpho.loader.html.
 preprocessing
 ---------------
 Preprocessing scripts create new Stan inputs from loaded data.
- - ```resampling.py```: Resamples the content of a ROOT tree using a bootstrap randomization technique
+ - ```resampling.py```: Resamples the contents of a ROOT tree using bootstrapping or JackKnife randomization techniques. One may wish to perform an analysis on many similar sets of pseudo-data. To forestall the need to generate data repeatedly, ```resampling.py``` either creates a slightly larger data set using the original set, then extracts a subset (bootstraping) or randomly selects a subset from the original set (JackKnife).
 
 See http://morpho.readthedocs.io/en/latest/better_apidoc_out/morpho.preprocessing.html.
 
@@ -51,6 +51,15 @@ See http://morpho.readthedocs.io/en/latest/better_apidoc_out/morpho.plot.html.
 
 postprocessing
 ---------------
+Postprocessing scripts create new outputs using the results of a Stan analysis, or they provide relevant information based on those results.
 
+ - ```data_reducer.py```—Bins spectra data from a ROOT file. Deprecated; to be removed.
+ 
+ - ```general_data_reducer.py```—Bins data points (creates a histogram) and saves the result to an output file (currently, only ROOT is supported). A user may select the following method in the configuration file:
+  * ```general_data_reducer```—Creates and saves a histogram from one data array.
+  
+ - ```stan_utility.py```—Contains modules that perform quick diagnostic tests and that facilitate plotting designed to help diagnose whether the model has converged. Adapted from Michael Betancourt's script at https://github.com/betanalpha/jupyter_case_studies/blob/master/pystan_workflow/stan_utility.py.
+  * ```check_all_diagnostics```: This is called automatically whenever Stan runs, and it prints quick checks of five diagnostics to the screen. If any of checks indicate a failure to converge, the user should investigate the source of the problem. For help interpreting the diagnostics, see [Betancourt's "Robust Statistical Workflow with PyStan"](http://mc-stan.org/users/documentation/case-studies/pystan_workflow.html).
+  * ```partition_div```: Returns Stan parameter arrays separated into divergent and non-divergent transitions. We intend to employ this function to facilitate the creation of plots like those produced by ```histo2D_divergence``` (see above).
 
-See http://morpho.readthedocs.io/en/latest/better_apidoc_out/morpho.postprocessing.html
+See http://morpho.readthedocs.io/en/latest/better_apidoc_out/morpho.postprocessing.html.

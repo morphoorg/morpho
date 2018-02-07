@@ -19,7 +19,6 @@
 To do (for myself):
     Allow for more flexible and/or user defined ranges for plots of parameters.
     Allow for more flexible contour level inputs.
-    Create a separate contour module.
     Clean up error messages.
 """
 
@@ -43,7 +42,7 @@ except:
     except:
         pass
 
-def plot_neutrino_masses(param_dict, ModelFit, data):
+def _plot_neutrino_masses(param_dict, ModelFit, data):
     """
     Creates, saves, and displays a plot of overlayed distributions
     for the three neutrino masses.
@@ -70,7 +69,7 @@ def plot_neutrino_masses(param_dict, ModelFit, data):
     plt.show()
 
 
-def plot_mass_params(param_dict, ModelFit, data):
+def _plot_mass_params(param_dict, ModelFit, data):
     """
     Creates, saves, and displays an image with three subplots:
     1) Stan distribution of m_beta.
@@ -114,7 +113,7 @@ def plot_mass_params(param_dict, ModelFit, data):
     plt.show()
 
 
-def plot_mixing_params(param_dict, ModelFit, data):
+def _plot_mixing_params(param_dict, ModelFit, data):
     """
     Creates, saves, and displays an image containing parameter
     distribtion plots and Stan sampling plots (parameter value vs.
@@ -140,7 +139,7 @@ def plot_mixing_params(param_dict, ModelFit, data):
     plt.show()
 
 
-def plot_contours(analysis_params, param_dict, data):
+def _plot_contours(analysis_params, param_dict, data):
     """
     Combines distributions from pairs of parameters to create 2D
     histograms.
@@ -234,7 +233,7 @@ def neutrino_params(param_dict):
     #Plotting neutrino mass distributions
     if 'neutrino_masses' in plotting_options:
         if 'nu_mass' in data and data['nu_mass']!='':
-            plot_neutrino_masses(param_dict, ModelFit, data)
+            _plot_neutrino_masses(param_dict, ModelFit, data)
 
         else:
             print("Cannot plot neutrino_masses if parameter 'nu_mass' is not specified in param_dict['data'].")
@@ -249,13 +248,13 @@ def neutrino_params(param_dict):
             print("Cannot plot mass_params if parameter 'min_mass' is not specified in param_dict['data'].")
 
         else:
-            plot_mass_params(param_dict, ModelFit, data)
+            _plot_mass_params(param_dict, ModelFit, data)
     
     #Plotting neutrino mixing parameter distributions
     if 'mixing_params' in plotting_options:
 
         if 'sin2_th12' and 'sin2_th13' and 'delta_m21' and 'delta_m32' and 'm32_withsign' in data:
-            plot_mixing_params(param_dict, ModelFit, data)
+            _plot_mixing_params(param_dict, ModelFit, data)
         else:
             print("Cannot plot mixing_params if not all mixing parameters specified in param_dict['data']")
 
@@ -264,7 +263,7 @@ def neutrino_params(param_dict):
     if 'contours' in plotting_options:
     
         if 'delta_m21' and 'sin2_th12' and 'sin2_th13' in data:
-            plot_contours(analysis, param_dict, data)
+            _plot_contours(analysis, param_dict, data)
 
         else:
             print("Cannot plot contours if 'delta_m21', 'sin2_th12', or 'sin2_th13' are not specified in param_dict['data'].")

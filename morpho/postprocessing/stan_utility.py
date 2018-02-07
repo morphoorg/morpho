@@ -1,5 +1,5 @@
 # Source: Michael Betancourt,
-# jupyter_case_studies/pystan_workflow/stan_utility.py 
+# https://github.com/betanalpha/jupyter_case_studies/blob/master/pystan_workflow/stan_utility.py
 # Modified by Talia Weiss, 1-23-18
 
 import pystan
@@ -7,7 +7,7 @@ import pickle
 import numpy
 
 
-def check_div(fit):
+def _check_div(fit):
     """Check transitions that ended with a divergence"""
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     divergent = [x for y in sampler_params for x in y['divergent__']]
@@ -20,7 +20,7 @@ def check_div(fit):
         return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
             100 * n / N))
 
-def check_treedepth(fit, max_depth = 10):
+def _check_treedepth(fit, max_depth = 10):
     """Check transitions that ended prematurely due to maximum tree depth limit"""
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     depths = [x for y in sampler_params for x in y['treedepth__']]
@@ -33,7 +33,7 @@ def check_treedepth(fit, max_depth = 10):
         return(('{} of {} iterations saturated the maximum tree depth of {}.'
             + ' ({}%)').format(n, N, max_depth, 100 * n / N))
 
-def check_energy(fit):
+def _check_energy(fit):
     """Checks the energy Bayesian fraction of missing information (E-BFMI)"""
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     no_warning = True
@@ -49,7 +49,7 @@ def check_energy(fit):
     else:
         return('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
 
-def check_n_eff(fit):
+def _check_n_eff(fit):
     """Checks the effective sample size per iteration"""
     fit_summary = fit.summary(probs=[0.5])
     n_effs = [x[4] for x in fit_summary['summary']]
@@ -68,7 +68,7 @@ def check_n_eff(fit):
     else:
         return('  n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated.')
 
-def check_rhat(fit):
+def _check_rhat(fit):
     """Checks the potential scale reduction factors"""
     from math import isnan
     from math import isinf
@@ -89,7 +89,7 @@ def check_rhat(fit):
 
 def check_all_diagnostics(fit):
     """Checks all MCMC diagnostics"""
-    return(check_n_eff(fit) + '\n' + check_rhat(fit) + '\n' + check_div(fit)+ '\n' + check_treedepth(fit) + '\n' + check_energy(fit))
+    return(_check_n_eff(fit) + '\n' + _check_rhat(fit) + '\n' + _check_div(fit)+ '\n' + _check_treedepth(fit) + '\n' + _check_energy(fit))
 
 def _by_chain(unpermuted_extraction):
     num_chains = len(unpermuted_extraction[0])

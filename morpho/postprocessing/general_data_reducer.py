@@ -37,12 +37,12 @@ from array import array
 
 def general_data_reducer(param_dict):
     logger.info("Reducing the generated data!")
-    infile = read_input_file(param_dict)
-    outfile = create_output_file(param_dict)
+    infile = _read_input_file(param_dict)
+    outfile = _create_output_file(param_dict)
    
     if isinstance(param_dict['data'],list):
-        X_val_array, nBinHisto, dX = find_histo_x_vals(param_dict, infile)
-        Y_val_array = find_histo_y_vals(param_dict, infile, nBinHisto, X_val_array, dX)
+        X_val_array, nBinHisto, dX = _find_histo_x_vals(param_dict, infile)
+        Y_val_array = _find_histo_y_vals(param_dict, infile, nBinHisto, X_val_array, dX)
     
         for i in range(len(param_dict['data'])):
             #Create a tree with the name param_dict['data'][i]
@@ -65,7 +65,7 @@ def general_data_reducer(param_dict):
         logger.info('Data binning complete.')
 
 
-def read_input_file(param_dict):
+def _read_input_file(param_dict):
     logger.info("Input data file: {}".format(param_dict['input_file_name']))
     if (param_dict['input_file_name'].endswith('.root')):
         param_dict['input_file_format']='root'
@@ -82,7 +82,7 @@ def read_input_file(param_dict):
         return
 
 
-def create_output_file(param_dict):
+def _create_output_file(param_dict):
     # Creating the root file
     if 'output_file_format' not in param_dict:
         param_dict['output_file_format']='root' # setting root as default
@@ -108,7 +108,7 @@ def create_output_file(param_dict):
         return
 
 
-def read_data_array(param_dict, infile, index):
+def _read_data_array(param_dict, infile, index):
     list_data = []
     tree = infile.Get(param_dict['input_tree'])
     n = tree.GetEntries()
@@ -118,7 +118,7 @@ def read_data_array(param_dict, infile, index):
     return list_data
 
 
-def find_histo_x_vals(param_dict, infile):
+def _find_histo_x_vals(param_dict, infile):
     X_val_array=[]
     for i in range(len(param_dict['data'])):
         if 'nBinHisto' in param_dict:
@@ -128,11 +128,11 @@ def find_histo_x_vals(param_dict, infile):
         if 'minX' in param_dict:
             minX = param_dict['minX'][i]
         else:
-            minX = min(read_data_array(param_dict, infile, i))
+            minX = min(_read_data_array(param_dict, infile, i))
         if 'maxX' in param_dict:
             maxX = param_dict['maxX'][i]
         else:
-            maxX = max(read_data_array(param_dict, infile, i))
+            maxX = max(_read_data_array(param_dict, infile, i))
             
         dX = (maxX - minX)/nBinHisto
         X_vals = []
@@ -144,10 +144,10 @@ def find_histo_x_vals(param_dict, infile):
     return np.array(X_val_array), nBinHisto, dX
 
 
-def find_histo_y_vals(param_dict, infile, nBinHisto, X_val_array, dX):
+def _find_histo_y_vals(param_dict, infile, nBinHisto, X_val_array, dX):
     Y_val_array=[]
     for i in range(len(param_dict['data'])):
-        list_data = read_data_array(param_dict, infile, i)
+        list_data = _read_data_array(param_dict, infile, i)
         Y_vals = [0]*nBinHisto
 
         #This hack is currently needed to account for a very small

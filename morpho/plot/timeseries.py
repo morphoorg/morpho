@@ -9,10 +9,6 @@
 # Generic methods to display histograms with ROOT
 #=======================================================
 
-"""
-To do:
-    - Clean up
-"""
 
 import ROOT as ROOT
 import cmath as math
@@ -23,7 +19,7 @@ import uuid
 import logging
 logger = logging.getLogger(__name__)
 
-def set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
+def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style = ROOT.TStyle(ROOT.gStyle)
     style.SetOptStat("emr")
     style.SetLabelOffset(0.01,'xy')
@@ -47,11 +43,11 @@ def timeseries(param_dict):
     # Preparing the canvas
     if 'title' in param_dict and param_dict['title']!='':
         title = param_dict['title']
-        set_style_options(0.04,0.15,0.07,0.12)
+        _set_style_options(0.04,0.15,0.07,0.12)
 
     else:
         title = ' ' #canvas_'+uuid.uuid4().get_hex()
-        set_style_options(0.04,0.15,0.07,0.12)
+        _set_style_options(0.04,0.15,0.07,0.12)
 
     if 'output_width' in param_dict:
         width = param_dict['output_width']

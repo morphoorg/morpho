@@ -1,7 +1,31 @@
-'''
-This module contains a 'data_reducer' method which transforms a spread of spectrum points (with frequency as a x axis) generated with STAN into a true spectrum-like plot.
-This module must be called in the json config file by adding a new dictionary called 'processing' inside the main dictionary:
-Here is an example of such new dictionary:
+"""Transform a spectrum into a histogram of binned data points
+
+data_reducer will soon be deprecated by general_data_reducer
+
+data_reducer specifically looks for x values that are time,
+frequency, or kinetic energy
+
+Functions:
+  * data_reducer: Convert a spectrum into a histogram
+  * readTTree: Retrieve specific branches from a tree
+
+Todo:
+    easy tasks:
+        * extend the number of nBinHisto to allow the user to have
+          different spectrum depending on the nature of the histo
+          (time, frequency...)
+    harder tasks:
+        * make this data reducer very generic (to be able to choose \
+          between frequency, energ or time spectrum) or add the energy \
+          spectrum by default
+        * implement the h5 reader and writter
+        * A possibility is also to make a tree with n branches with only
+          one element, these elements are then read in the analyzer as
+          the number of bin/data to be analyzed
+
+A dictionary of the following form can be added to the morpho config
+file in order to include the data reducer. (Note that this is .json
+formatting).
 
   "postprocessing":
   {
@@ -26,17 +50,9 @@ Here is an example of such new dictionary:
         "additional_file_name" : "./tritium_model/results/tritium_additionalData.out", #name of the file which contains the number of bins for the output histograms
       }
      ]
-
   }
-Below is a  to-do list:
-- easy tasks:
-    - extend the number of nBinHisto to allow the user to have different spectrum depending on the nature of the histo (time, frequency...)
-- harder tasks:
-    - make this data reducer very generic (to be able to choose between frequency, energ or time spectrum) or add the energy spectrum by default
-    - implement the h5 reader and writter
-    - (done) integrate the "additional_file_name" content into the "output_file" (this will require --in the case of root-- to be able to read single values directly from a root file)
-    A possibility is also to make a tree with n branches with only one element, these elements are then read in the analyzer as the number of bin/data to be analyzed
-'''
+
+"""
 
 import logging
 logger = logging.getLogger(__name__)
@@ -51,6 +67,23 @@ import random
 
 
 def data_reducer(param_dict):
+    """Convert a spectrum into a histogram
+
+    Takes a set of x and y values defining a spectrum and creates a
+    list of x and y values defining a histogram. The y values can
+    optionally be poisson distributed in order to represent fake data.
+
+    The x values must be 
+
+    Args:
+        param_dict: dict containing all inputs. Should be of the
+            form of the which_pp dictionary detailed in the
+            module description above
+
+    Returns:
+        None: The created histogram is stored in a root file
+
+    """
     logger.info("Reducing the generated data!")
     logger.info("Input data is: {}".format(param_dict['input_file_name']))
     if (param_dict['input_file_name'].endswith('.root')):
@@ -276,6 +309,22 @@ def data_reducer(param_dict):
 
 
 def readTTree(root_file_path,tree_name):
+    """Retrieve specific branches from a tree
+
+    Searches the given root TTree for branches named 'time_data',
+    'freq_data', 'spectrum_data', and 'KE_data' and returns
+    them as lists.
+
+    Args:
+        root_file_path: Filepath to the root file containing the TTree
+        tree_name: Name of the ttree to access
+
+    Returns:
+        (list, list, list, list) =
+            (time_data, freq_data, spectrum_data, KE_data)
+            where if the given branch was not in the tree, then an
+            empty list is returned.
+    """
     logger.info('Reading {}'.format(root_file_path))
     myfile = ROOT.TFile(root_file_path,"READ")
     tree = myfile.Get(tree_name)

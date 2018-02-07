@@ -8,8 +8,8 @@ matrix:
           env: PYTHON=2.7 ROOT=6.04
         - python: 3.4
           env: PYTHON=3.4 ROOT=6.04
-        - python: 3.6
-          env: PYTHON=3.6 ROOT=6.05
+        # - python: 3.6
+        #   env: PYTHON=3.6 ROOT=6.05
     allow_failures:
         - python: 2.7
 #install: source ci/install.sh
@@ -25,7 +25,7 @@ install:
   - conda info -a # Useful for debugging any issues with conda
   - conda config --add channels http://conda.anaconda.org/NLeSC  
   - conda config --set show_channel_urls yes
-  - conda create -q -n testenv python=${PYTHON} root=${ROOT} numpy matplotlib nose sphinx pytables 
+  - conda create -q -n testenv python=${PYTHON} root=${ROOT} numpy matplotlib
   - export CONDA_ENV_PATH=$HOME/miniconda/envs/testenv
   - source activate testenv
 # command to install dependencies and morpho

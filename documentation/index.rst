@@ -6,5 +6,11 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    testDocumentation
+    updates
+    install
+    morpho
+    preprocessing
+    postprocessing
+    plot
+    contribute
     better_apidoc_out/modules

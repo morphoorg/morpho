@@ -3,16 +3,16 @@ language: python
 matrix:
     include:
         - python: 2.7
-          env: PYTHON=2.7 ROOT=5.34.32
+          env: PYTHON=2.7 ROOT=5.34.32 PIP=pip
         - python: 2.7
-          env: PYTHON=2.7 ROOT=6.04
+          env: PYTHON=2.7 ROOT=6.04 PIP=pip
         - python: 3.4
-          env: PYTHON=3.4 ROOT=5.34.32
+          env: PYTHON=3.4 ROOT=5.34.32 PIP=pip3
         - python: 3.4
-          env: PYTHON=3.4 ROOT=6.04
+          env: PYTHON=3.4 ROOT=6.04 PIP=pip3
     allow_failures:
         - python: 3.4
-          env: PYTHON=3.4 ROOT=5.34.32
+          env: PYTHON=3.4 ROOT=5.34.32 PIP=pip3
 #install: source ci/install.sh
 install:
   - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then curl --silent http://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh; fi
@@ -30,7 +30,7 @@ install:
   - export CONDA_ENV_PATH=$HOME/miniconda/envs/testenv
   - source activate testenv
 # command to install dependencies
-  - pip install .
+  - ${PIP} install .
 # command for post installation
 script:
   - cd examples && morpho -c morpho_test/scripts/morpho_linear_fit.yaml

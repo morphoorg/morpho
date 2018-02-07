@@ -1,10 +1,26 @@
-# Definitions for loading and using pystan for analysis using root or hdf5
+"""
+Import root and hdf5 files for use by pystan
+
+Functions:
+    readLabel: Get an item from a dictionary
+    insertIntoDataStruct: Insert item into dictionary
+    theHack: Format a string
+    stan_data_files: Read in a dictionary of data files
+    extract_data_from_output_data: Extract Stan output into a dictionary
+    open_or_create: Create a group in an hdf5 object
+    write_result_hdf5: Write Stan results to an hdf5 file
+    theTrick: Transform dict into a dict with depth indicated by "."
+    transform_list_of_dict_into_dict:  Transform elements of any lists 
+        inside a dict into separate dict entries
+    build_tree_from_dict: Create a root TTree object from a dictionary
+    stan_write_root: Save Stan inputs and outputs into a root file
+"""
 
 import logging
 logger = logging.getLogger(__name__)
 
 try:
-    from ROOT import *
+    import ROOT
 except ImportError:
     logger.debug("Cannot import ROOT")
     pass
@@ -14,20 +30,42 @@ try:
 except ImportError:
     logger.debug("Cannot import h5py")
     pass
-
-import pystan
-import numpy as np
+try:
+    import pystan
+    import numpy as np
+except ImportError:
+    pass
 import array
 import bisect
 
 def readLabel(aDict, name, default=None):
+    """Get an item from a dictionary, or return default
+
+    Args:
+        aDict: Dictionary to search
+        name: Key used to search aDict
+        default: Default value returned if the given key does not exist.
+            Defaults to None.
+
+    Returns:
+        aDict[name], or default if name does not exist
+    """
     if not name in aDict:
         return default
     else :
         return aDict[name]
 
-# Inserting data into dict
 def insertIntoDataStruct(name,aValue,aDict):
+    """Insert an item into a dictionary
+
+    Args:
+        name: Key used to insert item
+        aValue: Value to insert
+        aDict: Dictionary value is inserted into
+    
+    Returns:
+        aDict with aValue inserted at name
+    """
     if not name in aDict:
         aDict[name] = [aValue]
     else:
@@ -35,11 +73,40 @@ def insertIntoDataStruct(name,aValue,aDict):
 
 # execute the command of several combined strings
 def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
+    """Format theString using the given variables
+    """
     theResult = str(theString.format(theVariable,theSecondVariable,theThirdVariable))
     return theResult
 
 # Reading dict data file (in R) and other input files (hdf5 or root).
 def stan_data_files(theData):
+    """Read in a dictionary of R, hdf5 and root files
+
+    Args:
+        theData: Dictionary containing information about the data that
+            should be read in for use by Stan. theData should contain
+            up to two dictionaries, stored with the keys 'files' and
+            'parameters'. These dictionaries are then used as follows:
+
+            theData['files']: This should be a list of dictionaries, 
+                where each dictionary has the following fields:
+                'name': Name of the file to access
+                'format': Filetype, 'R', 'root' or 'hdf5'
+                'datasets': List of datasets to be used when accessing
+                    an hdf5 file (required only if 'format'=='hdf5')
+                'tree': Name of tree to access when accessing a root file
+                    (required only if 'format'=='root')
+                'branches': Branches to be accessed in the given root tree
+                    (required only if 'format'=='root')
+                'cut': String specifying the cut for a root file (optional)
+
+            theData['parameters']: All values from this list are added to
+                the returned list
+
+    Returns:
+        dictionary: All values from the given files are returned as a
+            dictionary
+    """
     alist = {}
     for tags in theData.keys():
         for key in theData[tags]:
@@ -51,11 +118,11 @@ def stan_data_files(theData):
                     logger.debug('Getting {}'.format(key['name']))
                     afile = pystan.misc.read_rdump(key['name'])
                     _save_repeated_as_arr(key['name'], afile)
-                    for key_r, value in afile.iteritems():
+                    for key_r, value in afile.items():
                         if(hasattr(value,"tolist")):
                             translist = value.tolist()
                             afile.update({key_r: translist})
-                    alist = dict(alist.items() + afile.items())
+                    alist.update(afile.items())
                     logger.debug('File {} added to data'.format(key['name']))
                 elif atype =='hdf5' :
                     logger.debug('Getting {}'.format(key['name']))
@@ -91,11 +158,10 @@ def stan_data_files(theData):
                                     insertIntoDataStruct(aname, aint[0], alist)
                     logger.debug('File {} added to data'.format(key['name']))
 
-
                 elif atype =='root':
                     logger.debug('Getting {} in {}'.format(key['tree'],key['name']))
-                    afile = TFile.Open(key['name'],'read')
-                    atree = TTree()
+                    afile = ROOT.TFile.Open(key['name'],'read')
+                    atree = ROOT.TTree()
                     afile.GetObject(str(key['tree']), atree)
 
                     aCut = readLabel(key,'cut',None)
@@ -156,12 +222,14 @@ def stan_data_files(theData):
                     logger.warning('{} format not yet implemented.'.format(atype))
             elif tags=='parameters':
                 logger.debug('Adding parameters from config file to data')
-                alist = dict(alist.items() + key.items())
+                alist.update(key)
 
     return alist
 
 def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
-    """If a variable name is repeated in an rdump file, pystan.misc.read_rdump
+    """Save repeated elements in an rdump file as an array
+
+    If a variable name is repeated in an rdump file, pystan.misc.read_rdump
     saves the last value of the variable and discards the rest. This method
     finds all variable names that are repeated, and for each name, it saves the
     corresponding data in a 2d array (for array inputs) or a 1d array (for scalar
@@ -175,10 +243,12 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
       y <- 3
     will result in a dictionary element {'y' = numpy.array([1,2,3])}. Note that lines
     containing any other r data structures will be ignored.
-    Input:
+    
+    Args:
       rdump_filename- rdump formatted file
       data_dict- dictionary that will be modified to include repeated variables
-    Output:
+
+    Returns:
       Returns data_dict, modified to include the arrays corresponding to each
       repeated variable
     """
@@ -187,7 +257,8 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
     var_flatten = [] # Will be true if all inputs are a single value
     for line in open(rdump_filename, 'r'):
         splitline = map(str.strip,line.split("<-"))
-        if(len(splitline)<2):
+        a= (list(splitline))
+        if(len(list(splitline))<2):
             continue
         name = splitline[0]
         data = splitline[1]
@@ -229,6 +300,15 @@ def _save_repeated_as_arr(rdump_filename, data_dict=dict()):
     return data_dict
 
 def extract_data_from_outputdata(conf,theOutput):
+    """Extract the output data from a morpho object into a dictionary
+
+    Args:
+        conf: morpho object, after Stan has been run
+        theOutput: stanfit object returned by Stan
+
+    Returns:
+        dictionary: Contains all extracted data
+    """
     # Extract the data into a dictionary
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
     logger.debug("Extracting samples from pyStan output")
@@ -326,17 +406,31 @@ def extract_data_from_outputdata(conf,theOutput):
     return theOutputDataDict
 
 def open_or_create(hdf5obj, groupname):
-    """
-    Create a group within an hdf5 object if it doesn't already exist,
-    and return the resulting group.
+    """ Return a group from an hdf5 object
+
+    Args:
+        hdf5obj: hdf5 object to access
+        groupname: group to access or create
+
+    Return:
+        h5py.Group: Creates a group within the given hdf5 object if it
+            doesn't already exist, then returns the group.
     """
     if groupname != "/" and groupname not in hdf5obj.keys():
         hdf5obj.create_group(groupname)
     return hdf5obj[groupname]
 
 def write_result_hdf5(conf, theFileName, stanres, input_param):
-    """
-    Write the STAN result to an HDF5 file.
+    """Write the Stan result to an HDF5 file
+
+    Args:
+        conf: morpho object
+        theFileName: Name of hdf5 output file, without the .h5 extension
+        stanres: stanfit object containing the results to write
+        input_param: No longer used
+
+    Returns:
+        None
     """
     try:
         import h5py
@@ -368,8 +462,23 @@ def write_result_hdf5(conf, theFileName, stanres, input_param):
 
 # transform dict into items where the depth is indicated with "."
 def theTrick(thedict,uppertreename=""):
+    """Transform a dictionary of dictionaries into a depth 1 dictionary
+
+    Takes a dictionary that contains other dictionaries and transforms it
+    into a dictionary that has depth 1. The key for each value in the
+    returned dictionary is that values path in the previous dictionary,
+    with '.' indicating descent into a lower dictionary.
+
+    Args:
+        thedict: Dictionary to transform
+        uppertreename: Prefix for all keys in the returned dictionary
+    
+    Returns:
+        dictionary: Depth one dictionary containing the same values,
+            with key names equal to the path through thedict
+    """
     newdict = {}
-    for key,value in thedict.iteritems():
+    for key,value in thedict.items():
         if isinstance(value, dict):
             subdict = theTrick(value,uppertreename+key+".")
             newdict.update(subdict)
@@ -378,14 +487,23 @@ def theTrick(thedict,uppertreename=""):
     return newdict
 
 def transform_list_of_dict_into_dict(thedict):
-    ''' 
-    First, look for a list of dict inside the dict and transform it into lists.
-    Then, flatten any list of list into new list (aka transform {'xxx':[[1,2],[2,3]]} into
+    ''' Transform elements of lists into separate dict entries
+
+    First, look for any list of dicts inside the dict and transform it
+    into lists. Then, flatten any list of list into new list. For
+    example, {'xxx':[[1,2],[2,3]]} transforms into
     {'xxx_1':[1,2],'xxx_2':[2,3]}) 
+
+    Args:
+        thedict: Dictionary to transform
+
+    Returns:
+       dictionary: the dict, with any elements that are lists separated
+           into separate dictionary entries
     '''
 
     result_dict = {}
-    for key,item in thedict.iteritems():
+    for key,item in thedict.items():
         if isinstance(item,list):
             if isinstance(item[0],dict):
                 newdict={}
@@ -394,7 +512,7 @@ def transform_list_of_dict_into_dict(thedict):
                     else: newdict[k].append(v)
                 # flatten the dictionary
                 flattened_dict = {}
-                for subkey,subitem in newdict.iteritems():
+                for subkey,subitem in newdict.items():
                     if isinstance(subitem[0],list):
                         for i in range(len(subitem[0])):
                             flattened_dict.update({'{}_{}'.format(subkey,i):[]})
@@ -412,13 +530,22 @@ def transform_list_of_dict_into_dict(thedict):
             result_dict.update({key:item})
     return result_dict
 
-# transform a dictionary into a tree
 def build_tree_from_dict(treename,input_param):
+    """Create a root TTree object from a dictionary
+    
+    Args:
+        treename: Desired name of the output tree
+        input_param: Dictionary of values to place in tree. It must be
+            depth 1.
+
+    Returns:
+        ROOT.TTree: Tree containing data from input_param
+    """
     logger.debug("Creating tree '{}'".format(treename))
-    atree = TTree(treename,treename)
+    atree = ROOT.TTree(treename,treename)
     dictToFill = {}
     treeToAddFriend = {}
-    for key,value in input_param.iteritems():
+    for key,value in input_param.items():
         if isinstance(value,int) or isinstance(value,float):
             nSize = 1
             if isinstance(value, float):
@@ -461,7 +588,7 @@ def build_tree_from_dict(treename,input_param):
             else:
                 continue
     # Filling the input param tree
-    for key,value in dictToFill.iteritems():
+    for key,value in dictToFill.items():
         if isinstance(value,list):
             for iNum in range(0,len(value)):
                 exec(theHack("theVariable_{}[{}] = value[{}]",str(key).replace(".","_"),iNum,iNum))
@@ -472,12 +599,24 @@ def build_tree_from_dict(treename,input_param):
 
 # save Stan input and output into a root file
 def stan_write_root(conf, theFileName, theOutput, input_param):
+    """Save Stan inputs and outputs ina  root files
+    
+    Args:
+        conf: morpho object containing the configuration
+        theFileName: Desired name of the output root file
+        theOutput: stanfit object
+        input_param: Dictionary containing any other parameters to be
+            saved to the root tree
 
+    Returns:
+        None: The given theOutput and input_param values are saved to a
+            root file named theFileName.
+    """
     logger.debug("Creating ROOT file {}".format(theFileName))
     if conf.out_option:
-        afile = TFile.Open(theFileName, conf.out_option)
+        afile = ROOT.TFile.Open(theFileName, conf.out_option)
     else:
-        afile = TFile.Open(theFileName, "RECREATE")
+        afile = ROOT.TFile.Open(theFileName, "RECREATE")
 
     # save the input parameters
     logger.debug("Saving Stan input parameters")
@@ -490,7 +629,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     # save results
     logger.debug("Saving Stan results")
     logger.debug("Creating tree '{}'".format(conf.out_tree))
-    atree = TTree(conf.out_tree,conf.out_tree)
+    atree = ROOT.TTree(conf.out_tree,conf.out_tree)
     theOutputVar = conf.out_branches
 
     # Extract the data into a dictionary

@@ -12,26 +12,37 @@
 from __future__ import absolute_import
 
 import os,sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
+try:
+    reload  # Python 2.7
+except NameError:
+    try:
+        from importlib import reload  # Python 3.4+
+    except ImportError:
+        from imp import reload  # Python 3.0 - 3.3
+    reload(sys)
+# sys.setdefaultencoding("utf-8")
 
 import time
 import re
 import random
 import ast
 
-import pystan
+try:
+    import pystan
+    import pickle
+    import colorlog
+    from yaml import load as yload
+except ImportError:
+    pass
 
-from yaml import load as yload
 from argparse import ArgumentParser
 from inspect import getargspec
 
-import pickle
 from hashlib import md5
 import importlib
 
 import logging
-import colorlog
+
 
 def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,
                       level=logging.DEBUG, propagate=False):
@@ -173,9 +184,9 @@ class morpho(object):
 
             # batch identification
             if isinstance(args.job_id,(int,float,str)):
-                self.seed=int(args.job_id)
+                self.job_id = str(args.job_id)
             else:
-                self.job_id = 0
+                self.job_id = None
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
@@ -319,7 +330,7 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
 
     logger.info("Starting the sampling")
     text = "Parameters: \n"
-    for key, value in kwargs.iteritems():
+    for key, value in kwargs.items():
         if key != "data" and key != "init" :
             text = text + "{}\t{}\n".format(key,value)
         elif key == "data":
@@ -343,7 +354,7 @@ def parse_args():
                    required=True)
     p.add_argument('--job_id',
                    metavar='<job_id>',
-                   help='Job id number for batching',
+                   help='Job id number or string for batching',
                    required=False)
     p.add_argument('-s','--seed',
                    metavar='<seed>',
@@ -440,13 +451,16 @@ def plot_result(conf, stanres):
 
 def write_result(conf, stanres, input_param):
     logger.info("Writing results!")
-    from morpho.loader import pystanLoad as pyL
+    try:
+        from morpho.loader import pystanLoad as pyL
+    except ImportError:
+        pass
     ofilename = conf.out_fname
     rdir = os.path.dirname(ofilename)
     if not os.path.exists(rdir):
         os.makedirs(rdir)
         logger.info("Creating 'results' folder: {}".format(rdir))
-    if (conf.job_id>0):
+    if (not conf.job_id is None):
         ofilename = ofilename+'_'+conf.job_id
     if conf.out_format == 'hdf5':
         #ofilename = ofilename+'.h5'
@@ -606,7 +620,8 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                 cdata = update_from_arguments(cdata,args.param)
             sa = morpho(cdata)
         except Exception as err:
-            logger.critical(err)
+            logger.critical("Caught exception")
+            raise
             sys.exit(2)
 
         if (sa.get_do_prep()):
@@ -616,13 +631,22 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
             try:
                 logger.info("Doing MC with Stan")
                 if sa.datafiles is not None:
-                    logger.debug("Loading datafiles")
-                    from morpho.loader import pystanLoad as pyL
+                    try:
+                        from morpho.loader import pystanLoad as pyL
+                    except ImportError:
+                        pass
                     sa.data = pyL.stan_data_files(sa.datafiles)
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
+                try:
+                    from morpho.postprocessing import stan_utility as util
+                except ImportError:
+                    pass
+                checks = util.check_all_diagnostics(result)
                 logger.info('Result of the sampling: \n{}'.format(result))
+                logger.info('Diagnostic info: \n' + checks)
             except Exception as err:
-                logger.critical(err)
+                logger.critical("Caught exception")
+                raise
                 sys.exit(2)
             try:
                 logger.info("Saving results")
@@ -631,7 +655,8 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                     save_object(stanres, sa.out_fit)
                     logger.debug('Saved fit in {}'.format(sa.out_fit))
             except Exception as err:
-                logger.critical(err)
+                logger.critical("Caught exception")
+                raise
                 sys.exit(2)
 
         if (sa.get_do_pp()):

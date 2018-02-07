@@ -15,14 +15,12 @@ Functions:
     check_rhat: Check the potential scale reduction factors
     check_all_diagnostics: Check all MCMC diagnosticcs
     partition_div: Get divergent and non-divergent parameter arrays
-    compile_model: Cache Stan model
 """
 try:
     import pystan
     import numpy
 except ImportError:
     pass
-import pickle
 
 
 def check_div(fit):
@@ -203,36 +201,4 @@ def partition_div(fit):
     div_params = dict((key, params[key][div == 1]) for key in params)
     return nondiv_params, div_params
 
-def compile_model(filename, model_name=None, **kwargs):
-    """Cache Stan model
-    
-    See http://pystan.readthedocs.io/en/latest/avoiding_recompilation.html
-
-    Args:
-        filename: Name of the input file containing the stan model code
-        model_name: Name of the output cache file (default is model)
-        kwargs: Not used
-
-    Returns:
-        pystan.StanModel: The Stan model is cached, and then the stan
-            model is returned
-    """
-    from hashlib import md5
-
-    with open(filename) as f:
-        model_code = f.read()
-        code_hash = md5(model_code.encode('ascii')).hexdigest()
-        if model_name is None:
-            cache_fn = 'cached-model-{}.pkl'.format(code_hash)
-        else:
-            cache_fn = 'cached-{}-{}.pkl'.format(model_name, code_hash)
-        try:
-            sm = pickle.load(open(cache_fn, 'rb'))
-        except:
-            sm = pystan.StanModel(model_code=model_code)
-            with open(cache_fn, 'wb') as f:
-                pickle.dump(sm, f)
-        else:
-            print("Using cached StanModel")
-        return sm
 

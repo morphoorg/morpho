@@ -4,3 +4,6 @@ python:
 # command to install dependencies
 install:
   - pip3 install .
+# command for post installation
+script:
+  - cd examples && morpho -c morpho_test/scripts/morpho_linear_fit.yaml

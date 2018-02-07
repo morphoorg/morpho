@@ -26,13 +26,15 @@ correlation factor between each pair of variables.
 
 import logging
 logger = logging.getLogger(__name__)
-
-import ROOT as ROOT
+try:
+    import ROOT as ROOT
+    import numpy as np
+except ImportError:
+    pass
 import cmath as math
 from array import array
 import re
 import uuid
-import numpy as np
 
 
 def histo(param_dict):

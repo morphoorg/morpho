@@ -28,9 +28,11 @@
 import logging
 logger = logging.getLogger(__name__)
 
-
-import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
-import numpy as np
+try:
+    import ROOT as ROOT# import ROOT, TStyle, TCanvas, TH1F, TGraph, TLatex, TLegend, TFile, TTree, TGaxis, TRandom3, TNtuple, TTree
+    import numpy as np
+except ImportError:
+    pass
 from array import array
 
 

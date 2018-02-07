@@ -1,14 +1,40 @@
-# Source: Michael Betancourt,
-# https://github.com/betanalpha/jupyter_case_studies/blob/master/pystan_workflow/stan_utility.py
-# Modified by Talia Weiss, 1-23-18
+"""Perform Stan diagnostic tests
 
-import pystan
+Source: Michael Betancourt,
+https://github.com/betanalpha/jupyter_case_studies/blob/master/pystan_workflow/stan_utility.py 
+Modified by Talia Weiss, 1-23-18
+
+These tests are motivated here:
+http://mc-stan.org/users/documentation/case-studies/pystan_workflow.html
+
+Functions:
+    check_div: Check how many transitions ended with a divergence
+    check_treedepth: Check how many transitions failed due to tree depth
+    check_energy: Check energy Bayesian fraction of missing information
+    check_n_eff: Check the effective sample size per iteration
+    check_rhat: Check the potential scale reduction factors
+    check_all_diagnostics: Check all MCMC diagnosticcs
+    partition_div: Get divergent and non-divergent parameter arrays
+    compile_model: Cache Stan model
+"""
+try:
+    import pystan
+    import numpy
+except ImportError:
+    pass
 import pickle
-import numpy
 
 
-def _check_div(fit):
-    """Check transitions that ended with a divergence"""
+def check_div(fit):
+    """Check how many transitions ended with a divergence
+
+    Args:
+        fit: stanfit object containing sampler output
+
+    Returns:
+        str: States the number of transitions that ended with a
+            divergence
+    """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     divergent = [x for y in sampler_params for x in y['divergent__']]
     n = sum(divergent)
@@ -20,8 +46,21 @@ def _check_div(fit):
         return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
             100 * n / N))
 
-def _check_treedepth(fit, max_depth = 10):
-    """Check transitions that ended prematurely due to maximum tree depth limit"""
+
+def check_treedepth(fit, max_depth = 10):
+    """Check how many transitions ended prematurely due to tree depth
+
+    A transition may end prematurely if the maximum tree depth limit is
+    exceeded.
+
+    Args:
+        fit: stanfit object containing sampler output
+        max_depth: Maximum depth used to check tree depth
+
+    Returns:
+        str: States the number of transitions that passed the
+            given max_depth.
+    """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     depths = [x for y in sampler_params for x in y['treedepth__']]
     n = sum(1 for x in depths if x == max_depth)
@@ -33,8 +72,17 @@ def _check_treedepth(fit, max_depth = 10):
         return(('{} of {} iterations saturated the maximum tree depth of {}.'
             + ' ({}%)').format(n, N, max_depth, 100 * n / N))
 
-def _check_energy(fit):
-    """Checks the energy Bayesian fraction of missing information (E-BFMI)"""
+
+def check_energy(fit):
+    """Checks the energy Bayesian fraction of missing information (E-BFMI)
+
+    Args:
+        fit: stanfit object containing sampler output
+
+    Returns:
+       str: Warns that the model may need to be reparametrized if
+           E-BFMI is less than 0.2
+    """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     no_warning = True
     for chain_num, s in enumerate(sampler_params):
@@ -49,8 +97,17 @@ def _check_energy(fit):
     else:
         return('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
 
-def _check_n_eff(fit):
-    """Checks the effective sample size per iteration"""
+
+def check_n_eff(fit):
+    """Checks the effective sample size per iteration
+    
+    Args:
+        fit: stanfit object containing sampler output
+
+    Returns:
+        str: States whether the effective sample size indicates
+            an issue
+    """
     fit_summary = fit.summary(probs=[0.5])
     n_effs = [x[4] for x in fit_summary['summary']]
     names = fit_summary['summary_rownames']
@@ -68,8 +125,15 @@ def _check_n_eff(fit):
     else:
         return('  n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated.')
 
-def _check_rhat(fit):
-    """Checks the potential scale reduction factors"""
+def check_rhat(fit):
+    """Checks the potential scale reduction factors
+
+    Args:
+        fit: stan fit object containing sampler output
+
+    Returns:
+        str: States whether the Rhat values indicate an error
+    """
     from math import isnan
     from math import isinf
 
@@ -88,8 +152,17 @@ def _check_rhat(fit):
         return('Rhat above 1.1 indicates that the chains very likely have not mixed.')
 
 def check_all_diagnostics(fit):
-    """Checks all MCMC diagnostics"""
-    return(_check_n_eff(fit) + '\n' + _check_rhat(fit) + '\n' + _check_div(fit)+ '\n' + _check_treedepth(fit) + '\n' + _check_energy(fit))
+    """Checks all MCMC diagnostics
+
+    Args:
+        fit: stanfit object containing sampler output
+
+    Returns:
+        list of str: Returns the strings indicating the results of the
+            checks for divergence, treee depth, energy Bayesian fraction
+            of missing energy, effective sample size, and Rhat
+    """
+    return(check_n_eff(fit) + '\n' + check_rhat(fit) + '\n' + check_div(fit)+ '\n' + check_treedepth(fit) + '\n' + check_energy(fit))
 
 def _by_chain(unpermuted_extraction):
     num_chains = len(unpermuted_extraction[0])
@@ -114,7 +187,15 @@ def _shaped_ordered_params(fit):
     return shaped
 
 def partition_div(fit):
-    """ Returns parameter arrays separated into divergent and non-divergent transitions"""
+    """ Returns parameter arrays for divergent and non-divergent transitions
+
+    Args:
+        fit: stanfit object containing sampler output
+ 
+    Returns:
+        (dict, dict): The first dictionary contains all nondivergent
+            transitions, the second contains all divergent transitions
+    """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     div = numpy.concatenate([x['divergent__'] for x in sampler_params]).astype('int')
     params = _shaped_ordered_params(fit)
@@ -123,9 +204,19 @@ def partition_div(fit):
     return nondiv_params, div_params
 
 def compile_model(filename, model_name=None, **kwargs):
-    """This will automatically cache models - great if you're just running a
-    script on the command line.
-    See http://pystan.readthedocs.io/en/latest/avoiding_recompilation.html"""
+    """Cache Stan model
+    
+    See http://pystan.readthedocs.io/en/latest/avoiding_recompilation.html
+
+    Args:
+        filename: Name of the input file containing the stan model code
+        model_name: Name of the output cache file (default is model)
+        kwargs: Not used
+
+    Returns:
+        pystan.StanModel: The Stan model is cached, and then the stan
+            model is returned
+    """
     from hashlib import md5
 
     with open(filename) as f:

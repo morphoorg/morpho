@@ -16,23 +16,25 @@
 #=======================================================
 
 
-
-import numpy as np
-import matplotlib as mpl
-mpl.rc('ytick', labelsize=8)
-mpl.rc('xtick', labelsize=8)
-import matplotlib.pyplot as plt
-from pylab import *
-
+try:
+    import numpy as np
+    import matplotlib as mpl
+    mpl.rc('ytick', labelsize=8)
+    mpl.rc('xtick', labelsize=8)
+    import matplotlib.pyplot as plt
+    from pylab import *
+except ImportError:
+    pass
+    
 # Adaptable import
 try:
     #python2
     import plotting_routines as pr
-except:
+except ImportError:
     try:
         #python3
         from . import plotting_routines as pr
-    except:
+    except ImportError:
         pass
 
 

@@ -12,5 +12,6 @@ Contents:
     preprocessing
     postprocessing
     plot
+    morpho1examples
     contribute
     better_apidoc_out/modules

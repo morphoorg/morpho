@@ -34,7 +34,6 @@ try:
     mpl.rc('ytick', labelsize=8)
     mpl.rc('xtick', labelsize=8)
     import matplotlib.pyplot as plt
-    import matplotlib.cm as cm
     from matplotlib.colors import LogNorm
     from pylab import *
 except ImportError:

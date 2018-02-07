@@ -319,10 +319,10 @@ def readTTree(root_file_path,tree_name):
         tree_name: Name of the ttree to access
 
     Returns:
-        (list, list, list, list) =
-            (time_data, freq_data, spectrum_data, KE_data)
-            where if the given branch was not in the tree, then an
-            empty list is returned.
+        (list, list, list, list):
+        (time_data, freq_data, spectrum_data, KE_data)
+        where if the given branch was not in the tree, then an
+        empty list is returned.
     """
     logger.info('Reading {}'.format(root_file_path))
     myfile = ROOT.TFile(root_file_path,"READ")

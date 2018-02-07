@@ -10,8 +10,8 @@ Functions:
   - open_or_create: Create a group in an hdf5 object
   - write_result_hdf5: Write Stan results to an hdf5 file
   - theTrick: Transform dict into a dict with depth indicated by "."
-  - transform_list_of_dict_into_dict:  Transform elements of any lists 
-       inside a dict into separate dict entries
+  - transform\_list\_of\_dict\_into_dict:  Transform elements of any lists
+    inside a dict into separate dict entries
   - build_tree_from_dict: Create a root TTree object from a dictionary
   - stan_write_root: Save Stan inputs and outputs into a root file
 """
@@ -89,24 +89,21 @@ def stan_data_files(theData):
     follows:
 
     Args:
-        theData['files']: This should be a list of dictionaries, 
-            where each dictionary has the following fields:
-            'name': Name of the file to access
-            'format': Filetype, 'R', 'root' or 'hdf5'
-            'datasets': List of datasets to be used when accessing
-                an hdf5 file (required only if 'format'=='hdf5')
-            'tree': Name of tree to access when accessing a root file
+      - theData.files.name: Name of the file to access
+      - theData.files.format: Filetype. Options are 'R', 'root' or 'hdf5'
+      - theData.files.datasets: List of datasets to be used when accessing\
+      an hdf5 file (required only if 'format'=='hdf5')
+      - theData.files.tree: Name of tree to access when accessing a root file\
+    (required only if 'format'=='root')
+      - theData.files.branches: Branches to be accessed in the given root tree
                 (required only if 'format'=='root')
-            'branches': Branches to be accessed in the given root tree
-                (required only if 'format'=='root')
-            'cut': String specifying the cut for a root file (optional)
-
-        theData['parameters']: All values from this list are added to
+      - theData.files.cut: String specifying the cut for a root file (optional)
+      - theData.parameters: All values from this list are added to\
             the returned list
 
     Returns:
         dictionary: All values from the given files are returned as a
-            dictionary
+        dictionary
     """
     alist = {}
     for tags in theData.keys():

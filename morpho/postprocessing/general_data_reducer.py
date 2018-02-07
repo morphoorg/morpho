@@ -1,28 +1,13 @@
-'''
-    This module contains a 'general_data_reducer' method which histograms data points and saves the results to an output file (currently, only root is supported).
-    This module must be called in a dictionary under "postprocessing" within the configuration file.
-    Here is an example of such a dictionary:
-    "postprocessing":
-    {
-    "which_pp":[
-    {
-    "method_name": "general_data_reducer", # Name of the method
-    "module_name": "general_data_reducer", # Name of the python file that contains the method
-    "input_file_name" : "./tritium_model/results/tritium_generator.root", # Path to the root file that contains the raw data
-    "input_file_format" : "root", # Format of the input file
-    "input_tree": "spectrum", #  Name of the root tree containing data of interest
-    "data": ["KE"], # Optional list of names of branches of the data to be binned (default=100)
-    "minX":[18500.], # Optional list of minimum x axis values of the data to be binned
-    "maxX":[18600.], # Optional list of maximum x axis values of the data to be binned
-    "nBinHisto":[50], # List of desired number of bins in each histogram
-    "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root", # Path to the file where the binned data will be saved
-    "output_file_format": "root", # Format of the output file
-    "output_file_option": RECREATE # RECREATE will erase and recreate the output file. UPDATE will open a file (after creating it, if it does not exist) and update the file.
-    }
-]}
+"""Transform a spectrum into a histogram of binned data points
 
-    To do: Update this code to allow for data of the form (X, Y) as input.
-'''
+general_data_reducer transforms a spectrum into a histogram of binned
+data points and saves the results in an output file. This module must
+be called in a dictionary under "postprocessing"
+within the configuration file.
+
+Todo:
+  - Update this code to allow for data of the form (X, Y) as input
+"""
 
 
 import logging
@@ -38,6 +23,20 @@ from array import array
 
 
 def general_data_reducer(param_dict):
+    """Convert a spectrum into a histogram
+
+    Takes a set of x and y values defining a spectrum and creates a list
+    of x and y values defining a histogram. The x and y values can be
+    input via a root file or an hdf5. The resulting file can only
+    curently be saved as a root file.
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1 Example
+            Scripts" in the API for details.
+
+    Returns:
+        None: The resulting histogram is stored in a file.
+    """
     logger.info("Reducing the generated data!")
     infile = _read_input_file(param_dict)
     outfile = _create_output_file(param_dict)

@@ -20,8 +20,8 @@ def bootstrapping(param_dict):
     before each call to stan
 
     Args:
-      - param_dict: Dictionary of parameters to search. See "Morpho 1
-        Example Scripts" in the API for details.
+        param_dict: Dictionary of parameters to search. See "Morpho 1
+            Example Scripts" in the API for details.
 
     Returns:
         None: Creates new root file with number_data sampled entries.

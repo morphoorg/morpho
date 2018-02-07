@@ -1,57 +1,27 @@
 """Transform a spectrum into a histogram of binned data points
 
-data_reducer will soon be deprecated by general_data_reducer
-
 data_reducer specifically looks for x values that are time,
 frequency, or kinetic energy
 
+data_reducer will soon be deprecated by general_data_reducer
+
 Functions:
-  * data_reducer: Convert a spectrum into a histogram
-  * readTTree: Retrieve specific branches from a tree
+  - data_reducer: Convert a spectrum into a histogram
+  - readTTree: Retrieve specific branches from a tree
 
 Todo:
     easy tasks:
-        * extend the number of nBinHisto to allow the user to have
-          different spectrum depending on the nature of the histo
-          (time, frequency...)
+        - extend the number of nBinHisto to allow the user to have
+              different spectrum depending on the nature of the histo
+              (time, frequency...)
     harder tasks:
-        * make this data reducer very generic (to be able to choose \
-          between frequency, energ or time spectrum) or add the energy \
-          spectrum by default
-        * implement the h5 reader and writter
-        * A possibility is also to make a tree with n branches with only
-          one element, these elements are then read in the analyzer as
-          the number of bin/data to be analyzed
-
-A dictionary of the following form can be added to the morpho config
-file in order to include the data reducer. (Note that this is .json
-formatting).
-
-  "postprocessing":
-  {
-    "which_pp":[
-      {
-        "method_name": "data_reducer", #name of the method
-        "module_name": "data_reducer", #name of the python file which contains the method
-        "which_spectrum": ["frequency","time","KE"], # list of the reduction to be performed
-        "Poisson_redistribution": True, #is a Poisson redistribution of the data required?
-        "input_file_name" : "./tritium_model/results/tritium_generator.root", #path to the root file which contains the raw data
-        "input_file_format" : "root", #format of the input file
-        "input_tree": "stan_MC", # name of the tree (in case of root file)
-        "minKE":18500., #minimal energy used for generating the STAN data
-        "maxKE":18600., #maximal energy used for generating the STAN data
-        "nBinHisto":50, # number of bins wanted for the output spectrum
-        "output_file_name" : "./tritium_model/results/tritium_generator_reduced_fake.root", #path to the root file where to save the spectrum data
-        "output_file_format": "root", #format of the output file
-        "output_file_option": RECREATE #give an option for the output file (RECREATE will erase and recreate the output file, UPDATE will open (after creating if not existing) and update the file)
-        "output_freq_spectrum_tree": "spectrum", #name of the tree (in case of root file) which contains the frequency spectrum
-        "output_KE_spectrum_tree": "spectrum", #name of the tree (in case of root file) which contains the KE spectrum
-        "output_time_spectrum_tree": "time", #name of the tree (in case of root file) which contains the time spectrum
-        "additional_file_name" : "./tritium_model/results/tritium_additionalData.out", #name of the file which contains the number of bins for the output histograms
-      }
-     ]
-  }
-
+        - make this data reducer very generic (to be able to choose
+              between frequency, energ or time spectrum) or add the energy
+              spectrum by default
+        - implement the h5 reader and writter
+        - A possibility is also to make a tree with n branches with only
+              one element, these elements are then read in the analyzer as
+              the number of bin/data to be analyzed
 """
 
 import logging
@@ -73,12 +43,41 @@ def data_reducer(param_dict):
     list of x and y values defining a histogram. The y values can
     optionally be poisson distributed in order to represent fake data.
 
-    The x values must be 
+    param_dict is a dict containing all inputs. The following describes
+    the elements of param_dict, along with exampl values.
 
     Args:
-        param_dict: dict containing all inputs. Should be of the
-            form of the which_pp dictionary detailed in the
-            module description above
+        param_dict.which_spectrum: ["frequency","time","KE"], #list 
+            of the reductions to be performed
+        param_dict.Poisson_redistribution: True, #is a Poisson
+            redistribution of the data required?
+        param_dict.input_file_name: "input.root", #path to the root 
+            file which contains the raw data
+        param_dict.input_file_format : "root", #format of the input file
+        param_dict.input_tree: "stan_MC", # name of the tree (in case of
+            root file)
+        param_dict.minKE:18500., #minimal energy used for generating the
+            STAN data
+        param_dict.maxKE:18600., #maximal energy used for generating the
+            STAN data
+        param_dict.nBinHisto:50, #number of bins wanted for the output
+            spectrum
+        param_dict.output_file_name: "out.root", #path to the root file
+            where to save the spectrum data
+        param_dict.output_file_format: "root", #format of the output file
+        param_dict.output_file_option: RECREATE #give an option for the
+            output file (RECREATE will erase and recreate the output
+            file, UPDATE will open (after creating if not existing) and
+            update the file)
+        param_dict.output_freq_spectrum_tree: "spectrum", #name of the
+            tree (in case of root file) which contains the frequency
+            spectrum
+        param_dict.output_KE_spectrum_tree: "spectrum", #name of the tree
+            (in case of root file) which contains the KE spectrum
+        param_dict.output_time_spectrum_tree: "time", #name of the tree
+            (in case of root file) which contains the time spectrum
+        param_dict.additional_file_name: "additionalData.out", #name of
+            the file which contains the number of bins for the output histograms
 
     Returns:
         None: The created histogram is stored in a root file

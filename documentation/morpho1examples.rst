@@ -69,7 +69,7 @@ contours creates a matrix of contour plots using a stanfit object
     result_names: ["param1", "param2", "param3"] # Names of parameters to plot
     output_format: "pdf"
 
- histo
+histo
 ~~~~~~~~~~~~~~~~
 
 Plot a 1D histogram using a list of data

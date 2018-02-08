@@ -9,6 +9,11 @@
 # Generic methods to display histograms with ROOT
 #=======================================================
 
+"""Generic methods to display histograms with ROOT
+
+Functions:
+  - time_series: Save multiple plots in a root file
+"""
 
 try:
     import ROOT as ROOT
@@ -42,6 +47,26 @@ def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style.cd()
 
 def timeseries(param_dict):
+    """Save multiple plots in a root file
+
+    param_dict is a dictionary with the following fields:
+
+    Args:
+        title: Plot title
+        input_files_name: Path to input file
+        input_file_format: Input file format (only "root" is currently
+            supported)
+        input_tree: Name of input tree
+        output_path: Path to output tree
+        output_format: Output format, eg PDF
+        output_width: Output width in pixels
+        output_height: Output height in pixels
+        data: Names of branches to plot
+        y_title: Titles to label each branch with in the legend
+
+    Returns:
+        TCanvas: Canvas with the given plots
+    """
     logger.info('Plotting timeseries')
     # Preparing the canvas
     if 'title' in param_dict and param_dict['title']!='':

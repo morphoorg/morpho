@@ -11,12 +11,17 @@
 #======================================================================
 
 """
-To do (for myself):
-    Resolve ROOT/scipy compatibility issue.
-    Fix matrix formatting (including axes).
-    Include histograms on top/left hand side.
-    Color code histograms and create key.
-    Contours at 1, 2, 3 sigma lines.
+Create a matrix of contour/2D density plots
+
+Functions:
+  - contours: Create contour plots matrix using a Stan model fit object
+
+Todo:
+  - Resolve ROOT/scipy compatibility issue.
+  - Fix matrix formatting (including axes).
+  - Include histograms on top/left hand side.
+  - Color code histograms and create key.
+  - Contours at 1, 2, 3 sigma lines.
 """
 
 import tempfile
@@ -112,4 +117,15 @@ def _matrix_plot(param_dict):
 
 
 def contours(param_dict):
+    """Create a matrix of contour plot using a stan fit object
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: The resulting plot is stored in a file. The plot
+        will be a grid of contour plots, with all given params
+        plotted against one another.
+    """
     _matrix_plot(param_dict)

@@ -56,10 +56,105 @@ Plot
 
 "do\_plots : true" must be in the morpho dictionary. The dictionaries below should be placed in a "which_plot" dictionary inside the "plot" dictionary.
 
-(placeholder)
+contours
 ~~~~~~~~~~~~~~~~
 
-(description)
+contours creates a matrix of contour plots using a stanfit object
 ::
-   - method_name: ""
-     module_name: ""
+  - method_name: "contours"
+    module_name: "contours"
+    read_cache_name: "cache_name_file.txt" # File containing path to stan model cache
+    input_fit_name: "analysis_fit.pkl"# pickle file containing stan fit object
+    output_path: "./results/" # Directory to save results in
+    result_names: ["param1", "param2", "param3"] # Names of parameters to plot
+    output_format: "pdf"
+
+ histo
+~~~~~~~~~~~~~~~~
+
+Plot a 1D histogram using a list of data
+::
+  - method_name: "histo"
+    module_name: "histo"
+
+spectra
+~~~~~~~~~~~~~~~~
+
+Plot a 1D histogram using 2 lists of data giving an x point and the corresponding bin contents
+::
+  - method_name: "spectra"
+    module_name: "histo"
+    title: "histo"
+    input_file_name : "input.root"
+    input_tree: "tree_name"
+    output_path: "output.root"
+    data:
+        - param_name
+
+histo2D
+~~~~~~~~~~~~~~~~
+
+Plot a 2D histogram using 2 lists of data
+::
+  - method_name: "histo2D"
+    module_name: "histo"
+    input_file_name : "input.root"
+    input_tree: "tree_name"
+    root_plot_option: "contz"
+    data:
+      - list_x_branch
+      - list_y_branch
+
+histo2D_divergence
+~~~~~~~~~~~~~~~~
+
+Plot a 2D histogram with divergence indicated by point color
+::
+  - method_name: "histo2D_divergence"
+    module_name: "histo"
+    input_file_name : "input.root"
+    input_tree: "tree_name"
+    root_plot_option: "contz"
+    data:
+      - list_x_branch
+      - list_y_branch
+
+aposteriori_distribution
+~~~~~~~~~~~~~~~~
+
+Plot a grid of 2D histograms
+::
+  - method_name: "aposteriori_distribution"
+    module_name: "histo"
+    input_file_name : "input.root"
+    input_tree: "tree_name"
+    root_plot_option: "cont"
+    output_path: output.root
+    title: "aposteriori_plots"
+    output_format: pdf
+    output_width: 12000
+    output_height: 1100
+    data:
+      - param1
+      - param2
+      - param3
+
+correlation_factors
+~~~~~~~~~~~~~~~~
+
+Plot a grid of correlation factors
+::
+  - method_name: "correlation_factors"
+    module_name: "histo"
+    input_file_name : "input.root"
+    input_tree: "tree_name"
+    root_plot_option: "cont"
+    output_path: output.root
+    title: "aposteriori_plots"
+    output_format: pdf
+    output_width: 12000
+    output_height: 1100
+    data:
+      - param1
+      - param2
+      - param3

@@ -605,8 +605,16 @@ def merge(a, b, path=None):
     return a
 
 def plot_result(conf, stanres):
-    """
-    Plot variables as specified.
+    """Plot a variable from a stanfit object
+
+    Args:
+        conf.plotvars: List of dictionaries containing the names of
+            variables to plot. Each dictionary should contain a
+            'variable' key that contains the variable name.
+        stanres: StanFit object resulting from Stan sampling
+
+    Returns:
+        None: Uses the plot method of stanres to plot the variable
     """
     fit = stanres.extract()
     if conf.plot_vars is not None:
@@ -620,6 +628,17 @@ def plot_result(conf, stanres):
                 stanres.plot(parname)
 
 def write_result(conf, stanres, input_param):
+    """Write results from a stanfit object to file
+
+    Args:
+        conf: Morpho object used to do the Stan sampling
+        stanres: StanFit object resulting from Stan sampling
+        input_param: Parameter to write
+
+    Returns:
+        StanFit: Write the result to file then returns the StanFit
+        object
+    """
     logger.info("Writing results!")
     try:
         from morpho.loader import pystanLoad as pyL
@@ -642,6 +661,15 @@ def write_result(conf, stanres, input_param):
     return stanres
 
 def preprocessing(sa):
+    """Import and run all preprocessing modules
+
+    Args:
+        sa: Morpho object containing preprocessing configuration
+
+    Returns:
+        None: Runs all preprocessing modules defined in the Morpho
+            object initialization
+    """
     # Generic function for creating the PreProcessing class
     if sa.prep_dict is None:
         logger.critical("preprocessing dict is None")
@@ -670,6 +698,15 @@ def preprocessing(sa):
     return 1
 
 def postprocessing(sa):
+    """Import and run all postprocessing modules
+
+    Args:
+        sa: Morpho object containing postprocessing configuration
+
+    Returns:
+        None: Runs all postprocessing modules defined in the Morpho
+            object initialization
+    """
     # Generic function for creating the PostProcessing class
     if sa.pp_dict is None:
         logger.critical("postprocessing dict is None")
@@ -698,6 +735,16 @@ def postprocessing(sa):
     return 1
 
 def plotting(sa):
+    """Import and run all plotting modules
+
+    Args:
+        sa: Morpho object containing plotting configuration
+
+    Returns:
+        None: Runs all plotting modules defined in the Morpho
+            object initialization
+    """
+
     # Generic function for plotting
     list_canvas = []
     if sa.plot_dict is None:
@@ -728,6 +775,15 @@ def plotting(sa):
     return list_canvas
 
 def save_object(obj, filename):
+    """Save an object to file in the pickle format
+
+    Args:
+        obj: Object to save
+        filname: Output file name
+
+    Returns:
+        None: The object is saved to file
+    """
     logger.info("Saving into pickle file: {}".format(filename))
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)

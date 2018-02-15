@@ -13,7 +13,7 @@ matrix:
     allow_failures:
         - python: 2.7
 #install: source ci/install.sh
-install: travis_wait 15 mvn install
+install:
   - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then curl --silent http://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh; fi
   - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then wget -nv http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
   
@@ -25,7 +25,7 @@ install: travis_wait 15 mvn install
   - conda info -a # Useful for debugging any issues with conda
   - conda config --add channels http://conda.anaconda.org/NLeSC  
   - conda config --set show_channel_urls yes
-  - conda create -q -n testenv python=${PYTHON} root=${ROOT} numpy matplotlib
+  - conda create -q -n testenv python=${PYTHON} root=${ROOT}
   - export CONDA_ENV_PATH=$HOME/miniconda/envs/testenv
   - source activate testenv
 # command to install dependencies and morpho

@@ -1,6 +1,8 @@
 morpho
 ======
 
+[![Build Status](https://travis-ci.org/project8/morpho.svg?branch=master)](https://travis-ci.org/project8/morpho)
+
    Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation. It is especially useful for
   1) Generating **pseudo data**, and
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.

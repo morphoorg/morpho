@@ -2,8 +2,8 @@ language: python
 
 matrix:
     include:
-        - python: 2.7
-          env: PYTHON=2.7 ROOT=5.34.32
+        # - python: 2.7
+        #   env: PYTHON=2.7 ROOT=5.34.32
         - python: 2.7
           env: PYTHON=2.7 ROOT=6.04
         - python: 3.4
@@ -25,7 +25,7 @@ install:
   - conda info -a # Useful for debugging any issues with conda
   - conda config --add channels http://conda.anaconda.org/NLeSC  
   - conda config --set show_channel_urls yes
-  - conda create -q -n testenv python=${PYTHON} root=${ROOT} numpy matplotlib
+  - travis_wait conda create -q -n testenv python=${PYTHON} root=${ROOT} numpy matplotlib
   - export CONDA_ENV_PATH=$HOME/miniconda/envs/testenv
   - source activate testenv
 # command to install dependencies and morpho

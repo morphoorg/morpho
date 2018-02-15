@@ -3,16 +3,17 @@
 #
 # Author: T. E. Weiss
 # Date: Aug. 15, 2016
-#
-# Contains functions used in multiple plotting modules.
 #=======================================================
+
+"""Private functions used in multiple plotting modules
+"""
 
 import tempfile
 import itertools as IT
 import os
 import pickle
 
-def uniquify(path, sep = ''):
+def _uniquify(path, sep = ''):
     """
     Each time a file is created the with same filename (in the same
     directory), add a consecutively higher number to the end of the
@@ -34,7 +35,7 @@ def uniquify(path, sep = ''):
     return filename
 
 
-def unpickle_with_cache(cache_name_file, fit_file):
+def _unpickle_with_cache(cache_name_file, fit_file):
     """
     Parameters:
     cache_name_file (str) - name of a file which contains the name of

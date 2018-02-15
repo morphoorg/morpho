@@ -1,7 +1,8 @@
 """
-Implement pre-processing methods before fitter invocation.
+Resample the contents of a tree
+
 Functions:
-    bootstrapping: Resample the content of a tree using a bootstrap randomization technique.
+  - bootstrapping: Resample the contents using a bootstrap technique
 """
 
 import logging
@@ -12,16 +13,16 @@ except ImportError:
     pass
 
 def bootstrapping(param_dict):
-    """
+    """Resample a tree using a bootstrap technique
+
+    Rather than regenerating fake data before every call to stan, one
+    can generate a larger data data set and then extract a random subset
+    before each call to stan
+
     Args:
-        param_dict: Dictionary of parameters to search
-            Bootstrapping looks for the following
-                'input_file_name': Name of the file to access (root)
-                'input_tree': Tree name
-                'output_file_name': Name of the file to save (root).  Default is same as input.
-                'output_tree': Tree output name.  Default is same as input.
-                'number_data': Number of sub-samples the user wishes to extract.
-                'option': Option for saving data (default = RECREATE)
+        param_dict: Dictionary of parameters to search. See "Morpho 1
+            Example Scripts" in the API for details.
+
     Returns:
         None: Creates new root file with number_data sampled entries.
     """

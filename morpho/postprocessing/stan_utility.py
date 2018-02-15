@@ -1,28 +1,26 @@
 """Perform Stan diagnostic tests
 
 Source: Michael Betancourt,
-jupyter_case_studies/pystan_workflow/stan_utility.py 
+https://github.com/betanalpha/jupyter_case_studies/blob/master/pystan_workflow/stan_utility.py 
 Modified by Talia Weiss, 1-23-18
 
 These tests are motivated here:
 http://mc-stan.org/users/documentation/case-studies/pystan_workflow.html
 
 Functions:
-    check_div: Check how many transitions ended with a divergence
-    check_treedepth: Check how many transitions failed due to tree depth
-    check_energy: Check energy Bayesian fraction of missing information
-    check_n_eff: Check the effective sample size per iteration
-    check_rhat: Check the potential scale reduction factors
-    check_all_diagnostics: Check all MCMC diagnosticcs
-    partition_div: Get divergent and non-divergent parameter arrays
-    compile_model: Cache Stan model
+  - check_div: Check how many transitions ended with a divergence
+  - check_treedepth: Check how many transitions failed due to tree depth
+  - check_energy: Check energy Bayesian fraction of missing information
+  - check_n_eff: Check the effective sample size per iteration
+  - check_rhat: Check the potential scale reduction factors
+  - check_all_diagnostics: Check all MCMC diagnosticcs
+  - partition_div: Get divergent and non-divergent parameter arrays
 """
 try:
     import pystan
     import numpy
 except ImportError:
     pass
-import pickle
 
 
 def check_div(fit):
@@ -33,7 +31,7 @@ def check_div(fit):
 
     Returns:
         str: States the number of transitions that ended with a
-            divergence
+        divergence
     """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     divergent = [x for y in sampler_params for x in y['divergent__']]
@@ -46,11 +44,12 @@ def check_div(fit):
         return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
             100 * n / N))
 
+
 def check_treedepth(fit, max_depth = 10):
     """Check how many transitions ended prematurely due to tree depth
 
     A transition may end prematurely if the maximum tree depth limit is
-    exceeded
+    exceeded.
 
     Args:
         fit: stanfit object containing sampler output
@@ -58,7 +57,7 @@ def check_treedepth(fit, max_depth = 10):
 
     Returns:
         str: States the number of transitions that passed the
-            given max_depth.
+        given max_depth.
     """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     depths = [x for y in sampler_params for x in y['treedepth__']]
@@ -71,6 +70,7 @@ def check_treedepth(fit, max_depth = 10):
         return(('{} of {} iterations saturated the maximum tree depth of {}.'
             + ' ({}%)').format(n, N, max_depth, 100 * n / N))
 
+
 def check_energy(fit):
     """Checks the energy Bayesian fraction of missing information (E-BFMI)
 
@@ -79,7 +79,7 @@ def check_energy(fit):
 
     Returns:
        str: Warns that the model may need to be reparametrized if
-           E-BFMI is less than 0.2
+       E-BFMI is less than 0.2
     """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     no_warning = True
@@ -95,6 +95,7 @@ def check_energy(fit):
     else:
         return('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
 
+
 def check_n_eff(fit):
     """Checks the effective sample size per iteration
     
@@ -103,7 +104,7 @@ def check_n_eff(fit):
 
     Returns:
         str: States whether the effective sample size indicates
-            an issue
+        an issue
     """
     fit_summary = fit.summary(probs=[0.5])
     n_effs = [x[4] for x in fit_summary['summary']]
@@ -156,8 +157,8 @@ def check_all_diagnostics(fit):
 
     Returns:
         list of str: Returns the strings indicating the results of the
-            checks for divergence, treee depth, energy Bayesian fraction
-            of missing energy, effective sample size, and Rhat
+        checks for divergence, treee depth, energy Bayesian fraction
+        of missing energy, effective sample size, and Rhat
     """
     return(check_n_eff(fit) + '\n' + check_rhat(fit) + '\n' + check_div(fit)+ '\n' + check_treedepth(fit) + '\n' + check_energy(fit))
 
@@ -191,7 +192,7 @@ def partition_div(fit):
  
     Returns:
         (dict, dict): The first dictionary contains all nondivergent
-            transitions, the second contains all divergent transitions
+        transitions, the second contains all divergent transitions
     """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     div = numpy.concatenate([x['divergent__'] for x in sampler_params]).astype('int')
@@ -200,36 +201,4 @@ def partition_div(fit):
     div_params = dict((key, params[key][div == 1]) for key in params)
     return nondiv_params, div_params
 
-def compile_model(filename, model_name=None, **kwargs):
-    """Cache Stan model
-    
-    See http://pystan.readthedocs.io/en/latest/avoiding_recompilation.html
-
-    Args:
-        filename: Name of the input file containing the stan model code
-        model_name: Name of the output cache file (default is model)
-        kwargs: Not used
-
-    Returns:
-        pystan.StanModel: The Stan model is cached, and then the stan
-            model is returned
-    """
-    from hashlib import md5
-
-    with open(filename) as f:
-        model_code = f.read()
-        code_hash = md5(model_code.encode('ascii')).hexdigest()
-        if model_name is None:
-            cache_fn = 'cached-model-{}.pkl'.format(code_hash)
-        else:
-            cache_fn = 'cached-{}-{}.pkl'.format(model_name, code_hash)
-        try:
-            sm = pickle.load(open(cache_fn, 'rb'))
-        except:
-            sm = pystan.StanModel(model_code=model_code)
-            with open(cache_fn, 'wb') as f:
-                pickle.dump(sm, f)
-        else:
-            print("Using cached StanModel")
-        return sm
 

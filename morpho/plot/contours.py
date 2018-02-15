@@ -11,13 +11,17 @@
 #======================================================================
 
 """
-To do (for myself):
-    Resolve ROOT/scipy compatibility issue.
-    Put uniquify function in separate file.
-    Fix matrix formatting (including axes).
-    Include histograms on top/left hand side.
-    Color code histograms and create key.
-    Contours at 1, 2, 3 sigma lines.
+Create a matrix of contour/2D density plots
+
+Functions:
+  - contours: Create contour plots matrix using a Stan model fit object
+
+Todo:
+  - Resolve ROOT/scipy compatibility issue.
+  - Fix matrix formatting (including axes).
+  - Include histograms on top/left hand side.
+  - Color code histograms and create key.
+  - Contours at 1, 2, 3 sigma lines.
 """
 
 import tempfile
@@ -39,37 +43,15 @@ try:
 except ImportError:
     pass
 
-def uniquify(path, sep = ''):
-    """
-    Each time a file is created the with same filename (in the same
-    directory), add a consecutively higher number to the end of the
-    filename.
-    """
-    def name_sequence():
-        count = IT.count()
-        yield ''
-        while True:
-            yield '{s}{n:d}'.format(s = sep, n = next(count))
-    orig = tempfile._name_sequence
-    with tempfile._once_lock:
-        tempfile._name_sequence = name_sequence()
-        path = os.path.normpath(path)
-        dirname, basename = os.path.split(path)
-        filename, ext = os.path.splitext(basename)
-        fd, filename = tempfile.mkstemp(dir = dirname, prefix = filename, suffix = ext)
-        tempfile._name_sequence = orig
-    return filename
-
-
-def gauss(x,y,Sigma,mu):
+def _gauss(x,y,Sigma,mu):
     X=np.vstack((x,y)).T
     mat_multi=np.dot((X-mu[None,...]).dot(np.linalg.inv(Sigma)),(X-mu[None,...]).T)
     return  np.diag(np.exp(-1*(mat_multi)))
 
 
-def plot_countour(x,y):
+def _plot_countour(x,y):
 
-    z = gauss(x, y, Sigma=np.asarray([[1.,.5],[0.5,1.]]), mu=np.asarray([0.,0.]))
+    z = _gauss(x, y, Sigma=np.asarray([[1.,.5],[0.5,1.]]), mu=np.asarray([0.,0.]))
     # define grid.
     xi = np.linspace(min(x),max(x),100)
     yi = np.linspace(min(y),max(y),100)
@@ -84,7 +66,7 @@ def plot_countour(x,y):
     #plt.ylim(-2,2)
 
 
-def plot_density(x, y, nbin=50):
+def _plot_density(x, y, nbin=50):
     """
     Creates 2D histogram of x and y, then displays this
     histogram as a 2D color gradient density plot.
@@ -99,7 +81,7 @@ def plot_density(x, y, nbin=50):
 
 
 
-def matrix_plot(param_dict):
+def _matrix_plot(param_dict):
 
     #Unpickling stan fit object
     cache_name_file = open(param_dict['read_cache_name'],'r')
@@ -125,14 +107,25 @@ def matrix_plot(param_dict):
                 ax.yaxis.tick_right()
                 ax.ticklabel_format(style='sci',axis='both', scilimits=(-3, 0))
                 if 'nbin' in param_dict:
-                    plot_density(results[names[i]], results[names[j]], param_dict['nbin'])
+                    _plot_density(results[names[i]], results[names[j]], param_dict['nbin'])
                 else:
-                    plot_density(results[names[i]], results[names[j]])
-#                    plot_contour(results[names[i]], results[names[j]])
+                    _plot_density(results[names[i]], results[names[j]])
+#                   _plot_contour(results[names[i]], results[names[j]])
     plt.tight_layout()
     plt.show()
 
 
 
 def contours(param_dict):
-    matrix_plot(param_dict)
+    """Create a matrix of contour plot using a stan fit object
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: The resulting plot is stored in a file. The plot
+        will be a grid of contour plots, with all given params
+        plotted against one another.
+    """
+    _matrix_plot(param_dict)

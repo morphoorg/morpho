@@ -104,6 +104,7 @@ plot:
         - a
         - b
         - variance
+        - LogLikelihood
     - method_name: correlation_factors
       module_name: histo
       input_file_name : "./morpho_test/results/morpho_linear_fit.root"

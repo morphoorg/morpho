@@ -1,6 +1,7 @@
 morpho
 ======
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/15d94897cce6421597fe56ead73cf196)](https://app.codacy.com/app/guiguem/morpho?utm_source=github.com&utm_medium=referral&utm_content=project8/morpho&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/project8/morpho.svg?branch=master)](https://travis-ci.org/project8/morpho)
 
    Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation. It is especially useful for

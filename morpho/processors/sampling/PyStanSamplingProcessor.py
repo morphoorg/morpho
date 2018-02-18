@@ -68,7 +68,7 @@ class PyStanSamplingProcessor(BaseProcessor):
 
         if (args.force_restart):
             logger.debug("Forced to create Stan cache!")
-            sm = pystan.StanModel(self.model_code=theModel)
+            sm = pystan.StanModel(model_code=theModel)
         if not args.no_cache:
             logger.debug("Saving Stan cache in {}".format(cache_fn))
             with open(cache_fn, 'wb') as f:
@@ -79,7 +79,7 @@ class PyStanSamplingProcessor(BaseProcessor):
                 sm = pickle.load(open(cache_fn, 'rb'))
             except:
                 logger.debug("None exists -> creating Stan cache")
-                sm = pystan.StanModel(self.model_code=theModel)
+                sm = pystan.StanModel(model_code=theModel)
                 if not args.no_cache:
                     logger.debug("Saving Stan cache in {}".format(cache_fn))
                     with open(cache_fn, 'wb') as f:
@@ -105,7 +105,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         logger.info(text)
         # returns the arguments for sampling and the result of the sampling
         return kwargs, sm.sampling(**kwargs)
-return stan_results
+# return stan_results
 
     def Configure(self, params):
         print(self, params)

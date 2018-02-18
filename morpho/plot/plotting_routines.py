@@ -3,9 +3,10 @@
 #
 # Author: T. E. Weiss
 # Date: Aug. 15, 2016
-#
-# Contains functions used in multiple plotting modules.
 #=======================================================
+
+"""Private functions used in multiple plotting modules
+"""
 
 import tempfile
 import itertools as IT

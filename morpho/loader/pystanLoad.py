@@ -2,18 +2,18 @@
 Import root and hdf5 files for use by pystan
 
 Functions:
-    readLabel: Get an item from a dictionary
-    insertIntoDataStruct: Insert item into dictionary
-    theHack: Format a string
-    stan_data_files: Read in a dictionary of data files
-    extract_data_from_output_data: Extract Stan output into a dictionary
-    open_or_create: Create a group in an hdf5 object
-    write_result_hdf5: Write Stan results to an hdf5 file
-    theTrick: Transform dict into a dict with depth indicated by "."
-    transform_list_of_dict_into_dict:  Transform elements of any lists 
-        inside a dict into separate dict entries
-    build_tree_from_dict: Create a root TTree object from a dictionary
-    stan_write_root: Save Stan inputs and outputs into a root file
+  - readLabel: Get an item from a dictionary
+  - insertIntoDataStruct: Insert item into dictionary
+  - theHack: Format a string
+  - stan_data_files: Read in a dictionary of data files
+  - extract_data_from_output_data: Extract Stan output into a dictionary
+  - open_or_create: Create a group in an hdf5 object
+  - write_result_hdf5: Write Stan results to an hdf5 file
+  - theTrick: Transform dict into a dict with depth indicated by "."
+  - transform\_list\_of\_dict\_into_dict:  Transform elements of any lists
+    inside a dict into separate dict entries
+  - build_tree_from_dict: Create a root TTree object from a dictionary
+  - stan_write_root: Save Stan inputs and outputs into a root file
 """
 
 import logging
@@ -82,30 +82,28 @@ def theHack(theString,theVariable,theSecondVariable="",theThirdVariable=""):
 def stan_data_files(theData):
     """Read in a dictionary of R, hdf5 and root files
 
+    theData must be a dictionary containing information about the
+    data that should be read in for use by stan. theData should
+    contain up to two dictionaries, stored with the keys 'files'
+    and 'parameters'. These dictionaries should be set up as
+    follows:
+
     Args:
-        theData: Dictionary containing information about the data that
-            should be read in for use by Stan. theData should contain
-            up to two dictionaries, stored with the keys 'files' and
-            'parameters'. These dictionaries are then used as follows:
-
-            theData['files']: This should be a list of dictionaries, 
-                where each dictionary has the following fields:
-                'name': Name of the file to access
-                'format': Filetype, 'R', 'root' or 'hdf5'
-                'datasets': List of datasets to be used when accessing
-                    an hdf5 file (required only if 'format'=='hdf5')
-                'tree': Name of tree to access when accessing a root file
-                    (required only if 'format'=='root')
-                'branches': Branches to be accessed in the given root tree
-                    (required only if 'format'=='root')
-                'cut': String specifying the cut for a root file (optional)
-
-            theData['parameters']: All values from this list are added to
-                the returned list
+        theData.files.name: Name of the file to access
+        theData.files.format: Filetype. Options are 'R', 'root' or 'hdf5'
+        theData.files.datasets: List of datasets to be used when accessing
+            an hdf5 file (required only if 'format'=='hdf5')
+        theData.files.tree: Name of tree to access when accessing a root
+            file (required only if 'format'=='root')
+        theData.files.branches: Branches to be accessed in the given root
+            tree (required only if 'format'=='root')
+        theData.files.cut: String specifying the cut for a root file (optional)
+        theData.parameters: All values from this list are added to
+            the returned list
 
     Returns:
         dictionary: All values from the given files are returned as a
-            dictionary
+        dictionary
     """
     alist = {}
     for tags in theData.keys():
@@ -414,7 +412,7 @@ def open_or_create(hdf5obj, groupname):
 
     Return:
         h5py.Group: Creates a group within the given hdf5 object if it
-            doesn't already exist, then returns the group.
+        doesn't already exist, then returns the group.
     """
     if groupname != "/" and groupname not in hdf5obj.keys():
         hdf5obj.create_group(groupname)
@@ -475,7 +473,7 @@ def theTrick(thedict,uppertreename=""):
     
     Returns:
         dictionary: Depth one dictionary containing the same values,
-            with key names equal to the path through thedict
+        with key names equal to the path through thedict
     """
     newdict = {}
     for key,value in thedict.items():
@@ -499,7 +497,7 @@ def transform_list_of_dict_into_dict(thedict):
 
     Returns:
        dictionary: the dict, with any elements that are lists separated
-           into separate dictionary entries
+       into separate dictionary entries
     '''
 
     result_dict = {}
@@ -610,7 +608,7 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     Returns:
         None: The given theOutput and input_param values are saved to a
-            root file named theFileName.
+        root file named theFileName.
     """
     logger.debug("Creating ROOT file {}".format(theFileName))
     if conf.out_option:

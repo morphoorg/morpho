@@ -3,18 +3,13 @@
 #
 # Author: T. E. Weiss
 # Date: Aug. 15, 2016
-#
-# Description:
-#
-# Plot beta decay spectra, by calculating a spectral shape given a set
-# of input parameters and/or by scatter plotting (KE, spectrum) pairs.
-#
-# In a configuration file plotting parameter dictionary, the user 
-# should specify which plots he or she wishes to create using the 
-# "plotting_options" list (e.g. "plotting_options": ["spectrum_shape",
-# "spectrum_scatter", "overlay"]).
 #=======================================================
 
+"""Plot beta spectrum
+
+Functions:
+  - spectra: Plot a beta spectrum
+"""
 
 try:
     import numpy as np
@@ -135,19 +130,32 @@ def _read_from_param_list(data_names, params):
 
 
 def spectra(param_dict):
-    """
+    """Plot a spectral shape
+
+    Takes as input a set of input parameters and/or by scatter
+    plotting (KE, spectrum) pairs.
+
     Unpickles a Stan fit object. Creates from data_names a new dictionary
     data_vals that is useful for spectral shape plotting. Then invokes
     whichever plotting functions are indicated by "plotting_options."
 
-    Possible options: 'spectrum_shape', 'spectrum_scatter', 'overlay'
+    In a configuration file plotting parameter dictionary, the user
+    should specify which plots he or she wishes to create using the
+    "plotting_options" list (e.g. "plotting_options": ["spectrum_shape",
+    "spectrum_scatter", "overlay"]).
 
-    Parameters:
-    param_dict - dictionary containing output path (str), output
-    format (str), name of a file containing the cache filename (str),
-    name of a pickle file (str), a 'data_names' dictionary with useful
-    values, plot labels, and names of Stan parameters,  'plotting_options'
-    (list), x_range (list), y_scale (str), and optionally num_x (int)
+    param_dict is a dictionary containing the following fields:
+
+    Args:
+        output path: Path to save output
+        ouput_format: Format of output file
+        read_cache_name: Name of a file containing the cache filename
+        data_names: dictionary with useful values, plot labels, and
+            names of Stan parameters
+        plotting_options: Plotting options
+        x_range: List with x range
+        y_scale: String with y_scale
+        num_x: Number of x bins (optional, default 50)
     """
 
     # Determining which plots will be created and how they will be saved    

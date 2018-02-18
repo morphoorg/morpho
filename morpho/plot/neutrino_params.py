@@ -4,19 +4,22 @@
 # Author: T. E. Weiss
 # Date: Aug. 4, 2016
 #
-# Description:
-#
-# Create traceplots, sampling plots, and other related plots of
-# neutrino mixing and mass parameters outputted by the analysis model.
-#
-# In a configuration file plotting parameter dictionary, the user 
-# should specify which plots he or she wishes to create using the 
-# "plotting_options" list (e.g. "plotting_options": ["neutrino_masses",
-# "mass_params", "mixing_params"]).
 #=======================================================
 
-"""
-To do (for myself):
+"""Example module to plot quantities related to a neutrino mass analysis
+
+Create traceplots, sampling plots, and other related plots of
+neutrino mixing and mass parameters outputted by the analysis model.
+
+In a configuration file plotting parameter dictionary, the user
+should specify which plots he or she wishes to create using the
+"plotting_options" list (e.g. "plotting_options": ["neutrino_masses",
+"mass_params", "mixing_params"]).
+
+Functions:
+  - neutrino_params: Plot neutrino parameters
+
+Todo:
     Allow for more flexible and/or user defined ranges for plots of parameters.
     Allow for more flexible contour level inputs.
     Clean up error messages.
@@ -204,7 +207,8 @@ def _plot_contours(analysis_params, param_dict, data):
 
 
 def neutrino_params(param_dict):
-    """
+    """Plot parameters related to neutrino mass analysis
+
     Loads a Stan ModelFit from a pickle file. Then invokes whichever
     plotting functions are indicated by the 'plotting_options':[opt1, opt2 ...]
     entry in param_dict.
@@ -212,12 +216,18 @@ def neutrino_params(param_dict):
     Possible options: 'neutrino_masses', 'mass_params', 'mixing_params',
     'contours'
 
-    Parameters:
-    param_dict - dictionary containing output path (str), output
-    format (str), name of a file containing the cache filename (str),
-    name of a pickle file (str), a 'data' dictionary with names of Stan
-    parameters, 'plotting_options' (list), and optionally a specification
-    of the mass hierarchy (str - either 'normal'or 'inverted')
+    param_dict is a dictionary containing the following plotting info
+
+    Args:
+        output_path: Path to save output
+        output_format: Format of output file
+        read_cache_name: name of a file containing the cache filename
+        input_fit_name: name of a pickle file
+        data: dictionary with names of Stan parameters
+        plotting_options: List with some combination of 'neutrino_masses',
+            'mass_params', 'mixing_params', and 'contours'
+        hierarchy: Specification of the mass hierarchy (either
+            'normal'or 'inverted')
     """
 
     #Determining which plots will be created

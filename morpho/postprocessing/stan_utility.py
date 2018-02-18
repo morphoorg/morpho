@@ -8,13 +8,13 @@ These tests are motivated here:
 http://mc-stan.org/users/documentation/case-studies/pystan_workflow.html
 
 Functions:
-    check_div: Check how many transitions ended with a divergence
-    check_treedepth: Check how many transitions failed due to tree depth
-    check_energy: Check energy Bayesian fraction of missing information
-    check_n_eff: Check the effective sample size per iteration
-    check_rhat: Check the potential scale reduction factors
-    check_all_diagnostics: Check all MCMC diagnosticcs
-    partition_div: Get divergent and non-divergent parameter arrays
+  - check_div: Check how many transitions ended with a divergence
+  - check_treedepth: Check how many transitions failed due to tree depth
+  - check_energy: Check energy Bayesian fraction of missing information
+  - check_n_eff: Check the effective sample size per iteration
+  - check_rhat: Check the potential scale reduction factors
+  - check_all_diagnostics: Check all MCMC diagnosticcs
+  - partition_div: Get divergent and non-divergent parameter arrays
 """
 try:
     import pystan
@@ -31,7 +31,7 @@ def check_div(fit):
 
     Returns:
         str: States the number of transitions that ended with a
-            divergence
+        divergence
     """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     divergent = [x for y in sampler_params for x in y['divergent__']]
@@ -57,7 +57,7 @@ def check_treedepth(fit, max_depth = 10):
 
     Returns:
         str: States the number of transitions that passed the
-            given max_depth.
+        given max_depth.
     """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     depths = [x for y in sampler_params for x in y['treedepth__']]
@@ -79,7 +79,7 @@ def check_energy(fit):
 
     Returns:
        str: Warns that the model may need to be reparametrized if
-           E-BFMI is less than 0.2
+       E-BFMI is less than 0.2
     """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     no_warning = True
@@ -104,7 +104,7 @@ def check_n_eff(fit):
 
     Returns:
         str: States whether the effective sample size indicates
-            an issue
+        an issue
     """
     fit_summary = fit.summary(probs=[0.5])
     n_effs = [x[4] for x in fit_summary['summary']]
@@ -157,8 +157,8 @@ def check_all_diagnostics(fit):
 
     Returns:
         list of str: Returns the strings indicating the results of the
-            checks for divergence, treee depth, energy Bayesian fraction
-            of missing energy, effective sample size, and Rhat
+        checks for divergence, treee depth, energy Bayesian fraction
+        of missing energy, effective sample size, and Rhat
     """
     return(check_n_eff(fit) + '\n' + check_rhat(fit) + '\n' + check_div(fit)+ '\n' + check_treedepth(fit) + '\n' + check_energy(fit))
 
@@ -192,7 +192,7 @@ def partition_div(fit):
  
     Returns:
         (dict, dict): The first dictionary contains all nondivergent
-            transitions, the second contains all divergent transitions
+        transitions, the second contains all divergent transitions
     """
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     div = numpy.concatenate([x['divergent__'] for x in sampler_params]).astype('int')

@@ -1,9 +1,9 @@
 An Example of How to Use Morpho (```morpho_test```)
 ======
 
-The ```morpho_test``` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run. See [Instructions for Use: Before You Run Morpho](https://github.com/project8/morpho/blob/develop/README.md) for more details regarding analysis file organization.
+The ```morpho_test``` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run. See [Instructions for Use: Before You Run Morpho](use-instructions) for more details regarding analysis file organization.
 
-Run the ```morpho_test``` analysis from the ```examples``` folder by executing:
+Run ```morpho_test``` from the ```examples``` folder by executing:
 
 ```
 morpho --config morpho_test/scripts/morpho_linear_fit.yaml
@@ -22,7 +22,7 @@ The data that is analyzed in Stan is contained in the R file ```morpho_test/data
 
 Configuration File
 ---------------
-The configuration file ```morpho_test/scripts/morpho_linear_fit.yaml``` specifies that morpho will analyze the data in ```input.data``` using the Stan model ```morpho_linear_fit.stan```. In also tells morpho to output posteriors as well as convergence diagnostic info to a root file, then to create relevant plots. 
+The configuration file ```morpho_test/scripts/morpho_linear_fit.yaml``` specifies that morpho will analyze the data in ```input.data``` using the Stan model ```morpho_linear_fit.stan```. In also tells morpho to output posteriors as well as convergence diagnostics to a root file and to create relevant plots. 
 
 ### The ```morpho``` Block ###
 The user specifies which processors morpho will invoke. In this case, it will run the main Stan function and produce plots:
@@ -35,8 +35,8 @@ morpho:
   do_plots: True
 ```
 
-### The ```Stan``` Block ###
-The user specifies Stan running conditions, input and output data files, and values of "data" parameters in the Stan model:
+### The ```stan``` Block ###
+The user specifies Stan running conditions, input and output data files, and values of "data" parameters in the Stan code:
 
 ```
 stan:
@@ -78,7 +78,7 @@ The ```model``` sub-block loads in the Stan model file and caches the compiled c
 
 ### The ```plot``` Block ###
 
-The user specifies which plotting processor and module morpho should employ, as well as information specific to that module:
+The user specifies which plotting processors and modules morpho should employ, as well as information specific to those modules:
 
 ```
 plot:
@@ -93,5 +93,5 @@ plot:
        - a
 ```
 
-See [Morpho 1 Example Scripts](https://morpho.readthedocs.io/en/latest/morpho1examples.html) for more information regarding the ```plot``` block set-up for various modules. The Example Scripts contain analogous guidance for setting up ```preprocessing``` and ```postprocessing``` blocks.
+See [Morpho 1 Example Scripts](https://morpho.readthedocs.io/en/latest/morpho1examples.html) for more information regarding the ```plot``` block set-up for various plotting modules. Those Example Scripts contain analogous guidance for setting up ```preprocessing``` and ```postprocessing``` blocks.
 

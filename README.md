@@ -56,7 +56,7 @@ The following dependencies should be installed (via a package manager) before in
 
 
 
-Instructions for Use
+(use-instructions)(#instructions-for-use)
 ---------------
 ### Before You Run Morpho ###
 

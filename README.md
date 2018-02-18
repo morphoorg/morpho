@@ -54,11 +54,11 @@ The following dependencies should be installed (via a package manager) before in
   You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under the ```/host``` folder created by docker-compose.
   4. You can remove the container image using ```docker rmi morpho_morpho```.
 
-   If you develop new features or identify bugs, please open a GitHub issue or email nsoblath@mit.edu.
+   If you develop new features or identify bugs, please open a GitHub issue.
 
 
 
-Instructions for Use
+[Instructions for Use](#instructions-for-use)
 ---------------
 ### Before You Run Morpho ###
 

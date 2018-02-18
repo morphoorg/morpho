@@ -6,6 +6,7 @@ Dependencies
 ############
 
 The following dependencies should be installed (via a package manager) before installing morpho:
+
   - python (2.7.x; 3.x not yet supported)
   - python-pip
   - git
@@ -19,7 +20,6 @@ Virtual environment-based installation
 We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.15.
 
 If necessary, install `virtualenv <https://virtualenv.pypa.io/en/stable/>`_, then execute:
-
 ::
    bash
    virtualenv ~/path/to/the/virtualenvironment
@@ -48,7 +48,6 @@ Running Morpho
 ##############
 
 Once the relevant data, model and configuration files are at your disposal, run morpho by executing:
-
 ::
    bash
    morpho --config  /path/to/json_or_yaml_config_file --other_options

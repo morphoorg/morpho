@@ -1,7 +1,7 @@
 An Example of How to Use Morpho (```morpho_test```)
 ======
 
-The ```morpho_test``` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run. See [Instructions for Use: Before You Run Morpho](use-instructions) for more details regarding analysis file organization.
+The ```morpho_test``` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run. See [Instructions for Use: Before You Run Morpho](https://github.com/project8/morpho/tree/doc_README#instructions-for-use) for more details regarding analysis file organization.
 
 Run ```morpho_test``` from the ```examples``` folder by executing:
 

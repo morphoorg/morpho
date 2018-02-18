@@ -1,5 +1,11 @@
-'''
-'''
+"""All modules and packages used by morpho
+
+Subpackages:
+    preprocessing: Process inputs before passing to stan
+    loader: Load data for use by stan
+    plot: Create plots from stan outputs
+    postprocessing: Process stan outputs before or after plotting
+"""
 
 from __future__ import absolute_import
 

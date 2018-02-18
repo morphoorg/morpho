@@ -10,7 +10,10 @@
 #=======================================================
 
 
-import ROOT as ROOT
+try:
+    import ROOT as ROOT
+except ImportError:
+    pass
 import cmath as math
 from array import array
 import re

@@ -1,16 +1,30 @@
-'''
-Implement some resampling methods
-'''
+"""
+Implement pre-processing methods before fitter invocation.
+Functions:
+    bootstrapping: Resample the content of a tree using a bootstrap randomization technique.
+"""
 
 import logging
 logger = logging.getLogger(__name__)
-
-import ROOT as root
+try:
+    import ROOT as root
+except ImportError:
+    pass
 
 def bootstrapping(param_dict):
-    '''
-    Resample the content of a tree usng a bootstrap technique (some samples can be used twice).
-    '''
+    """
+    Args:
+        param_dict: Dictionary of parameters to search
+            Bootstrapping looks for the following
+                'input_file_name': Name of the file to access (root)
+                'input_tree': Tree name
+                'output_file_name': Name of the file to save (root).  Default is same as input.
+                'output_tree': Tree output name.  Default is same as input.
+                'number_data': Number of sub-samples the user wishes to extract.
+                'option': Option for saving data (default = RECREATE)
+    Returns:
+        None: Creates new root file with number_data sampled entries.
+    """
 
     logger.debug("Making bootstrapping")
     input_file_name = param_dict['input_file_name']

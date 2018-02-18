@@ -1,68 +1,71 @@
-------------------
- Installation Instructions
-------------------
+---------------
+Install
+---------------
 
 Dependencies
-------------------
+############
 
-The following dependencies should be installed (using a package manager) before installing morpho:
+The following dependencies should be installed (via a package manager) before installing morpho:
+  - python (2.7.x; 3.x not yet supported)
+  - python-pip
+  - git
+  - python-matplotlib
 
-1) python (2.7.x; 3.x not yet supported)
-2) python-pip
-3) git
-4) python-matplotlib
+Morpho reads and saves files in either **R** or **ROOT.** If you would like to use root, install root-system or see https://root.cern (and ensure that the same version of python is enabled for morpho and ROOT).
 
-Morpho can read and save files in either R or root. If you would like to use root, install root-system or see https://root.cern.
+Virtual environment-based installation
+######################################
 
-Virtual environment installation
+We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.15.
 
-We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, include PyStan 2.15.
+If necessary, install `virtualenv <https://virtualenv.pypa.io/en/stable/>`_, then execute:
 
-If necessary, install virtualenv, then execute
 ::
-  virtualenv ~/path/to/the/virtualenvironment
-  source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment.
-  #Use```bash deactivate``` to exit the environment.
-  pip install -U pip # Update pip to >= 7.0.0
-  cd ~/path/to/morpho
-  pip install .
-  pip install .[all]  
-  
+   bash
+   virtualenv ~/path/to/the/virtualenvironment
+   source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment
+   #Use "bash deactivate" to exit the environment
+   pip install -U pip #Update pip to >= 7.0.0
+   cd ~/path/to/morpho
+   pip install .
+   pip install .[all]
+
+   
 Docker installation
+###################
 
-If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a Docker container instead of a python virtual environment. To do so:
+If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a `Docker container <https://docs.docker.com/get-started/>`_ instead of a python virtual environment. To do so:
 
-Install Docker: https://docs.docker.com/engine/installation/
-Clone and pull the latest master version of morpho
-Inside the morpho folder, execute docker-compose run morpho. A new terminal prompter (for example, root@413ab10d7a8f:) should appear. You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the morpho_share directory that is mounted under a /host folder.
-You can remove the container image using docker rmi morpho_morpho.
-If you develop new features or identify bugs, please open a github issue or email nsoblath@mit.edu.
+     1. Install Docker: https://docs.docker.com/engine/installation/.
+     2. Clone and pull the latest master version of morpho.
+     3. Inside the morpho folder, execute ``docker-compose run morpho``. A new terminal prompter (for example, ``root@413ab10d7a8f:``) should appear. You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container,move morpho to the ``morpho_share`` directory that is mounted under the ``/host`` folder created by docker-compose.
+     4. You can remove the container image using ``docker rmi morpho_morpho``.
 
-Running
-------------------
+If you develop new features or identify bugs, please open a GitHub issue.
 
-See the documentation on the Stan homepage for more detail about the Stan models.
+
+Running Morpho
+##############
+
+Once the relevant data, model and configuration files are at your disposal, run morpho by executing:
+
 ::
-  morpho --config  model_folder/<name_of_json/yaml_config_file> --other_options
+   bash
+   morpho --config  /path/to/json_or_yaml_config_file --other_options
 
-Essentially, the following takes place. One can "generate" fake data according to a specific model (krypton_generator.stan) or run on actual data (krypton_analysis.stan). The sequence for events is as follows
-
-The information relative to the model such as the seed or the algorithm to be used are read from the json/yaml script or from the command line.
-
-The input files are read into the system. The input files can be in R, root or hdf5. Input values can be directly given directly in the script.
-
-The script looks for cached versions of the .stan model file. If not, it generates a new one and saves it. The cached models exist in the cache directory.
-
-The model generates sample the Likelihood function defined in the model and save the samplesin the specified directory. If there is no data, this in principle can be used to generate fake data.
-
-Postprocessing routines defined in python within the script can occur at the end of the Markov chains in order to generate fake data for example (data_reducer postprocessing).
-
-Very generic plots and screen outputs can be created.
-
-"Help will always be given to those who ask for it"
+You can test morpho using the example in the morpho_test directory:
 ::
-  morpho --help
+   bash
+   morpho --config morpho_test/scripts/morpho_linear_fit.yaml
 
-An simple example of script and model can be found in the examples
-folder. You can execute it using::
-  morpho --config morpho_test/scripts/morpho_linear_fit.yaml
+When you run morpho, it performs each of the following actions, in this order:
+   1. If the configuration file includes a ``data`` dictionary, morpho reads any Stan data parameter values under ``type: mc`` in that file and loads any named R or ROOT files.
+   2. If ``do_preprocessing`` is ``true`` in the configuration file, morpho executes the methods specified under ``preprocessing`` in that file. See preprocessing options `here <http://morpho.readthedocs.io/en/latest/preprocessing.html>`_.
+   3. If ``do_stan`` is ``true``, morpho searches for and uses a cached version of the compiled Stan model file. If the cache file does not exist, morpho compiles the model and creates a new cache file. Morpho then runs Stan, prints out summary statistics regarding posteriors (as well as basic diagnostic information), and outputs results to an R or ROOT file, as specified under ``output`` in the configuration file.
+   4. If ``do_plots`` is ``true``, morpho executes the methods specified under ``plot`` in the configuration file to create and save plots. See plotting options `here <http://morpho.readthedocs.io/en/latest/plot.html>`_.
+   5. If ``do_postprocessing`` is ``true``, morpho executes the methods specified under ``postprocessing`` in the configuration file and optionally saves results. See post-processing options `here <http://morpho.readthedocs.io/en/latest/postprocessing.html>`_.
+
+"Help will always be given to those who ask for it":
+::
+   bash
+   morpho --help

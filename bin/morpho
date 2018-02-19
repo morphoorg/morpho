@@ -171,7 +171,10 @@ class morpho(object):
         chain
       - init: List of dictionaries with variable initializations for all
         chains
-      - control: Dictionary (not implemented)
+      - control: A dictionary of parameters (including 'adapt_delta')
+        controlling various aspects of the sampler's behavior. For more
+        information and default values, see
+        http://pystan.readthedocs.io/en/latest/api.html.
       - plot_vars: Dictionary with plot settings
       - out_format: Format used to store stan output
       - out_fname: Filename used to store stan output
@@ -347,7 +350,6 @@ class morpho(object):
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
             self.init = self.init_Stan_function()
-            # control is currently not used. Update the docstring if it is implemented.
             if isinstance(self.read_param(yd, 'stan.run.control', None),dict):
                 self.control = self.read_param(yd, 'stan.run.control', None)
             else:

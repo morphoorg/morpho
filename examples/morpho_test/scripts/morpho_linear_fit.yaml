@@ -1,8 +1,8 @@
 # This is a testing script which is supposed to make a linear fit.
 morpho:
-  # do_preprocessing: True
+  do_preprocessing: False
   do_stan: True
-  # do_postprocessing: True
+  do_postprocessing: False
   do_plots: True
 stan:
   # Name of the model
@@ -104,6 +104,7 @@ plot:
         - a
         - b
         - variance
+        - LogLikelihood
     - method_name: correlation_factors
       module_name: histo
       input_file_name : "./morpho_test/results/morpho_linear_fit.root"

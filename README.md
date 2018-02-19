@@ -1,6 +1,8 @@
 morpho
 ======
 
+[![Build Status](https://travis-ci.org/project8/morpho.svg?branch=master)](https://travis-ci.org/project8/morpho)
+
    Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation. It is especially useful for
   1) Generating **pseudo data**, and
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
@@ -35,7 +37,7 @@ The following dependencies should be installed (via a package manager) before in
   ```bash
 	virtualenv ~/path/to/the/virtualenvironment
 	source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment
-	#Use```bash deactivate``` to exit the environment
+	#Use "bash deactivate" to exit the environment
 	pip install -U pip #Update pip to >= 7.0.0
 	cd ~/path/to/morpho
 	pip install .
@@ -52,11 +54,11 @@ The following dependencies should be installed (via a package manager) before in
   You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under the ```/host``` folder created by docker-compose.
   4. You can remove the container image using ```docker rmi morpho_morpho```.
 
-   If you develop new features or identify bugs, please open a GitHub issue or email nsoblath@mit.edu.
+   If you develop new features or identify bugs, please open a GitHub issue.
 
 
 
-Instructions for Use
+[Instructions for Use](#instructions-for-use)
 ---------------
 ### Before You Run Morpho ###
 

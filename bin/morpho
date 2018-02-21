@@ -164,7 +164,8 @@ class morpho(object):
       - iter: Number of iterations for each stan chain
       - warmup: Number of iterations that should be considered warmup
       - chains: Number of chains to run
-      - n_jobs: Number of jobs to run (not implemented)
+      - n_jobs: Number of CPUs used to sample in parallel. If -1 all CPUs
+        are used. If 1, no parallel computing code is used at all.
       - seed: Random number seed
       - thin: Integer specifying thinning for stan iterations
       - init_per_chain: Dictionary of variable initializations for one
@@ -334,8 +335,8 @@ class morpho(object):
             self.iter = int(self.read_param(yd, 'stan.run.iter', 2000))
             self.warmup = int(self.read_param(yd, 'stan.run.warmup', self.iter/2))
             self.chains = int(self.read_param(yd, 'stan.run.chain', 4))
-            # n_jobs is currently not used. Update the docstring if it is implemented.
-            self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
+            # number of jobs to run (-1: all CPUS, 1: 1 CPU, good for debugging)
+            self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1))
             # Adding a seed based on extra arguments, current time
             if isinstance(args.seed,(int,float,str)):
                 self.seed=int(args.seed)

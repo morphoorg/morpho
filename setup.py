@@ -34,7 +34,6 @@ for deps in extras_require.values():
     everything.update(deps)
 extras_require['all'] = everything
 
-print(requirements)
 setup(
     name='morpho',
     version=verstr,

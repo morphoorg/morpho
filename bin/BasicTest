@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+'''
+Transform the example into an executable as below
+'''
+
 from __future__ import absolute_import
 
 from morpho.processors import TRacePlotProcessor, RootFileReader, StanSampler

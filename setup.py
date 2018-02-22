@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from glob import glob
 
 import sys, os
@@ -38,8 +38,7 @@ print(requirements)
 setup(
     name='morpho',
     version=verstr,
-    packages=['morpho', 'morpho/utilities', 'morpho/processors'],
-    # packages=['morpho', 'morpho/loader','morpho/plot','morpho/preprocessing','morpho/postprocessing'],
+    packages=find_packages(),
     scripts=['bin/morpho','bin/BasicTest'],
     install_requires=requirements,
     extras_require=extras_require,

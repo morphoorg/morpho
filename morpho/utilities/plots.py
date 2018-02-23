@@ -199,10 +199,12 @@ def _fill_variable_grid_corr_plot(variable_names):
 def _fill_hist_grid(input_dict, name_grid,
                     nbins_x, nbins_y):
     '''
-    Creates a grid of histograms from a dictionary of data
+    Creates a grid of histograms from a dictionary of data.
+    Note that it removes the warmup part of the chain.
     '''
     rows, cols = len(name_grid), len(name_grid[0])
     hist_grid = [[None]*cols for i in range(rows)]
+    warmup = input_dict["is_sample"].count(0)
     # tree = myfile.Get(input_tree)
     # n = tree.GetEntries()
     # n = len(input_dict[list(input_dict.keys())[0]])
@@ -215,8 +217,9 @@ def _fill_hist_grid(input_dict, name_grid,
                     # tree.GetEntry(i)
                     # list_dataY.append(getattr(tree, names[0]))
                     # list_dataX.append(getattr(tree, names[1]))
-                list_dataY = input_dict[names[0]]
-                list_dataX = input_dict[names[1]]
+                list_dataY = input_dict[names[0]][warmup:]
+                list_dataX = input_dict[names[1]][warmup:]
+                
                 histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y],
                                     [0,0], '{}_{}'.format(names[0],names[1]))
                 histo.SetTitle("")

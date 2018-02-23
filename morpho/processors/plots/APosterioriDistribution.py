@@ -7,8 +7,10 @@ from __future__ import absolute_import
 import json
 import os
 
+
 from morpho.utilities import morphologging, reader, plots
 from morpho.processors import BaseProcessor
+from morpho.processors.plots import RootCanvas
 logger=morphologging.getLogger(__name__)
 
 __all__ = []
@@ -31,73 +33,39 @@ class APosterioriDistribution(BaseProcessor):
         '''
         Configure
         '''
+        logger.info("Configure with {}".format(param_dict))
+        # Initialize Canvas
+        self.rootcanvas = RootCanvas.RootCanvas(param_dict,optStat=0)
+
+        # Read other parameters
         self.nbins_x = int(reader.read_param(param_dict,'n_bins_x',100))
         self.nbins_y = int(reader.read_param(param_dict,'n_bins_y',100))
         self.namedata = reader.read_param(param_dict,'data',"required")
         self.draw_opt_2d = reader.read_param(param_dict,'root_plot_option',"contz")
-        
 
     def Run(self):
-
-    # Populate a grid of histograms with the parameters
-        # if 'n_bins_x' in param_dict:
-        #     nbins_x = param_dict['n_bins_x']
-        # else:
-        #     nbins_x = 100
-        # if 'n_bins_y' in param_dict:
-        #     nbins_y = param_dict['n_bins_y']
-        # else:
-        #     nbins_y = 100
-
-        # if 'data' in param_dict:
-        #     namedata = param_dict['data']
-            
-
-        # if 'root_plot_option' in param_dict:
-        #     draw_opt_2d = param_dict['root_plot_option']
-        # else:
-        #     draw_opt_2d = 'contz'
-
+        logger.info("Run...")
+        
         name_grid, draw_opts_grid, colors_grid =plots._fill_variable_grid(self.namedata,
                                                                     self.draw_opt_2d)
-        # print(name_grid)
-        # print(draw_opts_grid)
-        # print(colors_grid)
-        # myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
-        # input_tree_name = param_dict['input_tree']
         hist_grid = plots._fill_hist_grid(self.data, name_grid,
                                     self.nbins_x, self.nbins_y)
         
-        # Preparing the canvas
-        logger.debug("Preparing Canvas")
-        # title, width, height = plots._preparingCanvas(param_dict)
-        import ROOT
-        can = ROOT.TCanvas("test","test",600,400)
-        can.Draw()
-        # if 'options' in param_dict:
-        #     if "logy" in param_dict['options']:
-        #         can.SetLogy()
-
-        # Setting the titles
-        logger.debug("Preparing Titles")
-        # xtitle, ytitle = self._preparingTitles(param_dict)
-        xtitle = "x"
-        ytitle = 'y'
-
-        gSave = []
-    
-        # Plot all histograms
-        ROOT.gStyle.SetOptStat(0)
         rows = len(hist_grid)
         cols = len(hist_grid[0])
-        can.Divide(cols,rows)
+        # Drawing and dividing the canvas
+        self.rootcanvas.Draw()
+        self.rootcanvas.Divide(cols,rows)
+
+        # Plot all histograms
+        import ROOT    
         # Histograms must still be in memory when the pdf is saved
         additional_hists = list()
         for r in range(rows):
             for c in range(cols):
                 if(not hist_grid[r][c] is None):
                     ican = 1+r*cols+c
-                    can.cd(ican)
+                    self.rootcanvas.cd(ican)
                     if(not colors_grid[r][c] is None):
                         color = colors_grid[r][c]
                     else:
@@ -130,26 +98,4 @@ class APosterioriDistribution(BaseProcessor):
                         additional_hists.append(hist_1_sig)
                         additional_hists.append(hist_2_sig)
                     
-        # Save the plot
-        # if 'output_path' in param_dict:
-        #     path = param_dict['output_path']
-        # else:
-        #     path = "./"
-        # if path.endswith('/')==False:
-        #     path = path + '/'
-        # if title!=' ':
-        #     figurefullpath = path+title+'_'
-        # else:
-        #     figurefullpath = path
-        # for namedata in param_dict['data']:
-        #     figurefullpath += namedata + '_'
-        # if figurefullpath.endswith('_'):
-        #     figurefullpath = figurefullpath[:-1]
-        # if 'output_format' in param_dict:
-        #     figurefullpath += '.' + param_dict['output_format']
-        # else:
-        #     figurefullpath += '.pdf'
-        # can.Update()
-
-        can.SaveAs("plots/aposteriori.pdf")
-        return can
+        self.rootcanvas.Save()

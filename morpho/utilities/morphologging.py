@@ -1,3 +1,9 @@
+'''
+Morpho logging utilities
+Authors: J. Johnston, M. Guigue
+Date: 02/22/18
+'''
+
 from __future__ import absolute_import
 
 import os,sys

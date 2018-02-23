@@ -9,13 +9,13 @@ import json
 import os
 
 from morpho.utilities import morphologging, reader
-from morpho.processors import SamplingBaseProcessor
+from morpho.processors import BaseProcessor
 logger=morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
 
-class StanDiagnostics(SamplingBaseProcessor):
+class StanDiagnostics(BaseProcessor):
     '''                                                                                                                                
     Describe.
 
@@ -25,8 +25,8 @@ class StanDiagnostics(SamplingBaseProcessor):
 
     def Configure(self, params):
         """Configures by reading in list of names of divergence plots to be created and dictionary containing fit object"""
-        self.which_diag_plots = params["which_diag_plots"]
-        self.data = params["data"]
+        self.which_diag_plots = reader.read_param(params,"which_diag_plots")
+        self.data = reader.read_param(params,"data",{})
 
     def Run(self):
         import subprocess

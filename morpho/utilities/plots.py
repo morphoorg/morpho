@@ -1,11 +1,11 @@
 import ROOT
 
-def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
+def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin, optStat = 'emr'):
     '''
     Change ROOT Style of the canvas
     '''
     style = ROOT.TStyle(ROOT.gStyle)
-    style.SetOptStat("emr")
+    style.SetOptStat(optStat)
     style.SetLabelOffset(0.01,'xy')
     style.SetLabelSize(0.05,'xy')
     style.SetTitleOffset(0.8,'y')
@@ -21,44 +21,6 @@ def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style.SetPadBottomMargin(botMargin)
     style.SetPadLeftMargin(leftMargin)
     style.cd()
-
-def _preparingCanvas(param_dict):
-    '''
-    Extract the title, width and height of the TCanvas
-    '''
-    if 'output_width' in param_dict:
-        width = param_dict['output_width']
-    else:
-        width = 600
-    if 'output_height' in param_dict:
-        height = param_dict['output_height']
-    else:
-        height = 400
-    # Preparing the canvas
-    if 'title' in param_dict and param_dict['title']!='':
-        title = param_dict['title']
-        _set_style_options(0.04,0.1,0.07,0.12)
-
-    else:
-        title = 'can_{}_{}'.format(height,width) #canvas_'+uuid.uuid4().get_hex()
-        _set_style_options(0.04,0.1,0.03,0.12)
-
-    return title, width, height
-
-def _preparingTitles(param_dict):
-    '''
-    Extract the titles of the X and Y axis
-    '''
-    # Setting the titles
-    if 'x_title' in param_dict:
-        xtitle = param_dict['x_title']
-    else:
-        xtitle = ''
-    if 'y_title' in param_dict:
-        ytitle = param_dict['y_title']
-    else:
-        ytitle = ''
-    return xtitle, ytitle
 
 
 def _prepare_couples(list_data):
@@ -126,7 +88,6 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
 
 def _autoRangeList(list):
     # logger.debug('Using autoRange')
-
     xmin = min(list)
     xmax = max(list)
     dx = xmax - xmin

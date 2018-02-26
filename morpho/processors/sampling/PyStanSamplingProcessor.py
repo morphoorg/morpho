@@ -4,7 +4,6 @@ PyStan sampling processor
 
 from __future__ import absolute_import
 
-import json
 import os
 import random
 import re
@@ -23,9 +22,6 @@ class PyStanSamplingProcessor(BaseProcessor):
     '''
     Sampling processor that will call PyStan
     '''
-    # def __init__(self, name, *args, **kwargs):
-    #     super().__init__(name, *args, **kwargs)
-    #     return
 
     def _stan_cache(self):
         '''
@@ -73,24 +69,25 @@ class PyStanSamplingProcessor(BaseProcessor):
 
         # if (args.force_restart):
         logger.debug("Forced to create Stan cache!")
-        self.stanModel = pystan.StanModel(model_code=theModel)
+        # self.stanModel = pystan.StanModel(model_code=theModel)
         # if not args.no_cache:
         #     logger.debug("Saving Stan cache in {}".format(cache_fn))
         #     with open(cache_fn, 'wb') as f:
         #         pickle.dump(sm, f)
         # else:
-        #     try:
-        #         logger.debug("Trying to load cached StanModel")
-        #         sm = pickle.load(open(cache_fn, 'rb'))
-        #     except:
-        #         logger.debug("None exists -> creating Stan cache")
-        #         sm = pystan.StanModel(model_code=theModel)
-        #         if not args.no_cache:
-        #             logger.debug("Saving Stan cache in {}".format(cache_fn))
-        #             with open(cache_fn, 'wb') as f:
-        #                 pickle.dump(sm, f)
-        #     else:
-        #         logger.debug("Using cached StanModel: {}".format(cache_fn))
+        import pickle
+        try:
+            logger.debug("Trying to load cached StanModel")
+            self.stanModel = pickle.load(open(cache_fn, 'rb'))
+        except:
+            logger.debug("None exists -> creating Stan cache")
+            self.stanModel = pystan.StanModel(model_code=theModel)
+            # if not args.no_cache:
+            logger.debug("Saving Stan cache in {}".format(cache_fn))
+            with open(cache_fn, 'wb') as f:
+                pickle.dump(self.stanModel, f)
+        else:
+            logger.debug("Using cached StanModel: {}".format(cache_fn))
 
         # if sa.out_cache_fn is not None:
         #     logger.debug("Saving cache file to {}".format(self.out_cache_fn))
@@ -149,13 +146,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         logger.info("Run...")
         self._stan_cache()
         stan_results = self._run_stan()
-        # self.params = self.add_param(self.params, "stan_results", stan_results)
         logger.debug("Stan Results:\n"+str(stan_results))
-        conf = {
-            "chains":self.chains,
-            "warmup": self.warmup,
-
-        }
-        stan_results_dict = pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)
-        return stan_results_dict
+        # Put the data into a nice dictionary
+        return pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)
 

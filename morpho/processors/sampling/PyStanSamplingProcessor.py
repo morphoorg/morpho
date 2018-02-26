@@ -11,7 +11,7 @@ import re
 from hashlib import md5
 import pystan
 
-from morpho.utilities import morphologging, reader
+from morpho.utilities import morphologging, reader, pystanLoader
 from morpho.processors import BaseProcessor
 logger=morphologging.getLogger(__name__)
 logger_stan=morphologging.getLogger('pystan')
@@ -109,22 +109,23 @@ class PyStanSamplingProcessor(BaseProcessor):
                 text = text + "init\t[...]\n"
         logger.info(text)
         # returns the arguments for sampling and the result of the sampling
-        return kwargs, self.stanModel.sampling(**kwargs)
+        return self.stanModel.sampling(**kwargs)
 # return stan_results
 
     def Configure(self, params):
         logger.info("Configure with {}".format(params))
         # print(self, params)
-        # self.params = params
+        self.params = params
         self.model_code = reader.read_param(params, 'model_code', 'required')
         self.function_files_location = reader.read_param(params, 'function_files_location', None)
         self.model_name = reader.read_param(params, 'model_name', None)
         self.cache_dir = reader.read_param(params, 'cache_dir', '.')
         self.input_data = reader.read_param(params, 'input_data', 'required')
         self.iterations = reader.read_param(params, 'iterations', 'required')
-        self.warmup = int(reader.read_param(params, 'stan.run.warmup', self.iterations/2))
-        self.chains = int(reader.read_param(params, 'stan.run.chain', 1))
-        self.n_jobs = int(reader.read_param(params, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
+        self.warmup = int(reader.read_param(params, 'warmup', self.iterations/2))
+        self.chains = int(reader.read_param(params, 'chain', 1))
+        self.n_jobs = int(reader.read_param(params, 'n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
+        self.interestParams = reader.read_param(params, 'interestParams',[])
         # Adding a seed based on extra arguments, current time
         # if isinstance(args.seed,(int,float,str)):
         #     self.seed=int(args.seed)
@@ -149,5 +150,12 @@ class PyStanSamplingProcessor(BaseProcessor):
         self._stan_cache()
         stan_results = self._run_stan()
         # self.params = self.add_param(self.params, "stan_results", stan_results)
-        return stan_results
+        logger.debug("Stan Results:\n"+str(stan_results))
+        conf = {
+            "chains":self.chains,
+            "warmup": self.warmup,
+
+        }
+        stan_results_dict = pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)
+        return stan_results_dict
 

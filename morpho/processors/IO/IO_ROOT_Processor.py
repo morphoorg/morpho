@@ -4,8 +4,6 @@ Base processor for sampling-type operations
 
 from __future__ import absolute_import
 
-import json
-import os
 import ROOT as root
 
 from morpho.utilities import morphologging
@@ -21,10 +19,6 @@ class IO_ROOT_Processor:
     Base IO ROOT Processor
     The R Reader and Writer
     '''
-
-    def __init__(self, name, *args, **kwargs):
-        self.__name = name
-        return
 
     def IO_ROOT_Processor(self, file_name, action='read'):
         '''

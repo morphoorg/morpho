@@ -4,26 +4,19 @@ Base input/output processor for reading and writing operations
 
 from __future__ import absolute_import
 
-import json
-import os
-
+from morpho.processors import BaseProcessor
 from morpho.utilities import morphologging
 logger=morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
 
-class IO_Processor:
+class IO_Processor(BaseProcessor):
     '''
     IO_Processor
     All Processors will be implemented in a child class where the 
     specifics are encoded by overwriting Configure and Run.
     '''
-
-    def __init__(self, name, *args, **kwargs):
-        self.__name = name
-        return
-
 
     def Configure(self, params):
 
@@ -52,8 +45,8 @@ class IO_Processor:
         This method will be called by nymph to run the processor
         '''
 
-        theData = self.processor(file_name, file_action)
+        theData = self.processor(self.file_name, self.file_action)
 
-        add_dict_param(self.params, 'data', theData)
+        # add_dict_param(self.params, 'data', theData)
 
-        return self.params
+        return theData

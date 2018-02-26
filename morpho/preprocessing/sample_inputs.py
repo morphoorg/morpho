@@ -8,15 +8,27 @@ preprocessing:
     - method_name: sample_inputs
       module_name: sample_inputs
       params_to_sample:
-        - Q
-        - sigma_value
-      prior_dists:
-        - normal
-        - normal
-      priors:
-        - [18575., 0.2]
-        - [0.04, 0.004]
-      fixed_params: {'KEmin':18574., 'KEmax':18575.4, 'background_fraction':0.05, 'sigma_error':0.004, 'u_value':0, 'u_spread':70, 'mass':0.2} 
+        - name: Q
+          prior_dist: normal
+          prior_params: [18575., 0.2]
+        - name: sigma_value
+          prior_dist: normal
+          prior_params: [0.04, 0.004]
+      fixed_params:
+        - name: KEmin
+          val: 18574.
+        - name: KEmax
+          val: 18575.4
+        - name: background_fraction
+          val: 0.05,
+        - name: sigma_error
+          val: 0.004
+        - name: u_value
+          val: 0
+        - name: u_spread
+          val: 70
+        - name: mass
+          val: 0.2 
       output_file_name: "./tritium_model/results/beta_spectrum_2-19_ensemble.root" 
       tree: inputs
 '''
@@ -39,24 +51,24 @@ def sample_inputs(param_dict):
     # Create a ROOT tree
     out_tree = ROOT.TTree(param_dict['tree'], param_dict['tree'])
 
-    for i in range(len(param_dict['params_to_sample'])):
-        if param_dict['prior_dists'][i] == 'normal':
-            param_name = param_dict['params_to_sample'][i]
+    for sample_dict in param_dict['params_to_sample']:
+        name = sample_dict['name']
+        if sample_dict['prior_dist'] == 'normal':
             tmp_sampled_val = array('f',[ 0 ])
-            b = out_tree.Branch(param_name, tmp_sampled_val, param_name+'/F')
+            b = out_tree.Branch(name, tmp_sampled_val, name+'/F')
             random.seed()
-            rand = random.gauss(param_dict['priors'][i][0], param_dict['priors'][i][1])
-            logger.info('Sampled value of {}: {}'.format(param_name, rand))
+            rand = random.gauss(sample_dict['prior_params'][0], sample_dict['prior_params'][1])
+            logger.info('Sampled value of {}: {}'.format(name, rand))
             tmp_sampled_val[0] = rand
             b.Fill()
 
         else:
-            logger.debug('Sampling for {} distributions is not yet implemented'.format(param_dict['prior_dists'][i]))
+            logger.debug('Sampling for {} distributions is not yet implemented'.format(sample_dict['prior_dist']))
 
-    for key in param_dict['fixed_params']:
+    for fixed_dict in param_dict['fixed_params']:
         tmp_fixed_val = array('f',[ 0 ])
-        b = out_tree.Branch(key, tmp_fixed_val, key+'/F')
-        tmp_fixed_val[0] = param_dict['fixed_params'][key]
+        b = out_tree.Branch(fixed_dict['name'], tmp_fixed_val, fixed_dict['name']+'/F')
+        tmp_fixed_val[0] = fixed_dict['val']
         b.Fill()
 
     out_tree.Fill()

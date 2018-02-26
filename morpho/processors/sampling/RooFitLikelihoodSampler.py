@@ -11,6 +11,11 @@ import Constants
 import ROOT
 
 class RooFitLikelihoodSampler(BaseProcessor):
+    '''
+    Base class for RooFit-based Likelihood sampling.
+    A new class should inheritate from this one and have its own version of "definePdf".
+    The input data are given via the attribute "data"<
+    '''
 
     def _defineDataset(self,wspace):
         '''
@@ -34,47 +39,6 @@ class RooFitLikelihoodSampler(BaseProcessor):
         '''
         logger.error("User should define this method in a child class!")
         raise
-        # logger.debug("Defining pdf")
-
-        # var = wspace.var(self.varName)
-
-        # # Variables required by this model
-        # m_nu = ROOT.RooRealVar("m_nu","m_nu",0.,0.,200) 
-        # endpoint = ROOT.RooRealVar("endpoint", "endpoint", Constants.tritium_endpoint(),
-        #                                                    Constants.tritium_endpoint()-100.,
-        #                                                    Constants.tritium_endpoint()+100.)
-        # meanSmearing = ROOT.RooRealVar("meanSmearing","meanSmearing",0.)
-        # widthSmearing = ROOT.RooRealVar("widthSmearing","widthSmearing",0.00001,100)
-        # NEvents = ROOT.RooRealVar("NEvents","NEvents",1.3212e+04,1e4,2e4)
-        # NBkgd = ROOT.RooRealVar("NBkgd","NBkgd",5.3409e+03,1e3,1e4)
-        # b = ROOT.RooRealVar("background","background",0.000001,-1,1)
-
-        # # Spectrum pdf
-        # spectrum = ROOT.RealTritiumSpectrum("spectrum","spectrum",var,endpoint,m_nu)
-
-        # # Define PdfFactory to add background and smearing
-        # pdffactory = ROOT.PdfFactory("myPdfFactory")
-
-        # # Spectrum smearing
-        # gauss = ROOT.RooGaussian("gauss","gauss",var,meanSmearing,widthSmearing)
-        # smearedspectrum = pdffactory.GetSmearedPdf(ROOT.RealTritiumSpectrum)("smearedspectrum", 2, var, spectrum, meanSmearing, widthSmearing,100000)
-        
-        # # Background addition
-        # background = ROOT.RooUniform("background","background",ROOT.RooArgSet(var))
-
-        # # PDF of the model:
-        # # this should have "pdf" as name 
-        # pdf = pdffactory.AddBackground(ROOT.RooAbsPdf)("pdf",var,smearedspectrum,NEvents,NBkgd)
-        
-        # # can = ROOT.TCanvas("can","can",600,400)
-        # # frame = var.frame()
-        # # totalSpectrum.plotOn(frame)
-        # # frame.Draw()
-        # # can.SaveAs("plots/model.pdf") 
-
-        # # Save pdf: this will save all required variables and functions
-        # getattr(wspace,'import')(pdf)
-        # return wspace
 
     @property
     def data(self):

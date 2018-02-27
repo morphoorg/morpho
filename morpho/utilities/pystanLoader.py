@@ -11,7 +11,6 @@ def extract_data_from_outputdata(conf,theOutput):
     # Extract the data into a dictionary
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
     logger.debug("Extracting samples from pyStan output")
-    print(conf)
     theOutputDiagnostics = theOutput.get_sampler_params(inc_warmup=True)
 
     diagnosticVariableName = ['accept_stat__','stepsize__','n_leapfrog__','treedepth__','divergent__','energy__']

@@ -21,8 +21,8 @@ class IOCVSProcessor(IOProcessor):
     The CVS Reader and Writer
     '''
 
-    def Configure(self, params):
-        super().Configure(params)
+    # def Configure(self, params):
+    #     super().Configure(params)
 
     def Reader(self):
         subData = {}
@@ -45,22 +45,29 @@ class IOCVSProcessor(IOProcessor):
                 subData.update({str(var):theData[var]})
             else:
                 logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))
-        return theData
+        return subData
 
 
     def Writer(self):
 
-        theData = self.data
+        logger.debug("Extracting {} from input data".format(self.variables))
         subData = {}
         for var in self.variables:
-            if var in theData.keys():
-                subData.update({str(var):theData[var]})
+            if var in self.data.keys():
+                subData.update({str(var):self.data[var]})
             else:
                 logger.error("Variable {} does not exist in input data".format(var))
         keys = sorted(subData.keys())
+
+
+        logger.debug("Saving data in {}".format(self.file_name))
         with open(self.file_name, 'w') as csv_file:
-            writer = csv.writer(csv_file)
-            for key, value in subData.items():
-                writer.writerow([key, value])
+            try:
+                writer = csv.writer(csv_file)
+                for key, value in subData.items():
+                    writer.writerow([key, value])
+            except:
+                logger.error("Error while writing {}".format(self.file_name))
+                raise
         return None
 

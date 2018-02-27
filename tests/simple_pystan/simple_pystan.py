@@ -15,7 +15,8 @@ aposteriori_config = {
 }
 timeSeries_config = {
     "data": ["x","y"],
-    "height": 800
+    "height": 800,
+    "title": "timeseries"
 }
 
 pystanProcessor = PyStanSamplingProcessor("pystanProcessor")

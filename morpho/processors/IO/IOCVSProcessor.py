@@ -7,7 +7,7 @@ from __future__ import absolute_import
 import csv
 import os
 
-from morpho.utilities import morphologging, reader
+from morpho.utilities import morphologging
 logger=morphologging.getLogger(__name__)
 
 from morpho.processors.IO import IOProcessor
@@ -50,22 +50,12 @@ class IOCVSProcessor(IOProcessor):
 
     def Writer(self):
 
-        logger.debug("Extracting {} from input data".format(self.variables))
-        subData = {}
-        for var in self.variables:
-            if var in self.data.keys():
-                subData.update({str(var):self.data[var]})
-            else:
-                logger.error("Variable {} does not exist in input data".format(var))
-        keys = sorted(subData.keys())
-
-
         logger.debug("Saving data in {}".format(self.file_name))
         with open(self.file_name, 'w') as csv_file:
             try:
                 writer = csv.writer(csv_file)
-                for key, value in subData.items():
-                    writer.writerow([key, value])
+                for key in self.variables:
+                    writer.writerow([key, self.data[key]])
             except:
                 logger.error("Error while writing {}".format(self.file_name))
                 raise

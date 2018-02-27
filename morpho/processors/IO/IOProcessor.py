@@ -14,7 +14,7 @@ __all__.append(__name__)
 class IOProcessor(BaseProcessor):
     '''
     IO_Processor
-    All Processors will be implemented in a child class where the 
+    All Processors will be implemented in a child class where the
     specifics are encoded by overwriting Configure and Run.
     '''
 
@@ -53,4 +53,3 @@ class IOProcessor(BaseProcessor):
         else:
             result = self.Reader()
         return result
-        

@@ -6,7 +6,7 @@ Date: Feb 27 2018
 
 from morpho.processors.IO import IOCVSProcessor
 
-config = {
+writer_config = {
     "action": "write",
     "filename": "myFile.txt",
     "variables": ["x","y"],
@@ -16,7 +16,7 @@ config = {
 reader_config = {
     "action": "read",
     "filename": "myFile.txt",
-    "variables": ['x'],
+    "variables": ['x','y'],
     "format": "csv"
 }
 
@@ -27,7 +27,7 @@ data = {
 
 a = IOCVSProcessor("writer")
 b = IOCVSProcessor("reader")
-a.Configure(config)
+a.Configure(writer_config)
 b.Configure(reader_config)
 a.data = data
 a.Run()

@@ -48,6 +48,8 @@ class TimeSeries(BaseProcessor):
 
         listGraph = []
         listGraphWarmup = []
+        iWarmup = 0
+        iSample = 0
         # Plot all histograms
         import ROOT    
         # Histograms must still be in memory when the pdf is saved
@@ -57,12 +59,16 @@ class TimeSeries(BaseProcessor):
             listGraphWarmup.append(ROOT.TGraph())
             subdata = self.data[str(name)]
             is_sample = self.data["is_sample"]
+            iWarmup = 0
+            iSample = 0
             for iValue, value in enumerate(subdata):
                 if is_sample[iValue]:
-                    listGraph[iName].SetPoint(iValue,iValue,value)
+                    listGraph[iName].SetPoint(iSample,iValue,value)
+                    iSample = iSample+ 1
                 else:
-                    listGraphWarmup[iName].SetPoint(iValue,iValue,value)
-                    
+                    listGraphWarmup[iName].SetPoint(iWarmup,iValue,value)
+                    iWarmup+=1
+            print(iWarmup,iSample)
             listGraph[iName].Draw("AP")
             listGraph[iName].SetMarkerStyle(7)
             listGraphWarmup[iName].Draw("sameP")

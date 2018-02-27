@@ -5,8 +5,9 @@ Base processor for sampling-type operations
 from __future__ import absolute_import
 
 import csv
+import os
 
-from morpho.utilities import morphologging
+from morpho.utilities import morphologging, reader
 logger=morphologging.getLogger(__name__)
 
 from morpho.processors.IO import IOProcessor
@@ -14,44 +15,52 @@ from morpho.processors.IO import IOProcessor
 __all__ = []
 __all__.append(__name__)
 
-class IOCVSProcessor:
+class IOCVSProcessor(IOProcessor):
     '''
     Base IO CVS Processor
     The CVS Reader and Writer
     '''
 
-    def IO_CVS_Processor(self, file_name, action, variables):
-        '''
-        This method will read or write an R file
-        '''
-        if (action == 'write'):
-            Writer(file_name,variables)
-        else:
-            Reader(file_name,variables)
-        
+    def Configure(self, params):
+        super().Configure(params)
 
-    def Reader(self, file_name,variables):
+    def Reader(self):
         subData = {}
-        with open(file_name, 'rb') as cvs_file:
-            theData = csv.DictReader(csv_file)
-        for var in variables:
-            if var in subData.keys():
+        logger.debug("Reading {}".format(self.file_name))
+        if os.path.exists(self.file_name):
+            with open(self.file_name, 'r') as csv_file:
+                try:
+                    reader = csv.reader(csv_file)
+                    theData = dict(reader)
+                except:
+                    logger.error("Error while reading {}".format(self.file_name))
+                    raise
+        else:
+            logger.error("File {} does not exist".format(self.file_name))
+            raise FileNotFoundError(self.file_name)
+
+        logger.debug("Extracting {}".format(self.variables))
+        for var in self.variables:
+            if var in theData.keys():
                 subData.update({str(var):theData[var]})
             else:
-                logger.error("Variable {} does not exist in {}".format(var,file_name))
+                logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))
         return theData
 
 
-    def Writer(self, file_name,variables):
+    def Writer(self):
 
         theData = self.data
         subData = {}
-        for var in variables:
-            if var in subData.keys():
+        for var in self.variables:
+            if var in theData.keys():
                 subData.update({str(var):theData[var]})
             else:
                 logger.error("Variable {} does not exist in input data".format(var))
-        with open(file_name, 'wb') as csv_file:            
-            csv.DictWriter(csv_file, subData)
+        keys = sorted(subData.keys())
+        with open(self.file_name, 'w') as csv_file:
+            writer = csv.writer(csv_file)
+            for key, value in subData.items():
+                writer.writerow([key, value])
         return None
 

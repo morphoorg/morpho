@@ -1,12 +1,6 @@
-import PhylloxeraPy
-PhylloxeraPy.loadLibraries(True)
-
-
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)
-
-import Constants
 
 import ROOT
 
@@ -35,7 +29,8 @@ class RooFitLikelihoodSampler(BaseProcessor):
     def definePdf(self,wspace):
         '''
         Defines the Pdf that RooFit will sample and add it to the workspace.
-        Users should edit this method.
+        The Workspace is then returned by the user.
+        Users should edit this function.
         '''
         logger.error("User should define this method in a child class!")
         raise

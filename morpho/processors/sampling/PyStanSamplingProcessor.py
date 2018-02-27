@@ -107,7 +107,6 @@ class PyStanSamplingProcessor(BaseProcessor):
         logger.info(text)
         # returns the arguments for sampling and the result of the sampling
         return self.stanModel.sampling(**kwargs)
-# return stan_results
 
     def Configure(self, params):
         logger.info("Configure with {}".format(params))

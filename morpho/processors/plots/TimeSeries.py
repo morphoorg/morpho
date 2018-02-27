@@ -46,14 +46,28 @@ class TimeSeries(BaseProcessor):
         self.rootcanvas.Draw()
         self.rootcanvas.Divide(1,len(self.namedata))
 
+        listGraph = []
+        listGraphWarmup = []
         # Plot all histograms
         import ROOT    
         # Histograms must still be in memory when the pdf is saved
         for iName, name in enumerate(self.namedata):
-            self.rootcanvas.cd(iName)
-            g = ROOT.TGraph("name","name")
-            subdata = self.data[name]
+            self.rootcanvas.cd(iName+1)
+            listGraph.append(ROOT.TGraph())
+            listGraphWarmup.append(ROOT.TGraph())
+            subdata = self.data[str(name)]
+            is_sample = self.data["is_sample"]
             for iValue, value in enumerate(subdata):
-                g.SetPoint(iValue,iValue,value)
-            g.Draw()
+                if is_sample[iValue]:
+                    listGraph[iName].SetPoint(iValue,iValue,value)
+                else:
+                    listGraphWarmup[iName].SetPoint(iValue,iValue,value)
+                    
+            listGraph[iName].Draw("AP")
+            listGraph[iName].SetMarkerStyle(7)
+            listGraphWarmup[iName].Draw("sameP")
+            listGraphWarmup[iName].SetMarkerStyle(7)
+            listGraphWarmup[iName].SetMarkerColor(2)
+            listGraph[iName].SetTitle(";Iteration;{}".format(name))
+            
         self.rootcanvas.Save()

@@ -9,12 +9,12 @@ import pystan
 from morpho.utilities import morphologging
 logger=morphologging.getLogger(__name__)
 
-from morpho.processors.io_processors import IO_Processors
+from morpho.processors.IO import IOProcessor
 
 __all__ = []
 __all__.append(__name__)
 
-class IO_R_Processor:
+class IORProcessor:
     '''
     Base IO R Processor
     The R Reader and Writer

@@ -11,7 +11,7 @@ logger=morphologging.getLogger(__name__)
 __all__ = []
 __all__.append(__name__)
 
-class IO_Processor(BaseProcessor):
+class IOProcessor(BaseProcessor):
     '''
     IO_Processor
     All Processors will be implemented in a child class where the 
@@ -24,17 +24,17 @@ class IO_Processor(BaseProcessor):
         This method will be called by nymph to configure the processor
         '''
 
-        supported_processors = {'R': IO_R_Processor, \
-                                'cvs': IO_CVS_Processor, \
-                                'root': IO_ROOT_Processor, \
-                                'cicada': IO_CICADA_Processor}
+        self.supported_processors = {'R': IORProcessor, \
+                                'cvs': IOCVSProcessor, \
+                                'root': IOROOTProcessor}
 
         self.params = params
-        self.file_name = read_param(params, 'filename', None)
-        self.file_type = read_param(params, "format", None)
+        self.file_name = read_param(params, 'filename', "required")
+        self.file_type = read_param(params, "format", "required")
+        self.variable = read_param(params,"var", "required")
         self.file_action = read_param(params, "action", "read")
 
-        self.processor = supported_processors[self.file_type]
+        self.processor = self.supported_processors[self.file_type]
 
         if (self.processor == None):
             logger.error("This file type is not supported or unspecified.")
@@ -45,7 +45,7 @@ class IO_Processor(BaseProcessor):
         This method will be called by nymph to run the processor
         '''
 
-        theData = self.processor(self.file_name, self.file_action)
+        theData = self.processor(self.file_name, self.file_action, self.variable)
 
         # add_dict_param(self.params, 'data', theData)
 

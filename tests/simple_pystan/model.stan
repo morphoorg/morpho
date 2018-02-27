@@ -1,9 +1,21 @@
+data {
+    real intercept;
+    real slope;
+    real sigma;
+    real xmin;
+    real xmax;
+}
+
 parameters {
-    real x;
+    real<lower=xmin, upper=xmax> x;
     real y;
 }
 
 model {
-    target +=normal_lpdf(x|0,1);
-    target +=normal_lpdf(y|0,1);
+    target +=normal_lpdf(y-slope*x-intercept|0,sigma);
+}
+
+generated quantities {
+    real residual;
+    residual = (y - slope*x-intercept)/sigma;
 }

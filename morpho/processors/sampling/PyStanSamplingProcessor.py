@@ -9,6 +9,8 @@ import random
 import re
 from hashlib import md5
 import pystan
+from inspect import getargspec
+
 
 from morpho.utilities import morphologging, reader, pystanLoader
 from morpho.processors import BaseProcessor
@@ -22,6 +24,13 @@ class PyStanSamplingProcessor(BaseProcessor):
     '''
     Sampling processor that will call PyStan
     '''
+
+    def gen_arg_dict(self):
+        d = self.__dict__
+        # sca = getargspec(_stan_cache)
+        sa = getargspec(pystan.StanModel.sampling)
+        print(sa)
+        return {k: d[k] for k in (sa.args) if k in d}
 
     def _stan_cache(self):
         '''
@@ -106,7 +115,9 @@ class PyStanSamplingProcessor(BaseProcessor):
                 text = text + "init\t[...]\n"
         logger.info(text)
         # returns the arguments for sampling and the result of the sampling
-        return self.stanModel.sampling(**kwargs)
+        print(kwargs)
+        return self.stanModel.sampling(**(kwargs))
+        # return self.stanModel.sampling(**(self.gen_arg_dict()))
 
     def Configure(self, params):
         logger.info("Configure with {}".format(params))
@@ -114,9 +125,11 @@ class PyStanSamplingProcessor(BaseProcessor):
         self.params = params
         self.model_code = reader.read_param(params, 'model_code', 'required')
         self.function_files_location = reader.read_param(params, 'function_files_location', None)
-        self.model_name = reader.read_param(params, 'model_name', None)
+        self.model_name = reader.read_param(params, 'model_name', "anon_model")
+        print(self.model_name)
         self.cache_dir = reader.read_param(params, 'cache_dir', '.')
-        self.input_data = reader.read_param(params, 'input_data', 'required')
+        self.data = reader.read_param(params, 'input_data', 'required')
+        print(self.data["xmin"])
         self.iterations = reader.read_param(params, 'iterations', 'required')
         self.warmup = int(reader.read_param(params, 'warmup', self.iterations/2))
         self.chains = int(reader.read_param(params, 'chain', 1))
@@ -144,7 +157,7 @@ class PyStanSamplingProcessor(BaseProcessor):
     def Run(self):
         logger.info("Run...")
         self._stan_cache()
-        stan_results = self._run_stan()
+        stan_results = self._run_stan(**(self.gen_arg_dict()))
         logger.debug("Stan Results:\n"+str(stan_results))
         # Put the data into a nice dictionary
         return pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)

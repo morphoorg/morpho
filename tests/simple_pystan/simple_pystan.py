@@ -3,14 +3,21 @@ from morpho.processors.plots import TimeSeries, APosterioriDistribution
 
 pystan_config = {
     "model_code": "model.stan",
-    "input_data": "",
+    "input_data": {
+        "slope": 1,
+        "intercept":-2,
+        "xmin":1,
+        "xmax":10,
+        "sigma": 1.6
+    },
     "iterations": 100,
-    "interestParams": ['x','y']
+    "interestParams": ['x','y','residual'],
+
 }
 aposteriori_config = {
     "n_bins_x": 100,
     "n_bins_y": 100,
-    "data": ["x","y","lp_prob"],
+    "data": ["y","x",'residual',"lp_prob"],
     "title": "aposteriori_distribution"
 }
 timeSeries_config = {

@@ -1,3 +1,9 @@
+'''
+This scripts aims at testing the IO CVS processor by writing and reading the same file.
+Author: M. Guigue
+Date: Feb 27 2018
+'''
+
 from morpho.processors.IO import IOCVSProcessor
 
 config = {

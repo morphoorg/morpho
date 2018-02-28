@@ -17,7 +17,7 @@ __all__.append(__name__)
 class IORProcessor(IOProcessor):
     '''
     Base IO R Processor
-    The R Reader and Writer
+    The R Reader and Writer use pystan.misc package
     '''
 
     # def Configure(self, params):
@@ -55,10 +55,9 @@ class IORProcessor(IOProcessor):
             subData.update({var: self.data[var]})
 
         logger.debug("Saving data in {}".format(self.file_name))
-        with open(self.file_name, 'w') as csv_file:
-            try:
-                pystan.misc.stan_rdump(self.data, self.file_name)
-            except:
-                logger.error("Error while writing {}".format(self.file_name))
-                raise
+        try:
+            pystan.misc.stan_rdump(self.data, self.file_name)
+        except:
+            logger.error("Error while writing {}".format(self.file_name))
+            raise
         return None

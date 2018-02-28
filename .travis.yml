@@ -27,8 +27,7 @@ install:
   - source activate testenv
   - pip install .
 script:
-  - cd tests/simple_pystan && python simple_pystan.py
-  - cd ../IO && python CVS_IO_test.py
+  - cd tests/IO && python CVS_IO_test.py
   - cd ../IO && python R_IO_test.py
 notifications:
   slack:

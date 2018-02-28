@@ -53,6 +53,7 @@ class IORProcessor(IOProcessor):
         subData = {}
         for var in self.variables:
             subData.update({var: self.data[var]})
+
         logger.debug("Saving data in {}".format(self.file_name))
         with open(self.file_name, 'w') as csv_file:
             try:
@@ -61,4 +62,3 @@ class IORProcessor(IOProcessor):
                 logger.error("Error while writing {}".format(self.file_name))
                 raise
         return None
-

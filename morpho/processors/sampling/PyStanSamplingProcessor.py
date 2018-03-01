@@ -24,13 +24,28 @@ class PyStanSamplingProcessor(BaseProcessor):
     '''
     Sampling processor that will call PyStan
     '''
+    @property
+    def data(self):
+        return self._data
+    @data.setter
+    def data(self,input_dict):
+        if isinstance(input_dict,dict):
+            for a_key, a_value in input_dict.items():
+                reader.add_dict_param(self.data, a_key, a_value)
+        else:
+            logger.warning("Not a dict: {}".format(input_dict))
+
+    def __init__(self,name):
+        super().__init__(name)
+        self._data = {}
 
     def gen_arg_dict(self):
         d = self.__dict__
-        # sca = getargspec(_stan_cache)
         sa = getargspec(pystan.StanModel.sampling)
-        print(sa)
-        return {k: d[k] for k in (sa.args) if k in d}
+        output_dict = {k: d[k] for k in (sa.args) if k in d}
+        # We need to manually add the data to the dictionary because of the setter...
+        output_dict.update({'data': self.data})
+        return output_dict
 
     def _stan_cache(self):
         '''
@@ -115,23 +130,19 @@ class PyStanSamplingProcessor(BaseProcessor):
                 text = text + "init\t[...]\n"
         logger.info(text)
         # returns the arguments for sampling and the result of the sampling
-        print(kwargs)
         return self.stanModel.sampling(**(kwargs))
         # return self.stanModel.sampling(**(self.gen_arg_dict()))
 
     def Configure(self, params):
         logger.info("Configure with {}".format(params))
-        # print(self, params)
         self.params = params
         self.model_code = reader.read_param(params, 'model_code', 'required')
         self.function_files_location = reader.read_param(params, 'function_files_location', None)
         self.model_name = reader.read_param(params, 'model_name', "anon_model")
-        print(self.model_name)
         self.cache_dir = reader.read_param(params, 'cache_dir', '.')
-        self.data = reader.read_param(params, 'input_data', 'required')
-        print(self.data["xmin"])
-        self.iterations = reader.read_param(params, 'iterations', 'required')
-        self.warmup = int(reader.read_param(params, 'warmup', self.iterations/2))
+        self.data = reader.read_param(params, 'input_data', {})
+        self.iter = reader.read_param(params, 'iter', 'required')
+        self.warmup = int(reader.read_param(params, 'warmup', self.iter/2))
         self.chains = int(reader.read_param(params, 'chain', 1))
         self.n_jobs = int(reader.read_param(params, 'n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
         self.interestParams = reader.read_param(params, 'interestParams',[])
@@ -147,12 +158,14 @@ class PyStanSamplingProcessor(BaseProcessor):
 
         self.thin = reader.read_param(params, 'stan.run.thin', 1)
         self.init_per_chain = reader.read_param(params, 'stan.run.init', '')
+
         # self.init = self.init_Stan_function()
         # if isinstance(reader.read_param(params, 'stan.run.control', None),dict):
         #     self.control = reader.read_param(params, 'stan.run.control', None)
         # else:
         #     if reader.read_param(params, 'stan.run.control', None) is not None:
         #         logger.debug("stan.run.control should be a dict: {}",str(reader.read_param(yd, 'stan.run.control', None)))
+
 
     def Run(self):
         logger.info("Run...")

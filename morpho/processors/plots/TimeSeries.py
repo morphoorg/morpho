@@ -68,7 +68,6 @@ class TimeSeries(BaseProcessor):
                 else:
                     listGraphWarmup[iName].SetPoint(iWarmup,iValue,value)
                     iWarmup+=1
-            print(iWarmup,iSample)
             listGraph[iName].Draw("AP")
             listGraph[iName].SetMarkerStyle(7)
             listGraphWarmup[iName].Draw("sameP")

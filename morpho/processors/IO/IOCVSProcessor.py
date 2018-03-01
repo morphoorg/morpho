@@ -50,6 +50,10 @@ class IOCVSProcessor(IOProcessor):
     def Writer(self):
 
         logger.debug("Saving data in {}".format(self.file_name))
+        rdir = os.path.dirname(self.file_name)
+        if not os.path.exists(rdir):
+            os.makedirs(rdir)
+            logger.debug("Creating folder: {}".format(rdir))
         with open(self.file_name, 'w') as csv_file:
             try:
                 writer = csv.writer(csv_file)
@@ -58,5 +62,6 @@ class IOCVSProcessor(IOProcessor):
             except:
                 logger.error("Error while writing {}".format(self.file_name))
                 raise
+        logger.debug("File saved!")
         return None
 

@@ -74,3 +74,4 @@ def sample_inputs(param_dict):
     out_tree.Fill()
     outfile.Write()               
     outfile.Close()
+    logger.info("Input parameters have been selected. Params in file: {}".format(param_dict['output_file_name']))

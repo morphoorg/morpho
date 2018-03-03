@@ -136,7 +136,7 @@ def histo(param_dict):
     if path.endswith('/')==False:
         path = path + '/'
     if title!=' ':
-        figurefullpath = path+title+'_'
+        figurefullpath = path+'_'+title
     else:
         figurefullpath = path
     for namedata in param_dict['data']:
@@ -260,7 +260,7 @@ def spectra(param_dict):
     if path.endswith('/')==False:
         path = path + '/'
     if title!=' ':
-        figurefullpath = path+title+'_'
+        figurefullpath = path+'_'+title
     else:
         figurefullpath = path
     for namedata in param_dict['data']:
@@ -371,7 +371,7 @@ def _save_histo(param_dict, title, file_prefix, can):
     if path.endswith('/')==False:
         path = path + '/'
     if title!=' ':
-        figurefullpath = path+title+'_'
+        figurefullpath = path+'_'+title
     else:
         figurefullpath = path
     figurefullpath += file_prefix
@@ -592,7 +592,7 @@ def aposteriori_distribution(param_dict):
     if path.endswith('/')==False:
         path = path + '/'
     if title!=' ':
-        figurefullpath = path+title+'_'
+        figurefullpath = path+'_'+title
     else:
         figurefullpath = path
     for namedata in param_dict['data']:
@@ -708,7 +708,7 @@ def correlation_factors(param_dict):
     if path.endswith('/')==False:
         path = path + '/'
     if title!=' ':
-        figurefullpath = path+title+'_'
+        figurefullpath = path+'_'+title
     else:
         figurefullpath = path
     for namedata in param_dict['data']:

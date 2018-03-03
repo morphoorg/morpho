@@ -16,7 +16,7 @@ def read_param(yaml_data, node, default):
             err = """FATAL: Configuration parameter {0} required but not\
             provided in config file!
             """.format(node)
-            logger.debug(err)
+            logger.error(err)
             raise exc
         else:
             data = default

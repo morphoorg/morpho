@@ -47,6 +47,7 @@ except ImportError:
 
 
 def sample_inputs(param_dict):
+    logger.info("Sampling inputs")
     outfile = ROOT.TFile(param_dict['output_file_name'],"RECREATE")
     # Create a ROOT tree
     out_tree = ROOT.TTree(param_dict['tree'], param_dict['tree'])

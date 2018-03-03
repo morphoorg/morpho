@@ -11,10 +11,8 @@
 
 """
 Executeable to process data, run stan, and make plots
-
 Classes:
   - morpho: Class that controls flow of the morpho code
-
 Functions:
   - get_logger_stderr: Return logger that prints messages greater than
     a given level to std_err
@@ -70,7 +68,6 @@ import logging
 def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,
                       level=logging.DEBUG, propagate=False):
     """Return a logger than prints high logging level messages to stderr
-
     Args:
         name: Name of the logger. Loggers are conceptually arranged
             in a namespace hierarchy using periods as separators.
@@ -83,7 +80,6 @@ def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,
         level: Initial level for the logger
         propagate: Whether messages to this logger should be passed to
              the handlers of its ancestor
-
     Returns:
         logging.Logger: Logger object with the given settings
     """
@@ -133,7 +129,6 @@ logger_stan = get_logger_stderr('pystan', morpho_formatter,
 
 class morpho(object):
     """Object containing and controlling data to run stan
-
     Functions:
       - read_param: Read a parameter from a dictionary
       - gen_arg_dict: Generate dictionary with stan arguments
@@ -164,7 +159,8 @@ class morpho(object):
       - iter: Number of iterations for each stan chain
       - warmup: Number of iterations that should be considered warmup
       - chains: Number of chains to run
-      - n_jobs: Number of jobs to run (not implemented)
+      - n_jobs: Number of CPUs used to sample in parallel. If -1 all CPUs
+        are used. If 1, no parallel computing code is used at all.
       - seed: Random number seed
       - thin: Integer specifying thinning for stan iterations
       - init_per_chain: Dictionary of variable initializations for one
@@ -193,7 +189,6 @@ class morpho(object):
     """
     def read_param(self, yaml_data, node, default):
         """Read a parameter from a dictionary using the given node
-
         Args:
             yaml_data: Input dictionary
             node: String indicating a path through the dictionary. The
@@ -203,7 +198,6 @@ class morpho(object):
             default: Value to return if the path given by node does not
                 exist. Set to 'required' in order to throw an exception
                 if the path does not exist.
-
         Returns:
             Object: Returns the accessed element
         """
@@ -225,10 +219,8 @@ class morpho(object):
 
     def gen_arg_dict(self):
         """Generate a dictionary from the morpho object for use by Stan
-
         Args:
             None
-
         Returns:
             dict: Searches the morpho namespace for keys that appear in
             the arguments for stan_cache and pystan.stan, and returns
@@ -241,10 +233,8 @@ class morpho(object):
 
     def init_Stan_function(self):
         """Determine initialization for stan chains
-
         Args:
             None
-
         Returns:
             list of dict: List with length equal to the number of chains
                 set by self.chains. Each element of the list is a dict
@@ -302,7 +292,6 @@ class morpho(object):
 
     def __init__(self, yd):
         """Initialize all attribute using the given dictionary
-
         Args:
             yd: Dictionary containing all Morpho settings
         """
@@ -334,8 +323,8 @@ class morpho(object):
             self.iter = int(self.read_param(yd, 'stan.run.iter', 2000))
             self.warmup = int(self.read_param(yd, 'stan.run.warmup', self.iter/2))
             self.chains = int(self.read_param(yd, 'stan.run.chain', 4))
-            # n_jobs is currently not used. Update the docstring if it is implemented.
-            self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
+            # number of jobs to run (-1: all CPUS, 1: 1 CPU, good for debugging)
+            self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1))
             # Adding a seed based on extra arguments, current time
             if isinstance(args.seed,(int,float,str)):
                 self.seed=int(args.seed)
@@ -393,14 +382,12 @@ class morpho(object):
 
 def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='.',**kwargs):
     '''Cache a Stan model then run Stan
-
     Args:
         model_code: Path to the stan model
         function_files_location: Path to the function files
         model_name: Name of the stan model
         cashe_dir: Path to directory to store or access the stan model
         kwargs: Arguments that should be passed to the StanModel object
-
     Returns:
         (dict, stanfit): Returns the arguments for sampling (kwargs)
         and the result of the sampling
@@ -486,10 +473,8 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
 
 def parse_args():
     '''Parse the command line arguments provided to morpho
-
     Args:
         None
-
     Returns:
         namespace: Namespace containing the arguments
     '''
@@ -540,11 +525,9 @@ def parse_args():
 
 def update_from_arguments(the_dict,args):
     '''Update a dictionary
-
     Args:
         the_dict: Dictionary to update
         args: Dictionary to merge into the_dict
-
     Returns:
         dict: Dictionary with args merged into the_dict
     '''
@@ -553,21 +536,16 @@ def update_from_arguments(the_dict,args):
     for a_arg in args:
         result = a_arg.split('=')
         xpath = result[0].split('.')
-        try:
-            to_update_dict = {xpath[-1]:ast.literal_eval(result[1])}
-        except:
-            to_update_dict = {xpath[-1]:result[1]}
+        to_update_dict = {xpath[-1]:ast.literal_eval(result[1])}
         for path in reversed(xpath[:-1]):
             to_update_dict = {path:to_update_dict}
-        new_dict = merge(new_dict, to_update_dict)
+        new_dict = merge(new_dict,to_update_dict)
     return new_dict
 
 def change_and_format(b):
     """Try to convert a string into a boolean or float
-
     Args:
         b: String containing a boolean or float
-
     Returns:
         bool, float, or str: If b == 'True' or 'False', then the
         corresponding boolean is returns. Otherwise, if b can be
@@ -587,12 +565,10 @@ def change_and_format(b):
 
 def merge(a, b, path=None):
     '''Merge two dictionaries
-
     Args:
         a: Base dictionary
         b: Dictionary to merge into a
         path: Location to merge b at
-
     Returns:
         dict: Merged dictionary
     '''
@@ -611,13 +587,11 @@ def merge(a, b, path=None):
 
 def plot_result(conf, stanres):
     """Plot a variable from a stanfit object
-
     Args:
         conf.plotvars: List of dictionaries containing the names of
             variables to plot. Each dictionary should contain a
             'variable' key that contains the variable name.
         stanres: StanFit object resulting from Stan sampling
-
     Returns:
         None: Uses the plot method of stanres to plot the variable
     """
@@ -634,12 +608,10 @@ def plot_result(conf, stanres):
 
 def write_result(conf, stanres, input_param):
     """Write results from a stanfit object to file
-
     Args:
         conf: Morpho object used to do the Stan sampling
         stanres: StanFit object resulting from Stan sampling
         input_param: Parameter to write
-
     Returns:
         StanFit: Write the result to file then returns the StanFit
         object
@@ -667,10 +639,8 @@ def write_result(conf, stanres, input_param):
 
 def preprocessing(sa):
     """Import and run all preprocessing modules
-
     Args:
         sa: Morpho object containing preprocessing configuration
-
     Returns:
         None: Runs all preprocessing modules defined in the Morpho
             object initialization
@@ -704,10 +674,8 @@ def preprocessing(sa):
 
 def postprocessing(sa):
     """Import and run all postprocessing modules
-
     Args:
         sa: Morpho object containing postprocessing configuration
-
     Returns:
         None: Runs all postprocessing modules defined in the Morpho
             object initialization
@@ -741,10 +709,8 @@ def postprocessing(sa):
 
 def plotting(sa):
     """Import and run all plotting modules
-
     Args:
         sa: Morpho object containing plotting configuration
-
     Returns:
         None: Runs all plotting modules defined in the Morpho
             object initialization
@@ -781,11 +747,9 @@ def plotting(sa):
 
 def save_object(obj, filename):
     """Save an object to file in the pickle format
-
     Args:
         obj: Object to save
         filname: Output file name
-
     Returns:
         None: The object is saved to file
     """

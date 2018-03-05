@@ -56,6 +56,14 @@ class IOROOTProcessor(IOProcessor):
         else:
             logger.warning("{} not supported; using float".format(type(element)))
             return "F"
+    def _get_zero_with_type(self,a_type):
+        if a_type=="F":
+            return 0.
+        elif a_type=="I":
+            return 0
+        else:
+            logger.warning("{} not supported; using float".format(a_type))
+            return 0.
 
     def Writer(self):
 
@@ -69,14 +77,15 @@ class IOROOTProcessor(IOProcessor):
         import numpy as np
         print("Writing a tree")
         import ROOT
+        import array
 
         f = ROOT.TFile(self.file_name, self.file_option)
         t = ROOT.TTree(self.tree_name, self.tree_name)
         info_data = {}
         for key in self.variables:
-            if not isinstance(self.data[key],list):
-                print("element not a list: making a list of one element")
-                self.data.update({str(key):[self.data[key]]})
+            # if not isinstance(self.data[key],list):
+                # print("element not a list: making a list of one element")
+            #     self.data.update({str(key):[self.data[key]]})
             if isinstance(self.data[key][0],list):
                 info_subDict = {
                     "len": len(self.data[key][0]),
@@ -90,14 +99,26 @@ class IOROOTProcessor(IOProcessor):
             info_data.update({str(key):info_subDict})   
 
         logger.debug("Creating branches")
+        from array import array
+        object_dict = {}
         for key in info_data:
+            value = 0.
             if info_data[key]["len"]==0:
-                t.Branch( str(key), n, '{}/{}'.format(key,info_data[key]['type']) )
+                val = array( info_data[key]['type'].lower(), [ self._get_zero_with_type(info_data[key]['type']) ])
+                object_dict.update({key: val })
+                t.Branch( str(key), object_dict[key], '{}/{}'.format(key,info_data[key]['type']) )
             else:
+                val = array( info_data[key]['type'].lower(), int(info_data[key]['len'])* [ self._get_zero_with_type(info_data[key]['type']) ])
+                object_dict.update({key: val })
                 t.Branch( str(key), n, '{}[{}]/{}'.format(key,info_data[key]['len'],info_data[key]['type']) )
                 
                      
         print(info_data)
+        t.ls()
+
+        for i in range()
+        for key in info_data:
+            
 
 
         # with open(self.file_name, 'w') as csv_file:

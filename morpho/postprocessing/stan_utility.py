@@ -16,11 +16,9 @@ Functions:
   - check_all_diagnostics: Check all MCMC diagnosticcs
   - partition_div: Get divergent and non-divergent parameter arrays
 """
-try:
-    import pystan
-    import numpy
-except ImportError:
-    pass
+
+import pystan
+import numpy
 
 
 def check_div(fit):
@@ -38,7 +36,7 @@ def check_div(fit):
     n = sum(divergent)
     N = len(divergent)
     if n > 0:
-        return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
+        return('CONVERGENCE WARNING: {} of {} iterations ended with a divergence ({}%).'.format(n, N,
             100 * n / N)+' Try running with larger adapt_delta to remove the divergences.')
     else:
         return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
@@ -64,7 +62,7 @@ def check_treedepth(fit, max_depth = 10):
     n = sum(1 for x in depths if x == max_depth)
     N = len(depths)
     if n > 0:
-        return(('{} of {} iterations saturated the maximum tree depth of {}.'
+        return(('CONVERGENCE WARNING: {} of {} iterations saturated the maximum tree depth of {}.'
                + ' ({}%)').format(n, N, max_depth, 100 * n / N)+' Run again with max_depth set to a larger value to avoid saturation.')
     else:
         return(('{} of {} iterations saturated the maximum tree depth of {}.'
@@ -93,7 +91,7 @@ def check_energy(fit):
     if no_warning:
         return('E-BFMI indicated no pathological behavior.')
     else:
-        return('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
+        return('CONVERGENCE WARNING: E-BFMI below 0.2 indicates you may need to reparameterize your model.')
 
 
 def check_n_eff(fit):
@@ -121,7 +119,7 @@ def check_n_eff(fit):
     if no_warning:
         return('n_eff / iter looks reasonable for all parameters.')
     else:
-        return('  n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated.')
+        return('CONVERGENCE WARNING: n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated.')
 
 def check_rhat(fit):
     """Checks the potential scale reduction factors
@@ -147,7 +145,7 @@ def check_rhat(fit):
     if no_warning:
         return('Rhat looks reasonable for all parameters.')
     else:
-        return('Rhat above 1.1 indicates that the chains very likely have not mixed.')
+        return('CONVERGENCE WARNING: Rhat above 1.1 indicates that the chains very likely have not mixed.')
 
 def check_all_diagnostics(fit):
     """Checks all MCMC diagnostics

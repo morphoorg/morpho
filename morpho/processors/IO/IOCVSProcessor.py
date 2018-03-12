@@ -51,7 +51,7 @@ class IOCVSProcessor(IOProcessor):
 
         logger.debug("Saving data in {}".format(self.file_name))
         rdir = os.path.dirname(self.file_name)
-        if not os.path.exists(rdir):
+        if rdir != '' and not os.path.exists(rdir):
             os.makedirs(rdir)
             logger.debug("Creating folder: {}".format(rdir))
         with open(self.file_name, 'w') as csv_file:

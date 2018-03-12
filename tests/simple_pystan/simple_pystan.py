@@ -10,7 +10,7 @@ pystan_config = {
         "xmax":10,
         "sigma": 1.6
     },
-    "iterations": 100,
+    "iter": 100,
     "interestParams": ['x','y','residual'],
 
 }

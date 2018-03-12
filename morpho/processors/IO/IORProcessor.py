@@ -57,7 +57,7 @@ class IORProcessor(IOProcessor):
         logger.debug("Saving data in {}".format(self.file_name))
         try:
             rdir = os.path.dirname(self.file_name)
-            if not os.path.exists(rdir):
+            if rdir != '' and not os.path.exists(rdir):
                 os.makedirs(rdir)
                 logger.info("Creating folder: {}".format(rdir))
             pystan.misc.stan_rdump(subData, self.file_name)

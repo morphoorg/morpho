@@ -33,7 +33,7 @@ timeSeriesPlotter = TimeSeries("timeSeries")
 pystanProcessor.Configure(pystan_config)
 aposterioriPlotter.Configure(aposteriori_config)
 timeSeriesPlotter.Configure(timeSeries_config)
- 
+
 result =pystanProcessor.Run()
 aposterioriPlotter.data = result
 timeSeriesPlotter.data = result

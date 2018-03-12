@@ -64,5 +64,5 @@ class IORProcessor(IOProcessor):
         except:
             logger.error("Error while writing {}".format(self.file_name))
             raise
-        logger.debug("File saved!")            
+        logger.debug("File saved!")
         return None

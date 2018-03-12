@@ -60,7 +60,7 @@ readerProcessor.Configure(reader_config)
 analysisProcessor.Configure(analyzer_config)
 aposterioriPlotter.Configure(aposteriori_config)
 timeSeriesPlotter.Configure(timeSeries_config)
- 
+
 # Doing things step
 writerProcessor.data = generationProcessor.Run()
 writerProcessor.Run()

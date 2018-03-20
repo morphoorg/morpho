@@ -12,7 +12,7 @@ matrix:
   allow_failures:
     - python: 2.7
 install:
-  - bash travis/installation_script.sh
+  - source travis/installation_script.sh
 script:
   - cd tests/IO && python CVS_IO_test.py
   - cd ../IO && python R_IO_test.py

@@ -3,6 +3,7 @@
 # Author: M. Guigue
 # Date: 03/01/2018
 
+set -e
 if [ "${TRAVIS_OS_NAME}" == "osx" ]; then curl --silent http://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh; fi
 if [ "${TRAVIS_OS_NAME}" == "linux" ]; then wget -nv http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
 bash miniconda.sh -b -p $HOME/miniconda

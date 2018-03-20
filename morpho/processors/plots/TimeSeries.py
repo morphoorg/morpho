@@ -13,7 +13,7 @@ __all__ = []
 __all__.append(__name__)
 
 class TimeSeries(BaseProcessor):
-    '''                                                                                                                                
+    '''
     Describe.
     '''
 
@@ -70,5 +70,5 @@ class TimeSeries(BaseProcessor):
             listGraphWarmup[iName].SetMarkerStyle(7)
             listGraphWarmup[iName].SetMarkerColor(2)
             listGraph[iName].SetTitle(";Iteration;{}".format(name))
-        
+
         self.rootcanvas.Save()

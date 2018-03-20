@@ -20,9 +20,6 @@ class IORProcessor(IOProcessor):
     The R Reader and Writer use pystan.misc package
     '''
 
-    # def Configure(self, params):
-    #     super().Configure(params)
-
     def Reader(self):
         subData = {}
         logger.debug("Reading {}".format(self.file_name))

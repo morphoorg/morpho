@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 import csv
 import os
+import numpy as np
 
 from morpho.utilities import morphologging, reader
 logger=morphologging.getLogger(__name__)
@@ -75,17 +76,22 @@ class IOROOTProcessor(IOProcessor):
             logger.debug("Creating folder: {}".format(rdir))
         
         import numpy as np
-        print("Writing a tree")
+        logger.debug("Writing a tree")
         import ROOT
-        import array
 
         f = ROOT.TFile(self.file_name, self.file_option)
         t = ROOT.TTree(self.tree_name, self.tree_name)
         info_data = {}
+        numberData = -1
+        hasUpdatedNumberData = False
+        # Determine general properties of the tree: type and size of branches, number of iterations for the tree
         for key in self.variables:
-            # if not isinstance(self.data[key],list):
-                # print("element not a list: making a list of one element")
-            #     self.data.update({str(key):[self.data[key]]})
+            if numberData<len(self.data[key]):
+                if hasUpdatedNumberData:
+                    logger.warning("Number of datapoints updated more than once: potential problem with input data")
+                logger.debug("Updating number datapoints")
+                numberData = len(self.data[key])
+                hasUpdatedNumberData = True
             if isinstance(self.data[key][0],list):
                 info_subDict = {
                     "len": len(self.data[key][0]),
@@ -98,37 +104,34 @@ class IOROOTProcessor(IOProcessor):
                 }
             info_data.update({str(key):info_subDict})   
 
+        # Create an empty class where the attributes will be used to write the tree
+        class A(object): pass
+        a=A()
+
         logger.debug("Creating branches")
         from array import array
-        object_dict = {}
         for key in info_data:
-            value = 0.
             if info_data[key]["len"]==0:
-                val = array( info_data[key]['type'].lower(), [ self._get_zero_with_type(info_data[key]['type']) ])
-                object_dict.update({key: val })
-                t.Branch( str(key), object_dict[key], '{}/{}'.format(key,info_data[key]['type']) )
+                setattr(a, str(key), array( info_data[key]['type'].lower(), [ self._get_zero_with_type(info_data[key]['type']) ]))
+                t.Branch( str(key), getattr(a,str(key)), '{}/{}'.format(str(key),info_data[key]['type']) )
             else:
-                val = array( info_data[key]['type'].lower(), int(info_data[key]['len'])* [ self._get_zero_with_type(info_data[key]['type']) ])
-                object_dict.update({key: val })
-                t.Branch( str(key), n, '{}[{}]/{}'.format(key,info_data[key]['len'],info_data[key]['type']) )
-                
-                     
-        print(info_data)
-        t.ls()
+                setattr(a, str(key), array( info_data[key]['type'].lower(), int(info_data[key]['len']) * [ self._get_zero_with_type(info_data[key]['type']) ]))     
+                t.Branch( str(key), getattr(a,str(key)), '{}[{}]/{}'.format(str(key),info_data[key]['len'],info_data[key]['type']) )                           
 
-        for i in range()
-        for key in info_data:
-            
-
-
-        # with open(self.file_name, 'w') as csv_file:
-        #     try:
-        #         writer = csv.writer(csv_file)
-        #         for key in self.variables:
-        #             writer.writerow([key, self.data[key]])
-        #     except:
-        #         logger.error("Error while writing {}".format(self.file_name))
-        #         raise
+        logger.debug("Adding data")
+        for i in range(numberData):
+            for key in info_data:
+                temp_var = getattr(a,str(key))
+                if info_data[key]["len"]==0:
+                    temp_var[0] = self.data[str(key)][i]
+                else:
+                    for j in range(info_data[key]["len"]):
+                        temp_var[j] = self.data[str(key)][i][j]
+                setattr(a,str(key) ,temp_var)
+            t.Fill()
+        f.cd()
+        t.Write()
+        f.Close()
         logger.debug("File saved!")
         return None
 

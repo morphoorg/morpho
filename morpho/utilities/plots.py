@@ -1,4 +1,10 @@
-import ROOT
+from morpho.utilities import morphologging
+logger=morphologging.getLogger(__name__)
+
+try:
+    import ROOT
+except ImportError:
+    pass
 
 def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin, optStat = 'emr'):
     '''

@@ -51,9 +51,9 @@ class IOTests(unittest.TestCase):
         b.data = a.Run()
         data = b.Run()
         logger.info("Data extracted = {}".format(data.keys()))
-        # for key in data.keys():
-            # logger.info("{} -> size = {}".format(key,len(data[key])))
-            # self.assertEqual(len(data[key]),22)
+        for key in data.keys():
+            logger.info("{} -> size = {}".format(key,len(data[key])))
+            self.assertEqual(len(data[key]),6)
 
 if __name__ == '__main__':
     unittest.main()

@@ -27,6 +27,11 @@ class IOROOTProcessor(IOProcessor):
         self.file_option = reader.read_param(params,"file_option","Recreate")
 
     def Reader(self):
+        '''
+        Read the content of a TTree in a ROOT File.
+        Note the use of the uproot package.
+        The variables should be a list of the "variable" to read.
+        '''
         logger.debug("Reading {}".format(self.file_name))
         import uproot
         subData = {}
@@ -67,7 +72,13 @@ class IOROOTProcessor(IOProcessor):
             return 0.
 
     def Writer(self):
-
+        '''
+        Write the data into a TTree in a ROOT File.
+        The variables should be a list of dictionaries where
+            - "variable" is the variable name in the input dictionary, 
+            - "root_alias" is the name of the branch in the tree,
+            - "type" is the type of data to be saved.
+        '''
         logger.debug("Saving data in {}".format(self.file_name))
 
         rdir = os.path.dirname(self.file_name)

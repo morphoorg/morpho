@@ -27,27 +27,19 @@ class IOROOTProcessor(IOProcessor):
         self.file_option = reader.read_param(params,"file_option","Recreate")
 
     def Reader(self):
-        subData = {}
         logger.debug("Reading {}".format(self.file_name))
-        if os.path.exists(self.file_name):
-            with open(self.file_name, 'r') as csv_file:
-                try:
-                    reader = csv.reader(csv_file)
-                    theData = dict(reader)
-                except:
-                    logger.error("Error while reading {}".format(self.file_name))
-                    raise
-        else:
-            logger.error("File {} does not exist".format(self.file_name))
-            raise FileNotFoundError(self.file_name)
-
-        logger.debug("Extracting {}".format(self.variables))
-        for var in self.variables:
-            if var in theData.keys():
-                subData.update({str(var):theData[var]})
-            else:
-                logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))
+        
+        import uproot
+        subData = {}
+        for key in self.variables:
+            subData.update({str(key): []})
+        tree = uproot.open(self.file_name)[self.tree_name]
+        for data in tree.iterate(self.variables):
+            for key, value in data.items():
+                varName = key.decode("utf-8") 
+                subData.update({str(varName): subData[str(varName)] + value.tolist()})
         return subData
+
 
     def _branch_element_type(self,element):
         if isinstance(element,int):
@@ -105,29 +97,29 @@ class IOROOTProcessor(IOProcessor):
             info_data.update({str(key):info_subDict})   
 
         # Create an empty class where the attributes will be used to write the tree
-        class A(object): pass
-        a=A()
+        class AClass(object): pass
+        tempObject=AClass()
 
         logger.debug("Creating branches")
         from array import array
         for key in info_data:
             if info_data[key]["len"]==0:
-                setattr(a, str(key), array( info_data[key]['type'].lower(), [ self._get_zero_with_type(info_data[key]['type']) ]))
-                t.Branch( str(key), getattr(a,str(key)), '{}/{}'.format(str(key),info_data[key]['type']) )
+                setattr(tempObject, str(key), array( info_data[key]['type'].lower(), [ self._get_zero_with_type(info_data[key]['type']) ]))
+                t.Branch( str(key), getattr(tempObject,str(key)), '{}/{}'.format(str(key),info_data[key]['type']) )
             else:
-                setattr(a, str(key), array( info_data[key]['type'].lower(), int(info_data[key]['len']) * [ self._get_zero_with_type(info_data[key]['type']) ]))     
-                t.Branch( str(key), getattr(a,str(key)), '{}[{}]/{}'.format(str(key),info_data[key]['len'],info_data[key]['type']) )                           
+                setattr(tempObject, str(key), array( info_data[key]['type'].lower(), int(info_data[key]['len']) * [ self._get_zero_with_type(info_data[key]['type']) ]))     
+                t.Branch( str(key), getattr(tempObject,str(key)), '{}[{}]/{}'.format(str(key),info_data[key]['len'],info_data[key]['type']) )                           
 
         logger.debug("Adding data")
         for i in range(numberData):
             for key in info_data:
-                temp_var = getattr(a,str(key))
+                temp_var = getattr(tempObject,str(key))
                 if info_data[key]["len"]==0:
                     temp_var[0] = self.data[str(key)][i]
                 else:
                     for j in range(info_data[key]["len"]):
                         temp_var[j] = self.data[str(key)][i][j]
-                setattr(a,str(key) ,temp_var)
+                setattr(tempObject,str(key) ,temp_var)
             t.Fill()
         f.cd()
         t.Write()

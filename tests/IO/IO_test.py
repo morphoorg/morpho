@@ -13,21 +13,30 @@ class IOTests(unittest.TestCase):
     
     def test_ROOTIO(self):
         from morpho.processors.IO import IOROOTProcessor
-        reader_config = {
+        writer_config = {
             "action": "write",
             "tree_name": "test",
             "filename": "myTest.root",
             "variables": ["x","y","list"]
         }
+        reader_config = {
+            "action": "read",
+            "tree_name": "test",
+            "filename": "myTest.root",
+            "variables": ["y","list"]
+        }
         input_data = {
                         "x": [1,2,3,4,5,6], 
                         "y": [1.2,2.3,3.4,4.5,5.6,6.7],
-                        "list": [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]] }
-        b = IOROOTProcessor("write")
+                        "list": [[1.1,2.],[2.,3.],[3.,4.],[4.,5.],[5.,6.],[6.,7.]] }
+        a = IOROOTProcessor("Writer")
+        b = IOROOTProcessor("Reader")
+        a.Configure(writer_config)
         b.Configure(reader_config)
-        b.data = input_data
+        a.data = input_data
+        b.data = a.Run()
         data = b.Run()
-        # logger.info("Data extracted = {}".format(data.keys()))
+        logger.info("Data extracted = {}".format(data.keys()))
         # for key in data.keys():
             # logger.info("{} -> size = {}".format(key,len(data[key])))
             # self.assertEqual(len(data[key]),22)

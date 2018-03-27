@@ -3,6 +3,8 @@ morpho
 
   A python interface between Stan/PyStan Markov Chain Monte Carlo package for meta analysis and generation of fake data.
 
+  [![Build Status](https://travis-ci.org/project8/morpho.svg?branch=morpho2/develop)](https://travis-ci.org/project8/morpho)
+
 Requirements
 ======
 

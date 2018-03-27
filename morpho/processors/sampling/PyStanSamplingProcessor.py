@@ -4,12 +4,18 @@ PyStan sampling processor
 
 from __future__ import absolute_import
 
-import json
 import os
+import random
+import re
+from hashlib import md5
+import pystan
+from inspect import getargspec
 
-from morpho.utilities import morphologging
+
+from morpho.utilities import morphologging, reader, pystanLoader
 from morpho.processors import BaseProcessor
 logger=morphologging.getLogger(__name__)
+logger_stan=morphologging.getLogger('pystan')
 
 __all__ = []
 __all__.append(__name__)
@@ -18,11 +24,30 @@ class PyStanSamplingProcessor(BaseProcessor):
     '''
     Sampling processor that will call PyStan
     '''
-    def __init__(self, name, *args, **kwargs):
-        super().__init__(name, *args, **kwargs)
-        return
+    @property
+    def data(self):
+        return self._data
+    @data.setter
+    def data(self,input_dict):
+        if isinstance(input_dict,dict):
+            for a_key, a_value in input_dict.items():
+                reader.add_dict_param(self.data, a_key, a_value)
+        else:
+            logger.warning("Not a dict: {}".format(input_dict))
 
-    def _stan_cache():
+    def __init__(self,name):
+        super().__init__(name)
+        self._data = {}
+
+    def gen_arg_dict(self):
+        d = self.__dict__
+        sa = getargspec(pystan.StanModel.sampling)
+        output_dict = {k: d[k] for k in (sa.args) if k in d}
+        # We need to manually add the data to the dictionary because of the setter...
+        output_dict.update({'data': self.data})
+        return output_dict
+
+    def _stan_cache(self):
         '''
         Create and cache stan model, or access previously cached model
         '''
@@ -66,33 +91,34 @@ class PyStanSamplingProcessor(BaseProcessor):
             os.makedirs(cdir)
             logger.info("Creating 'cache' folder: {}".format(cdir))
 
-        if (args.force_restart):
-            logger.debug("Forced to create Stan cache!")
-            sm = pystan.StanModel(model_code=theModel)
-        if not args.no_cache:
+        # if (args.force_restart):
+        logger.debug("Forced to create Stan cache!")
+        # self.stanModel = pystan.StanModel(model_code=theModel)
+        # if not args.no_cache:
+        #     logger.debug("Saving Stan cache in {}".format(cache_fn))
+        #     with open(cache_fn, 'wb') as f:
+        #         pickle.dump(sm, f)
+        # else:
+        import pickle
+        try:
+            logger.debug("Trying to load cached StanModel")
+            self.stanModel = pickle.load(open(cache_fn, 'rb'))
+        except:
+            logger.debug("None exists -> creating Stan cache")
+            self.stanModel = pystan.StanModel(model_code=theModel)
+            # if not args.no_cache:
             logger.debug("Saving Stan cache in {}".format(cache_fn))
             with open(cache_fn, 'wb') as f:
-                pickle.dump(sm, f)
+                pickle.dump(self.stanModel, f)
         else:
-            try:
-                logger.debug("Trying to load cached StanModel")
-                sm = pickle.load(open(cache_fn, 'rb'))
-            except:
-                logger.debug("None exists -> creating Stan cache")
-                sm = pystan.StanModel(model_code=theModel)
-                if not args.no_cache:
-                    logger.debug("Saving Stan cache in {}".format(cache_fn))
-                    with open(cache_fn, 'wb') as f:
-                        pickle.dump(sm, f)
-            else:
-                logger.debug("Using cached StanModel: {}".format(cache_fn))
+            logger.debug("Using cached StanModel: {}".format(cache_fn))
 
-        if sa.out_cache_fn is not None:
-            logger.debug("Saving cache file to {}".format(sa.out_cache_fn))
-            cache_name_file = open(sa.out_cache_fn,'w+')
-            cache_name_file.write(cache_fn)
+        # if sa.out_cache_fn is not None:
+        #     logger.debug("Saving cache file to {}".format(self.out_cache_fn))
+        #     cache_name_file = open(sa.out_cache_fn,'w+')
+        #     cache_name_file.write(cache_fn)
 
-    def run_stan():
+    def _run_stan(self, *args, **kwargs):
         logger.info("Starting the sampling")
         text = "Parameters: \n"
         for key, value in kwargs.items():
@@ -104,43 +130,48 @@ class PyStanSamplingProcessor(BaseProcessor):
                 text = text + "init\t[...]\n"
         logger.info(text)
         # returns the arguments for sampling and the result of the sampling
-        return kwargs, sm.sampling(**kwargs)
-# return stan_results
+        return self.stanModel.sampling(**(kwargs))
+        # return self.stanModel.sampling(**(self.gen_arg_dict()))
 
     def Configure(self, params):
-        print(self, params)
+        logger.info("Configure with {}".format(params))
         self.params = params
-        self.model_code = self.read_param(params, 'model_code', 'required')
-        self.function_files_location = self.read_params(params, 'function_files_location', None)
-        self.model_name = self.read_params(params, 'model_name', None)
-        self.cache_dir = self.read_params(params, 'cache_dir', '.')
-        self.input_data = self.read_param(params, 'input_data', 'required')
-        self.iterations = self.read_param(params, 'iterations', 'required')
-        self.warmup = int(self.read_param(yd, 'stan.run.warmup', self.iter/2))
-        self.chains = int(self.read_param(yd, 'stan.run.chain', 4))
-        self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
+        self.model_code = reader.read_param(params, 'model_code', 'required')
+        self.function_files_location = reader.read_param(params, 'function_files_location', None)
+        self.model_name = reader.read_param(params, 'model_name', "anon_model")
+        self.cache_dir = reader.read_param(params, 'cache_dir', '.')
+        self.data = reader.read_param(params, 'input_data', {})
+        self.iter = reader.read_param(params, 'iter', 'required')
+        self.warmup = int(reader.read_param(params, 'warmup', self.iter/2))
+        self.chains = int(reader.read_param(params, 'chain', 1))
+        self.n_jobs = int(reader.read_param(params, 'n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
+        self.interestParams = reader.read_param(params, 'interestParams',[])
         # Adding a seed based on extra arguments, current time
-        if isinstance(args.seed,(int,float,str)):
-            self.seed=int(args.seed)
-        elif args.noautoseed:
-            self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
-            logger.debug("Autoseed activated")
-        else:
-            self.seed = int(self.read_param(yd, 'stan.run.seed', None))
+        # if isinstance(args.seed,(int,float,str)):
+        #     self.seed=int(args.seed)
+        # elif args.noautoseed:
+        self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
+        logger.debug("Autoseed activated")
+        # else:
+            # self.seed = int(reader.read_param(yd, 'stan.run.seed', None))
         logger.debug("seed = {}".format(self.seed))
 
-        self.thin = self.read_param(yd, 'stan.run.thin', 1)
-        self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
-        self.init = self.init_Stan_function()
-        if isinstance(self.read_param(yd, 'stan.run.control', None),dict):
-            self.control = self.read_param(yd, 'stan.run.control', None)
-        else:
-            if self.read_param(yd, 'stan.run.control', None) is not None:
-                logger.debug("stan.run.control should be a dict: {}",str(self.read_param(yd, 'stan.run.control', None)))
+        self.thin = reader.read_param(params, 'stan.run.thin', 1)
+        self.init_per_chain = reader.read_param(params, 'stan.run.init', '')
+
+        # self.init = self.init_Stan_function()
+        # if isinstance(reader.read_param(params, 'stan.run.control', None),dict):
+        #     self.control = reader.read_param(params, 'stan.run.control', None)
+        # else:
+        #     if reader.read_param(params, 'stan.run.control', None) is not None:
+        #         logger.debug("stan.run.control should be a dict: {}",str(reader.read_param(yd, 'stan.run.control', None)))
+
 
     def Run(self):
-        stan_model = self.stan_cache()
-        stan_results = self.run_stan(stan_model)
-        self.params = self.add_param(self.params, "stan_results", stan_results)
-        return self.params
+        logger.info("Run...")
+        self._stan_cache()
+        stan_results = self._run_stan(**(self.gen_arg_dict()))
+        logger.debug("Stan Results:\n"+str(stan_results))
+        # Put the data into a nice dictionary
+        return pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)
 

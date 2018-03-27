@@ -3,7 +3,7 @@ Interface between config files and processors config dictionaries
 '''
 
 from morpho.utilities import morphologging
-logger=morphologging.getLogger(__name__)
+logger = morphologging.getLogger(__name__)
 
 def read_param(yaml_data, node, default):
     data = yaml_data
@@ -34,5 +34,5 @@ def add_dict_param(dictionary, key, value):
         logger.error(key_err)
         raise
     else:
-        dict.update({key:value})
+        dictionary.update({key:value})
     return dictionary   

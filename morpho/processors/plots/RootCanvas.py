@@ -1,3 +1,4 @@
+import os
 
 from morpho.utilities import morphologging, reader, plots
 # from morpho.processors import BaseProcessor
@@ -67,6 +68,10 @@ class RootCanvas(object):
         '''
         Save the TCanvas
         '''
+        rdir = os.path.dirname(self.figurefullpath)
+        if not os.path.exists(rdir):
+            os.makedirs(rdir)
+            logger.info("Creating folder: {}".format(rdir))
         self.canvas.SaveAs(self.figurefullpath)
         
         

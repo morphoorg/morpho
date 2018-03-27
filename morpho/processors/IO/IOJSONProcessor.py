@@ -20,7 +20,7 @@ class IOJSONProcessor(IOProcessor):
     '''
     Base IO JSON Processor
     '''
-        
+
     module_name = 'json'
     dump_kwargs = {"indent": 4}
 
@@ -29,8 +29,8 @@ class IOJSONProcessor(IOProcessor):
         self.my_module = importlib.import_module(self.module_name)
 
     def Reader(self):
-        subData = {}
         logger.debug("Reading {}".format(self.file_name))
+        subData = {}
         if os.path.exists(self.file_name):
             with open(self.file_name, 'r') as json_file:
                 try:
@@ -52,7 +52,6 @@ class IOJSONProcessor(IOProcessor):
 
 
     def Writer(self):
-
         logger.debug("Saving data in {}".format(self.file_name))
         rdir = os.path.dirname(self.file_name)
         if rdir != '' and not os.path.exists(rdir):

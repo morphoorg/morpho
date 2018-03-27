@@ -14,7 +14,8 @@ matrix:
 install:
   - source travis/installation_script.sh
 script:
-  - cd tests/IO && python CVS_IO_test.py
+  - cd tests/IO && python IO_test.py
+  - cd ../IO && python CVS_IO_test.py
   - cd ../IO && python R_IO_test.py
   - cd ../simple_pystan && python simple_pystan.py
 notifications:

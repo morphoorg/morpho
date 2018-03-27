@@ -28,7 +28,6 @@ class IOROOTProcessor(IOProcessor):
 
     def Reader(self):
         logger.debug("Reading {}".format(self.file_name))
-        
         import uproot
         subData = {}
         for key in self.variables:
@@ -49,6 +48,15 @@ class IOROOTProcessor(IOProcessor):
         else:
             logger.warning("{} not supported; using float".format(type(element)))
             return "F"
+    def _branch_element_type_from_string(self,string):
+        if string == "float":
+            return "F"
+        elif string == "int":
+            return "I"
+        
+        logger.debug("{} not supported; while use data to determine type".format(string))
+        return None
+
     def _get_zero_with_type(self,a_type):
         if a_type=="F":
             return 0.
@@ -76,25 +84,33 @@ class IOROOTProcessor(IOProcessor):
         info_data = {}
         numberData = -1
         hasUpdatedNumberData = False
+
         # Determine general properties of the tree: type and size of branches, number of iterations for the tree
-        for key in self.variables:
-            if numberData<len(self.data[key]):
+        for a_item in self.variables:
+            varName = a_item["variable"]
+            varRootAlias = a_item.get("root_alias") or varName
+            varType = self._branch_element_type_from_string(a_item.get("type"))
+
+            if numberData<len(self.data[varName]):
                 if hasUpdatedNumberData:
                     logger.warning("Number of datapoints updated more than once: potential problem with input data")
-                logger.debug("Updating number datapoints")
-                numberData = len(self.data[key])
+                else:
+                    logger.debug("Updating number datapoints")
+                numberData = len(self.data[varName])
                 hasUpdatedNumberData = True
-            if isinstance(self.data[key][0],list):
+            if isinstance(self.data[varName][0],list):
                 info_subDict = {
-                    "len": len(self.data[key][0]),
-                    "type": self._branch_element_type(self.data[key][0][0])
+                    "len": len(self.data[varName][0]),
+                    "type": self._branch_element_type_from_string(a_item.get("type")) or self._branch_element_type(self.data[varName][0][0]),
+                    "root_alias": varRootAlias
                 }
             else:
                 info_subDict = {
                     "len": 0,
-                    "type": self._branch_element_type(self.data[key][0])
+                    "type": self._branch_element_type_from_string(a_item.get("type")) or self._branch_element_type(self.data[varName][0]),
+                    "root_alias": varRootAlias                    
                 }
-            info_data.update({str(key):info_subDict})   
+            info_data.update({str(varName):info_subDict})   
 
         # Create an empty class where the attributes will be used to write the tree
         class AClass(object): pass
@@ -105,10 +121,10 @@ class IOROOTProcessor(IOProcessor):
         for key in info_data:
             if info_data[key]["len"]==0:
                 setattr(tempObject, str(key), array( info_data[key]['type'].lower(), [ self._get_zero_with_type(info_data[key]['type']) ]))
-                t.Branch( str(key), getattr(tempObject,str(key)), '{}/{}'.format(str(key),info_data[key]['type']) )
+                t.Branch( str(str(info_data[key]['root_alias'])), getattr(tempObject,str(key)), '{}/{}'.format(str(key),info_data[key]['type']) )
             else:
                 setattr(tempObject, str(key), array( info_data[key]['type'].lower(), int(info_data[key]['len']) * [ self._get_zero_with_type(info_data[key]['type']) ]))     
-                t.Branch( str(key), getattr(tempObject,str(key)), '{}[{}]/{}'.format(str(key),info_data[key]['len'],info_data[key]['type']) )                           
+                t.Branch( str(str(info_data[key]['root_alias'])), getattr(tempObject,str(key)), '{}[{}]/{}'.format(str(key),info_data[key]['len'],info_data[key]['type']) )                           
 
         logger.debug("Adding data")
         for i in range(numberData):

@@ -17,13 +17,27 @@ class IOTests(unittest.TestCase):
             "action": "write",
             "tree_name": "test",
             "filename": "myTest.root",
-            "variables": ["x","y","list"]
+            "variables": [
+                {
+                "variable":"x",
+                "root_alias":"x",
+                "type":"int"
+                },
+                {
+                "variable":"y"
+                },
+                {
+                "variable":"list",
+                "root_alias":"myList",
+                "type":"float"
+                }
+            ]
         }
         reader_config = {
             "action": "read",
             "tree_name": "test",
             "filename": "myTest.root",
-            "variables": ["y","list"]
+            "variables": ["x","y","myList"]
         }
         input_data = {
                         "x": [1,2,3,4,5,6], 

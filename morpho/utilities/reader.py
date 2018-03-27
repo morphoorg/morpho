@@ -11,11 +11,9 @@ def read_param(yaml_data, node, default):
     try:
         for path in xpath:
             data = data[path]
-    except Exception as exc:
+    except KeyError as exc:
         if default == 'required':
-            err = """FATAL: Configuration parameter {0} required but not\
-            provided in config file!
-            """.format(node)
+            err = "Configuration parameter {0} required but not provided in config file!".format(node)
             logger.error(err)
             raise exc
         else:

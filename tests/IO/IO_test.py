@@ -9,7 +9,65 @@ import unittest
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 
+
+input_data = {
+                "x": [1,2,3,4,5,6], 
+                "y": [1.2,2.3,3.4,4.5,5.6,6.7],
+                "list": [[1.1,2.],[2.,3.],[3.,4.],[4.,5.],[5.,6.],[6.,7.]]
+            }
+
 class IOTests(unittest.TestCase):
+    
+    def test_JSONIO(self):
+        from morpho.processors.IO import IOJSONProcessor, IOYAMLProcessor
+        writer_config = {
+            "action": "write",
+            "filename": "myTest.json",
+            "variables": [
+                {
+                "variable":"x",
+                "json_alias":"x"
+                },
+                {
+                "variable":"y"
+                },
+                {
+                "variable":"list",
+                "json_alias":"myList"
+                }
+            ]
+        }
+        reader_config = {
+            "action": "read",
+            "filename": "myTest.json",
+            "variables": ["x","y","myList"]
+        }
+        a = IOJSONProcessor("Writer")
+        b = IOJSONProcessor("Reader")
+        c = IOYAMLProcessor("Writer")
+        d = IOYAMLProcessor("Reader")
+
+        a.Configure(writer_config)
+        b.Configure(reader_config)
+        writer_config.update({"filename": "myTest.yaml"})
+        reader_config.update({"filename": "myTest.yaml"})
+        c.Configure(writer_config)
+        d.Configure(reader_config)
+
+        a.data = input_data
+        a.Run()
+        data = b.Run()
+        logger.info("Data extracted = {}".format(data.keys()))
+        for key in data.keys():
+            logger.info("{} -> size = {}".format(key,len(data[key])))
+            self.assertEqual(len(data[key]),6)
+        c.data = input_data
+        c.Run()
+        data2 = d.Run()
+        for key in data2.keys():
+            logger.info("{} -> size = {}".format(key,len(data2[key])))
+            self.assertEqual(len(data2[key]),6)
+        
     
     def test_ROOTIO(self):
         from morpho.processors.IO import IOROOTProcessor
@@ -39,16 +97,12 @@ class IOTests(unittest.TestCase):
             "filename": "myTest.root",
             "variables": ["x","y","myList"]
         }
-        input_data = {
-                        "x": [1,2,3,4,5,6], 
-                        "y": [1.2,2.3,3.4,4.5,5.6,6.7],
-                        "list": [[1.1,2.],[2.,3.],[3.,4.],[4.,5.],[5.,6.],[6.,7.]] }
         a = IOROOTProcessor("Writer")
         b = IOROOTProcessor("Reader")
         a.Configure(writer_config)
         b.Configure(reader_config)
         a.data = input_data
-        b.data = a.Run()
+        a.Run()
         data = b.Run()
         logger.info("Data extracted = {}".format(data.keys()))
         for key in data.keys():

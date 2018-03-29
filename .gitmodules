@@ -1,3 +1,3 @@
 [submodule "uproot"]
 	path = uproot
-	url = https://github.com/scikit-hep/uproot/
+url=https://github.com/guiguem/uproot/

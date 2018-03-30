@@ -37,12 +37,16 @@ extras_require['all'] = everything
 setup(
     name='morpho',
     version=verstr,
+    description="A python interface with Stan/PyStan Markov Chain Monte Carlo package",
     packages=find_packages(),
-    scripts=['bin/morpho','bin/BasicTest'],
+    scripts=[],
     install_requires=requirements,
     extras_require=extras_require,
     url='http://www.github.com/project8/morpho',
+    author = "J. Formaggio, J. Johnston, T. Weiss (MIT), M. Guigue, B. LaRoque, N. Oblath (PNNL)",
+    maintainer = "M. Guigue (PNNL)",
+    maintainer_email = "mathieu.guigue@pnnl.gov",
     dependency_links=[
-        'git+https://github.com/guiguem/uproot.git@master#egg=uproot-2.8.13'
+        'git+https://github.com/scikit-hep/uproot.git@master#egg=uproot-2.8.13'
     ]
 )

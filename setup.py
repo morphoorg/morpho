@@ -19,7 +19,7 @@ on_rtd = os.environ.get("READTHEDOCS", None) == 'True'
 requirements = []
 extras_require = {
     'h5': ['h5py<=2.6'],
-    'core':['matplotlib==1.5.1','colorlog', 'PyYAML==3.11','pyparsing>=2.1.5','numpy>=1.14','pystan==2.17.0.0','dnspython==1.12.0','pbr==0.10.8','cycler==0.10.0','python-dateutil==2.5.3'],
+    'core':['uproot>=2.8.13','matplotlib==1.5.1','colorlog', 'PyYAML==3.11','pyparsing>=2.1.5','numpy>=1.14','pystan==2.17.0.0','dnspython==1.12.0','pbr==0.10.8','cycler==0.10.0','python-dateutil==2.5.3'],
     'doc': ['sphinx', 'sphinx_rtd_theme', 'sphinxcontrib-programoutput']
 }
 
@@ -37,9 +37,16 @@ extras_require['all'] = everything
 setup(
     name='morpho',
     version=verstr,
+    description="A python interface with Stan/PyStan Markov Chain Monte Carlo package",
     packages=find_packages(),
-    scripts=['bin/morpho','bin/BasicTest'],
+    scripts=[],
     install_requires=requirements,
     extras_require=extras_require,
     url='http://www.github.com/project8/morpho',
+    author = "J. Formaggio, J. Johnston, T. Weiss (MIT), M. Guigue, B. LaRoque, N. Oblath (PNNL)",
+    maintainer = "M. Guigue (PNNL)",
+    maintainer_email = "mathieu.guigue@pnnl.gov",
+    dependency_links=[
+        'git+https://github.com/scikit-hep/uproot.git@master#egg=uproot-2.8.13'
+    ]
 )

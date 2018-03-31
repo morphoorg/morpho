@@ -4,6 +4,9 @@ logger = morphologging.getLogger(__name__)
 
 import ROOT
 
+__all__ = []
+__all__.append(__name__)
+
 class RooFitLikelihoodSampler(BaseProcessor):
     '''
     Base class for RooFit-based Likelihood sampling.

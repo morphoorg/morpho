@@ -4,6 +4,9 @@ logger = morphologging.getLogger(__name__)
 
 import ROOT
 
+__all__ = []
+__all__.append(__name__)
+
 class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
     '''
     Linear fit of data using RootFit Likelihood sampler.

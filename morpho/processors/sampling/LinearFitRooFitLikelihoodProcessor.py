@@ -7,7 +7,7 @@ import ROOT
 class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
     '''
     Linear fit of data using RootFit Likelihood sampler.
-
+    NOT WORKING
     '''
 
     def Configure(self,config_dict = {}):
@@ -16,25 +16,35 @@ class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
         self.b_min, self.b_max = reader.read_param(config_dict,"paramRange", "required")["b"]
         self.x_min, self.x_max = reader.read_param(config_dict,"paramRange", "required")["x"]
         self.y_min, self.y_max = reader.read_param(config_dict,"paramRange", "required")["y"]
+        self.width_min, self.width_max = reader.read_param(config_dict,"paramRange", "required")["width"]
+
+    def _defineDataset(self,wspace):
+        varX = ROOT.RooRealVar("x","x",min(self._data["x"]),max(self._data["x"]))
+        varY = ROOT.RooRealVar("y","y",min(self._data["y"]),max(self._data["y"]))
+        data = ROOT.RooDataSet(self.datasetName,self.datasetName,ROOT.RooArgSet(varX,varY))
+        for x,y in zip(self._data["x"],self._data["y"]):
+            varX.setVal(x)
+            varY.setVal(y)
+            data.add(ROOT.RooArgSet(varX,varY))
+        getattr(wspace,'import')(data)
+        return wspace
 
     def definePdf(self,wspace):
         '''
         
         '''
         logger.debug("Defining pdf")
-        # x = ROOT.RooRealVar("x","x")
-        # y = ROOT.RooRealVar("y","y")
-        a = ROOT.RooRealVar("a","a",self.a_min,self.a_max)
-        b = ROOT.RooRealVar("b","b",self.b_min,self.b_max)
+        a = ROOT.RooRealVar("a","a",0,self.a_min,self.a_max)
+        b = ROOT.RooRealVar("b","b",0,self.b_min,self.b_max)
+        width = ROOT.RooRealVar("width","width",1.,self.width_min,self.width_max)
+
         x = ROOT.RooRealVar("x","x",self.x_min,self.x_max)
         y = ROOT.RooRealVar("y","y",self.y_min,self.y_max)
-        width = ROOT.RooRealVar("width","width",0,1000)
-        # b = ROOT.RooRealVar("b","b")
-        residual = ROOT.RooFormulaVar("res","y-a*x-b", ROOT.RooArgList(x,y,a,b))
+        res = ROOT.RooFormulaVar("res","(y-a*x-b)/width", ROOT.RooArgList(x,y,a,b,width))
         null = ROOT.RooRealVar("null","null",0.)
-        pdf = ROOT.RooGaussian("pdf","pdf",residual,null,width)
+        one = ROOT.RooRealVar("one","one",1.)
 
-
+        pdf = ROOT.RooGaussian("pdf","pdf",res,null,one)
         # Save pdf: this will save all required variables and functions
         getattr(wspace,'import')(pdf)
 

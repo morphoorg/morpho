@@ -16,7 +16,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         Define our dataset given our data and add it to the workspace..
         Note that we only import one variable in the RooWorkspace.
         TODO:
-         - Implement the import of several variables in the RooWorkspace
+         - Implement the import of several variables in the RooWorkspace -> might need to redefine this method when necessary
         '''
         var = ROOT.RooRealVar(self.varName,self.varName,min(self._data[self.varName]),max(self._data[self.varName]))
         data = ROOT.RooDataSet(self.datasetName,self.datasetName,ROOT.RooArgSet(var))
@@ -30,7 +30,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         '''
         Defines the Pdf that RooFit will sample and add it to the workspace.
         The Workspace is then returned by the user.
-        Users should edit this function.
+        Users should always create their own method.
         '''
         logger.error("User should define this method in a child class!")
         raise
@@ -58,7 +58,6 @@ class RooFitLikelihoodSampler(BaseProcessor):
         self.iter = int(reader.read_param(config_dict,"iter",2000))
         self.warmup = int(reader.read_param(config_dict,"warmup",200))
         self.numCPU = int(reader.read_param(config_dict,"n_jobs",1))
-        self.options = reader.read_param(config_dict,"options",{})
 
     def Run(self):
         logger.info("Run...")
@@ -74,8 +73,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
 
         dataset = wspace.data(self.datasetName)
         pdf = wspace.pdf("pdf")
-        var = wspace.var(self.varName)
-        width = wspace.var("widthSmearing")
+
         logger.debug("Creating likelihood")
         nll = pdf.createNLL(dataset,ROOT.RooFit.NumCPU(self.numCPU))
         
@@ -83,15 +81,18 @@ class RooFitLikelihoodSampler(BaseProcessor):
         result = pdf.fitTo(dataset,ROOT.RooFit.Save(),ROOT.RooFit.NumCPU(self.numCPU))
         logger.debug("...done!\nResults:")
         result.Print()
+        logger.debug("Covariance matrix:")
         result.covarianceMatrix().Print()
         
         # can = ROOT.TCanvas("can","can",600,400)
+        # var = wspace.var(self.varName)
         # frame = var.frame()
         # dataset.plotOn(frame)
         # pdf.plotOn(frame)
         # frame.Draw()
         # can.SaveAs("plots/results_fit.pdf") 
 
+        logger.debug("Define Proposal function")
         ph = ROOT.RooStats.ProposalHelper()
         ph.SetVariables(result.floatParsFinal())
         ph.SetCovMatrix(result.covarianceMatrix())
@@ -119,7 +120,6 @@ class RooFitLikelihoodSampler(BaseProcessor):
         outputChain.update({"lp_prob":[]})
 
         for i in range(0,chainData.numEntries()):
-            # numberSamples = numberSamples + chainData.get(i).getRealValue("weight_MarkovChain_local_")
             for item in outputChain:
                 if item == "lp_prob":
                     outputChain[item].append(-chainData.get(i).getRealValue("nll_MarkovChain_local_"))

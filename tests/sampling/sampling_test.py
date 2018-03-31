@@ -1,5 +1,5 @@
 '''
-This scripts aims at testing IO processors by reading/writing files.
+This scripts aims at testing sampling processors by generating data and analyzing them.
 Author: M. Guigue
 Date: Feb 27 2018
 '''

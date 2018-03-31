@@ -7,7 +7,8 @@ import ROOT
 class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
     '''
     Linear fit of data using RootFit Likelihood sampler.
-    NOT WORKING
+    We redefine the _defineDataset method as this analysis requires datapoints in a 2D space.
+    Users should feel free to change this method as they see fit.
     '''
 
     def Configure(self,config_dict = {}):
@@ -31,7 +32,7 @@ class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
 
     def definePdf(self,wspace):
         '''
-        
+        Define the model which is that the residual of the linear fit should be normally distributed.
         '''
         logger.debug("Defining pdf")
         a = ROOT.RooRealVar("a","a",0,self.a_min,self.a_max)

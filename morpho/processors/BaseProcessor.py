@@ -21,14 +21,21 @@ class BaseProcessor:
     '''
 
     def __init__(self, name, *args, **kwargs):
-        self.__name = name
-        return
+        self._procName = name
+    
+    @property
+    def name(self):
+        return self._procName
 
     def Configure(self, params):
         '''
         This method will be called by nymph to configure the processor
         '''
-        logger.error("Default Configure method: need to implement your own")
+        logger.info("Configure <{}> with {}".format(self.name,params))
+        self._Configure(params)
+
+    def _Configure(self, params):
+        logger.error("Default _Configure method: need to implement your own")
         raise
 
     def Run(self):

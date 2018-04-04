@@ -17,8 +17,10 @@ __all__ = []
 __all__.append(__name__)
 
 class APosterioriDistribution(BaseProcessor):
-    '''                                                                                                                                
-    Describe.
+    '''
+    Generates an a posterior distribution for all the parameters of interest
+    TODO:
+    - Use the RootHistogram class instead of TH1F itself...
     '''
 
     @property

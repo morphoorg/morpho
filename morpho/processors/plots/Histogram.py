@@ -14,16 +14,11 @@ __all__.append(__name__)
 
 class Histogram(BaseProcessor):
     '''
-    Describe.
+    Processor that generates a canvas and a histogram and saves it.
+    TODO:
+    - Add the possibility to plot several histograms with the same binning on the same canvas
+    - Generalize this processor so it understands if if should be a 1D or a 2D histogram
     '''
-
-    # @property
-    # def data(self):
-    #     return self._data
-
-    # @data.setter
-    # def data(self,value):
-    #     self._data = value
 
     def _Configure(self, params):
         '''

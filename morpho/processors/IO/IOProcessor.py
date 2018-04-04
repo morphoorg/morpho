@@ -32,22 +32,20 @@ class IOProcessor(BaseProcessor):
         logger.error("Default Writer method: need to implement your own")
         raise
 
-    def Configure(self, params):
+    def _Configure(self, params):
 
         '''
         This method will be called by nymph to configure the processor
         '''
-        logger.info("Configure with {}".format(params))
         self.params = params
         self.file_name = reader.read_param(params, 'filename', "required")
         self.variables = reader.read_param(params,"variables", "required")
         self.file_action = reader.read_param(params, "action", "read")
 
-    def Run(self):
+    def _Run(self):
         '''
         This method will read or write an file
         '''
-        logger.info("Run...")
         if (self.file_action == 'write'):
             result = self.Writer()
         else:

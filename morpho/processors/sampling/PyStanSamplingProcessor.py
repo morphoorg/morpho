@@ -133,8 +133,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         return self.stanModel.sampling(**(kwargs))
         # return self.stanModel.sampling(**(self.gen_arg_dict()))
 
-    def Configure(self, params):
-        logger.info("Configure with {}".format(params))
+    def _Configure(self, params):
         self.params = params
         self.model_code = reader.read_param(params, 'model_code', 'required')
         self.function_files_location = reader.read_param(params, 'function_files_location', None)
@@ -167,8 +166,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         #         logger.debug("stan.run.control should be a dict: {}",str(reader.read_param(yd, 'stan.run.control', None)))
 
 
-    def Run(self):
-        logger.info("Run...")
+    def _Run(self):
         self._stan_cache()
         stan_results = self._run_stan(**(self.gen_arg_dict()))
         logger.debug("Stan Results:\n"+str(stan_results))

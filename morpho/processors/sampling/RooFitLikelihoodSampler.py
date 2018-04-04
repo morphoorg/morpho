@@ -52,8 +52,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
             argSet.add(wspace.var(name))
         return argSet
 
-    def Configure(self, config_dict = {}):
-        logger.info("Configure with {}".format(config_dict))
+    def _Configure(self, config_dict = {}):
         self.varName = reader.read_param(config_dict,"varName", "required")
         self.datasetName = "data_"+self.varName
         self.nuisanceParametersNames = reader.read_param(config_dict,"nuisanceParams","required")
@@ -62,8 +61,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         self.warmup = int(reader.read_param(config_dict,"warmup",200))
         self.numCPU = int(reader.read_param(config_dict,"n_jobs",1))
 
-    def Run(self):
-        logger.info("Run...")
+    def _Run(self):
         wspace = ROOT.RooWorkspace()
         wspace = self._defineDataset(wspace)
         wspace = self.definePdf(wspace)

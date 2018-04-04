@@ -25,19 +25,17 @@ class TimeSeries(BaseProcessor):
     def data(self,value):
         self._data = value
 
-    def Configure(self, params):
+    def _Configure(self, params):
         '''
         Configure
         '''
-        logger.info("Configure with {}".format(params))
         # Initialize Canvas
         self.rootcanvas = RootCanvas.RootCanvas(params,optStat=0)
 
         # Read other parameters
         self.namedata = reader.read_param(params,'data',"required")
 
-    def Run(self):
-        logger.info("Run...")
+    def _Run(self):
         # Drawing and dividing the canvas
         self.rootcanvas.Draw()
         self.rootcanvas.Divide(1,len(self.namedata))

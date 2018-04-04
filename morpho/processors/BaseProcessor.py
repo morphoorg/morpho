@@ -42,6 +42,12 @@ class BaseProcessor:
         '''
         This method will be called by nymph to run the processor
         '''
+        logger.info("Run <{}>...".format(self.name))
+        result = self._Run()
+        logger.info("Done with <{}>".format(self.name))
+        return result
+    
+    def _Run(self):
         logger.error("Default Run method: need to implement your own")
         raise 
 

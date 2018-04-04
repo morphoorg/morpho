@@ -43,9 +43,7 @@ class APosterioriDistribution(BaseProcessor):
         self.namedata = reader.read_param(param_dict,'data',"required")
         self.draw_opt_2d = reader.read_param(param_dict,'root_plot_option',"contz")
 
-    def Run(self):
-        logger.info("Run...")
-        
+    def _Run(self):
         name_grid, draw_opts_grid, colors_grid =plots._fill_variable_grid(self.namedata,
                                                                     self.draw_opt_2d)
         hist_grid = plots._fill_hist_grid(self.data, name_grid,

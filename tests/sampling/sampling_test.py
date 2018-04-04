@@ -87,7 +87,25 @@ class SamplingTests(unittest.TestCase):
 
         self.assertTrue(np.mean(result["a"])>0.5)
 
+    def test_GaussianSampler(self):
+        from morpho.processors.sampling import GaussianSamplingProcessor
+        from morpho.processors.plots import Histogram
         
+        gauss_config = {
+            "iter": 10000
+        }
+        histo_config = {
+            "data": "x",
+            "n_bins_x": 300,
+            "output_path": "plots"
+        }
+        
+        sampler = GaussianSamplingProcessor("sampler")
+        myhisto = Histogram("histo")
+        sampler.Configure(gauss_config)
+        myhisto.Configure(histo_config)
+        myhisto.data = sampler.Run()
+        myhisto.Run()
 
 if __name__ == '__main__':
     unittest.main()

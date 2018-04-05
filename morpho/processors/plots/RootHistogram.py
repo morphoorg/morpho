@@ -28,6 +28,13 @@ class RootHistogram(object):
             raise
         for value in input_data:
             self.histo.Fill(value)
+    
+    def SetBinsContent(self,a_list):
+        if len(a_list) != self.n_bins_x:
+            logger.error("List size <> is not equal to number of bins <>".format(len(a_list),self.n_bins_x))
+            raise
+        for i, value in enumerate(a_list):
+            self.histo.SetBinContent(i,value)
 
     def Draw(self,arg='hist'):
         self.histo.Draw(arg)

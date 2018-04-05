@@ -25,7 +25,7 @@ class RootHistogram(object):
         if not isinstance(input_data,list):
             logger.error("Data given <{}> not a list") 
             raise
-        if self.x_min>self.xmax:
+        if self.x_min>self.x_max:
             logger.warning("Inappropriate x range: {}>{}".format(self.x_min,self.x_max))
             self.x_min = min(input_data)
             self.x_max = max(input_data)

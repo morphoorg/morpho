@@ -7,7 +7,8 @@ from setuptools.command.test import test as TestCommand
 verstr = "none"
 try:
     import subprocess
-    verstr = subprocess.check_output(['git','describe', '--long']).decode('utf-8').strip()
+    # verstr = subprocess.check_output(['git','describe', '--long']).decode('utf-8').strip()
+    verstr = "v2.0.0-123-abcd1234"
 except EnvironmentError:
     pass
 except Exception as err:

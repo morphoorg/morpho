@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
-from morpho.processors.plots import RootCanvas, RootHistogram
+from . import RootCanvas, RootHistogram
 logger=morphologging.getLogger(__name__)
 
 __all__ = []

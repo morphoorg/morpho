@@ -111,12 +111,12 @@ def _autoRangeContent(hist):
     return xmin, xmax
 
 def _fill_variable_grid(variable_names, draw_opt_2d):
-    """ 
+    """
     pre: variable_name: variables to plot
          draw_opt_2D: Draw option to be used for 2D plots
     post: Returns a 2-tuple, where the first element is a grid of
           lists of variable names and the sedon is a grid of
-          options that should be used to plot each list. 
+          options that should be used to plot each list.
           The grid of variable names will contain list length 1
           with a single variable when a 1D histogram should be
           plotted, and a list length 2 for 2D histograms.
@@ -186,7 +186,6 @@ def _fill_hist_grid(input_dict, name_grid,
                     # list_dataX.append(getattr(tree, names[1]))
                 list_dataY = input_dict[names[0]][warmup:]
                 list_dataX = input_dict[names[1]][warmup:]
-                
                 histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x,nbins_y],
                                     [0,0], '{}_{}'.format(names[0],names[1]))
                 histo.SetTitle("")

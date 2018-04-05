@@ -35,7 +35,7 @@ class RootHistogram(object):
     
     def SetBinsContent(self,a_list):
         if len(a_list) != self.n_bins_x:
-            logger.error("List size <> is not equal to number of bins <>".format(len(a_list),self.n_bins_x))
+            logger.error("List size <{}> is not equal to number of bins <{}>".format(len(a_list),self.n_bins_x))
             raise
         for i, value in enumerate(a_list):
             self.histo.SetBinContent(i,value)

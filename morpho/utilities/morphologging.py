@@ -6,7 +6,7 @@ Date: 02/22/18
 
 from __future__ import absolute_import
 
-import os,sys
+import sys
 try:
     reload  # Python 2.7
 except NameError:

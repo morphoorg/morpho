@@ -46,7 +46,7 @@ class RootCanvas(object):
             self.figurefullpath = self.figurefullpath[:-1]
         self.figurefullpath += "." + self.output_format
 
-    def cd(self,number):
+    def cd(self,number=0):
         '''
         Go to frame 'number' of the TCanvas
         '''

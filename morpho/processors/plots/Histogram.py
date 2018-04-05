@@ -33,5 +33,6 @@ class Histogram(BaseProcessor):
 
     def _Run(self):
         self.histo.Fill(self.data.get(self.namedata))
+        self.rootcanvas.cd()
         self.histo.Draw("hist")
         self.rootcanvas.Save()

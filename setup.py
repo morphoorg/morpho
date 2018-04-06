@@ -46,8 +46,5 @@ setup(
     url='http://www.github.com/project8/morpho',
     author = "J. Formaggio, J. Johnston, T. Weiss (MIT), M. Guigue, B. LaRoque, N. Oblath (PNNL)",
     maintainer = "M. Guigue (PNNL)",
-    maintainer_email = "mathieu.guigue@pnnl.gov",
-    dependency_links=[
-        'git+https://github.com/scikit-hep/uproot.git@master#egg=uproot-2.8.13'
-    ]
+    maintainer_email = "mathieu.guigue@pnnl.gov"
 )

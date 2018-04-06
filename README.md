@@ -36,7 +36,7 @@ Install
 	pip install .[all]
   ```
 
-  Once all the required packages are installed on the virtualenvironment, one can load it using
+  Once all the required packages are installed on the virtual environment, one can load it using
   ```bash
 	source ~/path/to/the/virtualenvironment/env/bin/activate
   ```

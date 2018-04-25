@@ -20,7 +20,7 @@ preprocessing:
         - name: KEmax
           val: 18575.4
         - name: background_fraction
-          val: 0.05,
+          val: 0.05
         - name: sigma_error
           val: 0.004
         - name: u_value
@@ -29,6 +29,11 @@ preprocessing:
           val: 70
         - name: mass
           val: 0.2 
+      transformed_inputs:
+        - function: S
+        - function: B
+        - function: signal_frac
+        - function: Ndata
       output_file_name: "./tritium_model/results/beta_spectrum_2-19_ensemble.root" 
       tree: inputs
 '''
@@ -51,6 +56,7 @@ def sample_inputs(param_dict):
     outfile = ROOT.TFile(param_dict['output_file_name'],"RECREATE")
     # Create a ROOT tree
     out_tree = ROOT.TTree(param_dict['tree'], param_dict['tree'])
+    inputs_dict = {}
 
     try:
         for sample_dict in param_dict['params_to_sample']:
@@ -78,16 +84,42 @@ def sample_inputs(param_dict):
 
             logger.info('Sampled value of {}: {}'.format(name, rand))
             tmp_sampled_val[0] = rand
+            inputs_dict[name] = rand
             b.Fill()
     except:
         pass
 
     try:
         for fixed_dict in param_dict['fixed_params']:
-            tmp_fixed_val = array('f',[ 0 ])
-            b = out_tree.Branch(fixed_dict['name'], tmp_fixed_val, fixed_dict['name']+'/F')
+            name = fixed_dict["name"]
+            if "type" in fixed_dict:
+                if fixed_dict["type"]=="int" or fixed_dict["type"]=="integer":
+                    tmp_fixed_val = array('i',[ 0 ])
+                    b = out_tree.Branch(name, tmp_fixed_val, fixed_dict['name']+'/I')
+                elif fixed_dict["type"]=="float":
+                    tmp_fixed_val = array('f',[ 0 ])
+                    b = out_tree.Branch(name, tmp_fixed_val, fixed_dict['name']+'/F')
+                else:
+                    logger.info('Type {} of parameter {} is not implemented.'.format(fixed_dict['type'], name))
+            else:
+                tmp_fixed_val = array('f',[ 0 ])
+                b = out_tree.Branch(name, tmp_fixed_val, fixed_dict['name']+'/F')
+            inputs_dict[name] = fixed_dict['val']
             tmp_fixed_val[0] = fixed_dict['val']
             b.Fill()
+    except:
+        pass
+
+    try:
+        for transformed_dict in param_dict['transformed_inputs']:
+            func = transformed_dict['function']
+            tmp_sampled_val = array('f',[ 0 ])
+            b = out_tree.Branch(func, tmp_sampled_val, func+'/F')
+            result = _compute_transformed_inputs(func, inputs_dict)
+            tmp_sampled_val[0] = result
+            inputs_dict[func] = result
+            b.Fill()
+            logger.info('Computed value of {}: {}'.format(func, result))
     except:
         pass
 
@@ -104,7 +136,39 @@ def _draw_random_sample(sample_dict, dist_error):
         rand = np.random.lognormal(sample_dict['prior_params'][0], sample_dict['prior_params'][1], 1)[0]
     elif sample_dict['prior_dist'] == 'beta':
         rand = np.random.beta(sample_dict['prior_params'][0], sample_dict['prior_params'][1], 1)[0]
+    elif sample_dict['prior_dist'] == 'gamma':
+        rand = np.random.gamma(sample_dict['prior_params'][0], sample_dict['prior_params'][1], 1)[0]
     else:
         logger.debug(dist_error)
         return None
     return rand
+
+
+def _compute_transformed_inputs(func, inputs_dict):
+    func_error = 'The {} function is not yet implemented in sample_inputs'.format(func)
+    Q = inputs_dict['Q']
+    KEmin = inputs_dict['KEmin']
+    KEmax = inputs_dict['KEmax']
+    mass = inputs_dict['mass']
+    t = inputs_dict['runtime']
+    if func == 'S':
+        A_s = inputs_dict['A_s']
+        b = Q-KEmin
+        N = 6./(mass**3-3.*mass**2*b+2.*b**3)
+        #return t*N*A_s
+        return t*A_s*b/1000.
+    elif func == 'B':
+        A_b = inputs_dict['A_b'] 
+        return t*(KEmax - KEmin)*A_b
+    elif func == 'signal_frac':
+        return inputs_dict['S']/(inputs_dict['S']+inputs_dict['B'])
+    elif func == 'Ndata':
+        #This is a (hopefully temporary) hack.
+        Ndata = 1
+        while Ndata % 4 != 0:
+            Ndata = np.random.poisson(inputs_dict['S']+inputs_dict['B'])
+        return Ndata 
+    else:
+        logger.debug(func_error)
+        return None
+

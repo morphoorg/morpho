@@ -638,7 +638,7 @@ def write_result(conf, stanres, input_param):
     return stanres
 
 def preprocessing(sa):
-    """Import and run all preprocessing modules
+    """import and run all preprocessing modules
     Args:
         sa: Morpho object containing preprocessing configuration
     Returns:
@@ -831,6 +831,9 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                     except ImportError:
                         pass
                     sa.data = pyL.stan_data_files(sa.datafiles)
+                    #A temporary hack
+                    if 'Ndata' in sa.data:
+                        sa.iter = sa.data['Ndata']/sa.chains+sa.warmup
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
                 try:
                     from morpho.postprocessing import stan_utility as util

@@ -32,7 +32,7 @@ class IOProcessor(BaseProcessor):
         logger.error("Default Writer method: need to implement your own")
         raise
 
-    def _Configure(self, params):
+    def InternalConfigure(self, params):
 
         '''
         This method will be called by nymph to configure the processor
@@ -42,7 +42,7 @@ class IOProcessor(BaseProcessor):
         self.variables = reader.read_param(params,"variables", "required")
         self.file_action = reader.read_param(params, "action", "read")
 
-    def _Run(self):
+    def InternalRun(self):
         '''
         This method will read or write an file
         '''

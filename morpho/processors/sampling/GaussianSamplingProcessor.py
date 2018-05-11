@@ -20,14 +20,14 @@ class GaussianSamplingProcessor(BaseProcessor):
     Does not require input data nor model (as they are define in the class itself)
     '''
 
-    def _Configure(self, input):
+    def InternalConfigure(self, input):
         self.iter = int(reader.read_param(input,'iter',2000))
         self.mean = reader.read_param(input,"mean",0.)
         self.width = reader.read_param(input,"width",1.)
         if self.width<=0.:
             raise ValueError("Width is negative or null!")
 
-    def _Run(self):
+    def InternalRun(self):
         from ROOT import TRandom3
         ran = TRandom3()
         data = []

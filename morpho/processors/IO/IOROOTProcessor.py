@@ -21,8 +21,8 @@ class IOROOTProcessor(IOProcessor):
     The ROOT Reader and Writer
     '''
 
-    def Configure(self, params):
-        super().Configure(params)
+    def InternalConfigure(self, params):
+        super().InternalConfigure(params)
         self.tree_name = reader.read_param(params,"tree_name","required")
         self.file_option = reader.read_param(params,"file_option","Recreate")
 

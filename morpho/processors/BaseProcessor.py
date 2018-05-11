@@ -32,9 +32,9 @@ class BaseProcessor:
         This method will be called by nymph to configure the processor
         '''
         logger.info("Configure <{}> with {}".format(self.name,params))
-        self._Configure(params)
+        self.InternalConfigure(params)
 
-    def _Configure(self, params):
+    def InternalConfigure(self, params):
         logger.error("Default _Configure method: need to implement your own")
         raise
 
@@ -43,11 +43,11 @@ class BaseProcessor:
         This method will be called by nymph to run the processor
         '''
         logger.info("Run <{}>...".format(self.name))
-        result = self._Run()
+        result = self.InternalRun()
         logger.info("Done with <{}>".format(self.name))
         return result
     
-    def _Run(self):
+    def InternalRun(self):
         logger.error("Default Run method: need to implement your own")
         raise 
 

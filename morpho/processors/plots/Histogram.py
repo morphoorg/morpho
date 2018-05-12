@@ -20,7 +20,7 @@ class Histogram(BaseProcessor):
     - Generalize this processor so it understands if if should be a 1D or a 2D histogram
     '''
 
-    def _Configure(self, params):
+    def InternalConfigure(self, params):
         '''
         Configure
         '''
@@ -31,7 +31,7 @@ class Histogram(BaseProcessor):
         # Read other parameters
         self.namedata = reader.read_param(params,'data',"required")
 
-    def _Run(self):
+    def InternalRun(self):
         self.histo.Fill(self.data.get(self.namedata))
         self.rootcanvas.cd()
         self.histo.Draw("hist")

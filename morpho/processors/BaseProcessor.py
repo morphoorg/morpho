@@ -4,6 +4,8 @@ Base processor for sampling-type operations
 
 from __future__ import absolute_import
 
+import abc
+
 import json
 import os
 
@@ -13,13 +15,12 @@ logger=morphologging.getLogger(__name__)
 __all__ = []
 __all__.append(__name__)
 
-class BaseProcessor:
+class BaseProcessor(metaclass=abc.ABCMeta):
     '''
     Base Processor
     All Processors will be implemented in a child class where the 
     specifics are encoded by overwriting Configure and Run.
     '''
-
     def __init__(self, name, *args, **kwargs):
         self._procName = name
     
@@ -32,23 +33,31 @@ class BaseProcessor:
         This method will be called by nymph to configure the processor
         '''
         logger.info("Configure <{}> with {}".format(self.name,params))
-        self._Configure(params)
+        self.InternalConfigure(params)
 
-    def _Configure(self, params):
-        logger.error("Default _Configure method: need to implement your own")
-        raise
+    @abc.abstractmethod
+    def InternalConfigure(self, params):
+        '''
+        Method called by Configure() to set up the object. Must be
+        overridden by child class.
+        '''
+        return
 
     def Run(self):
         '''
         This method will be called by nymph to run the processor
         '''
         logger.info("Run <{}>...".format(self.name))
-        result = self._Run()
+        result = self.InternalRun()
         logger.info("Done with <{}>".format(self.name))
         return result
-    
-    def _Run(self):
-        logger.error("Default Run method: need to implement your own")
-        raise 
+
+    @abc.abstractmethod
+    def InternalRun(self):
+        '''
+        Method called by Run() to run the object. Must be
+        overridden by child class.
+        '''
+        return
 
 

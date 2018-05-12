@@ -14,8 +14,8 @@ class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
     Users should feel free to change this method as they see fit.
     '''
 
-    def _Configure(self,config_dict = {}):
-        super()._Configure(config_dict)
+    def InternalConfigure(self,config_dict = {}):
+        super().InternalConfigure(config_dict)
         self.a_min, self.a_max = reader.read_param(config_dict,"paramRange", "required")["a"]
         self.b_min, self.b_max = reader.read_param(config_dict,"paramRange", "required")["b"]
         self.x_min, self.x_max = reader.read_param(config_dict,"paramRange", "required")["x"]

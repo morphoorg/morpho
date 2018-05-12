@@ -23,12 +23,12 @@ class StanDiagnostics(BaseProcessor):
     def __init__(self, *args, **kwargs):
         return
 
-    def Configure(self, params):
+    def InternalConfigure(self, params):
         """Configures by reading in list of names of divergence plots to be created and dictionary containing fit object"""
         self.which_diag_plots = reader.read_param(params,"which_diag_plots")
         self.data = reader.read_param(params,"data",{})
 
-    def Run(self):
+    def InternalRun(self):
         import subprocess
         command = 'Rscript'
         path2script = 'bayesplot_diag.R'

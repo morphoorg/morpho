@@ -16,7 +16,7 @@ class ProcessorAssistant(BaseProcessor):
     Describe.
     '''
 
-    def Configure(self,config_dict):
+    def InternalConfigure(self,config_dict):
         '''
         Configure
         '''
@@ -38,7 +38,7 @@ class ProcessorAssistant(BaseProcessor):
             logger.critical("Couldn't find {} using {}".format(self.function_name,self.module_name))
             return 0
 
-    def Run(self):
+    def InternalRun(self):
 
         try:
             return getattr(self.module,self.function_name)(self.config_dict)

@@ -10,7 +10,7 @@ import re
 from hashlib import md5
 import pystan
 from inspect import getargspec
-
+from datetime import datetime
 
 from morpho.utilities import morphologging, reader, pystanLoader
 from morpho.processors import BaseProcessor
@@ -149,7 +149,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         # if isinstance(args.seed,(int,float,str)):
         #     self.seed=int(args.seed)
         # elif args.noautoseed:
-        self.seed = int(random.random()*1000000000) # seed based on random.random and the current system time
+        self.seed = random.seed(datetime.now()) # seed based on random.random and the current system time
         logger.debug("Autoseed activated")
         # else:
             # self.seed = int(reader.read_param(yd, 'stan.run.seed', None))

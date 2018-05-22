@@ -22,7 +22,10 @@ class RooFitLikelihoodSampler(BaseProcessor):
          - Implement the import of several variables in the RooWorkspace -> might need to redefine this method when necessary
         '''
         var = ROOT.RooRealVar(self.varName,self.varName,min(self._data[self.varName]),max(self._data[self.varName]))
-        data = ROOT.RooDataSet(self.datasetName,self.datasetName,ROOT.RooArgSet(var))
+        if self.binned:
+            data = ROOT.RooDataHist(self.datasetName,self.datasetName,ROOT.RooArgSet(var))
+        else:
+            data = ROOT.RooDataSet(self.datasetName,self.datasetName,ROOT.RooArgSet(var))
         for value in self._data[self.varName]:
             var.setVal(value)
             data.add(ROOT.RooArgSet(var))
@@ -60,6 +63,8 @@ class RooFitLikelihoodSampler(BaseProcessor):
         self.iter = int(reader.read_param(config_dict,"iter",2000))
         self.warmup = int(reader.read_param(config_dict,"warmup",200))
         self.numCPU = int(reader.read_param(config_dict,"n_jobs",1))
+        self.binned = int(reader.read_param(config_dict,"binned",False))
+        self.options = reader.read_param(config_dict,"options",dict())
 
     def InternalRun(self):
         wspace = ROOT.RooWorkspace()

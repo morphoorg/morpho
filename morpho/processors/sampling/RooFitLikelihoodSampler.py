@@ -64,6 +64,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         self.warmup = int(reader.read_param(config_dict,"warmup",200))
         self.numCPU = int(reader.read_param(config_dict,"n_jobs",1))
         self.binned = int(reader.read_param(config_dict,"binned",False))
+        self.options = reader.read_param(config_dict,"options",dict())
 
     def InternalRun(self):
         wspace = ROOT.RooWorkspace()

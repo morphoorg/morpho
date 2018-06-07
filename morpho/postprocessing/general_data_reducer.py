@@ -134,7 +134,6 @@ def _find_histo_x_vals(param_dict, infile):
             maxX = param_dict['maxX'][i]
         else:
             maxX = max(_read_data_array(param_dict, infile, i))
-            
         dX = (maxX - minX)/nBinHisto
         X_vals = []
         temp_x = minX + dX/2.
@@ -160,11 +159,12 @@ def _find_histo_y_vals(param_dict, infile, nBinHisto, X_val_array, dX):
 
         for x in list_data:
             k = 0
-            while x > X_val_array[i][k] - dX/2.:
-                if x <= X_val_array[i][k] + dX/2. + round_error:
-                    Y_vals[k]+=1
-                    break 
-                k += 1
+            if min(X_val_array[i]) < x < max(X_val_array[i]):
+                while x > X_val_array[i][k] - dX/2.:
+                    if x <= X_val_array[i][k] + dX/2. + round_error:
+                        Y_vals[k]+=1
+                        break 
+                    k += 1
         Y_val_array.append(Y_vals)
     return np.array(Y_val_array)
                        

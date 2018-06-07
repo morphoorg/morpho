@@ -37,7 +37,7 @@ The following dependencies should be installed (via a package manager) before in
   ```bash
 	virtualenv ~/path/to/the/virtualenvironment
 	source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment
-	#Use```bash deactivate``` to exit the environment
+	#Use "bash deactivate" to exit the environment
 	pip install -U pip #Update pip to >= 7.0.0
 	cd ~/path/to/morpho
 	pip install .

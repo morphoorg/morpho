@@ -164,14 +164,18 @@ class morpho(object):
       - iter: Number of iterations for each stan chain
       - warmup: Number of iterations that should be considered warmup
       - chains: Number of chains to run
-      - n_jobs: Number of jobs to run (not implemented)
+      - n_jobs: Number of CPUs used to sample in parallel. If -1 all CPUs
+        are used. If 1, no parallel computing code is used at all.
       - seed: Random number seed
       - thin: Integer specifying thinning for stan iterations
       - init_per_chain: Dictionary of variable initializations for one
         chain
       - init: List of dictionaries with variable initializations for all
         chains
-      - control: Dictionary (not implemented)
+      - control: A dictionary of parameters (including 'adapt_delta')
+        controlling various aspects of the sampler's behavior. For more
+        information and default values, see
+        http://pystan.readthedocs.io/en/latest/api.html.
       - plot_vars: Dictionary with plot settings
       - out_format: Format used to store stan output
       - out_fname: Filename used to store stan output
@@ -331,8 +335,8 @@ class morpho(object):
             self.iter = int(self.read_param(yd, 'stan.run.iter', 2000))
             self.warmup = int(self.read_param(yd, 'stan.run.warmup', self.iter/2))
             self.chains = int(self.read_param(yd, 'stan.run.chain', 4))
-            # n_jobs is currently not used. Update the docstring if it is implemented.
-            self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
+            # number of jobs to run (-1: all CPUS, 1: 1 CPU, good for debugging)
+            self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1))
             # Adding a seed based on extra arguments, current time
             if isinstance(args.seed,(int,float,str)):
                 self.seed=int(args.seed)
@@ -347,7 +351,6 @@ class morpho(object):
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
             self.init = self.init_Stan_function()
-            # control is currently not used. Update the docstring if it is implemented.
             if isinstance(self.read_param(yd, 'stan.run.control', None),dict):
                 self.control = self.read_param(yd, 'stan.run.control', None)
             else:

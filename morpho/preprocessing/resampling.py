@@ -1,16 +1,31 @@
-'''
-Implement some resampling methods
-'''
+"""
+Resample the contents of a tree
+
+Functions:
+  - bootstrapping: Resample the contents using a bootstrap technique
+"""
 
 import logging
 logger = logging.getLogger(__name__)
-
-import ROOT as root
+try:
+    import ROOT as root
+except ImportError:
+    pass
 
 def bootstrapping(param_dict):
-    '''
-    Resample the content of a tree usng a bootstrap technique (some samples can be used twice).
-    '''
+    """Resample a tree using a bootstrap technique
+
+    Rather than regenerating fake data before every call to stan, one
+    can generate a larger data data set and then extract a random subset
+    before each call to stan
+
+    Args:
+        param_dict: Dictionary of parameters to search. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: Creates new root file with number_data sampled entries.
+    """
 
     logger.debug("Making bootstrapping")
     input_file_name = param_dict['input_file_name']

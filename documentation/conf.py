@@ -43,7 +43,7 @@ extensions = [
 import better_apidoc
 better_apidoc.main([
     'better_apidoc',
-    #'-t', '_templates', # path to jinja templates for generated package and module rst files
+    '-t', '_templates', # path to jinja templates for generated package and module rst files
     '--force', # overwrite existing files
     '--separate', # split the modules into their own files
     '-o', 'better_apidoc_out', # output location, be sure to update index.rst if you change this

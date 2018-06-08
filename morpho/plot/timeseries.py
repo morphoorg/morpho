@@ -9,12 +9,16 @@
 # Generic methods to display histograms with ROOT
 #=======================================================
 
-"""
-To do:
-    - Clean up
+"""Generic methods to display histograms with ROOT
+
+Functions:
+  - time_series: Save multiple plots in a root file
 """
 
-import ROOT as ROOT
+try:
+    import ROOT as ROOT
+except ImportError:
+    pass
 import cmath as math
 from array import array
 import re
@@ -23,7 +27,7 @@ import uuid
 import logging
 logger = logging.getLogger(__name__)
 
-def set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
+def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style = ROOT.TStyle(ROOT.gStyle)
     style.SetOptStat("emr")
     style.SetLabelOffset(0.01,'xy')
@@ -43,15 +47,35 @@ def set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin):
     style.cd()
 
 def timeseries(param_dict):
+    """Save multiple plots in a root file
+
+    param_dict is a dictionary with the following fields:
+
+    Args:
+        title: Plot title
+        input_files_name: Path to input file
+        input_file_format: Input file format (only "root" is currently
+            supported)
+        input_tree: Name of input tree
+        output_path: Path to output tree
+        output_format: Output format, eg PDF
+        output_width: Output width in pixels
+        output_height: Output height in pixels
+        data: Names of branches to plot
+        y_title: Titles to label each branch with in the legend
+
+    Returns:
+        TCanvas: Canvas with the given plots
+    """
     logger.info('Plotting timeseries')
     # Preparing the canvas
     if 'title' in param_dict and param_dict['title']!='':
         title = param_dict['title']
-        set_style_options(0.04,0.15,0.07,0.12)
+        _set_style_options(0.04,0.15,0.07,0.12)
 
     else:
         title = ' ' #canvas_'+uuid.uuid4().get_hex()
-        set_style_options(0.04,0.15,0.07,0.12)
+        _set_style_options(0.04,0.15,0.07,0.12)
 
     if 'output_width' in param_dict:
         width = param_dict['output_width']

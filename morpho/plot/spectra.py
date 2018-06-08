@@ -3,40 +3,37 @@
 #
 # Author: T. E. Weiss
 # Date: Aug. 15, 2016
-#
-# Description:
-#
-# Plot beta decay spectra, by calculating a spectral shape given a set
-# of input parameters and/or by scatter plotting (KE, spectrum) pairs.
-#
-# In a configuration file plotting parameter dictionary, the user 
-# should specify which plots he or she wishes to create using the 
-# "plotting_options" list (e.g. "plotting_options": ["spectrum_shape",
-# "spectrum_scatter", "overlay"]).
 #=======================================================
 
+"""Plot beta spectrum
 
+Functions:
+  - spectra: Plot a beta spectrum
+"""
 
-import numpy as np
-import matplotlib as mpl
-mpl.rc('ytick', labelsize=8)
-mpl.rc('xtick', labelsize=8)
-import matplotlib.pyplot as plt
-from pylab import *
-
+try:
+    import numpy as np
+    import matplotlib as mpl
+    mpl.rc('ytick', labelsize=8)
+    mpl.rc('xtick', labelsize=8)
+    import matplotlib.pyplot as plt
+    from pylab import *
+except ImportError:
+    pass
+    
 # Adaptable import
 try:
     #python2
     import plotting_routines as pr
-except:
+except ImportError:
     try:
         #python3
         from . import plotting_routines as pr
-    except:
+    except ImportError:
         pass
 
 
-def spectrum_shape(KE, Q, Ue_squared, m_nu, time, activity, bkgd_rate):
+def _spectrum_shape(KE, Q, Ue_squared, m_nu, time, activity, bkgd_rate):
     """
     Calculates and returns a beta decay spectral rate dN/dE
     at a particular kinetic energy 'KE' for a time period 'time.'
@@ -57,7 +54,7 @@ def spectrum_shape(KE, Q, Ue_squared, m_nu, time, activity, bkgd_rate):
     return spectrum 
 
 
-def plot_spectrum_scatter(x_data, spectrum, xlabel, color='b', yscale='linear'):
+def _plot_spectrum_scatter(x_data, spectrum, xlabel, color='b', yscale='linear'):
     """
     Creates a scatter plot, with a spectrum count rate on the
     y-axis and either energy or frequency on the x-axis.
@@ -74,7 +71,7 @@ def plot_spectrum_scatter(x_data, spectrum, xlabel, color='b', yscale='linear'):
     plt.yscale(yscale)
 
 
-def plot_spectrum_shape(KEmin, KEmax, Q, Ue_squared, m_nu, time, activity, bkgd_rate, numKE=50, color='b', yscale='linear'):
+def _plot_spectrum_shape(KEmin, KEmax, Q, Ue_squared, m_nu, time, activity, bkgd_rate, numKE=50, color='b', yscale='linear'):
     """
     Generates numKE evenly spaced kinetic energy values in the range
     [KEmin, KEmax], associates to each of them a spectral rate using
@@ -84,12 +81,12 @@ def plot_spectrum_shape(KEmin, KEmax, Q, Ue_squared, m_nu, time, activity, bkgd_
     KE = np.linspace(KEmin, KEmax, numKE)
     spectrum = []
     for KEval in KE:
-        spectrum_val = spectrum_shape(KEval, Q, Ue_squared, m_nu, time, activity, bkgd_rate)
+        spectrum_val = _spectrum_shape(KEval, Q, Ue_squared, m_nu, time, activity, bkgd_rate)
         spectrum.append(spectrum_val)
-    plot_spectrum_scatter(KE, spectrum, "Kinetic Energy (eV)", color, yscale)
+    _plot_spectrum_scatter(KE, spectrum, "Kinetic Energy (eV)", color, yscale)
 
 
-def read_from_param_list(data_names, params):
+def _read_from_param_list(data_names, params):
     """
     Parameters:
     data_names - dictionary with string values that name entries in
@@ -133,19 +130,32 @@ def read_from_param_list(data_names, params):
 
 
 def spectra(param_dict):
-    """
+    """Plot a spectral shape
+
+    Takes as input a set of input parameters and/or by scatter
+    plotting (KE, spectrum) pairs.
+
     Unpickles a Stan fit object. Creates from data_names a new dictionary
     data_vals that is useful for spectral shape plotting. Then invokes
     whichever plotting functions are indicated by "plotting_options."
 
-    Possible options: 'spectrum_shape', 'spectrum_scatter', 'overlay'
+    In a configuration file plotting parameter dictionary, the user
+    should specify which plots he or she wishes to create using the
+    "plotting_options" list (e.g. "plotting_options": ["spectrum_shape",
+    "spectrum_scatter", "overlay"]).
 
-    Parameters:
-    param_dict - dictionary containing output path (str), output
-    format (str), name of a file containing the cache filename (str),
-    name of a pickle file (str), a 'data_names' dictionary with useful
-    values, plot labels, and names of Stan parameters,  'plotting_options'
-    (list), x_range (list), y_scale (str), and optionally num_x (int)
+    param_dict is a dictionary containing the following fields:
+
+    Args:
+        output path: Path to save output
+        ouput_format: Format of output file
+        read_cache_name: Name of a file containing the cache filename
+        data_names: dictionary with useful values, plot labels, and
+            names of Stan parameters
+        plotting_options: Plotting options
+        x_range: List with x range
+        y_scale: String with y_scale
+        num_x: Number of x bins (optional, default 50)
     """
 
     # Determining which plots will be created and how they will be saved    
@@ -164,7 +174,7 @@ def spectra(param_dict):
 
     # Creating a dictionary of parameter values
     # Takes averages of elements of array-like objects in Stan fit
-    data_vals = read_from_param_list(data_names, params)
+    data_vals = _read_from_param_list(data_names, params)
 
     # Setting up error messages
     missing_key = "The 'data' dictionary in param_dict must contain the key(s) {}"
@@ -194,21 +204,21 @@ def spectra(param_dict):
     if 'spectrum_shape' in plotting_options:
         assert required1 <= set(data_vals), missing_key.format(required1)
 
-        plot_spectrum_shape(x_min, x_max, data_vals['Q'], data_vals['Ue_squared'], data_vals['m_nu'], data_vals['time'], data_vals['activity'], data_vals['bkgd_rate'], num_x, yscale=yscale)
+        _plot_spectrum_shape(x_min, x_max, data_vals['Q'], data_vals['Ue_squared'], data_vals['m_nu'], data_vals['time'], data_vals['activity'], data_vals['bkgd_rate'], num_x, yscale=yscale)
        # plt.savefig(pr.uniquify(out_dir + '/spectrum_shape.' + out_fmt))
         plt.show()
 
     if 'spectrum_scatter' in plotting_options:
         assert required2 <= set(data_vals), missing_key.format(required2)
 
-        plot_spectrum_scatter(params[data_names['x_axis_data']], params[data_names['spectrum_data']], data_vals['x_label'], yscale=yscale)
+        _plot_spectrum_scatter(params[data_names['x_axis_data']], params[data_names['spectrum_data']], data_vals['x_label'], yscale=yscale)
       #  plt.savefig(pr.uniquify(out_dir + '/spectrum_scatter.' + out_fmt))
         plt.show()
 
     if 'overlay' in plotting_options:
         assert required3 <= set(data_vals), missing_key.format(required3)
 
-        plot_spectrum_scatter(params[data_names['x_axis_data']], params[data_names['spectrum_data']], data_vals['x_label'], color='r', yscale=yscale)
-        plot_spectrum_shape(x_min, x_max, data_vals['Q'], data_vals['Ue_squared'], data_vals['m_nu'], data_vals['time'], data_vals['activity'], data_vals['bkgd_rate'], num_x, yscale=yscale)
+        _plot_spectrum_scatter(params[data_names['x_axis_data']], params[data_names['spectrum_data']], data_vals['x_label'], color='r', yscale=yscale)
+        _plot_spectrum_shape(x_min, x_max, data_vals['Q'], data_vals['Ue_squared'], data_vals['m_nu'], data_vals['time'], data_vals['activity'], data_vals['bkgd_rate'], num_x, yscale=yscale)
         plt.savefig(pr.uniquify(out_dir + '/spectrum_shape_scatter.' + out_fmt))
         plt.show()

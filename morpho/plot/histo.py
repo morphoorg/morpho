@@ -4,41 +4,44 @@
 # Author: M. Guigue, T. E. Weiss
 # Date: Aug. 4, 2016
 #
-# Description:
-#
-# Generic methods to display histograms with ROOT
 #=======================================================
 
-"""
-Contains generic methods to plot ROOT histograms (1D and 2D)
-List of methods:
-- histo: plot a 1D histogram using a list of data (x)
-- spectra: plot a 1D histogram using two lists of data (x,bin_content)
-- histo2D: plot a 2D histogram using two lists of data (x,y)
-- histo2D_divergence: plot a 2D histogram using two lists of data (x,y), and color points
-                      with divergence==1 differently from divergence==0
-- aposteriori_distribution: plot a serie of 2D histograms using a list of data names (>=3).
-It will form pairs of variables (x,y) and arrange the 2D histograms to get a view
-of the aposteriori distributio for these parameters
-- correlation_factors: Plot a grid where a color represents the
-correlation factor between each pair of variables.
+"""Generic methods to display histograms with ROOT
+
+Able to plot 1D and 2D histograms
+
+Functions
+  - histo: plot a 1D histogram using a list of data
+  - spectra: plot a 1D histogram using two lists of data (x,bin_content)
+  - histo2D: plot a 2D histogram using two lists of data (x,y)
+  - histo2D_divergence: plot a 2D histogram with divergence indicated
+  - aposteriori_distribution: Plot a grid of 2D histograms
+  - correlation_factors: Plot a grid of correlation factors
 """
 
 import logging
 logger = logging.getLogger(__name__)
-
-import ROOT as ROOT
+try:
+    import ROOT as ROOT
+    import numpy as np
+except ImportError:
+    pass
 import cmath as math
 from array import array
 import re
 import uuid
-import numpy as np
 
 
 def histo(param_dict):
-    '''
-    Create a histogram using a list of X
-    '''
+    """Create a 1D histogram using a list
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: The histo plot is written to file
+    """
 
     # Preparing the canvas
     logger.debug("Preparing Canvas")
@@ -150,9 +153,15 @@ def histo(param_dict):
 
 
 def spectra(param_dict):
-    '''
-    Create a spectrum using a (X,Y) list
-    '''
+    """Plot a 1D spectrum using a (X,Y) list
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: The spectrum plot is written to file
+    """
     # Preparing the canvas
     logger.debug("Preparing Canvas")
     title, width, height = _preparingCanvas(param_dict)
@@ -378,9 +387,15 @@ def _save_histo(param_dict, title, file_prefix, can):
     return
 
 def histo2D(param_dict):
-    '''
-    Plot 2D histogram
-    '''
+    """Plot 2D histogram from a list of (x,y) points
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: The histo plot is written to file
+    """
     can, title, nbins_x, nbins_y = _prepare_canvas_2d(param_dict)
     myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
     list_dataX, list_dataY, namedata = _get_root_data_2d(param_dict, myfile)
@@ -399,9 +414,17 @@ def histo2D(param_dict):
     return can
 
 def histo2D_divergence(param_dict):
-    '''
-    Plot 2D histogram
-    '''
+    """Plot 2D histogram with divergence indicated by color
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: The histo plot is written to file. Points with
+        divergence==1 will be one color, and points with
+        divergence==0 will be a different color.
+    """
     can, title, nbins_x, nbins_y = _prepare_canvas_2d(param_dict)
     myfile = ROOT.TFile(param_dict['input_file_name'],"READ")
     arr_X_div0, arr_Y_div0, \
@@ -461,9 +484,20 @@ def histo2D_divergence(param_dict):
     return can
 
 def aposteriori_distribution(param_dict):
-    '''
-    Plot a disposition of 2D histogram
-    '''
+    """Plot a grid of 2D histograms
+
+    Plot a matrix of 2D histograms using a list
+    of data names (>=3). It will form pairs of variables (x,y) and
+    arrange the 2D histograms to get a view of the aposteriori
+    distribution for every combination of parameters.
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: The grid of plots is written to file
+    """
    # Populate a grid of histograms with the parameters
     if 'n_bins_x' in param_dict:
         nbins_x = param_dict['n_bins_x']
@@ -575,10 +609,18 @@ def aposteriori_distribution(param_dict):
     return can
 
 def correlation_factors(param_dict):
-    """
+    """Plot the correlation factors for pairs of parameters
+
     Create a plot with all variables along each axis,
     where the correlation factor between each pair
     of variables is represented by color.
+
+    Args:
+        param_dict: dict containing all inputs. See "Morpho 1
+            Example Scripts" in the API for details.
+
+    Returns:
+        None: The grid is written to file
     """
    # Populate a grid of histograms with the parameters
     if 'n_bins_x' in param_dict:

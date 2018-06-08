@@ -4,46 +4,49 @@
 # Author: T. E. Weiss
 # Date: Aug. 4, 2016
 #
-# Description:
-#
-# Create traceplots, sampling plots, and other related plots of
-# neutrino mixing and mass parameters outputted by the analysis model.
-#
-# In a configuration file plotting parameter dictionary, the user 
-# should specify which plots he or she wishes to create using the 
-# "plotting_options" list (e.g. "plotting_options": ["neutrino_masses",
-# "mass_params", "mixing_params"]).
 #=======================================================
 
-"""
-To do (for myself):
+"""Example module to plot quantities related to a neutrino mass analysis
+
+Create traceplots, sampling plots, and other related plots of
+neutrino mixing and mass parameters outputted by the analysis model.
+
+In a configuration file plotting parameter dictionary, the user
+should specify which plots he or she wishes to create using the
+"plotting_options" list (e.g. "plotting_options": ["neutrino_masses",
+"mass_params", "mixing_params"]).
+
+Functions:
+  - neutrino_params: Plot neutrino parameters
+
+Todo:
     Allow for more flexible and/or user defined ranges for plots of parameters.
     Allow for more flexible contour level inputs.
-    Create a separate contour module.
     Clean up error messages.
 """
-
-import numpy as np
-import matplotlib as mpl
-mpl.rc('ytick', labelsize=8)
-mpl.rc('xtick', labelsize=8)
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-from matplotlib.colors import LogNorm
-from pylab import *
-
+try:
+    import numpy as np
+    import matplotlib as mpl
+    mpl.rc('ytick', labelsize=8)
+    mpl.rc('xtick', labelsize=8)
+    import matplotlib.pyplot as plt
+    import matplotlib.cm as cm
+    from matplotlib.colors import LogNorm
+    from pylab import *
+except ImportError:
+    pass
 # Adaptable import
 try:
     #python2
     import plotting_routines as pr
-except:
+except ImportError:
     try:
         #python3
         from . import plotting_routines as pr
-    except:
+    except ImportError:
         pass
 
-def plot_neutrino_masses(param_dict, ModelFit, data):
+def _plot_neutrino_masses(param_dict, ModelFit, data):
     """
     Creates, saves, and displays a plot of overlayed distributions
     for the three neutrino masses.
@@ -70,7 +73,7 @@ def plot_neutrino_masses(param_dict, ModelFit, data):
     plt.show()
 
 
-def plot_mass_params(param_dict, ModelFit, data):
+def _plot_mass_params(param_dict, ModelFit, data):
     """
     Creates, saves, and displays an image with three subplots:
     1) Stan distribution of m_beta.
@@ -114,7 +117,7 @@ def plot_mass_params(param_dict, ModelFit, data):
     plt.show()
 
 
-def plot_mixing_params(param_dict, ModelFit, data):
+def _plot_mixing_params(param_dict, ModelFit, data):
     """
     Creates, saves, and displays an image containing parameter
     distribtion plots and Stan sampling plots (parameter value vs.
@@ -140,7 +143,7 @@ def plot_mixing_params(param_dict, ModelFit, data):
     plt.show()
 
 
-def plot_contours(analysis_params, param_dict, data):
+def _plot_contours(analysis_params, param_dict, data):
     """
     Combines distributions from pairs of parameters to create 2D
     histograms.
@@ -204,7 +207,8 @@ def plot_contours(analysis_params, param_dict, data):
 
 
 def neutrino_params(param_dict):
-    """
+    """Plot parameters related to neutrino mass analysis
+
     Loads a Stan ModelFit from a pickle file. Then invokes whichever
     plotting functions are indicated by the 'plotting_options':[opt1, opt2 ...]
     entry in param_dict.
@@ -212,12 +216,18 @@ def neutrino_params(param_dict):
     Possible options: 'neutrino_masses', 'mass_params', 'mixing_params',
     'contours'
 
-    Parameters:
-    param_dict - dictionary containing output path (str), output
-    format (str), name of a file containing the cache filename (str),
-    name of a pickle file (str), a 'data' dictionary with names of Stan
-    parameters, 'plotting_options' (list), and optionally a specification
-    of the mass hierarchy (str - either 'normal'or 'inverted')
+    param_dict is a dictionary containing the following plotting info
+
+    Args:
+        output_path: Path to save output
+        output_format: Format of output file
+        read_cache_name: name of a file containing the cache filename
+        input_fit_name: name of a pickle file
+        data: dictionary with names of Stan parameters
+        plotting_options: List with some combination of 'neutrino_masses',
+            'mass_params', 'mixing_params', and 'contours'
+        hierarchy: Specification of the mass hierarchy (either
+            'normal'or 'inverted')
     """
 
     #Determining which plots will be created
@@ -234,7 +244,7 @@ def neutrino_params(param_dict):
     #Plotting neutrino mass distributions
     if 'neutrino_masses' in plotting_options:
         if 'nu_mass' in data and data['nu_mass']!='':
-            plot_neutrino_masses(param_dict, ModelFit, data)
+            _plot_neutrino_masses(param_dict, ModelFit, data)
 
         else:
             print("Cannot plot neutrino_masses if parameter 'nu_mass' is not specified in param_dict['data'].")
@@ -249,13 +259,13 @@ def neutrino_params(param_dict):
             print("Cannot plot mass_params if parameter 'min_mass' is not specified in param_dict['data'].")
 
         else:
-            plot_mass_params(param_dict, ModelFit, data)
+            _plot_mass_params(param_dict, ModelFit, data)
     
     #Plotting neutrino mixing parameter distributions
     if 'mixing_params' in plotting_options:
 
         if 'sin2_th12' and 'sin2_th13' and 'delta_m21' and 'delta_m32' and 'm32_withsign' in data:
-            plot_mixing_params(param_dict, ModelFit, data)
+            _plot_mixing_params(param_dict, ModelFit, data)
         else:
             print("Cannot plot mixing_params if not all mixing parameters specified in param_dict['data']")
 
@@ -264,7 +274,7 @@ def neutrino_params(param_dict):
     if 'contours' in plotting_options:
     
         if 'delta_m21' and 'sin2_th12' and 'sin2_th13' in data:
-            plot_contours(analysis, param_dict, data)
+            _plot_contours(analysis, param_dict, data)
 
         else:
             print("Cannot plot contours if 'delta_m21', 'sin2_th12', or 'sin2_th13' are not specified in param_dict['data'].")

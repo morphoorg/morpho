@@ -3,4 +3,4 @@
 # Author: M. Guigue
 # Date: 03/01/2018
 
-pip install .
+pip3 install .

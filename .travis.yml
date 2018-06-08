@@ -7,7 +7,7 @@ os:
     - osx
 osx_image: xcode9.3
 before_install:
-    - if [ $TRAVIS_OS_NAME == osx ]; then rm '/usr/local/include/c++' && brew update && git -C "$(brew --repo homebrew/core)" fetch --unshallow && brew info matplotlb && brew upgrade python && brew install root numpy ; fi
+    - if [ $TRAVIS_OS_NAME == osx ]; then rm '/usr/local/include/c++' && brew upgrade python && brew install root numpy ; fi
 install:
   - if [ $TRAVIS_OS_NAME == osx ]; then source travis/installation_script.sh ; fi;
 script:

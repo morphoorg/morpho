@@ -4,13 +4,10 @@ Base processor for sampling-type operations
 
 from __future__ import absolute_import
 
-import abc
-
-import json
-import os
-
 from morpho.utilities import morphologging
 logger=morphologging.getLogger(__name__)
+
+import abc
 
 __all__ = []
 __all__.append(__name__)
@@ -18,12 +15,12 @@ __all__.append(__name__)
 class BaseProcessor(metaclass=abc.ABCMeta):
     '''
     Base Processor
-    All Processors will be implemented in a child class where the 
+    All Processors will be implemented in a child class where the
     specifics are encoded by overwriting Configure and Run.
     '''
     def __init__(self, name, *args, **kwargs):
         self._procName = name
-    
+
     @property
     def name(self):
         return self._procName

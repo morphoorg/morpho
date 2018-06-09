@@ -30,7 +30,7 @@ def add_dict_param(dictionary, key, value):
     so multiple parameters may be added at once.
     '''
     if key in dictionary:
-        key_err = "Cannot add key {} to dictionary. That key is taken.".format(key) 
+        key_err = "Cannot add key {} to dictionary. That key is taken.".format(key)
         logger.error(key_err)
         raise
     else:

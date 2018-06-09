@@ -11,13 +11,13 @@ logger = morphologging.getLogger(__name__)
 
 
 input_data = {
-                "x": [1,2,3,4,5,6], 
+                "x": [1,2,3,4,5,6],
                 "y": [1.2,2.3,3.4,4.5,5.6,6.7],
                 "list": [[1.1,2.],[2.,3.],[3.,4.],[4.,5.],[5.,6.],[6.,7.]]
             }
 
 class IOTests(unittest.TestCase):
-    
+
     def test_JSONIO(self):
         from morpho.processors.IO import IOJSONProcessor, IOYAMLProcessor
         writer_config = {

@@ -1,12 +1,8 @@
-'''                                                                                                                                     
+'''
 Creates Stan diagnostic plots.
-
 '''
 
 from __future__ import absolute_import
-
-import json
-import os
 
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
@@ -35,10 +31,3 @@ class StanDiagnostics(BaseProcessor):
         args = [self.data, self.which_diag_plots]
         cmd = [command, path2script] + args
         subprocess.check_output(cmd)
-        
-
-
-
-
-
-

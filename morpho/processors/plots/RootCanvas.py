@@ -8,7 +8,7 @@ __all__ = []
 __all__.append(__name__)
 
 class RootCanvas(object):
-    
+
     def __init__(self,input_dict,optStat='emr'):
 
         self.width = reader.read_param(input_dict,"width",600)
@@ -18,7 +18,7 @@ class RootCanvas(object):
             plots._set_style_options(0.04,0.1,0.07,0.12,optStat)
         else:
             plots._set_style_options(0.04,0.1,0.03,0.12,optStat)
-        self.xtitle = reader.read_param(input_dict,"x_title","") 
+        self.xtitle = reader.read_param(input_dict,"x_title","")
         self.ytitle = reader.read_param(input_dict,"y_title","")
         self.canvasoptions = reader.read_param(input_dict,"options","")
         
@@ -32,7 +32,7 @@ class RootCanvas(object):
 
         # Output path
         self.path = reader.read_param(input_dict,"output_path","./")
-        self.output_format = reader.read_param(input_dict,"output_format","pdf")        
+        self.output_format = reader.read_param(input_dict,"output_format","pdf")
         if not self.path.endswith('/'):
             self.path = self.path + "/"
         if self.title!=' ':

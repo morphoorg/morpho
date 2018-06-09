@@ -80,5 +80,3 @@ class IOYAMLProcessor(IOJSONProcessor):
     '''
 
     module_name = 'yaml'
-    
-    

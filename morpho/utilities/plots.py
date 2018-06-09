@@ -28,7 +28,6 @@ def _set_style_options( rightMargin,  leftMargin,  topMargin,  botMargin, optSta
     style.SetPadLeftMargin(leftMargin)
     style.cd()
 
-
 def _prepare_couples(list_data):
     '''
     Prepare a list of pairs of variables for the a posteriori distribution
@@ -39,7 +38,6 @@ def _prepare_couples(list_data):
         for j in range(0,i): #x
             newlist.append([list_data[j],list_data[i]])
     return newlist
-
 
 def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
     '''
@@ -55,10 +53,10 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
             else:
                 xmin,xmax = _autoRangeList(list_dataX)
         elif isinstance(x_range[0],(float,int)):
-            xtemp,xmax = _autoRangeList(list_dataX)
+            _,xmax = _autoRangeList(list_dataX)
             xmin = x_range[0]
         elif isinstance(x_range[1],(float,int)):
-            xmin,xtemp = _autoRangeList(list_dataX)
+            xmin,_ = _autoRangeList(list_dataX)
             xmax = x_range[1]
         else:
             xmin,xmax = _autoRangeList(list_dataX)
@@ -88,14 +86,14 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges,histo_title):
     if len(list_dataX)!=len(list_dataX):
         logger.critical("list of data does not have the same size. x: {}; y: {}".format(len(list_dataX),len(list_dataY)))
         return 0
-    for i in range(0,len(list_dataX)):
+    for i,_ in enumerate(list_dataX):
         temphisto.Fill(list_dataX[i],list_dataY[i])
     return temphisto
 
-def _autoRangeList(list):
+def _autoRangeList(alist):
     # logger.debug('Using autoRange')
-    xmin = min(list)
-    xmax = max(list)
+    xmin = min(alist)
+    xmax = max(alist)
     dx = xmax - xmin
     xmin = xmin - dx*0.05
     xmax = xmax + dx*0.05
@@ -103,11 +101,11 @@ def _autoRangeList(list):
 
 def _autoRangeContent(hist):
     # logger.debug('Using autoRange')
-    list = []
+    alist = []
     for i in range(0,hist.GetNbinsX()):
-        list.append(hist.GetBinContent(i))
-    xmin = min(list)*0.9
-    xmax = max(list)*1.1  # need to be done
+        alist.append(hist.GetBinContent(i))
+    xmin = min(alist)*0.9
+    xmax = max(alist)*1.1  # need to be done
     return xmin, xmax
 
 def _fill_variable_grid(variable_names, draw_opt_2d):
@@ -149,7 +147,7 @@ def _fill_variable_grid(variable_names, draw_opt_2d):
     return (name_grid, draw_opts_grid, colors_grid)
 
 def _fill_variable_grid_corr_plot(variable_names):
-    """ 
+    """
     pre: variable_name: variables to plot
     post: returns a grid of length 2 lists. The list in
           position [i,j] contains the ith variable name
@@ -201,8 +199,8 @@ def _fill_hist_grid(input_dict, name_grid,
                 x_range = _autoRangeList(list_data)
                 histo = ROOT.TH1F("%s_%i_%i"%(names[0],r,c), names[0],
                                   nbins_x, x_range[0], x_range[1])
-                for i in range(len(list_data)):
-                    histo.Fill(list_data[i])
+                for value in list_data:
+                    histo.Fill(value)
                 histo.SetTitle("")
                 histo.GetXaxis().SetTitle(names[0])
                 hist_grid[r][c] = histo

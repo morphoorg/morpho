@@ -79,7 +79,7 @@ class PyStanSamplingProcessor(BaseProcessor):
             if found == False:
                 logger.critical('A function <{}> to import is missing'.format(matches))
         logger.debug('Import function files: complete')
-                
+
         code_hash = md5(theModel.encode('ascii')).hexdigest()
         if self.model_name is None:
             cache_fn = '{}/cached-model-{}.pkl'.format(self.cache_dir, code_hash)

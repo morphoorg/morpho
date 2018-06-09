@@ -10,7 +10,7 @@ from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 
 class SamplingTests(unittest.TestCase):
-    
+
     def test_PyStan(self):
         from morpho.processors.sampling import PyStanSamplingProcessor
 

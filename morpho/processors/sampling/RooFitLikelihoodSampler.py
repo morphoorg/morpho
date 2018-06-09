@@ -55,7 +55,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
             argSet.add(wspace.var(name))
         return argSet
 
-    def InternalConfigure(self, config_dict = {}):
+    def InternalConfigure(self, config_dict):
         self.varName = reader.read_param(config_dict,"varName", "required")
         self.datasetName = "data_"+self.varName
         self.nuisanceParametersNames = reader.read_param(config_dict,"nuisanceParams","required")
@@ -82,7 +82,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
 
         logger.debug("Creating likelihood")
         nll = pdf.createNLL(dataset,ROOT.RooFit.NumCPU(self.numCPU))
-        
+
         logger.debug("Estimating best fits for proposal function...")
         result = pdf.fitTo(dataset,ROOT.RooFit.Save(),ROOT.RooFit.NumCPU(self.numCPU))
         logger.debug("...done!\nResults:")
@@ -96,7 +96,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         # dataset.plotOn(frame)
         # pdf.plotOn(frame)
         # frame.Draw()
-        # can.SaveAs("plots/results_fit.pdf") 
+        # can.SaveAs("plots/results_fit.pdf")
 
         logger.debug("Define Proposal function")
         ph = ROOT.RooStats.ProposalHelper()
@@ -104,7 +104,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         ph.SetCovMatrix(result.covarianceMatrix())
         ph.SetUpdateProposalParameters(True)
         ph.SetCacheSize(1000)
-        pdfProp = ph.GetProposalFunction() 
+        pdfProp = ph.GetProposalFunction()
 
         mh = ROOT.RooStats.MetropolisHastings()
         mh.SetFunction(nll)

@@ -5,7 +5,6 @@ __all__ = []
 __all__.append(__name__)
 
 class RootHistogram(object):
-    
 
     def _createHisto(self):
         from ROOT import TH1F
@@ -16,14 +15,14 @@ class RootHistogram(object):
 
         self.n_bins_x = reader.read_param(input_dict,"n_bins_x",100)
         self.x_min, self.x_max = reader.read_param(input_dict,"range",[0.,-1.])
-        self.dataName = reader.read_param(input_dict,"data","required")        
+        self.dataName = reader.read_param(input_dict,"data","required")
         self.title = str(reader.read_param(input_dict,"title",'hist_{}'.format(self.dataName)))
         self.xtitle = reader.read_param(input_dict,"x_title",self.dataName)
         self._createHisto()
         
     def Fill(self,input_data):
         if not isinstance(input_data,list):
-            logger.error("Data given <{}> not a list") 
+            logger.error("Data given <{}> not a list")
             raise
         if self.x_min>self.x_max:
             logger.warning("Inappropriate x range: {}>{}".format(self.x_min,self.x_max))

@@ -1,12 +1,8 @@
-'''                                                                                                                                     
+'''
 Plot a posteriori distribution of the variables of interest
 '''
 
 from __future__ import absolute_import
-
-import json
-import os
-
 
 from morpho.utilities import morphologging, reader, plots
 from morpho.processors import BaseProcessor
@@ -49,7 +45,7 @@ class APosterioriDistribution(BaseProcessor):
                                                                     self.draw_opt_2d)
         hist_grid = plots._fill_hist_grid(self.data, name_grid,
                                     self.nbins_x, self.nbins_y)
-        
+
         rows = len(hist_grid)
         cols = len(hist_grid[0])
         # Drawing and dividing the canvas
@@ -57,7 +53,7 @@ class APosterioriDistribution(BaseProcessor):
         self.rootcanvas.Divide(cols,rows)
 
         # Plot all histograms
-        import ROOT    
+        import ROOT
         # Histograms must still be in memory when the pdf is saved
         additional_hists = list()
         for r in range(rows):

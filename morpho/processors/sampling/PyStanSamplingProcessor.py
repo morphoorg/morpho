@@ -47,6 +47,27 @@ class PyStanSamplingProcessor(BaseProcessor):
         output_dict.update({'data': self.data})
         return output_dict
 
+    def _init_Stan_function(self):
+        if isinstance(self.init_per_chain,list): 
+            # init_per_chain is a list of dictionaries
+            if self.chains >1 and len(self.init_per_chain)==1:
+                dict_list = [self.init_per_chain[0]] * self.chains
+                return dict_list
+            elif len(self.init_per_chain)==self.chains :
+                return self.init_per_chain
+            else:
+                logger.error('Number of chains is not equal to the size of the list of dictionaries')
+                return self.init_per_chain
+        elif isinstance(self.init_per_chain,dict): 
+            # init_per_chain is a dictionary
+            if self.chains >1:
+                return [self.init_per_chain] * self.chains
+            else:
+                return [self.init_per_chain]
+        else:
+            return self.init_per_chain
+
+
     def _stan_cache(self):
         '''
         Create and cache stan model, or access previously cached model
@@ -155,15 +176,15 @@ class PyStanSamplingProcessor(BaseProcessor):
             # self.seed = int(reader.read_param(yd, 'stan.run.seed', None))
         logger.debug("seed = {}".format(self.seed))
 
-        self.thin = reader.read_param(params, 'stan.run.thin', 1)
-        self.init_per_chain = reader.read_param(params, 'stan.run.init', '')
+        self.thin = reader.read_param(params, 'thin', 1)
+        self.init_per_chain = reader.read_param(params, 'init', '')
 
-        # self.init = self.init_Stan_function()
-        # if isinstance(reader.read_param(params, 'stan.run.control', None),dict):
-        #     self.control = reader.read_param(params, 'stan.run.control', None)
-        # else:
-        #     if reader.read_param(params, 'stan.run.control', None) is not None:
-        #         logger.debug("stan.run.control should be a dict: {}",str(reader.read_param(yd, 'stan.run.control', None)))
+        self.init = self._init_Stan_function()
+        if isinstance(reader.read_param(params, 'control', None),dict):
+            self.control = reader.read_param(params, 'control', None)
+        else:
+            if reader.read_param(params, 'control', None) is not None:
+                logger.debug("stan.run.control should be a dict: {}",str(reader.read_param(yd, 'control', None)))
 
 
     def InternalRun(self):

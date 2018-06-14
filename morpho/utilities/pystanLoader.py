@@ -25,19 +25,22 @@ def extract_data_from_outputdata(conf,theOutput):
     # add the diagnostic variable names
     flatnames.extend(diagnosticVariableName)
 
+  # make list of desired variables
+    desired_var = []
+    for a_name in flatnames:
+        for a_key in conf['interestParams']:
+            if a_name.startswith(a_key+'[') or a_name == a_key: #this means the desired var is a list
+                desired_var.append(a_name)
+
     # Clustering the data together
     theOutputDataDict = {}
-    for key in flatnames:
+    for key in desired_var:
+        theOutputDataDict.update({str(key):[]})
+    for key in diagnosticVariableName:
         theOutputDataDict.update({str(key):[]})
     theOutputDataDict.update({"lp_prob":[]})
     theOutputDataDict.update({"delta_energy__":[]})
     theOutputDataDict.update({"is_sample":[]})
-
-    # make list of desired variables
-    desired_var = []
-    for key in conf['interestParams']:
-        if key not in diagnosticVariableName:
-            desired_var.append(key)
 
     for iChain in range(0,conf['chains']):
         for iEvents in range(0,nEventsPerChain):

@@ -1,0 +1,24 @@
+processors-toolbox:
+    processors:
+        - type: test
+          name: generator
+        - type: test2
+          name: writer
+    connections:
+        - signal: "generator:data"
+          slot: "writer:data"
+generator:
+    model_code: "models/model_linear_generator.stan"
+    input_data: 
+        slope: 1
+        intercept: -2
+        xmin: 1
+        xmax: 10
+        sigma: 1.6
+    iter: 530
+    warmup: 500
+    interestParams: ['x','y','residual']
+writer_config:
+    action: write
+    filename: data/data.r
+    variables: ["x","y",'residual']

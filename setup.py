@@ -40,7 +40,7 @@ setup(
     version=verstr,
     description="A python interface with Stan/PyStan Markov Chain Monte Carlo package",
     packages=find_packages(),
-    scripts=[],
+    scripts=["bin/morpho"],
     install_requires=requirements,
     extras_require=extras_require,
     url='http://www.github.com/project8/morpho',

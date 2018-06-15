@@ -39,8 +39,11 @@ class RootCanvas(object):
             self.figurefullpath = self.path+self.title+'_'
         else:
             self.figurefullpath = self.path
-        for namedata in input_dict['data']:
-            self.figurefullpath += namedata + '_'
+        if isinstance(input_dict['data'],str):
+            self.figurefullpath += input_dict['data']
+        elif isinstance(input_dict['data'],list):
+            for namedata in input_dict['data']:
+                self.figurefullpath += namedata + '_'
 
         if self.figurefullpath.endswith('_'):
             self.figurefullpath = self.figurefullpath[:-1]

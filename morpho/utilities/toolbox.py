@@ -1,11 +1,10 @@
 #!/bin/python
 
-from morpho.utilities import morphologging, logDictionary
+from morpho.utilities import morphologging
 logger=morphologging.getLogger(__name__)
 
 import json, yaml
 import os, importlib
-import prettyprint
 
 class ToolBox:
     def __init__(self, filename=""):
@@ -14,8 +13,7 @@ class ToolBox:
         print(self.config_dict)
         self.processors_definition = self.config_dict
         # self.connections_definition = self.config_dict.get("processors-toolbox")
-        logger.info(logDictionary(self.processors_definition))
-        prettyprint.prettyprint(self.processors_definition)
+        logger.info((self.processors_definition))
 
     def _read_config_file(self, filename):
         if os.path.exists(filename):
@@ -35,3 +33,5 @@ class ToolBox:
         else:
             logger.error("File {} does not exist".format(filename))
             raise FileNotFoundError(filename)
+
+from morpho import BaseProcessor

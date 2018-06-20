@@ -3,4 +3,5 @@
 from morpho.utilities import morphologging, toolbox
 logger=morphologging.getLogger(__name__)
 
-toolBox = toolbox.ToolBox("myConfigFile.yaml")
+myToolBox = toolbox.ToolBox("myConfigFile.yaml")
+myToolBox._CreateAndConfigureProcessors()

@@ -20,7 +20,8 @@ generator:
     iter: 530
     warmup: 500
     interestParams: ['x','y','residual']
-writer_config:
+writer:
     action: write
     filename: data/data.r
     variables: ["x","y",'residual']
+    tree_name: myTree

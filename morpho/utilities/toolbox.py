@@ -37,7 +37,7 @@ class ToolBox:
     def _CreateAndConfigureProcessors(self):
         for a_dict in self.config_dict["processors-toolbox"]["processors"]:
             if not self._CreateOneProcessor(a_dict["name"],a_dict["type"]):
-                logger.error("Could not create processor; exiting")
+                logger.error("Could not create processor <{}>; exiting".format(a_dict["name"]))
                 return False
         for processor in self.processors_list:
             procName = processor.name
@@ -66,17 +66,24 @@ class ToolBox:
             logger.error("Cannot import module {} for processor {}".format(module_name,processor_name))
             return False
 
-        logger.debug("trying to import processor {} from {}".format(processor_name,module_name))
         try:
             self.processors_list.append(getattr(module,processor_name)(procName))
+            logger.info("Processor <{}> from {} created".format(processor_name,module_name))
             return True
         except:
             logger.error("Cannot import {} from {}".format(processor_name,"morpho"))
             return False
 
     def _ConnectProcessors(self,signal,slot):
-        if ":" in procName:
-            print(split(procName),":")
+        if ":" not in slot:
+            logger.error("Wrong signal format ({})".format(slot))
+            return False
+
+    def Run(self):
+        logger.debug("Configuration:\n{}".format(json.dumps(self.config_dict, indent=4)))
+        if not self._CreateAndConfigureProcessors():
+            logger.error("Error while creating and configuring processors")
+            return False
 
     # def _RunProcessors(self):
         

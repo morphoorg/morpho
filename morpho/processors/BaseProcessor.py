@@ -29,7 +29,7 @@ class BaseProcessor(metaclass=abc.ABCMeta):
         '''
         This method will be called by nymph to configure the processor
         '''
-        logger.info("Configure <{}> with {}".format(self.name,params))
+        logger.info("Configure <{}>".format(self.name))
         self.InternalConfigure(params)
 
     @abc.abstractmethod

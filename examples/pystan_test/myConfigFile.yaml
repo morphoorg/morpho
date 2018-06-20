@@ -1,9 +1,11 @@
 processors-toolbox:
     processors:
-        - type: test
+        - type: morpho:PyStanSamplingProcessor
           name: generator
-        - type: test2
+        - type: IOROOTProcessor
           name: writer
+        - type: mermithid:IOCicadaProcessor
+          name: writerCicada
     connections:
         - signal: "generator:data"
           slot: "writer:data"

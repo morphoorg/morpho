@@ -831,9 +831,15 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                     except ImportError:
                         pass
                     sa.data = pyL.stan_data_files(sa.datafiles)
-                    #A temporary hack
+                    #Some hacks
                     if 'Ndata' in sa.data:
                         sa.iter = sa.data['Ndata']/sa.chains+sa.warmup
+                    if 'Q_init' in sa.data:
+                        sa.init[0]['Q'] = sa.data['Q_init']
+                    if 'sigma_init' in sa.data:
+                        sa.init[0]['sigma'] = sa.data['sigma_init']
+                    if 'A_b_init' in sa.data:
+                        sa.init[0]['A_b'] = sa.data['A_b_init']
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
                 try:
                     from morpho.postprocessing import stan_utility as util

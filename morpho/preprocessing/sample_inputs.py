@@ -113,9 +113,13 @@ def sample_inputs(param_dict):
     try:
         for transformed_dict in param_dict['transformed_inputs']:
             func = transformed_dict['function']
+            if 'unitchange' in transformed_dict:
+                unitchange = transformed_dict['unitchange']
+            else:
+                unitchange = True
             tmp_sampled_val = array('f',[ 0 ])
             b = out_tree.Branch(func, tmp_sampled_val, func+'/F')
-            result = _compute_transformed_inputs(func, inputs_dict)
+            result = _compute_transformed_inputs(func, inputs_dict, unitchange)
             tmp_sampled_val[0] = result
             inputs_dict[func] = result
             b.Fill()
@@ -144,22 +148,40 @@ def _draw_random_sample(sample_dict, dist_error):
     return rand
 
 
-def _compute_transformed_inputs(func, inputs_dict):
+def _compute_transformed_inputs(func, inputs_dict, unitchange):
     func_error = 'The {} function is not yet implemented in sample_inputs'.format(func)
-    Q = inputs_dict['Q']
-    KEmin = inputs_dict['KEmin']
-    KEmax = inputs_dict['KEmax']
-    mass = inputs_dict['mass']
-    t = inputs_dict['runtime']
-    if func == 'S':
+#    input_error = "Parameter needed to compute transformed inputs is missing"
+    try:
+        if 'Q' in inputs_dict:
+            Q = inputs_dict['Q']
+        elif 'Q_mean' in inputs_dict:
+            Q = inputs_dict['Q_mean']
+        mass = inputs_dict['mass']
+        t = inputs_dict['runtime']
+    except:
+        logger.debug("Parameter needed to compute transformed inputs is missing")
+    if func == 'KEmin':
+        return Q-mass-1
+    elif func == 'KEmax':
+        return Q-mass+1
+    elif func == 'S':
+        KEmin = inputs_dict['KEmin']
         A_s = inputs_dict['A_s']
         b = Q-KEmin
         N = 6./(mass**3-3.*mass**2*b+2.*b**3)
         #return t*N*A_s
-        return t*A_s*b/1000.
+        if unitchange == True:
+            return t*A_s*(Q-KEmin)/1000.
+        elif unitchange == False:
+            print(t*A_s*(Q-KEmin))
+            return t*A_s*(Q-KEmin)
+            #return t*A_s*(20000.-16500.)
     elif func == 'B':
+        KEmin = inputs_dict['KEmin']
+        KEmax = inputs_dict['KEmax']
         A_b = inputs_dict['A_b'] 
         return t*(KEmax - KEmin)*A_b
+        #return t*(20000.-16500.)*A_b
     elif func == 'signal_frac':
         return inputs_dict['S']/(inputs_dict['S']+inputs_dict['B'])
     elif func == 'Ndata':

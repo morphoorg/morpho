@@ -4,11 +4,15 @@ processors-toolbox:
           name: generator
         - type: IOROOTProcessor
           name: writer
-        - type: mermithid:IOCicadaProcessor
-          name: writerCicada
+        - type: IOJSONProcessor
+          name: writer_json
     connections:
         - signal: "generator:data"
           slot: "writer:data"
+          order: 2
+        - signal: "generator:data"
+          slot: "writer_json:data"
+          order: 1
 generator:
     model_code: "models/model_linear_generator.stan"
     input_data: 
@@ -22,6 +26,10 @@ generator:
     interestParams: ['x','y','residual']
 writer:
     action: write
-    filename: data/data.r
+    filename: data/data.root
     variables: ["x","y",'residual']
     tree_name: myTree
+writer_json:
+    action: write
+    filename: data/data.json
+    variables: ["x","y",'residual']

@@ -11,9 +11,8 @@ class ToolBox:
         logger.info("ToolBox!")
         self._ReadConfigFile(filename)
         self.processors_definition = self.config_dict
-        self.processors_list = []
+        self.processors_dict = dict()
         self.processors_names = []
-        # self.connections_definition = self.config_dict.get("processors-toolbox")
 
     def _ReadConfigFile(self, filename):
         if os.path.exists(filename):
@@ -39,7 +38,7 @@ class ToolBox:
             if not self._CreateOneProcessor(a_dict["name"],a_dict["type"]):
                 logger.error("Could not create processor <{}>; exiting".format(a_dict["name"]))
                 return False
-        for processor in self.processors_list:
+        for name,processor in self.processors_dict.items():
             procName = processor.name
             if procName in self.config_dict.keys():
                 config_dict = self.config_dict[procName]
@@ -63,12 +62,12 @@ class ToolBox:
         try:
             module = importlib.import_module(module_name)
         except:
-            logger.error("Cannot import module {} for processor {}".format(module_name,processor_name))
+            logger.error("Cannot import module {}".format(module_name))
             return False
 
         try:
-            self.processors_list.append(getattr(module,processor_name)(procName))
-            logger.info("Processor <{}> from {} created".format(processor_name,module_name))
+            self.processors_dict.update({procName: getattr(module,processor_name)(procName)})
+            logger.info("Processor <{}> ({}:{}) created".format(procName,module_name,processor_name))
             return True
         except:
             logger.error("Cannot import {} from {}".format(processor_name,"morpho"))
@@ -78,12 +77,69 @@ class ToolBox:
         if ":" not in slot:
             logger.error("Wrong signal format ({})".format(slot))
             return False
+        out_processor, out_variable = slot.split(":")
+        if ":" not in signal:
+            logger.error("Wrong signal format ({})".format(signal))
+            return False
+        in_processor, in_variable = signal.split(":")
 
+    # def _RunProcessor(self,procName):
+        # a_processor = self.processors_dict['procName']
+        # a_processor.Run()
+        
+    def _GetChainOfProcessors(self):
+        self.chainProcessors = {}
+        for a_processor_name in self.processors_dict.keys():
+            self.chainProcessors.update({a_processor_name:
+                {
+                    "connectedToAsSignal": [], #-> which processor needs the output of this processors as input
+                    "connectedToAsSlot": [], #-> which processor need to give its output to this processor
+                    "orderSignals": [], #-> which order for each signal
+                    "isFirst": True,
+                    "addedToChain": False
+                }
+            })
+            for a_connection in self.config_dict['processors-toolbox']['connections']:
+                proc_signal_to_be_connected = ""
+                proc_slot_to_be_connected = ""
+                order = -1
+                if "order" in a_connection:
+                    order = a_connection["order"]
+                if a_connection['slot'].split(":")[0] == a_processor_name:
+                    proc_signal_to_be_connected = a_connection['signal'].split(":")[0]
+                    # if order == -1:
+                        # self.chainProcessors[a_processor_name]["orderSignals"].append(self.chainProcessors[a_processor_name]["orderSignals"][-1]+1)
+                    # else:
+                    self.chainProcessors[a_processor_name]["orderSignals"].append(order)
+                    self.chainProcessors[a_processor_name]["connectedToAsSlot"].append(proc_signal_to_be_connected)
+                if a_connection['signal'].split(":")[0] == a_processor_name:
+                    proc_slot_to_be_connected = a_connection['slot'].split(":")[0]
+                    self.chainProcessors[a_processor_name]["connectedToAsSignal"].append(proc_slot_to_be_connected)
+                # if proc_slot_to_be_connected !="" or proc_signal_to_be_connected != "":
+                    # print("{} -> {} -> {}".format(proc_signal_to_be_connected,a_processor_name,proc_slot_to_be_connected))
+
+    def _PrintChainProcessor(self):
+        chainProcessorsList = []
+
+        numberOfListedProcessors = 0
+        for a_processor_name, connections in self.chainProcessors.items():
+            if connections["isFirst"]:
+                chainProcessorsList.append(a_processor_name)
+                self.chainProcessors[a_processor_name]['addedToChain'] = True
+                break
+        numberOfListedProcessors+=1
+
+        # while numberOfListedProcessors != len(self.chainProcessors.keys()):
+        #     for a_processor_name, connections in self.chainProcessors.items():
+        
+                
+                    
     def Run(self):
         logger.debug("Configuration:\n{}".format(json.dumps(self.config_dict, indent=4)))
         if not self._CreateAndConfigureProcessors():
             logger.error("Error while creating and configuring processors")
             return False
-
-    # def _RunProcessors(self):
-        
+        self._GetChainOfProcessors()
+        self._PrintChainProcessor()
+        # for a_connection in self.config_dict["processors-toolbox"]['connections']:
+        #     self._RunProcessor()

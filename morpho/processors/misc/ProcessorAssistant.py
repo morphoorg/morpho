@@ -20,7 +20,6 @@ class ProcessorAssistant(BaseProcessor):
         '''
         Configure
         '''
-        logger.info("Configure with {}".format(config_dict))
         self.module_name = str(reader.read_param(config_dict,'module_name',"required"))
         self.function_name = str(reader.read_param(config_dict,'function_name',"required"))
         self.config_dict = config_dict
@@ -36,15 +35,17 @@ class ProcessorAssistant(BaseProcessor):
             logger.info("Found {} using {}".format(self.function_name,self.module_name))
         else:
             logger.critical("Couldn't find {} using {}".format(self.function_name,self.module_name))
-            return 0
+            return False
+        return True
 
     def InternalRun(self):
 
         try:
-            return getattr(self.module,self.function_name)(self.config_dict)
+            self.results =  getattr(self.module,self.function_name)(self.config_dict)
+            return True
         except Exception as err:
             logger.critical(err)
-            return 0
+            return False
         
         
 

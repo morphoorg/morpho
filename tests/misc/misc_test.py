@@ -20,9 +20,9 @@ class MiscTests(unittest.TestCase):
         }
         assistantProcessor = ProcessorAssistant("assistantProcessor")
         assistantProcessor.Configure(proc_config)
-        result = assistantProcessor.Run()
-        logger.debug("Assistant processor returned: {}".format(result))
-        self.assertEqual(result,"value=10")
+        assistantProcessor.Run()
+        logger.debug("Assistant processor returned: {}".format(assistantProcessor.results))
+        self.assertEqual(assistantProcessor.results,"value=10")
 
 if __name__ == '__main__':
     unittest.main()

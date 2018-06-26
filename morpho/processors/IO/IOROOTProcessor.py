@@ -32,15 +32,14 @@ class IOROOTProcessor(IOProcessor):
         '''
         logger.debug("Reading {}".format(self.file_name))
         import uproot
-        subData = {}
         for key in self.variables:
             subData.update({str(key): []})
         tree = uproot.open(self.file_name)[self.tree_name]
         for data in tree.iterate(self.variables):
             for key, value in data.items():
                 varName = key.decode("utf-8")
-                subData.update({str(varName): subData[str(varName)] + value.tolist()})
-        return subData
+                self.data.update({str(varName): subData[str(varName)] + value.tolist()})
+        return True
 
     def Writer(self):
         '''
@@ -57,7 +56,7 @@ class IOROOTProcessor(IOProcessor):
             os.makedirs(rdir)
             logger.debug("Creating folder: {}".format(rdir))
         
-        logger.debug("Writing a tree")
+        logger.debug("Creating a file and tree")
         import ROOT
 
         f = ROOT.TFile(self.file_name, self.file_option)
@@ -67,9 +66,19 @@ class IOROOTProcessor(IOProcessor):
         hasUpdatedNumberData = False
 
         # Determine general properties of the tree: type and size of branches, number of iterations for the tree
+        logger.debug("Defining tree properties")
         for a_item in self.variables:
-            varName = a_item["variable"]
-            varRootAlias = a_item.get("root_alias") or varName
+            print(a_item)
+            if isinstance(a_item,dict) and "variable" in a_item.keys():
+                varName = a_item["variable"]
+                varRootAlias = a_item.get("root_alias") or varName
+                varType = a_item.get("type")
+            elif isinstance(a_item,str):
+                varName = a_item
+                varRootAlias = a_item
+                varType = None
+            else:
+                logger.error("Unknown type: {}".format(a_item))
 
             if numberData<len(self.data[varName]):
                 if hasUpdatedNumberData:
@@ -81,13 +90,13 @@ class IOROOTProcessor(IOProcessor):
             if isinstance(self.data[varName][0],list):
                 info_subDict = {
                     "len": len(self.data[varName][0]),
-                    "type": _branch_element_type_from_string(a_item.get("type")) or _branch_element_type(self.data[varName][0][0]),
+                    "type": _branch_element_type_from_string(varType) or _branch_element_type(self.data[varName][0][0]),
                     "root_alias": varRootAlias
                 }
             else:
                 info_subDict = {
                     "len": 0,
-                    "type": _branch_element_type_from_string(a_item.get("type")) or _branch_element_type(self.data[varName][0]),
+                    "type": _branch_element_type_from_string(varType) or _branch_element_type(self.data[varName][0]),
                     "root_alias": varRootAlias
                 }
             info_data.update({str(varName):info_subDict})
@@ -121,7 +130,7 @@ class IOROOTProcessor(IOProcessor):
         t.Write()
         f.Close()
         logger.debug("File saved!")
-        return None
+        return True
 
 def _branch_element_type(element):
     if isinstance(element,int):

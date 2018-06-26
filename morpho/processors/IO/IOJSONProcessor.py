@@ -30,7 +30,6 @@ class IOJSONProcessor(IOProcessor):
 
     def Reader(self):
         logger.debug("Reading {}".format(self.file_name))
-        subData = {}
         if os.path.exists(self.file_name):
             with open(self.file_name, 'r') as json_file:
                 try:
@@ -45,10 +44,11 @@ class IOJSONProcessor(IOProcessor):
         logger.debug("Extracting {}".format(self.variables))
         for var in self.variables:
             if var in theData.keys():
-                subData.update({str(var):theData[var]})
+                self.data.update({str(var):theData[var]})
             else:
                 logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))
-        return subData
+                return False
+        return True
 
 
     def Writer(self):
@@ -60,11 +60,17 @@ class IOJSONProcessor(IOProcessor):
         logger.debug("Extracting {}".format(self.variables))
         subData = {}
         for item in self.variables:
-            if item['variable'] in self.data.keys():
-                alias = item.get("json_alias") or item['variable']
-                subData.update({str(alias):self.data[item['variable']]})
+            if isinstance(item,str):
+                alias = item
+                var = item
+                subData.update({str(alias):self.data[var]})
+            elif isinstance(item,dict) and 'variable' in item.keys() and item['variable'] in self.data.keys():
+                var = str(item['variable'])
+                alias = str(item.get("json_alias")) or var
+                subData.update({str(alias):self.data[var]})
             else:
                 logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))
+                return False
         with open(self.file_name, 'w') as json_file:
             try:
                 self.my_module.dump(subData, json_file, **self.dump_kwargs)
@@ -72,7 +78,7 @@ class IOJSONProcessor(IOProcessor):
                 logger.error("Error while writing {}".format(self.file_name))
                 raise
         logger.debug("File saved!")
-        return None
+        return True
 
 class IOYAMLProcessor(IOJSONProcessor):
     '''

@@ -47,7 +47,7 @@ class IOProcessor(BaseProcessor):
         This method will read or write an file
         '''
         if (self.file_action == 'write'):
-            result = self.Writer()
+            return self.Writer()
         else:
-            result = self.Reader()
-        return result
+            return self.Reader()
+        return False

@@ -27,8 +27,8 @@ class ToolBox:
             with open(filename, 'r') as json_file:
                 try:
                     self.config_dict = self.my_module.load(json_file)
-                except:
-                    logger.error("Error while reading {}".format(filename))
+                except Exception as err:
+                    logger.error("Error while reading {}:\n{}".format(filename,err))
                     raise
         else:
             logger.error("File {} does not exist".format(filename))
@@ -47,8 +47,8 @@ class ToolBox:
                 config_dict = dict()
             try:
                 processor["object"].Configure(config_dict)
-            except:
-                logger.error("Configuration of <{}> failed".format(procName))
+            except Exception as err:
+                logger.error("Configuration of <{}> failed: \n{}".format(procName,err))
                 return False
         return True
 
@@ -84,15 +84,26 @@ class ToolBox:
             logger.error("Cannot import {} from {}".format(processor_name,"morpho"))
             return False
 
-    def _ConnectProcessors(self,signal,slot):
-        if ":" not in slot:
-            logger.error("Wrong signal format ({})".format(slot))
-            return False
-        out_processor, out_variable = slot.split(":")
-        if ":" not in signal:
-            logger.error("Wrong signal format ({})".format(signal))
-            return False
-        in_processor, in_variable = signal.split(":")
+    def _ConnectProcessors(self,nameProc):
+        proc_object = self.processors_dict[nameProc]['object']
+        nConnections = len(self.processors_dict[nameProc]['variableToGive'])
+        for i in range(nConnections):
+            proc_name_to_update = self.processors_dict[nameProc]['procToBeConnectedTo'][i]
+            var_to_give = self.processors_dict[nameProc]['variableToGive'][i]
+            var_to_be_connected_to = self.processors_dict[nameProc]['varToBeConnectedTo'][i]
+            proc_object_to_update = self.processors_dict[proc_name_to_update]['object']
+            logger.debug("Connection {}:{} -> {}:{}".format(nameProc,var_to_give,proc_name_to_update,var_to_be_connected_to))
+
+            try:
+                val = getattr(proc_object,var_to_give)
+                # print(val)
+                setattr(proc_object_to_update,var_to_be_connected_to,val)
+                # print(getattr(proc_object_to_update,var_to_be_connected_to))
+            except Exception as err:
+                logger.error("Connection {}:{} -> {}:{} failed:\n{}".format(nameProc,var_to_give,proc_name_to_update,var_to_be_connected_to,err))
+                return False
+        return True
+
 
     def _DefineChain(self):
         order_in_chain = 0
@@ -122,9 +133,15 @@ class ToolBox:
     def _RunChain(self):
         for a_processor in self._chain_processors:
             try:
-                self.processors_dict[a_processor]['object'].Run()
-            except:
-                logger.error("Error")
+                if not self.processors_dict[a_processor]['object'].Run():
+                    logger.error("Result <{}> incorrect".format(a_processor))
+                    return False
+            except Exception as err:
+                logger.error("Error while running <{}>:\n{}".format(a_processor,err))
+                raise err
+                # return False
+            self._ConnectProcessors(a_processor)
+        return True
 
     def Run(self):
         logger.debug("Configuration:\n{}".format(json.dumps(self.config_dict, indent=4)))

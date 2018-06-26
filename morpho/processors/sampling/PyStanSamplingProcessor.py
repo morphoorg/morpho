@@ -192,5 +192,6 @@ class PyStanSamplingProcessor(BaseProcessor):
         stan_results = self._run_stan(**(self.gen_arg_dict()))
         logger.debug("Stan Results:\n"+str(stan_results))
         # Put the data into a nice dictionary
-        return pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)
+        self.results =  pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)
+        return True
 

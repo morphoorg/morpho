@@ -2,17 +2,15 @@ processors-toolbox:
     processors:
         - type: morpho:PyStanSamplingProcessor
           name: generator
-        - type: IOJSONProcessor
-          name: writer_json
+        - type: IOYAMLProcessor
+          name: writer_yaml
         - type: IOROOTProcessor
           name: writer
-        - type: IOROOTProcessor
-          name: writer_unconnected
     connections:
-        - signal: "generator:data"
+        - signal: "generator:results"
           slot: "writer:data"
-        - signal: "generator:data"
-          slot: "writer_json:data"
+        - signal: "generator:results"
+          slot: "writer_yaml:data"
 generator:
     model_code: "models/model_linear_generator.stan"
     input_data: 
@@ -27,14 +25,12 @@ generator:
 writer:
     action: write
     filename: data/data.root
-    variables: ["x","y",'residual']
+    variables: 
+        - "x"
+        - "y"
+        - 'residual'
     tree_name: myTree
-writer_unconnected:
+writer_yaml:
     action: write
-    filename: data/data.root
-    variables: ["x","y",'residual']
-    tree_name: myTree
-writer_json:
-    action: write
-    filename: data/data.json
+    filename: data/data.yaml
     variables: ["x","y",'residual']

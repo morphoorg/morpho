@@ -39,6 +39,7 @@ class APosterioriDistribution(BaseProcessor):
         self.nbins_y = int(reader.read_param(param_dict,'n_bins_y',100))
         self.namedata = reader.read_param(param_dict,'data',"required")
         self.draw_opt_2d = reader.read_param(param_dict,'root_plot_option',"contz")
+        return True
 
     def InternalRun(self):
         name_grid, draw_opts_grid, colors_grid =plots._fill_variable_grid(self.namedata,
@@ -94,3 +95,4 @@ class APosterioriDistribution(BaseProcessor):
                         additional_hists.append(hist_2_sig)
                     
         self.rootcanvas.Save()
+        return True

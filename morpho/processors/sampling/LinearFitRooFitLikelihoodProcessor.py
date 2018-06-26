@@ -21,6 +21,7 @@ class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
         self.x_min, self.x_max = reader.read_param(config_dict,"paramRange", "required")["x"]
         self.y_min, self.y_max = reader.read_param(config_dict,"paramRange", "required")["y"]
         self.width_min, self.width_max = reader.read_param(config_dict,"paramRange", "required")["width"]
+        return True
 
     def _defineDataset(self,wspace):
         varX = ROOT.RooRealVar("x","x",min(self._data["x"]),max(self._data["x"]))

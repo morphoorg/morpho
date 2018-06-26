@@ -28,10 +28,15 @@ class SamplingTests(unittest.TestCase):
         }
 
         pystanProcessor = PyStanSamplingProcessor("pystanProcessor")
-        pystanProcessor.Configure(pystan_config)
-        result = pystanProcessor.Run()
-        self.assertEqual(len(result["y"]),100)
-        return result
+        if not pystanProcessor.Configure(pystan_config):
+            logger.error("Error while configuring <pystanProcessor>")
+            return False
+        if not pystanProcessor.Run():
+            logger.error("Error while running <pystanProcessor>")
+            return False
+        self.assertEqual(len(pystanProcessor.results["y"]),100)
+        # Because we need this generator for the LinearFit analysis, we return the data, and not a bool
+        return pystanProcessor.results
 
     def test_LinearFitRooFitSampler(self):
         from morpho.processors.sampling import LinearFitRooFitLikelihoodProcessor
@@ -39,7 +44,7 @@ class SamplingTests(unittest.TestCase):
         
         linearFit_config = {
             "iter": 10000,
-            "warmup": 500,
+            "warmup": 2000,
             "interestParams": ['a','b','width'],
             "varName": "XY",
             "nuisanceParams": [],
@@ -73,19 +78,22 @@ class SamplingTests(unittest.TestCase):
         # Configuration step
         aposterioriPlotter.Configure(aposteriori_config)
         timeSeriesPlotter.Configure(timeSeries_config)
-        fitterProcessor.Configure(linearFit_config)
-
+        if not fitterProcessor.Configure(linearFit_config):
+            logger.error("Error while configuring <linearFit>")
+            return False
+            
         # Doing things step
         fitterProcessor.data = self.test_PyStan()
-        result = fitterProcessor.Run()
-        aposterioriPlotter.data = result
-        timeSeriesPlotter.data = result
+        if not fitterProcessor.Run():
+            logger.error("Error while running <linearFit>")
+            return False
+        aposterioriPlotter.data = fitterProcessor.results
+        timeSeriesPlotter.data = fitterProcessor.results
         aposterioriPlotter.Run()
         timeSeriesPlotter.Run()
 
         import numpy as np
-
-        self.assertTrue(np.mean(result["a"])>0.5)
+        self.assertTrue(np.mean(fitterProcessor.results["a"])>0.5)
 
     def test_GaussianSampler(self):
         from morpho.processors.sampling import GaussianSamplingProcessor
@@ -104,7 +112,10 @@ class SamplingTests(unittest.TestCase):
         myhisto = Histogram("histo")
         sampler.Configure(gauss_config)
         myhisto.Configure(histo_config)
-        myhisto.data = sampler.Run()
+        if not sampler.Run():
+            logger.error("Error while running <sampler>")
+            return False
+        myhisto.data = sampler.results
         myhisto.Run()
 
 if __name__ == '__main__':

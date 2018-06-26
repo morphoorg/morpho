@@ -30,9 +30,11 @@ class Histogram(BaseProcessor):
 
         # Read other parameters
         self.namedata = reader.read_param(params,'data',"required")
+        return True
 
     def InternalRun(self):
         self.histo.Fill(self.data.get(self.namedata))
         self.rootcanvas.cd()
         self.histo.Draw("hist")
         self.rootcanvas.Save()
+        return True

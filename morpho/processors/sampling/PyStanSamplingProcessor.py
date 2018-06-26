@@ -185,13 +185,13 @@ class PyStanSamplingProcessor(BaseProcessor):
         else:
             if reader.read_param(params, 'control', None) is not None:
                 logger.debug("stan.run.control should be a dict: {}",str(reader.read_param(yd, 'control', None)))
-
+        return True
 
     def InternalRun(self):
         self._stan_cache()
         stan_results = self._run_stan(**(self.gen_arg_dict()))
         logger.debug("Stan Results:\n"+str(stan_results))
         # Put the data into a nice dictionary
-        self.results =  pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)
+        self.results = pystanLoader.extract_data_from_outputdata(self.__dict__,stan_results)
         return True
 

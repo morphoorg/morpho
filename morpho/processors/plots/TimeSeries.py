@@ -34,6 +34,7 @@ class TimeSeries(BaseProcessor):
 
         # Read other parameters
         self.namedata = reader.read_param(params,'data',"required")
+        return True
 
     def InternalRun(self):
         # Drawing and dividing the canvas
@@ -70,3 +71,4 @@ class TimeSeries(BaseProcessor):
             listGraph[iName].SetTitle(";Iteration;{}".format(name))
 
         self.rootcanvas.Save()
+        return True

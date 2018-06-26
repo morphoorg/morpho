@@ -23,6 +23,7 @@ class GaussianSamplingProcessor(BaseProcessor):
         self.width = reader.read_param(input,"width",1.)
         if self.width<=0.:
             raise ValueError("Width is negative or null!")
+        return True
 
     def InternalRun(self):
         from ROOT import TRandom3
@@ -30,5 +31,6 @@ class GaussianSamplingProcessor(BaseProcessor):
         data = []
         for _ in range(self.iter):
             data.append(ran.Gaus(self.mean,self.width))
-        return {'x':data}
+        self.results = {'x':data}
+        return True
 

@@ -23,6 +23,7 @@ class IOROOTProcessor(IOProcessor):
         super().InternalConfigure(params)
         self.tree_name = reader.read_param(params,"tree_name","required")
         self.file_option = reader.read_param(params,"file_option","Recreate")
+        return True
 
     def Reader(self):
         '''
@@ -70,7 +71,10 @@ class IOROOTProcessor(IOProcessor):
         for a_item in self.variables:
             if isinstance(a_item,dict) and "variable" in a_item.keys():
                 varName = a_item["variable"]
-                varRootAlias = a_item.get("root_alias") or varName
+                if "root_alias" in a_item:
+                    varRootAlias = a_item.get("root_alias")
+                else:
+                    varRootAlias = varName
                 varType = a_item.get("type")
             elif isinstance(a_item,str):
                 varName = a_item

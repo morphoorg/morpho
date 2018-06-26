@@ -46,7 +46,7 @@ class IOJSONProcessor(IOProcessor):
             if var in theData.keys():
                 self.data.update({str(var):theData[var]})
             else:
-                logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))
+                logger.error("Variable {} does not exist in {}".format(var,self.file_name))
                 return False
         return True
 
@@ -66,7 +66,10 @@ class IOJSONProcessor(IOProcessor):
                 subData.update({str(alias):self.data[var]})
             elif isinstance(item,dict) and 'variable' in item.keys() and item['variable'] in self.data.keys():
                 var = str(item['variable'])
-                alias = str(item.get("json_alias")) or var
+                if "json_alias" in item:
+                    alias = str(item.get("json_alias"))
+                else:
+                    alias = var
                 subData.update({str(alias):self.data[var]})
             else:
                 logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))

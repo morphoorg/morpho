@@ -25,10 +25,7 @@ class IOTests(unittest.TestCase):
             "action": "write",
             "filename": "myTest.json",
             "variables": [
-                {
-                "variable":"x",
-                "json_alias":"x"
-                },
+                "x",
                 {
                 "variable":"y"
                 },

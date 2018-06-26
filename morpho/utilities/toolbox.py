@@ -39,13 +39,13 @@ class ToolBox:
                 logger.error("Could not create processor <{}>; exiting".format(a_dict["name"]))
                 return False
         for name,processor in self.processors_dict.items():
-            procName = processor.name
+            procName = processor["object"].name
             if procName in self.config_dict.keys():
                 config_dict = self.config_dict[procName]
             else:
                 config_dict = dict()
             try:
-                processor.Configure(config_dict)
+                processor["object"].Configure(config_dict)
             except:
                 logger.error("Configuration of <{}> failed".format(procName))
                 return False
@@ -66,7 +66,16 @@ class ToolBox:
             return False
 
         try:
-            self.processors_dict.update({procName: getattr(module,processor_name)(procName)})
+            self.processors_dict.update({procName: 
+                {
+                    "object": getattr(module,processor_name)(procName),
+                    "connectedToAsSignal": [], #-> which processor needs the output of this processors as input
+                    "connectedToAsSlot": [], #-> which processor need to give its output to this processor
+                    "orderSignals": [], #-> which order for each signal
+                    "isFirst": True,
+                    "addedToChain": False
+                }
+            })
             logger.info("Processor <{}> ({}:{}) created".format(procName,module_name,processor_name))
             return True
         except:
@@ -88,17 +97,8 @@ class ToolBox:
         # a_processor.Run()
         
     def _GetChainOfProcessors(self):
-        self.chainProcessors = {}
         for a_processor_name in self.processors_dict.keys():
-            self.chainProcessors.update({a_processor_name:
-                {
-                    "connectedToAsSignal": [], #-> which processor needs the output of this processors as input
-                    "connectedToAsSlot": [], #-> which processor need to give its output to this processor
-                    "orderSignals": [], #-> which order for each signal
-                    "isFirst": True,
-                    "addedToChain": False
-                }
-            })
+
             for a_connection in self.config_dict['processors-toolbox']['connections']:
                 proc_signal_to_be_connected = ""
                 proc_slot_to_be_connected = ""
@@ -110,11 +110,11 @@ class ToolBox:
                     # if order == -1:
                         # self.chainProcessors[a_processor_name]["orderSignals"].append(self.chainProcessors[a_processor_name]["orderSignals"][-1]+1)
                     # else:
-                    self.chainProcessors[a_processor_name]["orderSignals"].append(order)
-                    self.chainProcessors[a_processor_name]["connectedToAsSlot"].append(proc_signal_to_be_connected)
+                    self.processors_dict[a_processor_name]["orderSignals"].append(order)
+                    self.processors_dict[a_processor_name]["connectedToAsSlot"].append(proc_signal_to_be_connected)
                 if a_connection['signal'].split(":")[0] == a_processor_name:
                     proc_slot_to_be_connected = a_connection['slot'].split(":")[0]
-                    self.chainProcessors[a_processor_name]["connectedToAsSignal"].append(proc_slot_to_be_connected)
+                    self.processors_dict[a_processor_name]["connectedToAsSignal"].append(proc_slot_to_be_connected)
                 # if proc_slot_to_be_connected !="" or proc_signal_to_be_connected != "":
                     # print("{} -> {} -> {}".format(proc_signal_to_be_connected,a_processor_name,proc_slot_to_be_connected))
 
@@ -122,10 +122,10 @@ class ToolBox:
         chainProcessorsList = []
 
         numberOfListedProcessors = 0
-        for a_processor_name, connections in self.chainProcessors.items():
+        for a_processor_name, connections in self.processors_dict.items():
             if connections["isFirst"]:
                 chainProcessorsList.append(a_processor_name)
-                self.chainProcessors[a_processor_name]['addedToChain'] = True
+                self.processors_dict[a_processor_name]['addedToChain'] = True
                 break
         numberOfListedProcessors+=1
 
@@ -141,5 +141,6 @@ class ToolBox:
             return False
         self._GetChainOfProcessors()
         self._PrintChainProcessor()
+        print(self.processors_dict)
         # for a_connection in self.config_dict["processors-toolbox"]['connections']:
         #     self._RunProcessor()

@@ -22,6 +22,7 @@ generator:
     iter: 530
     warmup: 500
     interestParams: ['x','y','residual']
+    delete: False
 writer:
     action: write
     filename: data/data.root

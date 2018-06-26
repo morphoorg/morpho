@@ -1,15 +1,17 @@
 #!/bin/python
 
-from morpho.utilities import morphologging
+from morpho.utilities import morphologging, parser
 logger=morphologging.getLogger(__name__)
 
 import json, yaml
 import os, importlib
 
 class ToolBox:
-    def __init__(self, filename=""):
+    def __init__(self, args):
         logger.info("ToolBox!")
-        self._ReadConfigFile(filename)
+        self._ReadConfigFile(args.config)
+        print(args)
+        self._UpdateConfigFromCLI(args)
         self.processors_definition = self.config_dict
         self.processors_dict = dict()
         self._chain_processors = []
@@ -34,6 +36,10 @@ class ToolBox:
             logger.error("File {} does not exist".format(filename))
             raise FileNotFoundError(filename)
     
+    def _UpdateConfigFromCLI(self,args):
+        if "param" in args and args.param:
+            self.config_dict = parser.update_from_arguments(self.config_dict,args.param)
+
     def _CreateAndConfigureProcessors(self):
         for a_dict in self.config_dict["processors-toolbox"]["processors"]:
             if not self._CreateOneProcessor(a_dict["name"],a_dict["type"]):
@@ -127,6 +133,7 @@ class ToolBox:
             if a_processor not in self._chain_processors:
                 self._chain_processors.append(a_processor)
         logger.debug("Sequence of processors: {}".format(self._chain_processors))
+        return True
 
     def _RunChain(self):
         for a_processor in self._chain_processors:
@@ -137,14 +144,20 @@ class ToolBox:
             except Exception as err:
                 logger.error("Error while running <{}>:\n{}".format(a_processor,err))
                 raise err
-                # return False
             self._ConnectProcessors(a_processor)
+            if self.processors_dict[a_processor]['object'].delete:
+                logger.info("Deleting <{}>".format(a_processor))
+                del self.processors_dict[a_processor]['object']
         return True
 
     def Run(self):
         logger.debug("Configuration:\n{}".format(json.dumps(self.config_dict, indent=4)))
         if not self._CreateAndConfigureProcessors():
-            logger.error("Error while creating and configuring processors")
+            logger.error("Error while creating and configuring processors!")
             return False
-        self._DefineChain()
-        self._RunChain()
+        if not self._DefineChain():
+            logger.error("Error while defining processors chain!")
+            return False
+        if not self._RunChain():
+            logger.error("Error while running processors!")
+            return False

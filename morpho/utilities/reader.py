@@ -13,7 +13,7 @@ def read_param(yaml_data, node, default):
             data = data[path]
     except KeyError as exc:
         if default == 'required':
-            err = "Configuration parameter {0} required but not provided in config file!".format(node)
+            err = "Configuration parameter {} required but not provided in config file!".format(node)
             logger.error(err)
             raise exc
         else:
@@ -32,7 +32,7 @@ def add_dict_param(dictionary, key, value):
     if key in dictionary:
         key_err = "Cannot add key {} to dictionary. That key is taken.".format(key)
         logger.error(key_err)
-        raise
+        raise 
     else:
         dictionary.update({key:value})
     return dictionary   

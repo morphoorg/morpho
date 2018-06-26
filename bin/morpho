@@ -1,8 +1,19 @@
 #!/bin/python
 
-from morpho.utilities import morphologging, toolbox
+from morpho.utilities import morphologging, toolbox, parser
+import logging
 logger=morphologging.getLogger(__name__)
 
-myToolBox = toolbox.ToolBox("myConfigFile.yaml")
+args = parser.parse_args()
+logger = morphologging.getLogger('morpho', 
+                            level=getattr(logging,args.verbosity),
+                            stderr_lb=getattr(logging,args.stderr_verbosity),
+                            propagate=False)
+logger_stan = morphologging.getLogger('pystan', 
+                            level=getattr(logging,args.verbosity),
+                            stderr_lb=getattr(logging,args.stderr_verbosity),
+                            propagate=False)
+
+myToolBox = toolbox.ToolBox(args)
 myToolBox.Run()
 # myToolBox._CreateAndConfigureProcessors()

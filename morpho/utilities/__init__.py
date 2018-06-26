@@ -8,3 +8,4 @@ from .reader import *
 from .pystanLoader import *
 from .plots import *
 from .toolbox import *
+from .parser import *

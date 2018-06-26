@@ -41,6 +41,7 @@ class IOProcessor(BaseProcessor):
         self.file_name = reader.read_param(params, 'filename', "required")
         self.variables = reader.read_param(params,"variables", "required")
         self.file_action = reader.read_param(params, "action", "read")
+        self.data = dict()
 
     def InternalRun(self):
         '''

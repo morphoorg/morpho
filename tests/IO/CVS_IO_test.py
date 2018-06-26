@@ -31,4 +31,3 @@ a.Configure(writer_config)
 b.Configure(reader_config)
 a.data = data
 a.Run()
-print(b.Run())

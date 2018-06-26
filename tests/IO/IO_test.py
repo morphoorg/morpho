@@ -56,14 +56,16 @@ class IOTests(unittest.TestCase):
 
         a.data = input_data
         a.Run()
-        data = b.Run()
+        b.Run()
+        data = b.data
         logger.info("Data extracted = {}".format(data.keys()))
         for key in data.keys():
             logger.info("{} -> size = {}".format(key,len(data[key])))
             self.assertEqual(len(data[key]),6)
         c.data = input_data
         c.Run()
-        data2 = d.Run()
+        d.Run()
+        data2 = d.data
         for key in data2.keys():
             logger.info("{} -> size = {}".format(key,len(data2[key])))
             self.assertEqual(len(data2[key]),6)
@@ -103,7 +105,8 @@ class IOTests(unittest.TestCase):
         b.Configure(reader_config)
         a.data = input_data
         a.Run()
-        data = b.Run()
+        b.Run()
+        data = b.data
         logger.info("Data extracted = {}".format(data.keys()))
         for key in data.keys():
             logger.info("{} -> size = {}".format(key,len(data[key])))

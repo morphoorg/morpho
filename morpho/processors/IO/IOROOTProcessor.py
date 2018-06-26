@@ -33,12 +33,12 @@ class IOROOTProcessor(IOProcessor):
         logger.debug("Reading {}".format(self.file_name))
         import uproot
         for key in self.variables:
-            subData.update({str(key): []})
+            self.data.update({str(key): []})
         tree = uproot.open(self.file_name)[self.tree_name]
         for data in tree.iterate(self.variables):
             for key, value in data.items():
                 varName = key.decode("utf-8")
-                self.data.update({str(varName): subData[str(varName)] + value.tolist()})
+                self.data.update({str(varName): self.data[str(varName)] + value.tolist()})
         return True
 
     def Writer(self):
@@ -68,7 +68,6 @@ class IOROOTProcessor(IOProcessor):
         # Determine general properties of the tree: type and size of branches, number of iterations for the tree
         logger.debug("Defining tree properties")
         for a_item in self.variables:
-            print(a_item)
             if isinstance(a_item,dict) and "variable" in a_item.keys():
                 varName = a_item["variable"]
                 varRootAlias = a_item.get("root_alias") or varName

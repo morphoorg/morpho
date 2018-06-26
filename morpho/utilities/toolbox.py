@@ -12,6 +12,7 @@ class ToolBox:
         self._ReadConfigFile(filename)
         self.processors_definition = self.config_dict
         self.processors_dict = dict()
+        self._chain_processors = []
         self.processors_names = []
 
     def _ReadConfigFile(self, filename):
@@ -69,11 +70,12 @@ class ToolBox:
             self.processors_dict.update({procName: 
                 {
                     "object": getattr(module,processor_name)(procName),
-                    "connectedToAsSignal": [], #-> which processor needs the output of this processors as input
-                    "connectedToAsSlot": [], #-> which processor need to give its output to this processor
-                    "orderSignals": [], #-> which order for each signal
+                    "variableToGive": [],    #-> variable to give after execution
+                    "procToBeConnectedTo": [], #-> which processor need to give its output to this processor
+                    "varToBeConnectedTo": [], #-> which variable of the connected processor to be set
                     "isFirst": True,
-                    "addedToChain": False
+                    "addedToChain": False,
+                    "order_in_chain": True
                 }
             })
             logger.info("Processor <{}> ({}:{}) created".format(procName,module_name,processor_name))
@@ -92,55 +94,42 @@ class ToolBox:
             return False
         in_processor, in_variable = signal.split(":")
 
-    # def _RunProcessor(self,procName):
-        # a_processor = self.processors_dict['procName']
-        # a_processor.Run()
-        
-    def _GetChainOfProcessors(self):
-        for a_processor_name in self.processors_dict.keys():
-
-            for a_connection in self.config_dict['processors-toolbox']['connections']:
-                proc_signal_to_be_connected = ""
-                proc_slot_to_be_connected = ""
-                order = -1
-                if "order" in a_connection:
-                    order = a_connection["order"]
-                if a_connection['slot'].split(":")[0] == a_processor_name:
-                    proc_signal_to_be_connected = a_connection['signal'].split(":")[0]
-                    # if order == -1:
-                        # self.chainProcessors[a_processor_name]["orderSignals"].append(self.chainProcessors[a_processor_name]["orderSignals"][-1]+1)
-                    # else:
-                    self.processors_dict[a_processor_name]["orderSignals"].append(order)
-                    self.processors_dict[a_processor_name]["connectedToAsSlot"].append(proc_signal_to_be_connected)
-                if a_connection['signal'].split(":")[0] == a_processor_name:
-                    proc_slot_to_be_connected = a_connection['slot'].split(":")[0]
-                    self.processors_dict[a_processor_name]["connectedToAsSignal"].append(proc_slot_to_be_connected)
-                # if proc_slot_to_be_connected !="" or proc_signal_to_be_connected != "":
-                    # print("{} -> {} -> {}".format(proc_signal_to_be_connected,a_processor_name,proc_slot_to_be_connected))
-
-    def _PrintChainProcessor(self):
-        chainProcessorsList = []
-
-        numberOfListedProcessors = 0
-        for a_processor_name, connections in self.processors_dict.items():
-            if connections["isFirst"]:
-                chainProcessorsList.append(a_processor_name)
-                self.processors_dict[a_processor_name]['addedToChain'] = True
-                break
-        numberOfListedProcessors+=1
-
-        # while numberOfListedProcessors != len(self.chainProcessors.keys()):
-        #     for a_processor_name, connections in self.chainProcessors.items():
-        
+    def _DefineChain(self):
+        order_in_chain = 0
+        for a_connection in self.config_dict['processors-toolbox']['connections']:
+            if a_connection['slot'].split(":")[0] not in self.processors_dict.keys():
+                logger.error("Processor <> not defined but used as signal emitter".format(a_connection['slot'].split(":")[0]))
+            if a_connection['signal'].split(":")[0] not in self.processors_dict.keys():
+                logger.error("Processor <> not defined but used as connection".format(a_connection['signal'].split(":")[0]))
                 
-                    
+            proc_name = a_connection['signal'].split(":")[0]
+            new_proc_name = a_connection['slot'].split(":")[0]
+
+            self.processors_dict[proc_name]["variableToGive"].append(a_connection['signal'].split(":")[1])
+            self.processors_dict[proc_name]["procToBeConnectedTo"].append(a_connection['slot'].split(":")[0])
+            if proc_name not in self._chain_processors:
+                self._chain_processors.append(proc_name)
+            if new_proc_name not in self._chain_processors:
+                self._chain_processors.append(new_proc_name)
+            self.processors_dict[proc_name]["varToBeConnectedTo"].append(a_connection['slot'].split(":")[1])
+            # self.processors_dict[proc_name]['order_in_chain'].append(order_in_chain)
+            order_in_chain += 1
+        for a_processor in self.processors_dict.keys():
+            if a_processor not in self._chain_processors:
+                self._chain_processors.append(a_processor)
+        logger.debug("Sequence of processors: {}".format(self._chain_processors))
+
+    def _RunChain(self):
+        for a_processor in self._chain_processors:
+            try:
+                self.processors_dict[a_processor]['object'].Run()
+            except:
+                logger.error("Error")
+
     def Run(self):
         logger.debug("Configuration:\n{}".format(json.dumps(self.config_dict, indent=4)))
         if not self._CreateAndConfigureProcessors():
             logger.error("Error while creating and configuring processors")
             return False
-        self._GetChainOfProcessors()
-        self._PrintChainProcessor()
-        print(self.processors_dict)
-        # for a_connection in self.config_dict["processors-toolbox"]['connections']:
-        #     self._RunProcessor()
+        self._DefineChain()
+        self._RunChain()

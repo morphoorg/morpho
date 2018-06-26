@@ -30,7 +30,10 @@ class BaseProcessor(metaclass=abc.ABCMeta):
         This method will be called by nymph to configure the processor
         '''
         logger.info("Configure <{}>".format(self.name))
-        self.InternalConfigure(params)
+        if not self.InternalConfigure(params):
+            logger.error("Error while configuring <{}>".format(self.name))
+            return False
+        return True
 
     @abc.abstractmethod
     def InternalConfigure(self, params):
@@ -45,9 +48,11 @@ class BaseProcessor(metaclass=abc.ABCMeta):
         This method will be called by nymph to run the processor
         '''
         logger.info("Run <{}>...".format(self.name))
-        result = self.InternalRun()
+        if not self.InternalRun():
+            logger.error("Error while running <{}>".format(name))
+            return False
         logger.info("Done with <{}>".format(self.name))
-        return result
+        return True
 
     @abc.abstractmethod
     def InternalRun(self):

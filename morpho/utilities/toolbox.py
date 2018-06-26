@@ -96,9 +96,7 @@ class ToolBox:
 
             try:
                 val = getattr(proc_object,var_to_give)
-                # print(val)
                 setattr(proc_object_to_update,var_to_be_connected_to,val)
-                # print(getattr(proc_object_to_update,var_to_be_connected_to))
             except Exception as err:
                 logger.error("Connection {}:{} -> {}:{} failed:\n{}".format(nameProc,var_to_give,proc_name_to_update,var_to_be_connected_to,err))
                 return False

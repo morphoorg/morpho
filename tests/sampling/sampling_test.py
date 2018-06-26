@@ -12,6 +12,7 @@ logger = morphologging.getLogger(__name__)
 class SamplingTests(unittest.TestCase):
 
     def test_PyStan(self):
+        logger.info("PyStanSampling test")
         from morpho.processors.sampling import PyStanSamplingProcessor
 
         pystan_config = {
@@ -39,6 +40,7 @@ class SamplingTests(unittest.TestCase):
         return pystanProcessor.results
 
     def test_LinearFitRooFitSampler(self):
+        logger.info("LinearFitRooFitSampler test")
         from morpho.processors.sampling import LinearFitRooFitLikelihoodProcessor
         from morpho.processors.plots import TimeSeries, APosterioriDistribution
         
@@ -96,6 +98,7 @@ class SamplingTests(unittest.TestCase):
         self.assertTrue(np.mean(fitterProcessor.results["a"])>0.5)
 
     def test_GaussianSampler(self):
+        logger.info("GaussianSampler test")
         from morpho.processors.sampling import GaussianSamplingProcessor
         from morpho.processors.plots import Histogram
         

@@ -19,6 +19,7 @@ input_data = {
 class IOTests(unittest.TestCase):
 
     def test_JSONIO(self):
+        logger.info("JSONIO test")
         from morpho.processors.IO import IOJSONProcessor, IOYAMLProcessor
         writer_config = {
             "action": "write",
@@ -42,10 +43,10 @@ class IOTests(unittest.TestCase):
             "filename": "myTest.json",
             "variables": ["x","y","myList"]
         }
-        a = IOJSONProcessor("Writer")
-        b = IOJSONProcessor("Reader")
-        c = IOYAMLProcessor("Writer")
-        d = IOYAMLProcessor("Reader")
+        a = IOJSONProcessor("WriterJSON")
+        b = IOJSONProcessor("ReaderJSON")
+        c = IOYAMLProcessor("WriterYAML")
+        d = IOYAMLProcessor("ReaderYAML")
 
         a.Configure(writer_config)
         b.Configure(reader_config)
@@ -72,6 +73,7 @@ class IOTests(unittest.TestCase):
         
     
     def test_ROOTIO(self):
+        logger.info("IOROOT test")
         from morpho.processors.IO import IOROOTProcessor
         writer_config = {
             "action": "write",
@@ -99,8 +101,8 @@ class IOTests(unittest.TestCase):
             "filename": "myTest.root",
             "variables": ["x","y","myList"]
         }
-        a = IOROOTProcessor("Writer")
-        b = IOROOTProcessor("Reader")
+        a = IOROOTProcessor("WriterROOT")
+        b = IOROOTProcessor("ReaderROOT")
         a.Configure(writer_config)
         b.Configure(reader_config)
         a.data = input_data

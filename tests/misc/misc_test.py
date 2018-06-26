@@ -12,6 +12,7 @@ logger = morphologging.getLogger(__name__)
 class MiscTests(unittest.TestCase):
 
     def test_ProcAssistant(self):
+        logger.info("Processor Assistant test")
         from morpho.processors.misc import ProcessorAssistant
         proc_config = {
             "function_name": "myFunction",

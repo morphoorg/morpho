@@ -41,7 +41,7 @@ class ProcessorAssistant(BaseProcessor):
     def InternalRun(self):
 
         try:
-            self.results =  getattr(self.module,self.function_name)(self.config_dict)
+            self.results = getattr(self.module,self.function_name)(self.config_dict)
             return True
         except Exception as err:
             logger.critical(err)

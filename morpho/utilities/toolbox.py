@@ -3,7 +3,6 @@
 from morpho.utilities import morphologging, parser
 logger=morphologging.getLogger(__name__)
 
-import json, yaml
 import os, importlib
 
 class ToolBox:
@@ -31,7 +30,7 @@ class ToolBox:
         else:
             logger.error("File {} does not exist".format(filename))
             raise FileNotFoundError(filename)
-    
+
     def _UpdateConfigFromCLI(self,args):
         if "param" in args and args.param:
             self.config_dict = parser.update_from_arguments(self.config_dict,args.param)
@@ -41,7 +40,7 @@ class ToolBox:
             if not self._CreateOneProcessor(a_dict["name"],a_dict["type"]):
                 logger.error("Could not create processor <{}>; exiting".format(a_dict["name"]))
                 return False
-        for name,processor in self._processors_dict.items():
+        for _,processor in self._processors_dict.items():
             procName = processor["object"].name
             if procName in self.config_dict.keys():
                 config_dict = self.config_dict[procName]
@@ -69,7 +68,7 @@ class ToolBox:
             return False
 
         try:
-            self._processors_dict.update({procName: 
+            self._processors_dict.update({procName:
                 {
                     "object": getattr(module,processor_name)(procName),
                     "variableToGive": [],    #-> variable to give after execution
@@ -105,9 +104,9 @@ class ToolBox:
     def _DefineChain(self):
         for a_connection in self.config_dict['processors-toolbox']['connections']:
             if a_connection['slot'].split(":")[0] not in self._processors_dict.keys():
-                logger.error("Processor <> not defined but used as signal emitter".format(a_connection['slot'].split(":")[0]))
+                logger.error("Processor <{}> not defined but used as signal emitter".format(a_connection['slot'].split(":")[0]))
             if a_connection['signal'].split(":")[0] not in self._processors_dict.keys():
-                logger.error("Processor <> not defined but used as connection".format(a_connection['signal'].split(":")[0]))
+                logger.error("Processor <{}> not defined but used as connection".format(a_connection['signal'].split(":")[0]))
             proc_name = a_connection['signal'].split(":")[0]
             new_proc_name = a_connection['slot'].split(":")[0]
             self._processors_dict[proc_name]["variableToGive"].append(a_connection['signal'].split(":")[1])

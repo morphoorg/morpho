@@ -32,7 +32,7 @@ def add_dict_param(dictionary, key, value):
     if key in dictionary:
         key_err = "Cannot add key {} to dictionary. That key is taken.".format(key)
         logger.error(key_err)
-        raise 
+        raise
     else:
         dictionary.update({key:value})
     return dictionary   

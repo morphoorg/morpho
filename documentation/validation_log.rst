@@ -43,6 +43,23 @@ Fixes:
 Log
 ---
 
+Version: v2.1.0
+~~~~~~~~~~~~~~~
+
+Release Date: XXXX
+''''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* Morpho executable:
+    * Use configuration file similar to Katydid
+    * Toolbox that creates, configures, runs and connects processors
+    * Can import processors from other modules (mermithid tested)
+
+Fixes:
+''''''
+
 Version: v2.0.0
 ~~~~~~~~~~~~~~~
 

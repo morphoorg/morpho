@@ -101,43 +101,38 @@ class PyStanSamplingProcessor(BaseProcessor):
                 logger.critical('A function <{}> to import is missing'.format(matches))
         logger.debug('Import function files: complete')
 
-        code_hash = md5(theModel.encode('ascii')).hexdigest()
-        if self.model_name is None:
-            cache_fn = '{}/cached-model-{}.pkl'.format(self.cache_dir, code_hash)
+        # Cache creation and saving?
+        if self.force_restart:
+            logger.debug("Forced to recreate Stan cache!")
+            self._create_and_save_model(theModel)
         else:
-            cache_fn = '{}/cached-{}-{}.pkl'.format(self.cache_dir, self.model_name, code_hash)
+            import pickle
+            try:
+                logger.debug("Trying to load cached StanModel")
+                self.stanModel = pickle.load(open(cache_fn, 'rb'))
+            except:
+                logger.debug("None exists -> creating Stan cache")
+                self._create_and_save_model(theModel)
+            else:
+                logger.debug("Using cached StanModel: {}".format(cache_fn))
 
-        cdir = os.path.dirname(cache_fn)
-        if not os.path.exists(cdir):
-            os.makedirs(cdir)
-            logger.info("Creating 'cache' folder: {}".format(cdir))
+    def _create_and_save_model(self,theModel):
+        self.stanModel = pystan.StanModel(model_code=theModel)
+        if not self.no_cache:
+            code_hash = md5(theModel.encode('ascii')).hexdigest()
+            if self.model_name is None:
+                cache_fn = '{}/cached-model-{}.pkl'.format(self.cache_dir, code_hash)
+            else:
+                cache_fn = '{}/cached-{}-{}.pkl'.format(self.cache_dir, self.model_name, code_hash)
 
-        # if (args.force_restart):
-        logger.debug("Forced to create Stan cache!")
-        # self.stanModel = pystan.StanModel(model_code=theModel)
-        # if not args.no_cache:
-        #     logger.debug("Saving Stan cache in {}".format(cache_fn))
-        #     with open(cache_fn, 'wb') as f:
-        #         pickle.dump(sm, f)
-        # else:
-        import pickle
-        try:
-            logger.debug("Trying to load cached StanModel")
-            self.stanModel = pickle.load(open(cache_fn, 'rb'))
-        except:
-            logger.debug("None exists -> creating Stan cache")
-            self.stanModel = pystan.StanModel(model_code=theModel)
-            # if not args.no_cache:
+            cdir = os.path.dirname(cache_fn)
+            if not os.path.exists(cdir):
+                os.makedirs(cdir)
+                logger.info("Creating 'cache' folder: {}".format(cdir))
             logger.debug("Saving Stan cache in {}".format(cache_fn))
+            import pickle
             with open(cache_fn, 'wb') as f:
                 pickle.dump(self.stanModel, f)
-        else:
-            logger.debug("Using cached StanModel: {}".format(cache_fn))
-
-        # if sa.out_cache_fn is not None:
-        #     logger.debug("Saving cache file to {}".format(self.out_cache_fn))
-        #     cache_name_file = open(sa.out_cache_fn,'w+')
-        #     cache_name_file.write(cache_fn)
 
     def _run_stan(self, *args, **kwargs):
         logger.info("Starting the sampling")
@@ -166,6 +161,8 @@ class PyStanSamplingProcessor(BaseProcessor):
         self.chains = int(reader.read_param(params, 'chain', 1))
         self.n_jobs = int(reader.read_param(params, 'n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
         self.interestParams = reader.read_param(params, 'interestParams',[])
+        self.no_cache = reader.read_param(params, 'no_cache', False)
+        self.force_restart = reader.read_param(params, 'force_restart', False)
         # Adding a seed based on extra arguments, current time
         # if isinstance(args.seed,(int,float,str)):
         #     self.seed=int(args.seed)

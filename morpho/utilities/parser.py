@@ -22,28 +22,18 @@ def parse_args():
     #                metavar='<job_id>',
     #                help='Job id number or string for batching',
                 #    required=False)
-    p.add_argument('-s','--seed',
-                   metavar='<seed>',
-                   help='Add random seed number to file',
-                   required=False)
-    p.add_argument('-nas','--noautoseed',
-                   action='store_false',
-                   default=True,
-                   help='Generate the seed based on the current time in ms',
-                   required=False)
+    # p.add_argument('-s','--seed',
+    #                metavar='<seed>',
+    #                help='Add random seed number to file',
+    #                required=False)
+    # p.add_argument('-nas','--noautoseed',
+    #                action='store_false',
+    #                default=True,
+    #                help='Generate the seed based on the current time in ms',
+    #                required=False)
     p.add_argument('param',nargs='*',
                    default=False,
                    help='Manualy change of a parameter and its value')
-    p.add_argument('-f','--force-restart',
-                   action='store_true',
-                   default=False,
-                   help='Force the recompilation',
-                   required=False)
-    p.add_argument('-nc','--no-cache',
-                    action='store_true',
-                    default=False,
-                    help='Do not save the Stan cache file',
-                    required=False)
     p.add_argument('-v', '--verbosity', default='DEBUG',
                    metavar='<verbosity>',
                    help="Specify verbosity of the logger, with options DEBUG, INFO, WARNING, ERROR, or CRITICAL (Default: DEBUG)",
@@ -67,7 +57,6 @@ def update_from_arguments(the_dict,args):
     logger.debug('Update dict parameters')
     new_dict = the_dict
     for a_arg in args:
-        print(a_arg)
         result = a_arg.split('=')
         xpath = result[0].split('.')
         try:

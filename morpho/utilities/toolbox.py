@@ -8,9 +8,7 @@ import os, importlib
 
 class ToolBox:
     def __init__(self, args):
-        logger.info("ToolBox!")
         self._ReadConfigFile(args.config)
-        print(args)
         self._UpdateConfigFromCLI(args)
         self.processors_definition = self.config_dict
         self.processors_dict = dict()

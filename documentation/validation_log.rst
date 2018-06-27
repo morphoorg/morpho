@@ -14,14 +14,14 @@ Guidelines
   * Perform tests to show that the fix solves the problem that had been indicated.
   * Perform tests to show that the fix does not cause other problems.
   * Indicate in this log what tests were performed and how you know the problem was fixed.
-  
+
 Template
 --------
 
-Version: 
+Version:
 ~~~~~~~~
 
-Release Date: 
+Release Date:
 '''''''''''''
 
 New Features:
@@ -31,7 +31,7 @@ New Features:
     * Details
 * Feature 2
     * Details
-  
+
 Fixes:
 ''''''
 
@@ -39,7 +39,7 @@ Fixes:
     * Details
 * Fix 2
     * Details
-  
+
 Log
 ---
 
@@ -71,7 +71,7 @@ New Features:
 '''''''''''''
 
 * Upgrade to morpho2:
-    * Create basic processors for 
+    * Create basic processors for
            * sampling (PyStan and RooFit)
            * plotting
            * IO (ROOT, csv, json, yaml, R)

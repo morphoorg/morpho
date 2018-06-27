@@ -135,8 +135,8 @@ def _fill_variable_grid(variable_names, draw_opt_2d):
                   ROOT.kYellow, ROOT.kMagenta, ROOT.kCyan,
                   ROOT.kOrange, ROOT.kViolet, ROOT.kTeal,
                   ROOT.kSpring, ROOT.kPink, ROOT.kAzure]
-    for i in range(0,len(variable_names)):
-        for j in range(0,len(variable_names)):
+    for i in range(len(variable_names)):
+        for j in range(len(variable_names)):
             if(i==0 and j<cols-1):
                 # First Row
                 name_grid[i][j] = [variable_names[j]]

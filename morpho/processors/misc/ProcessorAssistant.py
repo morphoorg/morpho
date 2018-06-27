@@ -48,6 +48,6 @@ class ProcessorAssistant(BaseProcessor):
         except Exception as err:
             logger.critical(err)
             return False
-        
-        
+
+
 

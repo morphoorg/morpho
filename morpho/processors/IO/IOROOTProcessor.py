@@ -59,7 +59,7 @@ class IOROOTProcessor(IOProcessor):
         if not rdir=="" and not os.path.exists(rdir):
             os.makedirs(rdir)
             logger.debug("Creating folder: {}".format(rdir))
-        
+
         logger.debug("Creating a file and tree")
         import ROOT
 
@@ -151,7 +151,7 @@ def _branch_element_type_from_string(string):
         return "F"
     elif string == "int":
         return "I"
-    
+
     logger.debug("{} not supported; while use data to determine type".format(string))
     return None
 

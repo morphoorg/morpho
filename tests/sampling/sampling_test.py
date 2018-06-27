@@ -43,7 +43,7 @@ class SamplingTests(unittest.TestCase):
         logger.info("LinearFitRooFitSampler test")
         from morpho.processors.sampling import LinearFitRooFitLikelihoodProcessor
         from morpho.processors.plots import TimeSeries, APosterioriDistribution
-        
+
         linearFit_config = {
             "iter": 10000,
             "warmup": 2000,
@@ -83,7 +83,7 @@ class SamplingTests(unittest.TestCase):
         if not fitterProcessor.Configure(linearFit_config):
             logger.error("Error while configuring <linearFit>")
             return False
-            
+
         # Doing things step
         fitterProcessor.data = self.test_PyStan()
         if not fitterProcessor.Run():
@@ -101,7 +101,7 @@ class SamplingTests(unittest.TestCase):
         logger.info("GaussianSampler test")
         from morpho.processors.sampling import GaussianSamplingProcessor
         from morpho.processors.plots import Histogram
-        
+
         gauss_config = {
             "iter": 10000
         }
@@ -110,7 +110,7 @@ class SamplingTests(unittest.TestCase):
             "n_bins_x": 300,
             "output_path": "plots"
         }
-        
+
         sampler = GaussianSamplingProcessor("sampler")
         myhisto = Histogram("histo")
         sampler.Configure(gauss_config)

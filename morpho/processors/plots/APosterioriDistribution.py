@@ -98,6 +98,6 @@ class APosterioriDistribution(BaseProcessor):
                         hist_2_sig.Draw("%s%s" % (draw_opts_grid[r][c], "same"))
                         additional_hists.append(hist_1_sig)
                         additional_hists.append(hist_2_sig)
-                    
+
         self.rootcanvas.Save()
         return True

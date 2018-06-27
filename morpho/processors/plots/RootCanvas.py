@@ -27,7 +27,7 @@ class RootCanvas(object):
         self.xtitle = reader.read_param(input_dict,"x_title","")
         self.ytitle = reader.read_param(input_dict,"y_title","")
         self.canvasoptions = reader.read_param(input_dict,"options","")
-        
+
         # Creating Canvas
         from ROOT import TCanvas
         self.canvas = TCanvas(self.title,self.title,self.width,self.height)
@@ -82,7 +82,6 @@ class RootCanvas(object):
             os.makedirs(rdir)
             logger.info("Creating folder: {}".format(rdir))
         self.canvas.SaveAs(self.figurefullpath)
-        
-        
 
-    
+
+

@@ -14,7 +14,7 @@ __all__ = []
 __all__.append(__name__)
 
 class StanDiagnostics(BaseProcessor):
-    '''                                                                                                                                
+    '''
     Describe.
 
     '''

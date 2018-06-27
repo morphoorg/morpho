@@ -95,7 +95,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         result.Print()
         logger.debug("Covariance matrix:")
         result.covarianceMatrix().Print()
-        
+
         # can = ROOT.TCanvas("can","can",600,400)
         # var = wspace.var(self.varName)
         # frame = var.frame()
@@ -139,5 +139,5 @@ class RooFitLikelihoodSampler(BaseProcessor):
                     self.results[item].append(chainData.get(i).getRealValue(item))
 
         self.results.update({"is_sample": [0]*self.warmup + [1]*(int(chainData.numEntries())-self.warmup)})
-        
+
         return True

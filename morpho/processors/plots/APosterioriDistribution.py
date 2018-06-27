@@ -31,8 +31,11 @@ class APosterioriDistribution(BaseProcessor):
         '''
         Configure
         '''
-        # Initialize Canvas
-        self.rootcanvas = RootCanvas(param_dict,optStat=0)
+        # Initialize Canvas: for some reason, the module or the class is imported depending which script imports.
+        try:
+            self.rootcanvas = RootCanvas(param_dict,optStat=0)
+        except:
+            self.rootcanvas = RootCanvas.RootCanvas(param_dict,optStat=0)
 
         # Read other parameters
         self.nbins_x = int(reader.read_param(param_dict,'n_bins_x',100))

@@ -1,3 +1,8 @@
+'''
+Base processor for RooFit-based samplers
+Authors: M. Guigue
+Date: 06/26/18
+'''
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)
@@ -65,6 +70,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         self.numCPU = int(reader.read_param(config_dict,"n_jobs",1))
         self.binned = int(reader.read_param(config_dict,"binned",False))
         self.options = reader.read_param(config_dict,"options",dict())
+        return True
 
     def InternalRun(self):
         wspace = ROOT.RooWorkspace()
@@ -89,7 +95,7 @@ class RooFitLikelihoodSampler(BaseProcessor):
         result.Print()
         logger.debug("Covariance matrix:")
         result.covarianceMatrix().Print()
-        
+
         # can = ROOT.TCanvas("can","can",600,400)
         # var = wspace.var(self.varName)
         # frame = var.frame()
@@ -120,18 +126,18 @@ class RooFitLikelihoodSampler(BaseProcessor):
 
         chainData = chain.GetAsDataSet()
 
-        outputChain = {}
+        self.results = {}
         for name in self.paramOfInterestNames:
-            outputChain.update({name: []})
-        outputChain.update({"lp_prob":[]})
+            self.results.update({name: []})
+        self.results.update({"lp_prob":[]})
 
         for i in range(0,chainData.numEntries()):
-            for item in outputChain:
+            for item in self.results:
                 if item == "lp_prob":
-                    outputChain[item].append(-chainData.get(i).getRealValue("nll_MarkovChain_local_"))
+                    self.results[item].append(-chainData.get(i).getRealValue("nll_MarkovChain_local_"))
                 else:
-                    outputChain[item].append(chainData.get(i).getRealValue(item))
+                    self.results[item].append(chainData.get(i).getRealValue(item))
 
-        outputChain.update({"is_sample": [0]*self.warmup + [1]*(int(chainData.numEntries())-self.warmup)})
-        
-        return outputChain
+        self.results.update({"is_sample": [0]*self.warmup + [1]*(int(chainData.numEntries())-self.warmup)})
+
+        return True

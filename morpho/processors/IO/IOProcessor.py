@@ -1,5 +1,7 @@
 '''
 Base input/output processor for reading and writing operations
+Authors: M. Guigue
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import
@@ -41,13 +43,15 @@ class IOProcessor(BaseProcessor):
         self.file_name = reader.read_param(params, 'filename', "required")
         self.variables = reader.read_param(params,"variables", "required")
         self.file_action = reader.read_param(params, "action", "read")
+        self.data = dict()
+        return True
 
     def InternalRun(self):
         '''
         This method will read or write an file
         '''
         if (self.file_action == 'write'):
-            result = self.Writer()
+            return self.Writer()
         else:
-            result = self.Reader()
-        return result
+            return self.Reader()
+        return False

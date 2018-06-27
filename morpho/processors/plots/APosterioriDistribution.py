@@ -1,5 +1,7 @@
 '''
 Plot a posteriori distribution of the variables of interest
+Authors: J. Jonhston, M. Guigue
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import
@@ -31,14 +33,18 @@ class APosterioriDistribution(BaseProcessor):
         '''
         Configure
         '''
-        # Initialize Canvas
-        self.rootcanvas = RootCanvas.RootCanvas(param_dict,optStat=0)
+        # Initialize Canvas: for some reason, the module or the class is imported depending which script imports.
+        try:
+            self.rootcanvas = RootCanvas(param_dict,optStat=0)
+        except:
+            self.rootcanvas = RootCanvas.RootCanvas(param_dict,optStat=0)
 
         # Read other parameters
         self.nbins_x = int(reader.read_param(param_dict,'n_bins_x',100))
         self.nbins_y = int(reader.read_param(param_dict,'n_bins_y',100))
         self.namedata = reader.read_param(param_dict,'data',"required")
         self.draw_opt_2d = reader.read_param(param_dict,'root_plot_option',"contz")
+        return True
 
     def InternalRun(self):
         name_grid, draw_opts_grid, colors_grid =plots._fill_variable_grid(self.namedata,
@@ -92,5 +98,6 @@ class APosterioriDistribution(BaseProcessor):
                         hist_2_sig.Draw("%s%s" % (draw_opts_grid[r][c], "same"))
                         additional_hists.append(hist_1_sig)
                         additional_hists.append(hist_2_sig)
-                    
+
         self.rootcanvas.Save()
+        return True

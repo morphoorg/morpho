@@ -1,4 +1,7 @@
 '''
+R IO processor
+Authors: M. Guigue
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import
@@ -21,7 +24,6 @@ class IORProcessor(IOProcessor):
     '''
 
     def Reader(self):
-        subData = {}
         logger.debug("Reading {}".format(self.file_name))
         if os.path.exists(self.file_name):
             # with open(self.file_name, 'r') as csv_file:
@@ -38,10 +40,10 @@ class IORProcessor(IOProcessor):
         logger.debug("Extracting {} from data".format(self.variables))
         for var in self.variables:
             if var in theData.keys():
-                subData.update({str(var):theData[var]})
+                self.data.update({str(var):theData[var]})
             else:
                 logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))
-        return subData
+        return True
 
 
     def Writer(self):
@@ -62,4 +64,4 @@ class IORProcessor(IOProcessor):
             logger.error("Error while writing {}".format(self.file_name))
             raise
         logger.debug("File saved!")
-        return None
+        return True

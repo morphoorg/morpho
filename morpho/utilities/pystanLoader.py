@@ -1,43 +1,41 @@
-# Definitions for loading and using pystan for analysis using root or hdf5
+'''
+Definitions for interfacing with pyStan IO
+Authors: M. Guigue
+Date: 06/26/18
+'''
 
-# import logging
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 
-# import pystan
-# import numpy as np
-
 def extract_data_from_outputdata(conf,theOutput):
     # Extract the data into a dictionary
-    # when permuted is False, the entire thing is returned (key['variable'] is ignored)
     logger.debug("Extracting samples from pyStan output")
     theOutputDiagnostics = theOutput.get_sampler_params(inc_warmup=True)
-
     diagnosticVariableName = ['accept_stat__','stepsize__','n_leapfrog__','treedepth__','divergent__','energy__']
-
-    # if include warmupm we have to extract the entire data and parse it to get the
-    # if conf.out_inc_warmup:
     theOutputData = theOutput.extract(permuted=False,inc_warmup=True)
+
     logger.debug("Transformation into a dict")
     nEventsPerChain = len(theOutputData)
     # get the variables in the Stan4Model
     flatnames = theOutput.flatnames
     # add the diagnostic variable names
     flatnames.extend(diagnosticVariableName)
+    # make list of desired variables
+    desired_var = []
+    for a_name in flatnames:
+        for a_key in conf['interestParams']:
+            if a_name.startswith(a_key+'[') or a_name == a_key: #this means the desired var is a list
+                desired_var.append(a_name)
 
     # Clustering the data together
     theOutputDataDict = {}
-    for key in flatnames:
+    for key in desired_var:
+        theOutputDataDict.update({str(key):[]})
+    for key in diagnosticVariableName:
         theOutputDataDict.update({str(key):[]})
     theOutputDataDict.update({"lp_prob":[]})
     theOutputDataDict.update({"delta_energy__":[]})
     theOutputDataDict.update({"is_sample":[]})
-
-    # make list of desired variables
-    desired_var = []
-    for key in conf['interestParams']:
-        if key not in diagnosticVariableName:
-            desired_var.append(key)
 
     for iChain in range(0,conf['chains']):
         for iEvents in range(0,nEventsPerChain):

@@ -1,5 +1,7 @@
 '''
 Interface between config files and processors config dictionaries
+Authors: J. Johnston, M. Guigue, T. Weiss
+Date: 06/26/18
 '''
 
 from morpho.utilities import morphologging
@@ -13,7 +15,7 @@ def read_param(yaml_data, node, default):
             data = data[path]
     except KeyError as exc:
         if default == 'required':
-            err = "Configuration parameter {0} required but not provided in config file!".format(node)
+            err = "Configuration parameter {} required but not provided in config file!".format(node)
             logger.error(err)
             raise exc
         else:

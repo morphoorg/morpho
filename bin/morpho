@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+'''
+Morpho main executable
+Authors: M. Guigue
+Date: 06/26/18
+'''
+
+from morpho.utilities import morphologging, toolbox, parser
+import logging
+logger=morphologging.getLogger(__name__)
+
+if __name__ == "__main__":
+    print('\n\
+                                                   ..ZDD8.\n\
+                                                .?D?I.DD$D\n\
+                                               D$???8$IDD,$\n\
+                                             8N7ZI?III?DDD\n\
+                                           8DIII?I$???ID.,\n\
+                                         .$D78?OI?I7?INDDD\n\
+                                  ..    DN$7$7IO8??+I?DDD\n\
+                                  8    $D$$77I$7I?I??IDD\n\
+ ~ND+II??I7NOO8.          D,     O    ZDZ$$7$8OZI77$O?DD)\n\
+O.NN.I7?III?787INNZD..      M.   1   ZO$$ZZ$$777III?ID.8\n\
+DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
+ D,DD?I????II87I77$$$ZZDD$~   N M  ZOOZZO$$$$$7I7II?OD.O\n\
+  .:,NII$I?II7I8$$7$$ZZZZON8N  ND:ZDZZ8Z88OOO8777I?INDD.\n\
+   DDDD7?IIII??77$$ZO$ZZZOOZND$DDZNZOZZZZ$$$$$$7III7N?\n\
+     O.$8I?III?II$$$$$ZZZO8OND$DO8ZZZ$$Z$$$7$77ZIIIN\n\
+      .DDNII?7IIZ7$$$8$7ZZZZ$ZZ8D$Z$Z7ZZZ$77$777I$D\n\
+       D.,D??I?II7I7$$$$$$$ZZ$$DDD$$$$$7O$7777IIIZDD\n\
+         DDDOI?7I7777D$$O$ZO7$8ZD8N$$$O7$$7IOIII??DD.\n\
+          MDDD+?IIIZ$7$77$7$$$8$7MDD77I7ZIIIII??7IDD\n\
+           =D.DDII?III777Z777787I.D?I7O???IZ???I?8D.$\n\
+              ...DID?7I7I777I?I7ID  8I?III?7?II8?DDD.\n\
+                DDD77I$III?8?II??D  DI??????Z?I?DN.N\n\
+                 NNDI????8???I?$??D N7?I?????OI?NDD.\n\
+                  DDD??II?I??I?II?D +DI?I?I?II7ND+N\n\
+                  `?D8?I+?I?I7II??NN D8?7?I???DNDN\n\
+                   .D,DD??Z?III???DN  NN7?IIDDM.D\n\
+                    `DDDDIO???IIINN    N.DDDNDNN\n\
+                      .D.DDDN7IND~M     DNDDD.\n\
+                        DDD.DDN.DD        ..\n\
+                          .7..ID$\n\
+                            ...')
+
+    print('\n\
+                              _        \n\
+           _ __  ___ _ _ _ __| |_  ___ \n\
+          |    \/ _ \  _|  _ \   \/ _ \ \n\
+          |_|_|_\___/_| | .__/_||_\___/ \n\
+                        |_|            ')
+
+    args = parser.parse_args()
+    logger = morphologging.getLogger('morpho', 
+                                level=getattr(logging,args.verbosity),
+                                stderr_lb=getattr(logging,args.stderr_verbosity),
+                                propagate=True)
+    logger_stan = morphologging.getLogger('pystan', 
+                                level=getattr(logging,args.verbosity),
+                                stderr_lb=getattr(logging,args.stderr_verbosity),
+                                propagate=False)
+
+    myToolBox = toolbox.ToolBox(args)
+    myToolBox.Run()

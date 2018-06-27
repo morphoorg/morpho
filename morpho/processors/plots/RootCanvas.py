@@ -1,3 +1,9 @@
+'''
+Root-based canvas class
+Authors: M. Guigue
+Date: 06/26/18
+'''
+
 import os
 
 from morpho.utilities import morphologging, reader, plots
@@ -21,7 +27,7 @@ class RootCanvas(object):
         self.xtitle = reader.read_param(input_dict,"x_title","")
         self.ytitle = reader.read_param(input_dict,"y_title","")
         self.canvasoptions = reader.read_param(input_dict,"options","")
-        
+
         # Creating Canvas
         from ROOT import TCanvas
         self.canvas = TCanvas(self.title,self.title,self.width,self.height)
@@ -39,8 +45,11 @@ class RootCanvas(object):
             self.figurefullpath = self.path+self.title+'_'
         else:
             self.figurefullpath = self.path
-        for namedata in input_dict['data']:
-            self.figurefullpath += namedata + '_'
+        if isinstance(input_dict['data'],str):
+            self.figurefullpath += input_dict['data']
+        elif isinstance(input_dict['data'],list):
+            for namedata in input_dict['data']:
+                self.figurefullpath += namedata + '_'
 
         if self.figurefullpath.endswith('_'):
             self.figurefullpath = self.figurefullpath[:-1]
@@ -73,7 +82,6 @@ class RootCanvas(object):
             os.makedirs(rdir)
             logger.info("Creating folder: {}".format(rdir))
         self.canvas.SaveAs(self.figurefullpath)
-        
-        
 
-    
+
+

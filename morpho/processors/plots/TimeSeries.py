@@ -1,5 +1,7 @@
 '''
-Plot a posteriori distribution of the variables of interest
+Plot a time series of the variables of interest
+Authors: M. Guigue
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import
@@ -25,15 +27,19 @@ class TimeSeries(BaseProcessor):
     def data(self,value):
         self._data = value
 
-    def InternalConfigure(self, params):
+    def InternalConfigure(self, param_dict):
         '''
         Configure
         '''
-        # Initialize Canvas
-        self.rootcanvas = RootCanvas.RootCanvas(params,optStat=0)
+        # Initialize Canvas: for some reason, the module or the class is imported depending which script imports.
+        try:
+            self.rootcanvas = RootCanvas(param_dict,optStat=0)
+        except:
+            self.rootcanvas = RootCanvas.RootCanvas(param_dict,optStat=0)
 
         # Read other parameters
-        self.namedata = reader.read_param(params,'data',"required")
+        self.namedata = reader.read_param(param_dict,'data',"required")
+        return True
 
     def InternalRun(self):
         # Drawing and dividing the canvas
@@ -70,3 +76,4 @@ class TimeSeries(BaseProcessor):
             listGraph[iName].SetTitle(";Iteration;{}".format(name))
 
         self.rootcanvas.Save()
+        return True

@@ -12,6 +12,7 @@ logger = morphologging.getLogger(__name__)
 class MiscTests(unittest.TestCase):
 
     def test_ProcAssistant(self):
+        logger.info("Processor Assistant test")
         from morpho.processors.misc import ProcessorAssistant
         proc_config = {
             "function_name": "myFunction",
@@ -20,9 +21,9 @@ class MiscTests(unittest.TestCase):
         }
         assistantProcessor = ProcessorAssistant("assistantProcessor")
         assistantProcessor.Configure(proc_config)
-        result = assistantProcessor.Run()
-        logger.debug("Assistant processor returned: {}".format(result))
-        self.assertEqual(result,"value=10")
+        assistantProcessor.Run()
+        logger.debug("Assistant processor returned: {}".format(assistantProcessor.results))
+        self.assertEqual(assistantProcessor.results,"value=10")
 
 if __name__ == '__main__':
     unittest.main()

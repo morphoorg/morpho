@@ -1,5 +1,7 @@
 '''
 Base processor for sampling-type operations
+Authors: J. Johnston, M. Guigue, T. Weiss
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import
@@ -24,13 +26,23 @@ class BaseProcessor(metaclass=abc.ABCMeta):
     @property
     def name(self):
         return self._procName
+    @property
+    def delete(self):
+        return self._delete_processor
 
     def Configure(self, params):
         '''
         This method will be called by nymph to configure the processor
         '''
-        logger.info("Configure <{}> with {}".format(self.name,params))
-        self.InternalConfigure(params)
+        logger.info("Configure <{}>".format(self.name))
+        if "delete" in params:
+            self._delete_processor = params['delete']
+        else:
+            self._delete_processor = True
+        if not self.InternalConfigure(params):
+            logger.error("Error while configuring <{}>".format(self.name))
+            return False
+        return True
 
     @abc.abstractmethod
     def InternalConfigure(self, params):
@@ -45,9 +57,11 @@ class BaseProcessor(metaclass=abc.ABCMeta):
         This method will be called by nymph to run the processor
         '''
         logger.info("Run <{}>...".format(self.name))
-        result = self.InternalRun()
+        if not self.InternalRun():
+            logger.error("Error while running <{}>".format(name))
+            return False
         logger.info("Done with <{}>".format(self.name))
-        return result
+        return True
 
     @abc.abstractmethod
     def InternalRun(self):

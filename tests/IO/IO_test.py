@@ -19,15 +19,13 @@ input_data = {
 class IOTests(unittest.TestCase):
 
     def test_JSONIO(self):
+        logger.info("JSONIO test")
         from morpho.processors.IO import IOJSONProcessor, IOYAMLProcessor
         writer_config = {
             "action": "write",
             "filename": "myTest.json",
             "variables": [
-                {
-                "variable":"x",
-                "json_alias":"x"
-                },
+                "x",
                 {
                 "variable":"y"
                 },
@@ -42,10 +40,10 @@ class IOTests(unittest.TestCase):
             "filename": "myTest.json",
             "variables": ["x","y","myList"]
         }
-        a = IOJSONProcessor("Writer")
-        b = IOJSONProcessor("Reader")
-        c = IOYAMLProcessor("Writer")
-        d = IOYAMLProcessor("Reader")
+        a = IOJSONProcessor("WriterJSON")
+        b = IOJSONProcessor("ReaderJSON")
+        c = IOYAMLProcessor("WriterYAML")
+        d = IOYAMLProcessor("ReaderYAML")
 
         a.Configure(writer_config)
         b.Configure(reader_config)
@@ -56,20 +54,23 @@ class IOTests(unittest.TestCase):
 
         a.data = input_data
         a.Run()
-        data = b.Run()
+        b.Run()
+        data = b.data
         logger.info("Data extracted = {}".format(data.keys()))
         for key in data.keys():
             logger.info("{} -> size = {}".format(key,len(data[key])))
             self.assertEqual(len(data[key]),6)
         c.data = input_data
         c.Run()
-        data2 = d.Run()
+        d.Run()
+        data2 = d.data
         for key in data2.keys():
             logger.info("{} -> size = {}".format(key,len(data2[key])))
             self.assertEqual(len(data2[key]),6)
         
     
     def test_ROOTIO(self):
+        logger.info("IOROOT test")
         from morpho.processors.IO import IOROOTProcessor
         writer_config = {
             "action": "write",
@@ -97,13 +98,14 @@ class IOTests(unittest.TestCase):
             "filename": "myTest.root",
             "variables": ["x","y","myList"]
         }
-        a = IOROOTProcessor("Writer")
-        b = IOROOTProcessor("Reader")
+        a = IOROOTProcessor("WriterROOT")
+        b = IOROOTProcessor("ReaderROOT")
         a.Configure(writer_config)
         b.Configure(reader_config)
         a.data = input_data
         a.Run()
-        data = b.Run()
+        b.Run()
+        data = b.data
         logger.info("Data extracted = {}".format(data.keys()))
         for key in data.keys():
             logger.info("{} -> size = {}".format(key,len(data[key])))

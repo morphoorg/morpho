@@ -1,3 +1,9 @@
+'''
+Definitions for plots
+Authors: J. Johnston, M. Guigue, T. Weiss
+Date: 06/26/18
+'''
+
 from morpho.utilities import morphologging
 logger=morphologging.getLogger(__name__)
 
@@ -129,8 +135,8 @@ def _fill_variable_grid(variable_names, draw_opt_2d):
                   ROOT.kYellow, ROOT.kMagenta, ROOT.kCyan,
                   ROOT.kOrange, ROOT.kViolet, ROOT.kTeal,
                   ROOT.kSpring, ROOT.kPink, ROOT.kAzure]
-    for i in range(0,len(variable_names)):
-        for j in range(0,len(variable_names)):
+    for i in range(len(variable_names)):
+        for j in range(len(variable_names)):
             if(i==0 and j<cols-1):
                 # First Row
                 name_grid[i][j] = [variable_names[j]]
@@ -195,7 +201,7 @@ def _fill_hist_grid(input_dict, name_grid,
                 # for i in range(0,n):
                     # tree.GetEntry(i)
                     # list_data.append(getattr(tree, names[0]))
-                list_data = input_dict[names[0]]
+                list_data = input_dict[names[0]][warmup:]
                 x_range = _autoRangeList(list_data)
                 histo = ROOT.TH1F("%s_%i_%i"%(names[0],r,c), names[0],
                                   nbins_x, x_range[0], x_range[1])

@@ -14,14 +14,14 @@ Guidelines
   * Perform tests to show that the fix solves the problem that had been indicated.
   * Perform tests to show that the fix does not cause other problems.
   * Indicate in this log what tests were performed and how you know the problem was fixed.
-  
+
 Template
 --------
 
-Version: 
+Version:
 ~~~~~~~~
 
-Release Date: 
+Release Date:
 '''''''''''''
 
 New Features:
@@ -31,7 +31,7 @@ New Features:
     * Details
 * Feature 2
     * Details
-  
+
 Fixes:
 ''''''
 
@@ -39,9 +39,27 @@ Fixes:
     * Details
 * Fix 2
     * Details
-  
+
 Log
 ---
+
+Version: v2.1.0
+~~~~~~~~~~~~~~~
+
+Release Date: XXXX
+''''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* Morpho executable:
+    * Use configuration file similar to Katydid: configuration can be edited via the CLI
+    * Toolbox that creates, configures, runs and connects processors
+    * Can import processors from other modules (mermithid tested)
+    * Add main executable
+
+Fixes:
+''''''
 
 Version: v2.0.0
 ~~~~~~~~~~~~~~~
@@ -53,7 +71,7 @@ New Features:
 '''''''''''''
 
 * Upgrade to morpho2:
-    * Create basic processors for 
+    * Create basic processors for
            * sampling (PyStan and RooFit)
            * plotting
            * IO (ROOT, csv, json, yaml, R)

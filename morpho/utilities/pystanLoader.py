@@ -1,4 +1,8 @@
-# Definitions for loading and using pystan for analysis using root or hdf5
+'''
+Definitions for interfacing with pyStan IO
+Authors: M. Guigue
+Date: 06/26/18
+'''
 
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)

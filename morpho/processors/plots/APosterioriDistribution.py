@@ -1,5 +1,7 @@
 '''
 Plot a posteriori distribution of the variables of interest
+Authors: J. Jonhston, M. Guigue
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import

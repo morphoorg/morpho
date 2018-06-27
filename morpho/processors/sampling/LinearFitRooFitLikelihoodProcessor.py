@@ -1,3 +1,9 @@
+'''
+Processor for  linear fitting
+Authors: M. Guigue
+Date: 06/26/18
+'''
+
 from morpho.utilities import morphologging, reader
 from morpho.processors.sampling import RooFitLikelihoodSampler
 logger = morphologging.getLogger(__name__)

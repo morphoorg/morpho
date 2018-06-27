@@ -1,5 +1,7 @@
 '''
 Creates Stan diagnostic plots.
+Authors: T. Weiss
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import

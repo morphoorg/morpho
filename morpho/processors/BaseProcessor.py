@@ -1,5 +1,7 @@
 '''
 Base processor for sampling-type operations
+Authors: J. Johnston, M. Guigue, T. Weiss
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import

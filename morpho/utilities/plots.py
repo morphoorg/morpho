@@ -1,3 +1,9 @@
+'''
+Definitions for plots
+Authors: J. Johnston, M. Guigue, T. Weiss
+Date: 06/26/18
+'''
+
 from morpho.utilities import morphologging
 logger=morphologging.getLogger(__name__)
 

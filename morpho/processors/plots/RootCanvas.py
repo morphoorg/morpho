@@ -1,3 +1,9 @@
+'''
+Root-based canvas class
+Authors: M. Guigue
+Date: 06/26/18
+'''
+
 import os
 
 from morpho.utilities import morphologging, reader, plots

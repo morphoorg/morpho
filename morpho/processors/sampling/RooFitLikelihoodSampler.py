@@ -1,3 +1,8 @@
+'''
+Base processor for RooFit-based samplers
+Authors: M. Guigue
+Date: 06/26/18
+'''
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)

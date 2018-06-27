@@ -1,3 +1,9 @@
+'''
+Root-based histogram class
+Authors: M. Guigue
+Date: 06/26/18
+'''
+
 from morpho.utilities import morphologging, reader
 logger=morphologging.getLogger(__name__)
 

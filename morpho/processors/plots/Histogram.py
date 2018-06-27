@@ -1,5 +1,7 @@
 '''
 Plot an histogram of the variables of interest
+Authors: M. Guigue
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import

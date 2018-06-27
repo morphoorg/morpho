@@ -1,5 +1,7 @@
 '''
 PyStan sampling processor
+Authors: J. Formaggio, J. Johnston, M. Guigue, T. Weiss
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import

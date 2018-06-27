@@ -1,5 +1,7 @@
 '''
 Create a wrapping processor from a function given in a python script
+Authors: M. Guigue
+Date: 06/26/18
 '''
 
 from __future__ import absolute_import

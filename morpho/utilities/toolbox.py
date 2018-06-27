@@ -1,11 +1,21 @@
 #!/bin/python
 
+'''
+Toolbox class: create, configure and run processors
+Authors: M. Guigue
+Date: 06/26/18
+'''
+
 from morpho.utilities import morphologging, parser
 logger=morphologging.getLogger(__name__)
 
 import os, importlib
 
 class ToolBox:
+    '''
+    Manages processors requested by the user at run-time.
+    Via a configuration file, the user defines which processor to use, how to configure them and how to connect them.
+    '''
     def __init__(self, args):
         self._ReadConfigFile(args.config)
         self._UpdateConfigFromCLI(args)

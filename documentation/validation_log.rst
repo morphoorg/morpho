@@ -53,9 +53,10 @@ New Features:
 '''''''''''''
 
 * Morpho executable:
-    * Use configuration file similar to Katydid
+    * Use configuration file similar to Katydid: configuration can be edited via the CLI
     * Toolbox that creates, configures, runs and connects processors
     * Can import processors from other modules (mermithid tested)
+    * Add main executable
 
 Fixes:
 ''''''

@@ -46,8 +46,8 @@ Log
 Version: v2.1.0
 ~~~~~~~~~~~~~~~
 
-Release Date: XXXX
-''''''''''''''''''''''''''''''''
+Release Date: Wed. June 27th 2018
+'''''''''''''''''''''''''''''''''
 
 New Features:
 '''''''''''''

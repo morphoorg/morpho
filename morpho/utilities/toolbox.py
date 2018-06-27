@@ -10,23 +10,21 @@ class ToolBox:
     def __init__(self, args):
         self._ReadConfigFile(args.config)
         self._UpdateConfigFromCLI(args)
-        self.processors_definition = self.config_dict
-        self.processors_dict = dict()
+        self._processors_dict = dict()
         self._chain_processors = []
-        self.processors_names = []
 
     def _ReadConfigFile(self, filename):
         if os.path.exists(filename):
             if filename.endswith(".json"):
-                self.my_module = importlib.import_module("json")
+                my_module = importlib.import_module("json")
             elif filename.endswith(".yaml"):
-                self.my_module = importlib.import_module("yaml")
+                my_module = importlib.import_module("yaml")
             else:
-                logger.error("Unknown format: {}".format(filename))
-                raise 
+                logger.warning("Unknown format: {}; trying json".format(filename))
+                my_module = importlib.import_module("json")
             with open(filename, 'r') as json_file:
                 try:
-                    self.config_dict = self.my_module.load(json_file)
+                    self.config_dict = my_module.load(json_file)
                 except Exception as err:
                     logger.error("Error while reading {}:\n{}".format(filename,err))
                     raise
@@ -43,7 +41,7 @@ class ToolBox:
             if not self._CreateOneProcessor(a_dict["name"],a_dict["type"]):
                 logger.error("Could not create processor <{}>; exiting".format(a_dict["name"]))
                 return False
-        for name,processor in self.processors_dict.items():
+        for name,processor in self._processors_dict.items():
             procName = processor["object"].name
             if procName in self.config_dict.keys():
                 config_dict = self.config_dict[procName]
@@ -71,15 +69,12 @@ class ToolBox:
             return False
 
         try:
-            self.processors_dict.update({procName: 
+            self._processors_dict.update({procName: 
                 {
                     "object": getattr(module,processor_name)(procName),
                     "variableToGive": [],    #-> variable to give after execution
                     "procToBeConnectedTo": [], #-> which processor need to give its output to this processor
-                    "varToBeConnectedTo": [], #-> which variable of the connected processor to be set
-                    "isFirst": True,
-                    "addedToChain": False,
-                    "order_in_chain": True
+                    "varToBeConnectedTo": [] #-> which variable of the connected processor to be set
                 }
             })
             logger.info("Processor <{}> ({}:{}) created".format(procName,module_name,processor_name))
@@ -89,13 +84,13 @@ class ToolBox:
             return False
 
     def _ConnectProcessors(self,nameProc):
-        proc_object = self.processors_dict[nameProc]['object']
-        nConnections = len(self.processors_dict[nameProc]['variableToGive'])
+        proc_object = self._processors_dict[nameProc]['object']
+        nConnections = len(self._processors_dict[nameProc]['variableToGive'])
         for i in range(nConnections):
-            proc_name_to_update = self.processors_dict[nameProc]['procToBeConnectedTo'][i]
-            var_to_give = self.processors_dict[nameProc]['variableToGive'][i]
-            var_to_be_connected_to = self.processors_dict[nameProc]['varToBeConnectedTo'][i]
-            proc_object_to_update = self.processors_dict[proc_name_to_update]['object']
+            proc_name_to_update = self._processors_dict[nameProc]['procToBeConnectedTo'][i]
+            var_to_give = self._processors_dict[nameProc]['variableToGive'][i]
+            var_to_be_connected_to = self._processors_dict[nameProc]['varToBeConnectedTo'][i]
+            proc_object_to_update = self._processors_dict[proc_name_to_update]['object']
             logger.debug("Connection {}:{} -> {}:{}".format(nameProc,var_to_give,proc_name_to_update,var_to_be_connected_to))
 
             try:
@@ -108,26 +103,21 @@ class ToolBox:
 
 
     def _DefineChain(self):
-        order_in_chain = 0
         for a_connection in self.config_dict['processors-toolbox']['connections']:
-            if a_connection['slot'].split(":")[0] not in self.processors_dict.keys():
+            if a_connection['slot'].split(":")[0] not in self._processors_dict.keys():
                 logger.error("Processor <> not defined but used as signal emitter".format(a_connection['slot'].split(":")[0]))
-            if a_connection['signal'].split(":")[0] not in self.processors_dict.keys():
+            if a_connection['signal'].split(":")[0] not in self._processors_dict.keys():
                 logger.error("Processor <> not defined but used as connection".format(a_connection['signal'].split(":")[0]))
-                
             proc_name = a_connection['signal'].split(":")[0]
             new_proc_name = a_connection['slot'].split(":")[0]
-
-            self.processors_dict[proc_name]["variableToGive"].append(a_connection['signal'].split(":")[1])
-            self.processors_dict[proc_name]["procToBeConnectedTo"].append(a_connection['slot'].split(":")[0])
+            self._processors_dict[proc_name]["variableToGive"].append(a_connection['signal'].split(":")[1])
+            self._processors_dict[proc_name]["procToBeConnectedTo"].append(a_connection['slot'].split(":")[0])
             if proc_name not in self._chain_processors:
                 self._chain_processors.append(proc_name)
             if new_proc_name not in self._chain_processors:
                 self._chain_processors.append(new_proc_name)
-            self.processors_dict[proc_name]["varToBeConnectedTo"].append(a_connection['slot'].split(":")[1])
-            # self.processors_dict[proc_name]['order_in_chain'].append(order_in_chain)
-            order_in_chain += 1
-        for a_processor in self.processors_dict.keys():
+            self._processors_dict[proc_name]["varToBeConnectedTo"].append(a_connection['slot'].split(":")[1])
+        for a_processor in self._processors_dict.keys():
             if a_processor not in self._chain_processors:
                 self._chain_processors.append(a_processor)
         logger.debug("Sequence of processors: {}".format(self._chain_processors))
@@ -136,16 +126,16 @@ class ToolBox:
     def _RunChain(self):
         for a_processor in self._chain_processors:
             try:
-                if not self.processors_dict[a_processor]['object'].Run():
+                if not self._processors_dict[a_processor]['object'].Run():
                     logger.error("Result <{}> incorrect".format(a_processor))
                     return False
             except Exception as err:
                 logger.error("Error while running <{}>:\n{}".format(a_processor,err))
                 raise err
             self._ConnectProcessors(a_processor)
-            if self.processors_dict[a_processor]['object'].delete:
+            if self._processors_dict[a_processor]['object'].delete:
                 logger.info("Deleting <{}>".format(a_processor))
-                del self.processors_dict[a_processor]['object']
+                del self._processors_dict[a_processor]['object']
         return True
 
     def Run(self):

@@ -102,7 +102,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         logger.debug('Import function files: complete')
 
         # Cache creation and saving?
-        if self.force_restart:
+        if self.force_recreate:
             logger.debug("Forced to recreate Stan cache!")
             self._create_and_save_model(theModel)
         else:
@@ -162,7 +162,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         self.n_jobs = int(reader.read_param(params, 'n_jobs',-1)) # number of jobs to run (-1: all, 1: good for debugging)
         self.interestParams = reader.read_param(params, 'interestParams',[])
         self.no_cache = reader.read_param(params, 'no_cache', False)
-        self.force_restart = reader.read_param(params, 'force_restart', False)
+        self.force_recreate = reader.read_param(params, 'force_recreate', False)
         # Adding a seed based on extra arguments, current time
         # if isinstance(args.seed,(int,float,str)):
         #     self.seed=int(args.seed)

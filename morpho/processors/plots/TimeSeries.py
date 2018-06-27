@@ -30,7 +30,7 @@ class TimeSeries(BaseProcessor):
         Configure
         '''
         # Initialize Canvas
-        self.rootcanvas = RootCanvas.RootCanvas(params,optStat=0)
+        self.rootcanvas = RootCanvas(params,optStat=0)
 
         # Read other parameters
         self.namedata = reader.read_param(params,'data',"required")

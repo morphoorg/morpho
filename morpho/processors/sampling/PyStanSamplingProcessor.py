@@ -101,10 +101,17 @@ class PyStanSamplingProcessor(BaseProcessor):
                 logger.critical('A function <{}> to import is missing'.format(matches))
         logger.debug('Import function files: complete')
 
+
+
+        code_hash = md5(theModel.encode('ascii')).hexdigest()
+        if self.model_name is None:
+            cache_fn = '{}/cached-model-{}.pkl'.format(self.cache_dir, code_hash)
+        else:
+            cache_fn = '{}/cached-{}-{}.pkl'.format(self.cache_dir, self.model_name, code_hash)
         # Cache creation and saving?
         if self.force_recreate:
             logger.debug("Forced to recreate Stan cache!")
-            self._create_and_save_model(theModel)
+            self._create_and_save_model(theModel,cache_fn)
         else:
             import pickle
             try:
@@ -112,18 +119,13 @@ class PyStanSamplingProcessor(BaseProcessor):
                 self.stanModel = pickle.load(open(cache_fn, 'rb'))
             except:
                 logger.debug("None exists -> creating Stan cache")
-                self._create_and_save_model(theModel)
+                self._create_and_save_model(theModel,cache_fn)
             else:
                 logger.debug("Using cached StanModel: {}".format(cache_fn))
 
-    def _create_and_save_model(self,theModel):
+    def _create_and_save_model(self,theModel,cache_fn):
         self.stanModel = pystan.StanModel(model_code=theModel)
         if not self.no_cache:
-            code_hash = md5(theModel.encode('ascii')).hexdigest()
-            if self.model_name is None:
-                cache_fn = '{}/cached-model-{}.pkl'.format(self.cache_dir, code_hash)
-            else:
-                cache_fn = '{}/cached-{}-{}.pkl'.format(self.cache_dir, self.model_name, code_hash)
 
             cdir = os.path.dirname(cache_fn)
             if not os.path.exists(cdir):

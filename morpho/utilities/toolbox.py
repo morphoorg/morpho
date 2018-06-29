@@ -148,6 +148,7 @@ class ToolBox:
         return True
 
     def Run(self):
+        import json
         logger.debug("Configuration:\n{}".format(json.dumps(self.config_dict, indent=4)))
         if not self._CreateAndConfigureProcessors():
             logger.error("Error while creating and configuring processors!")

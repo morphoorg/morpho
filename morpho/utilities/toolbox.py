@@ -7,7 +7,9 @@ Date: 06/26/18
 '''
 
 from morpho.utilities import morphologging, parser
-logger=morphologging.getLogger(__name__)
+import logging
+# logger=morphologging.getLogger(__name__)
+logger=logging.getLogger(__name__)
 
 import os, importlib
 
@@ -148,6 +150,7 @@ class ToolBox:
         return True
 
     def Run(self):
+        import json
         logger.debug("Configuration:\n{}".format(json.dumps(self.config_dict, indent=4)))
         if not self._CreateAndConfigureProcessors():
             logger.error("Error while creating and configuring processors!")

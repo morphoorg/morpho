@@ -21,7 +21,7 @@ import logging
 import colorlog
 
 def getLogger(name, stderr_lb=logging.ERROR,
-                      level=logging.DEBUG, propagate=False):
+                      level=logging.DEBUG, propagate=False, verbose=0):
     """Return a logger object with the given settings that prints
     messages greater than or equal to a given level to stderr instead of stdout
     name: Name of the logger. Loggers are conceptually arranged
@@ -56,16 +56,23 @@ def getLogger(name, stderr_lb=logging.ERROR,
         datefmt = '%Y-%m-%dT%H:%M:%SZ'[:-1],
         reset=True,
         )
+    
+    if verbose == 0:
+        log_level = logging.INFO
+    else:
+        log_level = logging.DEBUG
+        
+    print(log_level)
 
     logger.handlers = []
     handler_stdout = logging.StreamHandler(sys.stdout)
     handler_stdout.setFormatter(morpho_formatter)
-    handler_stdout.setLevel(logging.DEBUG)
-    handler_stdout.addFilter(LessThanFilter(stderr_lb))
+    handler_stdout.setLevel(log_level)
+    # handler_stdout.addFilter(LessThanFilter(stderr_lb))
     logger.addHandler(handler_stdout)
     handler_stderr = logging.StreamHandler(sys.stderr)
     handler_stderr.setFormatter(morpho_formatter)
-    handler_stderr.setLevel(stderr_lb)
+    handler_stderr.setLevel(logging.ERROR)
     logger.addHandler(handler_stderr)
     # Create morpho and pystan loggers
     # Will be reinstantiated after parsing command line args if __main__ is run

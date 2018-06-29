@@ -7,7 +7,10 @@ Date: 06/26/18
 from __future__ import absolute_import
 
 from morpho.utilities import morphologging
-logger=morphologging.getLogger(__name__)
+# logger=morphologging.getLogger(__name__)
+import logging
+# logger=morphologging.getLogger(__name__)
+logger=logging.getLogger(__name__)
 
 import abc
 

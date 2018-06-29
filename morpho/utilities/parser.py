@@ -40,16 +40,22 @@ def parse_args():
     p.add_argument('param',nargs='*',
                    default=False,
                    help='Manualy change of a parameter and its value')
-    p.add_argument('-v', '--verbosity', default='DEBUG',
-                   metavar='<verbosity>',
-                   help="Specify verbosity of the logger, with options DEBUG, INFO, WARNING, ERROR, or CRITICAL (Default: DEBUG)",
-                   choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'],
-                   required=False)
+    # p.add_argument('-v', '--verbosity', default='DEBUG',
+    #                metavar='<verbosity>',
+    #                help="Specify verbosity of the logger, with options DEBUG, INFO, WARNING, ERROR, or CRITICAL (Default: DEBUG)",
+    #                choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'],
+    #                required=False)
     p.add_argument('-sev', '--stderr-verbosity', default='WARNING',
                    metavar='<stderr_verbosity>',
                    help="Messages with level greater than or equal to the given verbosity will be redirected to stderr (Default: WARNING)",
                    choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'],
                    required=False)
+    p.add_argument('-v',
+                '--verbose',
+                default=0,
+                action='count',
+                help='increases terminal output verbosity',
+                )
     return p.parse_args()
 
 def update_from_arguments(the_dict,args):

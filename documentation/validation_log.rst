@@ -43,6 +43,18 @@ Fixes:
 Log
 ---
 
+Version: v2.1.1
+~~~~~~~~~~~~~~~
+
+Release Date: Fri. June 29th 2018
+'''''''''''''''''''''''''''''''''
+
+Fixes:
+''''''
+
+* Debug of the docker and docker-compose
+
+
 Version: v2.1.0
 ~~~~~~~~~~~~~~~
 

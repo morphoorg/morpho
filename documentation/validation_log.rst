@@ -43,6 +43,17 @@ Fixes:
 Log
 ---
 
+Version: v2.1.2
+~~~~~~~~~~~~~~~
+
+Release Date: Thur. July 19th 2018
+'''''''''''''''''''''''''''''''''
+
+Fixes:
+''''''
+
+* Update dependencies to support python 3.7
+
 Version: v2.1.1
 ~~~~~~~~~~~~~~~
 

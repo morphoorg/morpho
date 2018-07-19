@@ -25,7 +25,6 @@ The following dependencies should be installed (via a package manager) before in
   - python (2.7.x; 3.x not yet supported)
   - python-pip
   - git
-  - python-matplotlib
 
   Morpho reads and saves files in either **R** or **ROOT.** If you would like to use root, install root-system or see https://root.cern (and ensure that the same version of python is enabled for morpho and ROOT).
 

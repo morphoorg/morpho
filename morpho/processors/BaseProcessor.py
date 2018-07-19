@@ -6,13 +6,14 @@ Date: 06/26/18
 
 from __future__ import absolute_import
 
-from morpho.utilities import morphologging
-logger=morphologging.getLogger(__name__)
-
 import abc
+
+from morpho.utilities import morphologging
+logger = morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
+
 
 class BaseProcessor(metaclass=abc.ABCMeta):
     '''
@@ -26,6 +27,7 @@ class BaseProcessor(metaclass=abc.ABCMeta):
     @property
     def name(self):
         return self._procName
+
     @property
     def delete(self):
         return self._delete_processor

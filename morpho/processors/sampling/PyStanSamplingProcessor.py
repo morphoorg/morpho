@@ -25,7 +25,26 @@ __all__.append(__name__)
 
 class PyStanSamplingProcessor(BaseProcessor):
     '''
-    Sampling processor that will call PyStan
+    Sampling processor that will call PyStan.
+
+    Parameters:
+        model_code (required): location of the Stan model
+        function_files_location: location of the Stan functions
+        model_name: name of the cached model
+        cache_dir: location of the cache folder (containing cached models)
+        input_data: dictionary containing input data
+        iter (required): total number of iterations (warmup and sampling)
+        warmup: number of warmup iterations (default=iter/2)
+        chain: number of chains (default=1)
+        n_jobs: number of parallel cores running (default=1)
+        interestParams: parameters to be saved in the results variable
+        no_cache: don't create cache
+        force_recreate: force the cache regeneration
+        init: initial values for the parameters
+        control: PyStan sampling settings
+
+    Results:
+        results: dictionary containing the result of the sampling of the parameters of interest
     '''
     @property
     def data(self):
@@ -107,7 +126,7 @@ class PyStanSamplingProcessor(BaseProcessor):
                     logger.debug(
                         'Function file <{}> to import was found'.format(matches))
                     continue
-            if found == False:
+            if not found:
                 logger.critical(
                     'A function <{}> to import is missing'.format(matches))
         logger.debug('Import function files: complete')
@@ -137,7 +156,6 @@ class PyStanSamplingProcessor(BaseProcessor):
     def _create_and_save_model(self, theModel, cache_fn):
         self.stanModel = pystan.StanModel(model_code=theModel)
         if not self.no_cache:
-
             cdir = os.path.dirname(cache_fn)
             if not os.path.exists(cdir):
                 os.makedirs(cdir)
@@ -179,18 +197,11 @@ class PyStanSamplingProcessor(BaseProcessor):
         self.no_cache = reader.read_param(params, 'no_cache', False)
         self.force_recreate = reader.read_param(
             params, 'force_recreate', False)
-        # Adding a seed based on extra arguments, current time
-        # if isinstance(args.seed,(int,float,str)):
-        #     self.seed=int(args.seed)
-        # elif args.noautoseed:
-        # seed based on random.random and the current system time
         self.seed = random.seed(datetime.now())
-        logger.debug("Autoseed activated")
-        # else:
-        # self.seed = int(reader.read_param(yd, 'stan.run.seed', None))
+        # logger.debug("Autoseed activated")
         logger.debug("seed = {}".format(self.seed))
 
-        self.thin = reader.read_param(params, 'thin', 1)
+        # self.thin = reader.read_param(params, 'thin', 1)
         self.init_per_chain = reader.read_param(params, 'init', '')
 
         self.init = self._init_Stan_function()

@@ -23,8 +23,9 @@ try:
 except ImportError:
     pass
 
+
 def getLogger(name, stderr_lb=logging.ERROR,
-                      level=logging.DEBUG, propagate=False):
+              level=logging.DEBUG, propagate=False):
     """Return a logger object with the given settings that prints
     messages greater than or equal to a given level to stderr instead of stdout
     name: Name of the logger. Loggers are conceptually arranged
@@ -45,20 +46,21 @@ def getLogger(name, stderr_lb=logging.ERROR,
     class LessThanFilter(logging.Filter):
         """Filter to get messages less than a given level
         """
+
         def __init__(self, exclusive_maximum, name=""):
             super(LessThanFilter, self).__init__(name)
             self.max_level = exclusive_maximum
 
         def filter(self, record):
-            #non-zero return means we log this message
+            # non-zero return means we log this message
             return 1 if record.levelno < self.max_level else 0
 
     base_format = '%(asctime)s{}[%(levelname)-8s] %(name)s(%(lineno)d) -> {}%(message)s'
     morpho_formatter = colorlog.ColoredFormatter(
         base_format.format('%(log_color)s', '%(purple)s'),
-        datefmt = '%Y-%m-%dT%H:%M:%SZ'[:-1],
+        datefmt='%Y-%m-%dT%H:%M:%SZ'[:-1],
         reset=True,
-        )
+    )
 
     logger.handlers = []
     handler_stdout = logging.StreamHandler(sys.stdout)
@@ -74,4 +76,3 @@ def getLogger(name, stderr_lb=logging.ERROR,
     # Will be reinstantiated after parsing command line args if __main__ is run
 
     return logger
-

@@ -1,4 +1,11 @@
+# Basic linear fit example
+# This config file can be used to generate and analyze data following an linear function.
+# Control plots are then generated
+# Author: M. Guigue
+
+# Define the processor toolbox configuration
 processors-toolbox:
+  # Define the processors and their names
     processors:
         - type: morpho:PyStanSamplingProcessor
           name: generator
@@ -12,6 +19,7 @@ processors-toolbox:
           name: posterioriDistrib
         - type: TimeSeries
           name: timeSeries
+  # Define in which order the processors should be run and how connections should be made
     connections:
         - signal: "generator:results"
           slot: "writer:data"
@@ -21,6 +29,7 @@ processors-toolbox:
           slot: "posterioriDistrib:data"
         - signal: "analyzer:results"
           slot: "timeSeries:data"
+# Individual processor configurations
 generator:
     model_code: "models/model_linear_generator.stan"
     input_data: 
@@ -40,7 +49,6 @@ writer:
         - "x"
         - "y"
         - 'residual'
-    # tree_name: myTree
 reader:
     action: read
     filename: data/data.r

@@ -18,10 +18,7 @@ except NameError:
 # sys.setdefaultencoding("utf-8")
 
 import logging
-try:
-    import colorlog
-except ImportError:
-    pass
+import colorlog
 
 
 def getLogger(name, stderr_lb=logging.ERROR,

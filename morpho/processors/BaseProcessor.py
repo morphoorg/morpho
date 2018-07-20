@@ -21,6 +21,7 @@ class BaseProcessor(metaclass=abc.ABCMeta):
     All Processors will be implemented in a child class where the
     specifics are encoded by overwriting Configure and Run.
     '''
+
     def __init__(self, name, *args, **kwargs):
         self._procName = name
 
@@ -72,5 +73,3 @@ class BaseProcessor(metaclass=abc.ABCMeta):
         overridden by child class.
         '''
         return
-
-

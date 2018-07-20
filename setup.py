@@ -1,13 +1,15 @@
 from setuptools import setup, find_packages
 from glob import glob
 
-import sys, os
+import sys
+import os
 from setuptools.command.test import test as TestCommand
 
 verstr = "none"
 try:
     import subprocess
-    verstr = subprocess.check_output(['git','describe', '--long']).decode('utf-8').strip()
+    verstr = subprocess.check_output(
+        ['git', 'describe', '--long']).decode('utf-8').strip()
 except EnvironmentError:
     pass
 except Exception as err:
@@ -18,8 +20,10 @@ on_rtd = os.environ.get("READTHEDOCS", None) == 'True'
 
 requirements = []
 extras_require = {
-    'core':['uproot>=2.8.13','matplotlib==1.5.1','colorlog', 'PyYAML>=3.13','pyparsing>=2.1.5','numpy>=1.14','pystan==2.17.1.0','dnspython==1.12.0','pbr==0.10.8','cycler==0.10.0','lz4'],
-    'doc': ['sphinx', 'sphinx_rtd_theme', 'sphinxcontrib-programoutput']
+    'core': ['uproot>=2.8.13', 'matplotlib==1.5.1', 'colorlog', 'PyYAML>=3.13',
+             'pyparsing>=2.1.5', 'numpy>=1.14', 'pystan==2.17.1.0',
+             'dnspython==1.12.0', 'pbr==0.10.8', 'cycler==0.10.0', 'lz4','six'],
+    'doc': ['sphinx', 'sphinx_rtd_theme', 'sphinxcontrib-programoutput','six']
 }
 
 if on_rtd:
@@ -42,7 +46,7 @@ setup(
     install_requires=requirements,
     extras_require=extras_require,
     url='http://www.github.com/project8/morpho',
-    author = "J. Formaggio, J. Johnston, T. Weiss (MIT), M. Guigue, B. LaRoque, N. Oblath (PNNL)",
-    maintainer = "M. Guigue (PNNL)",
-    maintainer_email = "mathieu.guigue@pnnl.gov"
+    author="J. Formaggio, J. Johnston, T. Weiss (MIT), M. Guigue, B. LaRoque, N. Oblath (PNNL)",
+    maintainer="M. Guigue (PNNL)",
+    maintainer_email="mathieu.guigue@pnnl.gov"
 )

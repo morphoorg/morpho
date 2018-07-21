@@ -142,6 +142,8 @@ def _draw_random_sample(sample_dict, dist_error):
         rand = np.random.beta(sample_dict['prior_params'][0], sample_dict['prior_params'][1], 1)[0]
     elif sample_dict['prior_dist'] == 'gamma':
         rand = np.random.gamma(sample_dict['prior_params'][0], sample_dict['prior_params'][1], 1)[0]
+    elif sample_dict['prior_dist'] == 'randint':
+        rand = np.random.randint(sample_dict['prior_params'][0], high=sample_dict['prior_params'][1]+1)
     else:
         logger.debug(dist_error)
         return None
@@ -156,7 +158,10 @@ def _compute_transformed_inputs(func, inputs_dict, unitchange):
             Q = inputs_dict['Q']
         elif 'Q_mean' in inputs_dict:
             Q = inputs_dict['Q_mean']
-        mass = inputs_dict['mass']
+        if 'mass' in inputs_dict:
+            mass = inputs_dict['mass']
+        elif 'm_avg' in inputs_dict:
+            mass = inputs_dict['m_avg']
         t = inputs_dict['runtime']
     except:
         logger.debug("Parameter needed to compute transformed inputs is missing")

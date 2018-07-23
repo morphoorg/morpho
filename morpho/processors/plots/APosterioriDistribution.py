@@ -59,7 +59,10 @@ class APosterioriDistribution(BaseProcessor):
         self.rootcanvas.Divide(cols,rows)
 
         # Plot all histograms
-        import ROOT
+        try:
+            import ROOT
+        except ImportError:
+            pass
         # Histograms must still be in memory when the pdf is saved
         additional_hists = list()
         for r in range(rows):

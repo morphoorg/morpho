@@ -4,14 +4,18 @@ Authors: M. Guigue
 Date: 06/26/18
 '''
 
+try:
+    import ROOT
+except ImportError:
+    pass
+
 from morpho.utilities import morphologging, reader
 from morpho.processors.sampling import RooFitLikelihoodSampler
 logger = morphologging.getLogger(__name__)
 
-import ROOT
-
 __all__ = []
 __all__.append(__name__)
+
 
 class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
     '''

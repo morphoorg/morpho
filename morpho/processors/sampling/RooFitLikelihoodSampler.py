@@ -7,7 +7,10 @@ from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)
 
-import ROOT
+try:
+    import ROOT
+except ImportError:
+    pass
 
 __all__ = []
 __all__.append(__name__)

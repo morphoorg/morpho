@@ -55,7 +55,6 @@ Classes: {{ classes|join(" ") }}
 {%- endfor %}
     {%- endif %}
 {%- endif %}
-End of modules condition
 
     {%- if data %}
 
@@ -67,7 +66,6 @@ End of modules condition
         {{ item }}
 {%- endfor %}
     {%- endif %}
-End of data condition
 
 {% if all_refs %}
     ``__all__``: {{ all_refs|join(", ") }}

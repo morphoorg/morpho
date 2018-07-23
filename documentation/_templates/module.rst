@@ -7,7 +7,9 @@
 Some template vars
 ==================
 Members: {{ members|join(" ") }}
+
 Functions: {{ functions|join(" ") }}
+
 Classes: {{ classes|join(" ") }}
 
 .. automodule:: {{ fullname }}

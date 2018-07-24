@@ -43,6 +43,28 @@ Fixes:
 Log
 ---
 
+Version:
+~~~~~~~~
+
+Release Date:
+'''''''''''''
+
+New Features:
+'''''''''''''
+
+* Feature 1
+    * Details
+* Feature 2
+    * Details
+
+Fixes:
+''''''
+
+* RTD
+    * Changed CPython to 3
+    * Edited conf.py to use better_apidoc
+    * Defined try/except for additional modules like ROOT and pystan
+
 Version: v2.1.2
 ~~~~~~~~~~~~~~~
 

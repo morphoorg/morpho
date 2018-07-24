@@ -4,7 +4,10 @@ Authors: M. Guigue
 Date: 06/26/18
 '''
 
-import ROOT
+try:
+    import ROOT
+except ImportError:
+    pass
 
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor

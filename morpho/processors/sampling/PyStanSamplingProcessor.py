@@ -10,9 +10,13 @@ import os
 import random
 import re
 from hashlib import md5
-import pystan
 from inspect import getargspec
 from datetime import datetime
+
+try:
+    import pystan
+except ImportError:
+    pass
 
 from morpho.utilities import morphologging, reader, pystanLoader
 from morpho.processors import BaseProcessor

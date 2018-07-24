@@ -51,7 +51,10 @@ class TimeSeries(BaseProcessor):
         iWarmup = 0
         iSample = 0
         # Plot all histograms
-        import ROOT
+        try:
+            import ROOT
+        except ImportError:
+            pass
         # Histograms must still be in memory when the pdf is saved
         for iName, name in enumerate(self.namedata):
             self.rootcanvas.cd(iName+1)

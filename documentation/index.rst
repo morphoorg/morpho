@@ -14,4 +14,5 @@ Contents:
     plot
     morpho1examples
     contribute
+    validation_log
     better_apidoc_out/modules

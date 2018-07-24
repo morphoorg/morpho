@@ -36,7 +36,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         function_files_location: location of the Stan functions
         model_name: name of the cached model
         cache_dir: location of the cache folder (containing cached models)
-        input_data: dictionary containing input data
+        input_data: dictionary containing model input data
         iter (required): total number of iterations (warmup and sampling)
         warmup: number of warmup iterations (default=iter/2)
         chain: number of chains (default=1)
@@ -46,6 +46,9 @@ class PyStanSamplingProcessor(BaseProcessor):
         force_recreate: force the cache regeneration
         init: initial values for the parameters
         control: PyStan sampling settings
+
+    Input:
+        data: dictionary containing model input data
 
     Results:
         results: dictionary containing the result of the sampling of the parameters of interest

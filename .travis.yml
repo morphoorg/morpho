@@ -7,7 +7,7 @@ os:
     - osx
 osx_image: xcode9.4
 before_install:
-    - if [ $TRAVIS_OS_NAME == osx ]; then rm '/usr/local/bin/f2py' '/usr/local/include/c++' '/usr/local/lib/python2.7/site-packages/numpy/__config__.py' ; fi
+    - if [ $TRAVIS_OS_NAME == osx ]; then rm /usr/local/include/c++ /usr/local/lib/python2.7/site-packages/numpy/__config__.py ; fi
     - if [ $TRAVIS_OS_NAME == osx ]; then brew upgrade python && brew install numpy --without-python@2 && brew install root ; fi
 install:
   - if [ $TRAVIS_OS_NAME == osx ]; then source travis/installation_script.sh ; fi;

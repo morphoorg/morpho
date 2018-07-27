@@ -43,19 +43,11 @@ Fixes:
 Log
 ---
 
-Version:
-~~~~~~~~
+Version: v2.1.3
+~~~~~~~~~~~~~~~
 
-Release Date:
-'''''''''''''
-
-New Features:
-'''''''''''''
-
-* Feature 1
-    * Details
-* Feature 2
-    * Details
+Release Date: Thur. July 26th 2018
+''''''''''''''''''''''''''''''''''
 
 Fixes:
 ''''''
@@ -64,6 +56,7 @@ Fixes:
     * Changed CPython to 3
     * Edited conf.py to use better_apidoc
     * Defined try/except for additional modules like ROOT and pystan
+* Dependencies cleanup (matplotlib)
 
 Version: v2.1.2
 ~~~~~~~~~~~~~~~

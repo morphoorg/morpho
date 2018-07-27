@@ -5,27 +5,31 @@ Date: 06/26/18
 '''
 
 from __future__ import absolute_import
+import abc
+import six
 
 from morpho.utilities import morphologging
-logger=morphologging.getLogger(__name__)
-
-import abc
+logger = morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
 
-class BaseProcessor(metaclass=abc.ABCMeta):
+
+@six.add_metaclass(abc.ABCMeta)
+class BaseProcessor():
     '''
     Base Processor
     All Processors will be implemented in a child class where the
     specifics are encoded by overwriting Configure and Run.
     '''
+
     def __init__(self, name, *args, **kwargs):
         self._procName = name
 
     @property
     def name(self):
         return self._procName
+
     @property
     def delete(self):
         return self._delete_processor
@@ -70,5 +74,3 @@ class BaseProcessor(metaclass=abc.ABCMeta):
         overridden by child class.
         '''
         return
-
-

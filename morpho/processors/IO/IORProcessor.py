@@ -6,16 +6,20 @@ Date: 06/26/18
 
 from __future__ import absolute_import
 
-import pystan
 import os
 
-from morpho.utilities import morphologging
-logger=morphologging.getLogger(__name__)
+try:
+    import pystan
+except ImportError:
+    pass
 
 from morpho.processors.IO import IOProcessor
+from morpho.utilities import morphologging
+logger = morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
+
 
 class IORProcessor(IOProcessor):
     '''
@@ -29,7 +33,7 @@ class IORProcessor(IOProcessor):
             # with open(self.file_name, 'r') as csv_file:
             try:
                 theData = pystan.misc.read_rdump(self.file_name)
-                    # theData = dict(reader)
+                # theData = dict(reader)
             except:
                 logger.error("Error while reading {}".format(self.file_name))
                 raise
@@ -40,11 +44,11 @@ class IORProcessor(IOProcessor):
         logger.debug("Extracting {} from data".format(self.variables))
         for var in self.variables:
             if var in theData.keys():
-                self.data.update({str(var):theData[var]})
+                self.data.update({str(var): theData[var]})
             else:
-                logger.error("Variable {} does not exist in {}".format(self.variables,self.file_name))
+                logger.error("Variable {} does not exist in {}".format(
+                    self.variables, self.file_name))
         return True
-
 
     def Writer(self):
 

@@ -43,6 +43,25 @@ Fixes:
 Log
 ---
 
+Version:
+~~~~~~~~
+
+Release Date:
+'''''''''''''
+
+New Features:
+'''''''''''''
+
+* Feature 1
+    * Details
+* Feature 2
+    * Details
+
+Fixes:
+''''''
+
+* Travis fix: switch to XCode 9.4
+
 Version: v2.1.3
 ~~~~~~~~~~~~~~~
 

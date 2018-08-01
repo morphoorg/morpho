@@ -43,19 +43,11 @@ Fixes:
 Log
 ---
 
-Version:
-~~~~~~~~
+Version: v2.1.4
+~~~~~~~~~~~~~~~
 
-Release Date:
-'''''''''''''
-
-New Features:
-'''''''''''''
-
-* Feature 1
-    * Details
-* Feature 2
-    * Details
+Release Date: Tues. July 31st 2018
+''''''''''''''''''''''''''''''''''
 
 Fixes:
 ''''''

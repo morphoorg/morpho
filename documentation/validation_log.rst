@@ -4,11 +4,22 @@ Validation Log
 Log
 ---
 
-Version:
-~~~~~~~~
+Version: v2.1.4
+~~~~~~~~~~~~~~~
 
-Release Date:
-'''''''''''''
+Release Date: Tues. July 31st 2018
+''''''''''''''''''''''''''''''''''
+
+Fixes:
+''''''
+
+* Travis fix: switch to XCode 9.4
+
+Version: v2.1.3
+~~~~~~~~~~~~~~~
+
+Release Date: Thur. July 26th 2018
+''''''''''''''''''''''''''''''''''
 
 Fixes:
 ''''''
@@ -17,6 +28,7 @@ Fixes:
     * Changed CPython to 3
     * Edited conf.py to use better_apidoc
     * Defined try/except for additional modules like ROOT and pystan
+* Dependencies cleanup (matplotlib)
 
 Version: v2.1.2
 ~~~~~~~~~~~~~~~

@@ -203,4 +203,3 @@ class ToolBox:
         except:
             logger.warning("Attribute {} does not exist in {}".format(procValue, procName))
         return value
-        

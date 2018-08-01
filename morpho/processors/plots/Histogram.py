@@ -9,10 +9,11 @@ from __future__ import absolute_import
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
 from . import RootCanvas, RootHistogram
-logger=morphologging.getLogger(__name__)
+logger = morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
+
 
 class Histogram(BaseProcessor):
     '''
@@ -27,11 +28,11 @@ class Histogram(BaseProcessor):
         Configure
         '''
         # Initialize Canvas
-        self.rootcanvas = RootCanvas.RootCanvas(params,optStat=0)
-        self.histo = RootHistogram.RootHistogram(params,optStat=0)
+        self.rootcanvas = RootCanvas.RootCanvas(params, optStat=0)
+        self.histo = RootHistogram.RootHistogram(params, optStat=0)
 
         # Read other parameters
-        self.namedata = reader.read_param(params,'data',"required")
+        self.namedata = reader.read_param(params, 'data', "required")
         return True
 
     def InternalRun(self):

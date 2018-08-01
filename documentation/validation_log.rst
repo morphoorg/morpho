@@ -43,6 +43,17 @@ Fixes:
 Log
 ---
 
+Version: v2.1.4
+~~~~~~~~~~~~~~~
+
+Release Date: Tues. July 31st 2018
+''''''''''''''''''''''''''''''''''
+
+Fixes:
+''''''
+
+* Travis fix: switch to XCode 9.4
+
 Version: v2.1.3
 ~~~~~~~~~~~~~~~
 

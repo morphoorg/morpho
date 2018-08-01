@@ -26,7 +26,8 @@ The following dependencies should be installed (via a package manager) before in
   - python-pip
   - git
 
-  Morpho reads and saves files in either **R** or **ROOT.** If you would like to use root, install root-system or see https://root.cern (and ensure that the same version of python is enabled for morpho and ROOT).
+  Morpho reads and saves files in either **R** or **ROOT**. 
+  If you would like to use root, install root-system or see https://root.cern (and ensure that the same version of python is enabled for morpho and ROOT).
 
 ### Virtual environment-based installation ###
 

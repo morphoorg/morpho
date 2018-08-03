@@ -150,8 +150,14 @@ class ToolBox:
             if a_processor not in self._chain_processors:
                 self._chain_processors.append(a_processor)
         logger.debug("Sequence of processors: {}".format(
-            self._chain_processors))
+            self._sequenceProcessors()))
         return True
+
+    def _sequenceProcessors(self):
+        seqWithArrows = self._chain_processors[0]
+        for item in self._chain_processors[1:]:
+            seqWithArrows = seqWithArrows + " -> " + item
+        return seqWithArrows
 
     def _RunChain(self):
         '''

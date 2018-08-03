@@ -50,7 +50,9 @@ The following dependencies should be installed (via a package manager) before in
   1. Install Docker: https://docs.docker.com/engine/installation/.
   2. Clone and pull the latest master version of morpho.
   3. Inside the morpho folder, execute ```docker-compose run morpho```. A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
-  You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under the ```/host``` folder created by docker-compose.
+  You may make changes to morpho either inside or outside of the Docker container. 
+  If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under the ```/host``` folder created by docker-compose.
+  Once inside the container, run `source /setup.sh` to be able to access morpho and mermithid libraries.
   4. You can remove the container image using ```docker rmi morpho_morpho```.
   5. If the morpho Docker image gets updated, you can update the morpho image using ```docker pull morpho```.
 

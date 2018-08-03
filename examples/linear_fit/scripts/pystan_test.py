@@ -9,7 +9,7 @@ from morpho.processors.plots import TimeSeries, APosterioriDistribution
 from morpho.processors.IO import IORProcessor
 
 generator_config = {
-    "model_code": "models/model_linear_generator.stan",
+    "model_code": "linear_fit/models/model_linear_generator.stan",
     "input_data": {
         "slope": 1,
         "intercept": -2,
@@ -23,16 +23,16 @@ generator_config = {
 }
 writer_config = {
     "action": "write",
-    "filename": "data/data.r",
+    "filename": "linear_fit/data/data.r",
     "variables": ["x", "y", 'residual']
 }
 reader_config = {
     "action": "read",
-    "filename": "data/data.r",
+    "filename": "linear_fit/data/data.r",
     "variables": ["x", "y"]
 }
 analyzer_config = {
-    "model_code": "models/morpho_linear_fit.stan",
+    "model_code": "linear_fit/models/morpho_linear_fit.stan",
     "iter": 2500,
     "warmup": 500,
     "interestParams": ['slope', 'intercept', 'sigma'],
@@ -42,13 +42,13 @@ aposteriori_config = {
     "n_bins_y": 100,
     "data": ['slope', 'intercept', 'sigma', "lp_prob"],
     "title": "aposteriori_distribution",
-    "output_path": "plots"
+    "output_path": "linear_fit/plots"
 }
 timeSeries_config = {
     "data": ['slope', 'intercept', 'sigma'],
     "height": 1200,
     "title": "timeseries",
-    "output_path": "plots"
+    "output_path": "linear_fit/plots"
 }
 
 # Definition of the processors

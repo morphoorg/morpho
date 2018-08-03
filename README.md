@@ -125,7 +125,7 @@ You can find and run an example in the examples/linear_fit directory:
 
 The morpho python API allows you to run custom and more modulable scripts.
 In a python script, the processors should be created, configured and run.
-Connections between processors are made by setting the output of a processor (like "results" for PyStanSamplingProcessor) as the internal variable of another variable.
+Connections between processors are made by setting a internal varible of a processor (like "results" for PyStanSamplingProcessor) as the internal variable of another variable.
 Examples of such python scripts can be found in the examples folder.
 
 

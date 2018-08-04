@@ -32,7 +32,7 @@ reader_config = {
     "variables": ["x", "y"]
 }
 analyzer_config = {
-    "model_code": "linear_fit/models/morpho_linear_fit.stan",
+    "model_code": "linear_fit/models/model_linear_fit.stan",
     "iter": 2500,
     "warmup": 500,
     "interestParams": ['slope', 'intercept', 'sigma'],
@@ -40,12 +40,12 @@ analyzer_config = {
 aposteriori_config = {
     "n_bins_x": 100,
     "n_bins_y": 100,
-    "data": ['slope', 'intercept', 'sigma', "lp_prob"],
+    "variables": ['slope', 'intercept', 'sigma', "lp_prob"],
     "title": "aposteriori_distribution",
     "output_path": "linear_fit/plots"
 }
 timeSeries_config = {
-    "data": ['slope', 'intercept', 'sigma'],
+    "variables": ['slope', 'intercept', 'sigma'],
     "height": 1200,
     "title": "timeseries",
     "output_path": "linear_fit/plots"
@@ -68,13 +68,20 @@ aposterioriPlotter.Configure(aposteriori_config)
 timeSeriesPlotter.Configure(timeSeries_config)
 
 # Run step
-writerProcessor.data = generationProcessor.Run()
+# Generate datapoints
+generationProcessor.Run()
+writerProcessor.data = generationProcessor.results
+# Save data points
 writerProcessor.Run()
-analysisProcessor.data = readerProcessor.Run()
+# Read data points
+readerProcessor.Run()
+analysisProcessor.data = readerProcessor.data
 analysisProcessor.data = {'N': len(analysisProcessor.data['x'])}
-result = analysisProcessor.Run()
-
-aposterioriPlotter.data = result
-timeSeriesPlotter.data = result
+# Run analysis on data points
+analysisProcessor.Run()
+results = analysisProcessor.results
+aposterioriPlotter.data = results
+timeSeriesPlotter.data = results
+# Plot analysis results
 aposterioriPlotter.Run()
 timeSeriesPlotter.Run()

@@ -8,16 +8,28 @@ from __future__ import absolute_import
 
 from morpho.processors import BaseProcessor
 from morpho.utilities import morphologging, reader
-logger=morphologging.getLogger(__name__)
+logger = morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
+
 
 class IOProcessor(BaseProcessor):
     '''
     IO_Processor
     All Processors will be implemented in a child class where the
     specifics are encoded by overwriting Configure and Run.
+
+    Parameters:
+        filename (required): path/name of file
+        variables (required): variables to extract
+        action: read or write (default="read")
+
+    Input:
+        None
+
+    Results:
+        data: dictionary containing the data
     '''
 
     def Reader(self):
@@ -35,13 +47,12 @@ class IOProcessor(BaseProcessor):
         raise
 
     def InternalConfigure(self, params):
-
         '''
         This method will be called by nymph to configure the processor
         '''
         self.params = params
         self.file_name = reader.read_param(params, 'filename', "required")
-        self.variables = reader.read_param(params,"variables", "required")
+        self.variables = reader.read_param(params, "variables", "required")
         self.file_action = reader.read_param(params, "action", "read")
         self.data = dict()
         return True

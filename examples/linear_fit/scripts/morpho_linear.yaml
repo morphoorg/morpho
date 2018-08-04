@@ -1,6 +1,6 @@
 # Basic linear fit example
-# This config file can be used to generate and analyze data following an linear function.
-# Control plots are then generated
+# This config file can be used to generate and analyze data following an
+# linear function. Control plots are then generated.
 # Author: M. Guigue
 
 # Define the processor toolbox configuration
@@ -63,11 +63,11 @@ analyzer:
 posterioriDistrib:
     n_bins_x: 100
     n_bins_y: 100
-    data: ['slope','intercept','sigma',"lp_prob"]
+    variables: ['slope','intercept','sigma',"lp_prob"]
     title: "aposteriori_distribution"
     output_path: "linear_fit/plots"
 timeSeries:
-    data: ['slope','intercept','sigma']
+    variables: ['slope','intercept','sigma']
     height: 1200
     title: "timeseries"
     output_path: "linear_fit/plots"

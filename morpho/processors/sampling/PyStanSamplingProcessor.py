@@ -216,8 +216,7 @@ class PyStanSamplingProcessor(BaseProcessor):
             self.control = reader.read_param(params, 'control', None)
         else:
             if reader.read_param(params, 'control', None) is not None:
-                logger.debug("stan.run.control should be a dict: {}",
-                    str(reader.read_param(yd, 'control', None)))
+                logger.debug("stan.run.control should be a dict: {}", str(reader.read_param(yd, 'control', None)))
         return True
 
     def InternalRun(self):

@@ -25,6 +25,17 @@ class IORProcessor(IOProcessor):
     '''
     Base IO R Processor
     The R Reader and Writer use pystan.misc package
+
+    Parameters:
+        filename (required): path/name of file
+        variables (required): variables to extract
+        action: read or write (default="read")
+
+    Input:
+        None
+
+    Results:
+        data: dictionary containing the data
     '''
 
     def Reader(self):

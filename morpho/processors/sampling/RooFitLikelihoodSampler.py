@@ -23,6 +23,23 @@ class RooFitLikelihoodSampler(BaseProcessor):
     A new class should inheritate from this one and have its
     own version of "definePdf".
     The input data are given via the attribute "data".
+
+    Parameters:
+        varName (required): name(s) of the variable in the data
+        nuisanceParams (required): parameters to be discarded at end of sampling
+        interestParams (required): parameters to be saved in the results variable
+        iter (required): total number of iterations (warmup and sampling)
+        warmup: number of warmup iterations (default=iter/2)
+        chain: number of chains (default=1)
+        n_jobs: number of parallel cores running (default=1)
+        binned: should do binned analysis (default=false)
+        options: other options
+
+    Input:
+        data: dictionary containing model input data
+
+    Results:
+        results: dictionary containing the result of the sampling of the parameters of interest
     '''
 
     def _defineDataset(self, wspace):
@@ -72,8 +89,8 @@ class RooFitLikelihoodSampler(BaseProcessor):
         self.datasetName = "data_"+self.varName
         self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")
         self.paramOfInterestNames = reader.read_param(config_dict, "interestParams", "required")
-        self.iter = int(reader.read_param(config_dict, "iter", 2000))
-        self.warmup = int(reader.read_param(config_dict, "warmup", 200))
+        self.iter = int(reader.read_param(config_dict, "iter", "required"))
+        self.warmup = int(reader.read_param(config_dict, "warmup", self.iter/2.))
         self.numCPU = int(reader.read_param(config_dict, "n_jobs", 1))
         self.binned = int(reader.read_param(config_dict, "binned", False))
         self.options = reader.read_param(config_dict, "options", dict())

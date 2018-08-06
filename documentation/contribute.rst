@@ -5,9 +5,12 @@ Contribute
 Branching Model
 ------------------
 
-Morpho uses the git flow branching model, as described here_. In summary, the master branch is reserved for numbered releases of morpho. The only branches that may branch off of master are hotfixes. All development should branch off of the develop branch, and merge back into the develop branch when complete. Once the develop branch is ready to go into a numbered release, a release branch is created where any final testing and bug fixing is carried out. This release branch is then merged into master, and the resulting commit is tagged with the number of the new release.
-
-Currently Morpho has two development branches. develop is used for Morpho 1 development, while morpho2/develop is used for Morpho 2 development.
+Morpho uses the git flow branching model, as described here_. 
+In summary, the master branch is reserved for numbered releases of morpho. 
+The only branches that may branch off of master are hotfixes. 
+All development should branch off of the develop branch, and merge back into the develop branch when complete. 
+Once the develop branch is ready to go into a numbered release, a release branch is created where any final testing and bug fixing is carried out. 
+This release branch is then merged into master, and the resulting commit is tagged with the number of the new release.
 
 .. _here: http://nvie.com/posts/a-successful-git-branching-model/
 

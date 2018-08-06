@@ -1,5 +1,5 @@
 ========================================
-Morpho 1
+Morpho 1: introduction
 ========================================
 
 Morpho is a python interface to the Stan/PyStan Markov Chain Monte
@@ -20,11 +20,14 @@ An Example File
 
 The format allows the user to execute Stan using standarized scripts.
 Let us now take apart an example file to illustrate how morpho
-functions.  You can find the example file in::
-  morpho/examples/morpho_test/scripts/morpho_linear_fit.yaml
+functions.  You can find the example file in
+::
+
+    morpho/examples/morpho_test/scripts/morpho_linear_fit.yaml
 
 Let us start with the initiation portion of the configuration.
 ::
+
   morpho:
    do_preprocessing: False
    do_stan: True
@@ -38,6 +41,7 @@ plots at the end of processing.
 Next, we come to the main Stan configuration block, where both running
 conditions, data and parameters can be fed into the Stan model.
 ::
+
    stan:
    name: "morpho_test"
    model:
@@ -89,6 +93,7 @@ we save to a root file, and maintain two variables, *a* and *b*.
 
 Since we specified the configure file to also make some plots, we can
 set up those conditions as well.  In our example again, we have::
+
   plot:
    which_plot:
     - method_name: histo

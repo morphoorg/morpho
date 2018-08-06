@@ -1,17 +1,19 @@
-----------------
-Morpho 2 example
-----------------
+-----------------
+Morpho 2: Example
+-----------------
 
 The ```linear_fit``` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run.
 See [Instructions for Use: Before You Run Morpho](https://github.com/project8/morpho/tree/doc_README#instructions-for-use) for more details regarding analysis file organization.
 
 Run ```linear_fit``` from the ```examples``` folder by executing:
 ::
+
   morpho --config linear_fit/scripts/morpho_linear_fit.yaml
 
 
 Equivalently, you can run the same example using the python API:
 ::
+
   python linear_fit/scripts/pystan_test.py
 
 
@@ -44,11 +46,12 @@ The content of the file possesses 2 main structures:
 The structure of the configuration file is very similar to the [Katydid](https://github.com/project8/katydid) software.
 
 ```Processors-toolbox``` Block
-''''''''''''''''''''
+'''''''''''''''''''''''''''''''
 
 This block defines the processors to be used and assigns these a name.
 It also provide the connections between processors (which variable of a processor will be set as variable of another processor) and defines the order in which the processors will be executed.
 ::
+
   processors-toolbox:
     # Define the processors and their names
       processors:
@@ -81,10 +84,11 @@ The block is composed of two structures:
 - `connections` defines the order in which the processors are run. In the example, it will be `generator -> writer -> reader -> analyzer -> posterioriDistrib -> timeSeries`. It also defines how processors are connected together: for example the internal variable `results` of  `generator` (called *signal*) containing the MC samples as a dictionary will be given to `writer` as `data` (called *slot*). It is important that the signal and slot types match.
 
 Processors configurations
-''''''''''''''''''''
+'''''''''''''''''''''''''
 
 The following dictionaries defines the properties of each processor:
 ::
+
   # Configure generator
   generator:
     model_code: "linear_fit/models/model_linear_generator.stan"
@@ -102,7 +106,7 @@ The following dictionaries defines the properties of each processor:
 Documentation about each processor parameters can be found in the source code in each class.
 
 Python script
-------------
+-------------
 
 Similarly it is possible to create, configure and run processors using the morpho python API.
 An example can be found in `linear_fit/scripts/pystan_test.py`.

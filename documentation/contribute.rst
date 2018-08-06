@@ -38,6 +38,7 @@ In morpho 1, __init__.py files are set up such that
 
 will import all functions from all subpackages and modules into the namespace. If a package contains the subpackages "subpackage1" and "subpackage2", and the modules "module1" and "module2", then the __init__.py file should include imports of the form:
 ::
+
    from . import subpackage1
    from . import subpackage2
    from ./module1 import *
@@ -45,10 +46,12 @@ will import all functions from all subpackages and modules into the namespace. I
 
 In morpho 2, __init__.py files are set up such that
 ::
+
    from package import *
 
 will import all  modules into the namespace, but it will not directly import the functions into the namespace. For our package containing "subpackage1", "subpackage2", "module1", and "module2", __init__.py should be of the form:
 ::
+
    __all__ = ["module1", "module2"]
 
 In this case, functions would be called via module1.function_name(). If one wants all of the functions from module1 in the namespace, then they can include "from package.module1 import *" at the top of their code. This change to more explicit imports should prevent any issues with function names clashing as Morpho grows.

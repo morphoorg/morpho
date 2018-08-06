@@ -11,6 +11,10 @@ organize inflow and outflow of data and models.
 A new underlying framework
 --------------------------
 
+Morpho 2 uses a framework similar to `Nymph`_
+
+.. _`Nymph`: https://github.com/project8/nymph
+
 An interface with external software
 -----------------------------------
 

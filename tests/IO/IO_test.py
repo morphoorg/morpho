@@ -156,8 +156,8 @@ class IOTests(unittest.TestCase):
             "format": "csv"
         }
 
-        a = IORProcessor("writer")
-        b = IORProcessor("reader")
+        a = IOCVSProcessor("writer")
+        b = IOCVSProcessor("reader")
         a.Configure(writer_config)
         b.Configure(reader_config)
         a.data = input_data

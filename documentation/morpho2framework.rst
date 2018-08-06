@@ -46,5 +46,6 @@ An interface with external software
 
 Thanks to this new framework and the extensitvity of the package, it is easy to interface with other softwares.
 Several ways of implementing such interfacing are possible and should be implemented depending on how complex the interfacing is:
-- If the new piece of code is contain into a simple function into a python script, one can use as a first step the ProcessorAssistant to wrap the function into a processor (this does require the creation of an extension). Eventually, for production usage, a new processor with the desired behavior should be created (this might require the creation of an extension).
-- If morpho needs to interface with an external library (e.g. some C++ code), an extension is highly recommended. The libraries can be built before the installation of the extension. An example of such implementation is `mermithid`_.
+
+1. If the new piece of code is contain into a simple function into a python script, one can use as a first step the ProcessorAssistant to wrap the function into a processor (this does require the creation of an extension). Eventually, for production usage, a new processor with the desired behavior should be created (this might require the creation of an extension).
+2. If morpho needs to interface with an external library (e.g. some C++ code), an extension is highly recommended. The libraries can be built before the installation of the extension. An example of such implementation is `mermithid`_.

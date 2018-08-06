@@ -4,6 +4,20 @@ Validation Log
 Log
 ---
 
+Version: 
+~~~~~~~~~~~~~~~
+
+Release Date: 
+''''''''''''''''''''''''''''''''''
+
+Fixes:
+''''''
+
+* Documentation update: 
+    * Adding docstring for processors
+    * Update example
+    * Adding descriptions about morpho 2, reworking the morpho 1's
+
 Version: v2.1.4
 ~~~~~~~~~~~~~~~
 

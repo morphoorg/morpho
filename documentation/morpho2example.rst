@@ -1,3 +1,5 @@
+.. _morpho2-example-label:
+
 -----------------
 Morpho 2: Example
 -----------------

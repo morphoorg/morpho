@@ -17,6 +17,7 @@ Fixes:
     * Adding docstring for processors
     * Update example
     * Adding descriptions about morpho 2, reworking the morpho 1's
+* Issue tracker: adding template issues
 
 Version: v2.1.4
 ~~~~~~~~~~~~~~~

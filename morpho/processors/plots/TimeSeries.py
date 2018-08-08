@@ -48,7 +48,7 @@ class TimeSeries(BaseProcessor):
         self._data = value
 
     def InternalConfigure(self, param_dict):
-        # Initialize Canvas: for some reason, the module or the class is 
+        # Initialize Canvas: for some reason, the module or the class is
         # imported depending which script imports.
         try:
             self.rootcanvas = RootCanvas(param_dict, optStat=0)

@@ -47,7 +47,7 @@ class APosterioriDistribution(BaseProcessor):
         '''
         Configure
         '''
-        # Initialize Canvas: for some reason, the module or the class is 
+        # Initialize Canvas: for some reason, the module or the class is
         # imported depending which script imports.
         try:
             self.rootcanvas = RootCanvas(param_dict, optStat=0)

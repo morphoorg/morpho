@@ -15,31 +15,6 @@ Guidelines
   * Perform tests to show that the fix does not cause other problems.
   * Indicate in this log what tests were performed and how you know the problem was fixed.
 
-Template
---------
-
-Version:
-~~~~~~~~
-
-Release Date:
-'''''''''''''
-
-New Features:
-'''''''''''''
-
-* Feature 1
-    * Details
-* Feature 2
-    * Details
-
-Fixes:
-''''''
-
-* Fix 1
-    * Details
-* Fix 2
-    * Details
-
 Log
 ---
 
@@ -141,3 +116,29 @@ Fixes:
 ''''''
 
 * Use brew instead of conda for Travis CI
+
+
+Template
+--------
+
+Version:
+~~~~~~~~
+
+Release Date:
+'''''''''''''
+
+New Features:
+'''''''''''''
+
+* Feature 1
+    * Details
+* Feature 2
+    * Details
+
+Fixes:
+''''''
+
+* Fix 1
+    * Details
+* Fix 2
+    * Details

@@ -52,10 +52,7 @@ Release Date:
 New Features:
 '''''''''''''
 
-* Feature 1
-    * Details
-* Feature 2
-    * Details
+* Add access to processors properties from ToolBox
 
 Fixes:
 ''''''

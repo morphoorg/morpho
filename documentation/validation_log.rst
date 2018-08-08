@@ -54,6 +54,12 @@ New Features:
 
 * Add access to processors properties from ToolBox
 
+Version: v2.1.4
+~~~~~~~~~~~~~~~
+
+Release Date: Tues. July 31st 2018
+''''''''''''''''''''''''''''''''''
+
 Fixes:
 ''''''
 

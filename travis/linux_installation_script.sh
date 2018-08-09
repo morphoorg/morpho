@@ -1,8 +1,6 @@
 #!/bin/bash
-# Travis installation script
+# Travis installation script for linux (via Docker)
 # Author: M. Guigue
 # Date: 03/01/2018
 
-ls
-
-pip3 install . --user
+docker build -t travis_morpho .

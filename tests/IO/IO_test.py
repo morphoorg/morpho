@@ -167,6 +167,8 @@ class IOTests(unittest.TestCase):
         logger.info("Data extracted = {}".format(data.keys()))
         for key in data.keys():
             logger.info("{} -> size = {}".format(key, len(data[key])))
+            print(len(data[key]))
+            print(6)
             self.assertEqual(len(data[key]), 6)
 
 if __name__ == '__main__':

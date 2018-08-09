@@ -1,14 +1,27 @@
 language: cpp
 sudo: required
 dist: trusty
-compiler:
-    - clang
-os:
-    - osx
-osx_image: xcode9.4
+
+matrix:
+  include:
+    - os: linux
+      services: docker
+      env:
+        - DOCKER_IMAGE=guiguem/root-docker:python3
+        - DOCKER_CONTAINER=root-docker
+        - SCRIPT_PREFIX_CMD="docker exec $DOCKER_CONTAINER"
+    - os: osx
+      osx_image: xcode9.4
+      compiler: clang
+# compiler:
+#     - clang
+# os:
+#     - osx
+# osx_image: xcode9.4
 before_install:
-    - if [ $TRAVIS_OS_NAME == osx ]; then rm /usr/local/include/c++ /usr/local/lib/python2.7/site-packages/numpy/__config__.py ; fi
-    - if [ $TRAVIS_OS_NAME == osx ]; then brew upgrade python && brew reinstall numpy --without-python@2 && brew install root ; fi
+    - if [ $TRAVIS_OS_NAME == osx  ]; then rm /usr/local/include/c++ /usr/local/lib/python2.7/site-packages/numpy/__config__.py ; fi
+    - if [ $TRAVIS_OS_NAME == osx  ]; then brew upgrade python && brew reinstall numpy --without-python@2 && brew install root ; fi
+    - if [ $TRAVIS_OS_NAME == linux]; then source /setup.sh ; fi
 install:
   - if [ $TRAVIS_OS_NAME == osx ]; then source travis/installation_script.sh ; fi;
 script:

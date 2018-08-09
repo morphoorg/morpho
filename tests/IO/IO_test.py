@@ -164,6 +164,7 @@ class IOTests(unittest.TestCase):
         a.Run()
         b.Run()
         data = b.data
+        print(data)
         logger.info("Data extracted = {}".format(data.keys()))
         for key in data.keys():
             logger.info("{} -> size = {}".format(key, len(data[key])))

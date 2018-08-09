@@ -9,5 +9,5 @@ cd ../misc && python3 misc_test.py || exit 1
 cd ../sampling && python3 sampling_test.py || exit 1
 
 cd ../../examples
-morpho -c linear_fit/scripts/myConfigFile.yaml || exit 1
+morpho -c linear_fit/scripts/morpho_linear.yaml || exit 1
 cd ../..

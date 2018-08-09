@@ -43,6 +43,18 @@ Fixes:
 Log
 ---
 
+Version:
+~~~~~~~~
+
+Release Date:
+'''''''''''''
+
+New Features:
+'''''''''''''
+
+- Travis: adding linux via Docker
+
+
 Version: v2.1.4
 ~~~~~~~~~~~~~~~
 

@@ -7,6 +7,7 @@ Date: 06/26/18
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 
+
 def read_param(yaml_data, node, default):
     data = yaml_data
     xpath = node.split('.')
@@ -15,12 +16,14 @@ def read_param(yaml_data, node, default):
             data = data[path]
     except KeyError as exc:
         if default == 'required':
-            err = "Configuration parameter {} required but not provided in config file!".format(node)
+            err = "Configuration parameter {} required but not provided in config file!".format(
+                node)
             logger.error(err)
             raise exc
         else:
             data = default
     return data
+
 
 def add_dict_param(dictionary, key, value):
     '''
@@ -32,9 +35,10 @@ def add_dict_param(dictionary, key, value):
     so multiple parameters may be added at once.
     '''
     if key in dictionary:
-        key_err = "Cannot add key {} to dictionary. That key is taken.".format(key)
+        key_err = "Cannot add key {} to dictionary. That key is taken.".format(
+            key)
         logger.error(key_err)
         raise
     else:
-        dictionary.update({key:value})
-    return dictionary   
+        dictionary.update({key: value})
+    return dictionary

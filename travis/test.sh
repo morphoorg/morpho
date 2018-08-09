@@ -3,13 +3,11 @@
 # Author: M. Guigue
 # Date: 06/09/2018
 
-# Source root
-. /usr/local/bin/thisroot.sh
 # Let's go with the tests!
-cd tests/IO && python3 IO_test.py
-cd ../misc && python3 misc_test.py
-cd ../sampling && python3 sampling_test.py
+cd tests/IO && python3 IO_test.py || exit 1
+cd ../misc && python3 misc_test.py || exit 1
+cd ../sampling && python3 sampling_test.py || exit 1
 
-cd ../../examples/pystan_test
-morpho -c myConfigFile.yaml
+cd ../../examples
+morpho -c linear_fit/scripts/myConfigFile.yaml || exit 1
 cd ../..

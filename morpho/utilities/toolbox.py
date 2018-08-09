@@ -8,9 +8,6 @@ Date: 06/26/18
 import os
 import importlib
 
-import os
-import importlib
-
 from morpho.utilities import morphologging, parser
 logger = morphologging.getLogger(__name__)
 

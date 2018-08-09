@@ -17,6 +17,7 @@ before_install:
     - if [ $TRAVIS_OS_NAME == osx   ]; then rm /usr/local/include/c++ /usr/local/lib/python2.7/site-packages/numpy/__config__.py ; fi
     - if [ $TRAVIS_OS_NAME == osx   ]; then brew upgrade python && brew reinstall numpy --without-python@2 && brew install root ; fi
     - if [ $TRAVIS_OS_NAME == linux ]; then ls ; fi
+    - if [ $TRAVIS_OS_NAME == linux ]; then pwd ; fi
     - if [ $TRAVIS_OS_NAME == linux ]; then source /setup.sh ; fi
 install:
   - if [ $TRAVIS_OS_NAME == osx   ]; then source travis/osx_installation_script.sh ; fi;

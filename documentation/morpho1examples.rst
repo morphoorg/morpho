@@ -1,19 +1,20 @@
 ========================================
-Morpho 1 Example Scripts
+Morpho 1: Example Scripts
 ========================================
 
 The following are example yaml scripts for important Preprocessing, Postprocessing, and Plot routines in Morpho 1. The format of the yaml script for other methods can be obtained from the documentation for that method.
 
 Preprocessing
-----------------
+-------------
 
 "do\_preprocessing : true" must be in the morpho dictionary. The dictionaries below should be placed in a "which\_pp" dictionary inside the "preprocessing" dictionary.
 
 bootstrapping
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 Resamples the contents of a tree. Instead of regenerating a fake data set on every sampler, one can generate a larger data set, then extract subsets.
 ::
+
    - method_name: "boot_strapping"
      module_name: "resampling"
      input_file_name: "input.root" # Name of file to access
@@ -27,12 +28,12 @@ Resamples the contents of a tree. Instead of regenerating a fake data set on eve
      option: "RECREATE" # Option for saving root file (default = RECREATE)
 
 Postprocessing
-----------------
+--------------
 
 "do\_postprocessing : true" must be in the morpho dictionary. The dictionaries below should be placed in a "which\_pp" dictionary inside the "postprocessing" dictionary.
 
 general\_data\_reducer
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 Tranform a function defining a spectrum into a histogram of binned data points.
 ::
@@ -52,7 +53,7 @@ Tranform a function defining a spectrum into a histogram of binned data points.
                                  # UPDATE will open a file (after creating it, if it does not exist) and update the file.
 
 Plot
-----------------
+----
 
 "do\_plots : true" must be in the morpho dictionary. The dictionaries below should be placed in a "which_plot" dictionary inside the "plot" dictionary.
 
@@ -61,6 +62,7 @@ contours
 
 contours creates a matrix of contour plots using a stanfit object
 ::
+
   - method_name: "contours"
     module_name: "contours"
     read_cache_name: "cache_name_file.txt" # File containing path to stan model cache
@@ -74,6 +76,7 @@ histo
 
 Plot a 1D histogram using a list of data
 ::
+
   - method_name: "histo"
     module_name: "histo"
 
@@ -82,6 +85,7 @@ spectra
 
 Plot a 1D histogram using 2 lists of data giving an x point and the corresponding bin contents
 ::
+
   - method_name: "spectra"
     module_name: "histo"
     title: "histo"
@@ -96,6 +100,7 @@ histo2D
 
 Plot a 2D histogram using 2 lists of data
 ::
+
   - method_name: "histo2D"
     module_name: "histo"
     input_file_name : "input.root"
@@ -106,10 +111,11 @@ Plot a 2D histogram using 2 lists of data
       - list_y_branch
 
 histo2D_divergence
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 Plot a 2D histogram with divergence indicated by point color
 ::
+
   - method_name: "histo2D_divergence"
     module_name: "histo"
     input_file_name : "input.root"
@@ -120,10 +126,11 @@ Plot a 2D histogram with divergence indicated by point color
       - list_y_branch
 
 aposteriori_distribution
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Plot a grid of 2D histograms
 ::
+
   - method_name: "aposteriori_distribution"
     module_name: "histo"
     input_file_name : "input.root"
@@ -140,10 +147,11 @@ Plot a grid of 2D histograms
       - param3
 
 correlation_factors
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 Plot a grid of correlation factors
 ::
+
   - method_name: "correlation_factors"
     module_name: "histo"
     input_file_name : "input.root"

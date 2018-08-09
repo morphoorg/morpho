@@ -111,6 +111,66 @@ class IOTests(unittest.TestCase):
             logger.info("{} -> size = {}".format(key, len(data[key])))
             self.assertEqual(len(data[key]), 6)
 
+    def test_RIO(self):
+        logger.info("IOR test")
+        from morpho.processors.IO import IORProcessor
+        writer_config = {
+            "action": "write",
+            "filename": "myFile.r",
+            "variables": ["x", "y"]
+        }
+
+        reader_config = {
+            "action": "read",
+            "filename": "myFile.r",
+            "variables": ['x', 'y'],
+        }
+
+        a = IORProcessor("writer")
+        b = IORProcessor("reader")
+        a.Configure(writer_config)
+        b.Configure(reader_config)
+        a.data = input_data
+        a.Run()
+        b.Run()
+        data = b.data
+        logger.info("Data extracted = {}".format(data.keys()))
+        for key in data.keys():
+            logger.info("{} -> size = {}".format(key, len(data[key])))
+            self.assertEqual(len(data[key]), 6)
+
+    def test_CVSIO(self):
+        logger.info("IOCVS test")
+        from morpho.processors.IO import IOCVSProcessor
+        writer_config = {
+            "action": "write",
+            "filename": "myFile.txt",
+            "variables": ["x", "y"],
+            "format": "cvs"
+        }
+
+        reader_config = {
+            "action": "read",
+            "filename": "myFile.txt",
+            "variables": ['x', 'y'],
+            "format": "csv"
+        }
+
+        a = IOCVSProcessor("writer")
+        b = IOCVSProcessor("reader")
+        a.Configure(writer_config)
+        b.Configure(reader_config)
+        a.data = input_data
+        a.Run()
+        b.Run()
+        data = b.data
+        print(data)
+        logger.info("Data extracted = {}".format(data.keys()))
+        for key in data.keys():
+            logger.info("{} -> size = {}".format(key, len(data[key])))
+            print(len(data[key]))
+            print(6)
+            self.assertEqual(len(data[key]), 6)
 
 if __name__ == '__main__':
     unittest.main()

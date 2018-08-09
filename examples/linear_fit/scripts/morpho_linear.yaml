@@ -1,0 +1,73 @@
+# Basic linear fit example
+# This config file can be used to generate and analyze data following an
+# linear function. Control plots are then generated.
+# Author: M. Guigue
+
+# Define the processor toolbox configuration
+processors-toolbox:
+  # Define the processors and their names
+    processors:
+        - type: morpho:PyStanSamplingProcessor
+          name: generator
+        - type: IORProcessor
+          name: writer
+        - type: IORProcessor
+          name: reader
+        - type: morpho:PyStanSamplingProcessor
+          name: analyzer
+        - type: APosterioriDistribution
+          name: posterioriDistrib
+        - type: TimeSeries
+          name: timeSeries
+  # Define in which order the processors should be run and how connections should be made
+    connections:
+        - signal: "generator:results"
+          slot: "writer:data"
+        - signal: "reader:data"
+          slot: "analyzer:data"
+        - signal: "analyzer:results"
+          slot: "posterioriDistrib:data"
+        - signal: "analyzer:results"
+          slot: "timeSeries:data"
+# Individual processor configurations
+generator:
+    model_code: "linear_fit/models/model_linear_generator.stan"
+    input_data: 
+        slope: 1
+        intercept: -2
+        xmin: 1
+        xmax: 10
+        sigma: 1.6
+    iter: 530
+    warmup: 500
+    interestParams: ['x','y','residual']
+    delete: False
+writer:
+    action: write
+    filename: linear_fit/data/data.r
+    variables: 
+        - "x"
+        - "y"
+        - 'residual'
+reader:
+    action: read
+    filename: linear_fit/data/data.r
+    variables: ["x","y"]
+analyzer:
+    model_code: "linear_fit/models/model_linear_fit.stan"
+    iter: 2500
+    warmup: 500
+    interestParams: ['slope','intercept','sigma']
+    input_data: 
+      N: 530
+posterioriDistrib:
+    n_bins_x: 100
+    n_bins_y: 100
+    variables: ['slope','intercept','sigma',"lp_prob"]
+    title: "aposteriori_distribution"
+    output_path: "linear_fit/plots"
+timeSeries:
+    variables: ['slope','intercept','sigma']
+    height: 1200
+    title: "timeseries"
+    output_path: "linear_fit/plots"

@@ -1,5 +1,5 @@
 ========================================
-Postprocessing
+Morpho 1: Postprocessing
 ========================================
 
 Postprocessing functions are applied to data after executing
@@ -8,12 +8,14 @@ the fitter.  Typically this is done examine the parameter information and check 
 Postprocessing can be set as a flag in the beginning of the
 configuration file.  As an example
 ::
+
    morpho:
      do_postprocessing: true
      
 Later in the configuration file, you can set up the commands to
 post-process data.  For example, to reduce the data into bins
 ::
+
    preprocessing:
     which_pp:  
      - method_name: general_data_reducer

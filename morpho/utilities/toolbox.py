@@ -8,6 +8,9 @@ Date: 06/26/18
 import os
 import importlib
 
+import os
+import importlib
+
 from morpho.utilities import morphologging, parser
 logger = morphologging.getLogger(__name__)
 
@@ -112,14 +115,14 @@ class ToolBox:
             var_to_give = self._processors_dict[nameProc]['variableToGive'][i]
             var_to_be_connected_to = self._processors_dict[nameProc]['varToBeConnectedTo'][i]
             proc_object_to_update = self._processors_dict[proc_name_to_update]['object']
-            logger.debug("Connection {}:{} -> {}:{}".format(nameProc,
-                                                            var_to_give, proc_name_to_update, var_to_be_connected_to))
+            logger.debug("Connection {}:{} -> {}:{}".format(nameProc, var_to_give, proc_name_to_update, var_to_be_connected_to))
 
             try:
                 val = getattr(proc_object, var_to_give)
                 setattr(proc_object_to_update, var_to_be_connected_to, val)
             except Exception as err:
-                logger.error("Connection {}:{} -> {}:{} failed:\n{}".format(nameProc, var_to_give, proc_name_to_update, var_to_be_connected_to, err))
+                logger.error("Connection {}:{} -> {}:{} failed:\n{}".format(nameProc,
+                                                                            var_to_give, proc_name_to_update, var_to_be_connected_to, err))
                 return False
         return True
 

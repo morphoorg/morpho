@@ -8,10 +8,13 @@ Contents:
 
     updates
     install
-    morpho
+    morpho1
     preprocessing
     postprocessing
     plot
     morpho1examples
+    morpho2framework
+    morpho2example
     contribute
+    validation_log
     better_apidoc_out/modules

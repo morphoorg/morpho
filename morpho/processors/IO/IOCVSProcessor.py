@@ -54,9 +54,12 @@ class IOCVSProcessor(IOProcessor):
             raise FileNotFoundError(self.file_name)
 
         logger.debug("Extracting {}".format(self.variables))
+        # Interpret as csv reader reads string only
+        from asteval import Interpreter
+        aeval = Interpreter()
         for var in self.variables:
             if var in theData.keys():
-                self.data.update({str(var): theData[var]})
+                self.data.update({str(var): aeval(theData[var])})
             else:
                 logger.error("Variable {} does not exist in {}".format(
                     self.variables, self.file_name))

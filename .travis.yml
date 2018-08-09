@@ -18,7 +18,7 @@ before_install:
     - if [ $TRAVIS_OS_NAME == osx   ]; then brew upgrade python && brew reinstall numpy --without-python@2 && brew install root ; fi
     - if [ $TRAVIS_OS_NAME == linux ]; then docker build -t travis_morpho . ; fi
     - if [ $TRAVIS_OS_NAME == linux ]; then docker ps -a ; fi
-    - if [ $TRAVIS_OS_NAME == linux ]; then docker run -it travis_morpho bash -c "source /setup.sh && source travis/test.sh" ; fi
+    - if [ $TRAVIS_OS_NAME == linux ]; then docker run -it travis_morpho bash -c "source /setup.sh && pwd && cd morpho && source travis/test.sh" ; fi
 install:
   - if [ $TRAVIS_OS_NAME == osx   ]; then source travis/osx_installation_script.sh ; fi;
   - if [ $TRAVIS_OS_NAME == linux ]; then source travis/linux_installation_script.sh ; fi;

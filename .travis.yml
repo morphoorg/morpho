@@ -16,9 +16,9 @@ matrix:
 before_install:
     - if [ $TRAVIS_OS_NAME == osx   ]; then rm /usr/local/include/c++ /usr/local/lib/python2.7/site-packages/numpy/__config__.py ; fi
     - if [ $TRAVIS_OS_NAME == osx   ]; then brew upgrade python && brew reinstall numpy --without-python@2 && brew install root ; fi
-    - if [ $TRAVIS_OS_NAME == linux ]; then ls ; fi
-    - if [ $TRAVIS_OS_NAME == linux ]; then pwd ; fi
-    - if [ $TRAVIS_OS_NAME == linux ]; then source /setup.sh ; fi
+    - if [ $TRAVIS_OS_NAME == linux ]; then docker build -t travis_morpho  ; fi
+    - if [ $TRAVIS_OS_NAME == linux ]; then docker ps -a ; fi
+    - if [ $TRAVIS_OS_NAME == linux ]; then docker run -it travis_morpho bash -c "source /setup.sh && source travis/test.sh" ; fi
 install:
   - if [ $TRAVIS_OS_NAME == osx   ]; then source travis/osx_installation_script.sh ; fi;
   - if [ $TRAVIS_OS_NAME == linux ]; then source travis/linux_installation_script.sh ; fi;

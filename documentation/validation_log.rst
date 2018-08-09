@@ -19,6 +19,18 @@ Fixes:
     * Adding descriptions about morpho 2, reworking the morpho 1's
 * Issue tracker: adding template issues
 
+Version:
+~~~~~~~~
+
+Release Date:
+'''''''''''''
+
+New Features:
+'''''''''''''
+
+- Travis: adding linux via Docker
+
+
 Version: v2.1.4
 ~~~~~~~~~~~~~~~
 

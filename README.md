@@ -1,5 +1,6 @@
 # morpho
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7b4a6e74b5cd405ea91b6ddb5cb504d1)](https://app.codacy.com/app/guiguem/morpho?utm_source=github.com&utm_medium=referral&utm_content=project8/morpho&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/project8/morpho.svg?branch=master)](https://travis-ci.org/project8/morpho)
 [![Documentation Status](https://readthedocs.org/projects/morpho/badge/?version=latest)](https://morpho.readthedocs.io/en/latest/?badge=latest)
 

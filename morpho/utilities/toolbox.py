@@ -5,7 +5,6 @@ Toolbox class: create, configure and run processors
 Authors: M. Guigue
 Date: 06/26/18
 '''
-
 import os
 import importlib
 
@@ -93,7 +92,8 @@ class ToolBox:
                                               "variableToGive": [],  # -> variable to give after execution
                                               # -> which processor need to give its output to this processor
                                               "procToBeConnectedTo": [],
-                                              "varToBeConnectedTo": []  # -> which variable of the connected processor to be set
+                                              "varToBeConnectedTo": [],  # -> which variable of the connected processor to be set
+                                              "deleted": False
                                           }
                                           })
             logger.info("Processor <{}> ({}:{}) created".format(
@@ -124,6 +124,9 @@ class ToolBox:
         return True
 
     def _DefineChain(self):
+        '''
+        Defines the connections between the processors and place the processors into a ordered list.
+        '''
         for a_connection in self.config_dict['processors-toolbox']['connections']:
             if a_connection['slot'].split(":")[0] not in self._processors_dict.keys():
                 logger.error("Processor <{}> not defined but used as signal emitter".format(
@@ -147,10 +150,19 @@ class ToolBox:
             if a_processor not in self._chain_processors:
                 self._chain_processors.append(a_processor)
         logger.debug("Sequence of processors: {}".format(
-            self._chain_processors))
+            self._sequenceProcessors()))
         return True
 
+    def _sequenceProcessors(self):
+        seqWithArrows = self._chain_processors[0]
+        for item in self._chain_processors[1:]:
+            seqWithArrows = seqWithArrows + " -> " + item
+        return seqWithArrows
+
     def _RunChain(self):
+        '''
+        Execute the chain of processors
+        '''
         for a_processor in self._chain_processors:
             try:
                 if not self._processors_dict[a_processor]['object'].Run():
@@ -162,6 +174,7 @@ class ToolBox:
                 raise err
             self._ConnectProcessors(a_processor)
             if self._processors_dict[a_processor]['object'].delete:
+                self._processors_dict[a_processor]['deleted'] = True
                 logger.info("Deleting <{}>".format(a_processor))
                 del self._processors_dict[a_processor]['object']
         return True
@@ -179,3 +192,20 @@ class ToolBox:
         if not self._RunChain():
             logger.error("Error while running processors!")
             return False
+
+    def GetProcessor(procName):
+        if self._processors_dict[str(procName)]['deleted']:
+            logger.warning("Processor {} has been deleted!".format(procName))
+            return 0
+        return self._processors_dict[str(procName)]['object']
+
+    def GetProcAttr(procName, varName):
+        if self._processors_dict[str(procName)]['deleted']:
+            logger.warning("Processor {} has been deleted!".format(procName))
+            return 0
+        value = 0
+        try:
+            value = getattr(self._processors_dict[str(procName)]['object'], str(varName))
+        except:
+            logger.warning("Attribute {} does not exist in {}".format(procValue, procName))
+        return value

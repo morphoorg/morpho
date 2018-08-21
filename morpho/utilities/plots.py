@@ -193,7 +193,7 @@ def _fill_hist_grid(input_dict, name_grid,
     # n = len(input_dict[list(input_dict.keys())[0]])
     for r, row in enumerate(name_grid):
         for c, names in enumerate(row):
-            if(not names is None and len(names) == 2):
+            if (names is not None and len(names) == 2):
                 list_dataX = []
                 list_dataY = []
                 # for i in range(0,n):
@@ -208,7 +208,7 @@ def _fill_hist_grid(input_dict, name_grid,
                 histo.GetYaxis().SetTitle(names[0])
                 histo.GetXaxis().SetTitle(names[1])
                 hist_grid[r][c] = histo
-            elif(not names is None and len(names) == 1):
+            elif (names is not None and len(names) == 1):
                 list_data = []
                 # for i in range(0,n):
                 # tree.GetEntry(i)

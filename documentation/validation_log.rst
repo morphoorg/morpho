@@ -5,15 +5,16 @@ Log
 ---
 
 Version: 
-~~~~~~~~~~~~~~~
+~~~~~~~~
 
 Release Date: 
-''''''''''''''''''''''''''''''''''
+'''''''''''''
 
 New Features:
 '''''''''''''
 
-- Travis: adding linux via Docker
+* Add access to processors properties from ToolBox
+* Travis: adding linux via Docker
 
 Fixes:
 ''''''

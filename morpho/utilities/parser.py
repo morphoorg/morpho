@@ -28,7 +28,7 @@ def parse_args():
     # p.add_argument('--job_id',
     #                metavar='<job_id>',
     #                help='Job id number or string for batching',
-    #    required=False)
+    #                required=False)
     # p.add_argument('-s','--seed',
     #                metavar='<seed>',
     #                help='Add random seed number to file',

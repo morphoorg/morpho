@@ -70,6 +70,9 @@ class PyStanSamplingProcessor(BaseProcessor):
         self._data = {}
 
     def gen_arg_dict(self):
+        '''
+        Generate a dictionary as paramter if the pystan.sampling method
+        '''
         d = self.__dict__
         sa = getargspec(pystan.StanModel.sampling)
         output_dict = {k: d[k] for k in (sa.args) if k in d}
@@ -97,6 +100,16 @@ class PyStanSamplingProcessor(BaseProcessor):
                 return [self.init_per_chain]
         else:
             return self.init_per_chain
+
+    def _get_data_lists_size(self):
+        '''
+        Parse the data and look for lists: if one is found, compute its size
+        and add it to the self.data
+        '''
+        for key, value in self.data.items():
+            if isinstance(value, list):
+                list_size_name = "_N_{}".format(key)
+                self.data.update({list_size_name: len(value)})
 
     def _stan_cache(self):
         '''
@@ -178,10 +191,8 @@ class PyStanSamplingProcessor(BaseProcessor):
         for key, value in kwargs.items():
             if key != "data" and key != "init":
                 text = text + "{}\t{}\n".format(key, value)
-            elif key == "data":
-                text = text + "data\t[...]\n"
-            elif key == "init":
-                text = text + "init\t[...]\n"
+            elif key == "data" or key == "init":
+                text = text + "{}\t[...]\n".format(key)
         logger.info(text)
         # returns the arguments for sampling and the result of the sampling
         return self.stanModel.sampling(**(kwargs))
@@ -220,6 +231,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         return True
 
     def InternalRun(self):
+        self._get_data_lists_size()
         self._stan_cache()
         stan_results = self._run_stan(**(self.gen_arg_dict()))
         logger.debug("Stan Results:\n"+str(stan_results))

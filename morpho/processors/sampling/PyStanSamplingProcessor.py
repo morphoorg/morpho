@@ -12,6 +12,7 @@ import re
 from hashlib import md5
 from inspect import getargspec
 from datetime import datetime
+import numpy
 
 try:
     import pystan
@@ -106,10 +107,15 @@ class PyStanSamplingProcessor(BaseProcessor):
         Parse the data and look for lists: if one is found, compute its size
         and add it to the self.data
         '''
+        additional_dict = {}
         for key, value in self.data.items():
             if isinstance(value, list):
                 list_size_name = "_N_{}".format(key)
-                self.data.update({list_size_name: len(value)})
+                additional_dict.update({list_size_name: len(value)})
+            if type(value) is numpy.ndarray:
+                list_size_name = "_N_{}".format(key)
+                additional_dict.update({list_size_name: int(value.size)})
+        self.data.update(additional_dict)
 
     def _stan_cache(self):
         '''

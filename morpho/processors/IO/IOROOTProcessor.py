@@ -21,6 +21,19 @@ class IOROOTProcessor(IOProcessor):
     '''
     Base IO ROOT Processor
     The ROOT Reader and Writer
+
+    Parameters:
+        filename (required): path/name of file
+        variables (required): variables to extract
+        action: read or write (default="read")
+        tree_name (required): name of the tree
+        file_option: option for the file (default=Recreate)
+
+    Input:
+        None
+
+    Results:
+        data: dictionary containing the data
     '''
 
     def InternalConfigure(self, params):

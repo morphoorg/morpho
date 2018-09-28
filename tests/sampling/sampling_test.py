@@ -9,6 +9,7 @@ import unittest
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 
+
 class SamplingTests(unittest.TestCase):
 
     def test_PyStan(self):
@@ -19,13 +20,13 @@ class SamplingTests(unittest.TestCase):
             "model_code": "model.stan",
             "input_data": {
                 "slope": 1,
-                "intercept":-2,
-                "xmin":1,
-                "xmax":10,
+                "intercept": -2,
+                "xmin": 1,
+                "xmax": 10,
                 "sigma": 1.6
             },
             "iter": 100,
-            "interestParams": ['x','y','residual'],
+            "interestParams": ['x', 'y', 'residual'],
         }
 
         pystanProcessor = PyStanSamplingProcessor("pystanProcessor")
@@ -35,7 +36,7 @@ class SamplingTests(unittest.TestCase):
         if not pystanProcessor.Run():
             logger.error("Error while running <pystanProcessor>")
             return False
-        self.assertEqual(len(pystanProcessor.results["y"]),100)
+        self.assertEqual(len(pystanProcessor.results["y"]), 100)
         # Because we need this generator for the LinearFit analysis, we return the data, and not a bool
         return pystanProcessor.results
 
@@ -47,27 +48,27 @@ class SamplingTests(unittest.TestCase):
         linearFit_config = {
             "iter": 10000,
             "warmup": 2000,
-            "interestParams": ['a','b','width'],
+            "interestParams": ['a', 'b', 'width'],
             "varName": "XY",
             "nuisanceParams": [],
             "paramRange": {
-                "x":[-10,10],
-                "y":[-10,50],
-                "a":[-10,10],
-                "b":[-10,10],
-                "width":[0.,5.]
+                "x": [-10, 10],
+                "y": [-10, 50],
+                "a": [-10, 10],
+                "b": [-10, 10],
+                "width": [0., 5.]
             },
             "n_jobs": 3
         }
         aposteriori_config = {
             "n_bins_x": 100,
             "n_bins_y": 100,
-            "data": ['a','b','width',"lp_prob"],
+            "variables": ['a', 'b', 'width', "lp_prob"],
             "title": "aposteriori_distribution",
             "output_path": "plots"
         }
         timeSeries_config = {
-            "data": ['a','b','width'],
+            "variables": ['a', 'b', 'width'],
             "height": 1200,
             "title": "timeseries",
             "output_path": "plots"
@@ -95,7 +96,7 @@ class SamplingTests(unittest.TestCase):
         timeSeriesPlotter.Run()
 
         import numpy as np
-        self.assertTrue(np.mean(fitterProcessor.results["a"])>0.5)
+        self.assertTrue(np.mean(fitterProcessor.results["a"]) > 0.5)
 
     def test_GaussianSampler(self):
         logger.info("GaussianSampler test")
@@ -106,7 +107,7 @@ class SamplingTests(unittest.TestCase):
             "iter": 10000
         }
         histo_config = {
-            "data": "x",
+            "variables": "x",
             "n_bins_x": 300,
             "output_path": "plots"
         }
@@ -120,6 +121,7 @@ class SamplingTests(unittest.TestCase):
             return False
         myhisto.data = sampler.results
         myhisto.Run()
+
 
 if __name__ == '__main__':
     unittest.main()

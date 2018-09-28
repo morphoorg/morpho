@@ -21,6 +21,15 @@ class BaseProcessor():
     Base Processor
     All Processors will be implemented in a child class where the
     specifics are encoded by overwriting Configure and Run.
+
+    Parameters:
+        delete: do delete processor after running
+
+    Input:
+        None
+
+    Results:
+        None
     '''
 
     def __init__(self, name, *args, **kwargs):

@@ -13,20 +13,20 @@
 
     .. toctree::
        :maxdepth: 1
-{% for item in submodules %}
+    {% for item in submodules %}
        {{ fullname }}.{{ item }}
-       {%- endfor %}
-    {%- endif -%}
+    {%- endfor %}
+{%- endif -%}
 
 {% if subpackages %}
     Subpackages:
 
     .. toctree::
        :maxdepth: 1
-{% for item in subpackages %}
+    {% for item in subpackages %}
        {{ fullname }}.{{ item }}
-       {%- endfor %}
-    {%- endif %}
+    {%- endfor %}
+{%- endif %}
 
 {% if members %}
     Summary

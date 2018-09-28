@@ -4,11 +4,12 @@ Authors: J. Johnston, M. Guigue, T. Weiss
 Date: 06/26/18
 '''
 
-from morpho.utilities import morphologging
-logger=morphologging.getLogger(__name__)
-
 from argparse import ArgumentParser
 import ast
+
+from morpho.utilities import morphologging
+logger = morphologging.getLogger(__name__)
+
 
 def parse_args():
     '''Parse the command line arguments provided to morpho
@@ -20,14 +21,14 @@ def parse_args():
     p = ArgumentParser(description='''
         An analysis tool for Project 8 data.
     ''')
-    p.add_argument('-c','--config',
+    p.add_argument('-c', '--config',
                    metavar='<configuration file>',
                    help='Full path to the configuration file used by morpho',
                    required=True)
     # p.add_argument('--job_id',
     #                metavar='<job_id>',
     #                help='Job id number or string for batching',
-                #    required=False)
+    #                required=False)
     # p.add_argument('-s','--seed',
     #                metavar='<seed>',
     #                help='Add random seed number to file',
@@ -37,22 +38,23 @@ def parse_args():
     #                default=True,
     #                help='Generate the seed based on the current time in ms',
     #                required=False)
-    p.add_argument('param',nargs='*',
+    p.add_argument('param', nargs='*',
                    default=False,
                    help='Manualy change of a parameter and its value')
     p.add_argument('-v', '--verbosity', default='DEBUG',
                    metavar='<verbosity>',
                    help="Specify verbosity of the logger, with options DEBUG, INFO, WARNING, ERROR, or CRITICAL (Default: DEBUG)",
-                   choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'],
+                   choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                    required=False)
     p.add_argument('-sev', '--stderr-verbosity', default='WARNING',
                    metavar='<stderr_verbosity>',
                    help="Messages with level greater than or equal to the given verbosity will be redirected to stderr (Default: WARNING)",
-                   choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'],
+                   choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                    required=False)
     return p.parse_args()
 
-def update_from_arguments(the_dict,args):
+
+def update_from_arguments(the_dict, args):
     '''Update a dictionary
     Args:
         the_dict: Dictionary to update
@@ -71,8 +73,8 @@ def update_from_arguments(the_dict,args):
             interpreted_val = str(result[1])
         to_update_dict = {xpath[-1]: interpreted_val}
         for path in reversed(xpath[:-1]):
-            to_update_dict = {path:to_update_dict}
-        new_dict = merge(new_dict,to_update_dict)
+            to_update_dict = {path: to_update_dict}
+        new_dict = merge(new_dict, to_update_dict)
     return new_dict
 
 
@@ -97,6 +99,7 @@ def change_and_format(b):
         except:
             return b
 
+
 def merge(a, b, path=None):
     '''Merge two dictionaries
     Args:
@@ -106,17 +109,16 @@ def merge(a, b, path=None):
     Returns:
         dict: Merged dictionary
     '''
-    if path is None: path = []
+    if path is None:
+        path = []
     for key in b:
         if key in a:
             if isinstance(a[key], dict) and isinstance(b[key], dict):
                 merge(a[key], b[key], path + [str(key)])
             elif a[key] == b[key]:
-                pass # same leaf value
+                pass  # same leaf value
             else:
-                a[key] = change_and_format( b[key])
+                a[key] = change_and_format(b[key])
         else:
-            a[key] = change_and_format( b[key])
+            a[key] = change_and_format(b[key])
     return a
-
-

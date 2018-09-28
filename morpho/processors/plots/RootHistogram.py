@@ -37,6 +37,9 @@ class RootHistogram(object):
         self.xtitle = reader.read_param(input_dict, "x_title", self.dataName)
         self._createHisto()
 
+    def GetNbinsX(self):
+        return self.histo.GetNbinsX()
+
     def Fill(self, input_data):
         if not isinstance(input_data, list):
             logger.error("Data given <{}> not a list")
@@ -49,6 +52,14 @@ class RootHistogram(object):
             self._createHisto()
         for value in input_data:
             self.histo.Fill(value)
+
+    def SetBinsError(self, a_list):
+        if len(a_list) != self.n_bins_x:
+            logger.error("List size <{}> is not equal to number of bins <{}>".format(
+                len(a_list), self.n_bins_x))
+            raise
+        for i, value in enumerate(a_list):
+            self.histo.SetBinError(i, value)
 
     def SetBinsContent(self, a_list):
         if len(a_list) != self.n_bins_x:

@@ -17,9 +17,7 @@ def _set_style_options(rightMargin,  leftMargin,  topMargin,  botMargin, optStat
     '''
     Change ROOT Style of the canvas
     '''
-    print("style")
     style = ROOT.TStyle(ROOT.gStyle)
-    print("style")
     style.SetOptStat(optStat)
     style.SetLabelOffset(0.01, 'xy')
     style.SetLabelSize(0.05, 'xy')
@@ -30,14 +28,12 @@ def _set_style_options(rightMargin,  leftMargin,  topMargin,  botMargin, optStat
     # style.SetLabelOffset(0,'y')
     # style.SetLabelSize(0.05,'x')
     style.SetTitleOffset(1.02, 'x')
-    print("style")
 
     style.SetPadRightMargin(rightMargin)
     style.SetPadTopMargin(topMargin)
     style.SetPadBottomMargin(botMargin)
     style.SetPadLeftMargin(leftMargin)
     style.cd()
-    print("style")
 
 
 def _prepare_couples(list_data):

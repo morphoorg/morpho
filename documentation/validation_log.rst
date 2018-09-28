@@ -24,6 +24,7 @@ Fixes:
     * Update example
     * Adding descriptions about morpho 2, reworking the morpho 1's
 * Issue tracker: adding template issues
+* Travis: downgrade to Xcode 9.3
 
 Version: v2.1.4
 ~~~~~~~~~~~~~~~

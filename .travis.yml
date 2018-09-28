@@ -10,12 +10,12 @@ matrix:
         - DOCKER_IMAGE=guiguem/root-docker:python3
         - DOCKER_CONTAINER=root-docker
         - SCRIPT_PREFIX_CMD="docker exec $DOCKER_CONTAINER"
-    # - os: osx
-    #   osx_image: xcode9.4
-    #   compiler: clang
+    - os: osx
+      osx_image: xcode9.3
+      compiler: clang
 before_install:
     - if [ $TRAVIS_OS_NAME == osx   ]; then rm /usr/local/include/c++ /usr/local/lib/python2.7/site-packages/numpy/__config__.py ; fi
-    - if [ $TRAVIS_OS_NAME == osx   ]; then brew upgrade python && brew reinstall numpy --without-python@2 && brew install root ; fi
+    - if [ $TRAVIS_OS_NAME == osx   ]; then brew untap caskroom/homebrew-cask && brew upgrade python && brew reinstall numpy --without-python@2 && brew install root ; fi
 install:
   - if [ $TRAVIS_OS_NAME == osx   ]; then source travis/osx_installation_script.sh ; fi
   - if [ $TRAVIS_OS_NAME == linux ]; then source travis/linux_installation_script.sh ; fi

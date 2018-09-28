@@ -4,11 +4,11 @@ Validation Log
 Log
 ---
 
-Version: 
-~~~~~~~~
+Version: v2.1.5
+~~~~~~~~~~~~~~~
 
-Release Date: 
-'''''''''''''
+Release Date: Friday September 28th 2018 
+''''''''''''''''''''''''''''''''''''''''
 
 New Features:
 '''''''''''''
@@ -24,6 +24,7 @@ Fixes:
     * Update example
     * Adding descriptions about morpho 2, reworking the morpho 1's
 * Issue tracker: adding template issues
+* Plotting: better RootCanvas class, more RootHistogram methods
 
 Version: v2.1.4
 ~~~~~~~~~~~~~~~

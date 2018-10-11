@@ -14,7 +14,7 @@ It also can be connected to other MCMC defined by the user, such as RooFit (from
 Morpho interfaces with Stan using [Pystan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
 
 _Why morpho?_
-  - Morpho **streamlines Stan analyses**. It enables users to load data, run Stan, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](http://morpho.readthedocs.io/en/latest/morpho.html#an-example-file).
+  - Morpho **streamlines Stan analyses**. It enables users to load data, run Stan, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho1.html#an-example-file).
   - Morpho helps users organize and run multiple related Stan models (for example, models that share input data and Stan functions).
   - Morpho **minimizes the need to recompile** Stan models by using cache files.
   - Morpho automatically **performs convergence checks** after running Stan, and it provides additional options for convergence analysis and plotting.

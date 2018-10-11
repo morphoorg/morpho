@@ -176,19 +176,6 @@ class PyStanBaseProcessor(BaseProcessor):
     def _run_stan(self, *args, **kwargs):
         logger.error("Need to be implemented in derived class")
         raise Exception
-        logger.info("Starting the sampling")
-        text = "Parameters: \n"
-        for key, value in kwargs.items():
-            if key != "data" and key != "init":
-                text = text + "{}\t{}\n".format(key, value)
-            elif key == "data":
-                text = text + "data\t[...]\n"
-            elif key == "init":
-                text = text + "init\t[...]\n"
-        logger.info(text)
-        # returns the arguments for sampling and the result of the sampling
-        return self.stanModel.sampling(**(kwargs))
-        # return self.stanModel.sampling(**(self.gen_arg_dict()))
 
     def InternalConfigure(self, params):
         self.params = params
@@ -224,9 +211,6 @@ class PyStanBaseProcessor(BaseProcessor):
 
     def InternalRun(self):
         self._stan_cache()
-        stan_results = self._run_stan(**(self.gen_arg_dict()))
-        logger.debug("Stan Results:\n"+str(stan_results))
-        # Put the data into a nice dictionary
-        self.results = pystanLoader.extract_data_from_outputdata(
-            self.__dict__, stan_results)
+        self.results = self._run_stan(**(self.gen_arg_dict()))
+        logger.debug("Stan Results:\n"+str(self.results))
         return True

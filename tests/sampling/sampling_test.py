@@ -95,8 +95,9 @@ class SamplingTests(unittest.TestCase):
         aposterioriPlotter.Run()
         timeSeriesPlotter.Run()
 
-        import numpy as np
-        self.assertTrue(np.mean(fitterProcessor.results["a"]) > 0.5)
+        def mean(numbers):
+            return float(sum(numbers)) / max(len(numbers), 1)
+        self.assertTrue(mean(fitterProcessor.results["a"]) > 0.5)
 
     def test_GaussianSampler(self):
         logger.info("GaussianSampler test")

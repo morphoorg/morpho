@@ -132,4 +132,4 @@ Examples of such python scripts can be found in the examples folder.
 
 ## Documentation
 
-Hosted at http://www.project8.org/morpho.
+Hosted at https://morpho.readthedocs.io/en/latest/.

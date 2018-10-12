@@ -26,12 +26,12 @@ If necessary, install virtualenv_, then execute: ::
 	pip install .
 	# When done with morpho, use "bash deactivate" to exit the virtual environment
 
-_virtualenv: https://virtualenv.pypa.io/en/stable/
+.. _virtualenv: https://virtualenv.pypa.io/en/stable/
 
 Docker installation
 ###################
 
-If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a [Docker container](https://docs.docker.com/get-started/) instead of a python virtual environment. 
+If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a `Docker container`_ instead of a python virtual environment.
 To do so:
 
 1.  Install Docker: https://docs.docker.com/engine/installation/.
@@ -44,3 +44,5 @@ To do so:
 5.  If the morpho Docker image gets updated, you can update the morpho image using ```docker pull morpho```.
 
 If you develop new features or identify bugs, please open a GitHub issue.
+
+.. `Docker Container`_: https://docs.docker.com/get-started/

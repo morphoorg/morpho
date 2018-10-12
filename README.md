@@ -67,14 +67,14 @@ The following dependencies should be installed (via a package manager) before in
 
    If you develop new features or identify bugs, please open a GitHub issue.
 
-## [Instructions for Use](#instructions-for-use)
+## Instructions for Use
 
 ### Before You Run Morpho
 
 Morpho primarly reads a **configuration file** (.json or .yaml) written by the user (it can also be used via the python interface).
 The file defines the actions ("processors") the user wants to perform and the order in which these should be done.
 The file also specifies input parameters that the user may wish to change on a run-to-run basis, such as the desired number of Stan iterations, or Stan initialization and data-block values. 
-See morpho's [documentation](https://morpho.readthedocs.io/en/latest/better_apidoc_out/modules.html) for more information.
+See morpho's [documentation](https://morpho.readthedocs.io/en/latest/morpho2example.html#configuration-file) for more information.
 
 We recommend modeling the organization of your configuration files, Stan models and data files after the **examples** folder in morpho. Your directory structure should be of the form:
 
@@ -91,13 +91,13 @@ examples
 |   |
 |   +---data_dir
 |   |   |
-|   |	+---fileA.data
+|   |   +---fileA.data
 |   |   +---fileB.data
 |   |
 |   +---model_dir
-|   |	|
-|   |	+---modelA.stan
-|   |	+---modelB.stan
+|   |   |
+|   |   +---modelA.stan
+|   |   +---modelB.stan
 |   |
 |   +---scripts_dir
 |       |

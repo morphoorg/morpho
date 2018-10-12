@@ -4,12 +4,12 @@
 Example
 -----------------
 
-The ```linear_fit``` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run.
+The ``linear_fit`` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run.
 See Use_ for more details regarding analysis file organization.
 
 .. _Use: https://morpho.readthedocs.io/en/latest/morpho2use.html
 
-Run ```linear_fit``` from the ```examples``` folder by executing:
+Run ``linear_fit`` from the ``examples`` folder by executing:
 ::
 
   morpho --config linear_fit/scripts/morpho_linear_fit.yaml
@@ -24,7 +24,7 @@ Equivalently, you can run the same example using the python API:
 Model
 -----
 
-The ```linear_fit/models``` folder contains two examples Stan models ```model_linear_generator.stan``` and ```model_linear_fit.stan```.
+The ``linear_fit/models`` folder contains two examples Stan models ``model_linear_generator.stan`` and ``model_linear_fit.stan``.
 The first model will generate a set of points normally distributed along a line.
 The data are saved into a R file
 The data points are extracted from the file, Stan code model inputs these data points and it extracts posteriors for the line's slope and y-intercept, as well as the variance of the normal distribution.
@@ -41,15 +41,17 @@ The example exists in two forms:
 Configuration File
 ''''''''''''''''''''
 
-The configuration file ```linear_fit/scripts/morpho_linear_fit.yaml``` specifies the processors that should be used, how they should be connected together, how they are individually configured and in which order they should be run.
+The configuration file ``linear_fit/scripts/morpho_linear_fit.yaml`` specifies the processors that should be used, how they should be connected together, how they are individually configured and in which order they should be run.
 The content of the file possesses 2 main structures:
 
 - The `processors-toolbox` dictionary
 - The processors `configurations`
 
-The structure of the configuration file is very similar to the [Katydid](https://github.com/project8/katydid) software.
+The structure of the configuration file is very similar to the Katydid_ software.
 
-```Processors-toolbox``` Block
+.. _Katydid: https://github.com/project8/katydid
+
+``Processors-toolbox`` Block
 '''''''''''''''''''''''''''''''
 
 This block defines the processors to be used and assigns these a name.
@@ -84,8 +86,10 @@ It also provide the connections between processors (which variable of a processo
 
 The block is composed of two structures:
 
-- `processors` defines the processors to be used and their names. The type defines which class/processor should be used. For example, we will use `PyStanSamplingProcessor` from the `morpho` package. It is possible to import classes/processors from other packages (for example [mermithid](https://github.com/project8/mermithid)) by setting using `type: mermithid:ProcessorX` instead of `type: morpho:ProcessorY`. If no package is given (for example: `type: TimeSeries`), it will look for the default `morpho` package.
+- `processors` defines the processors to be used and their names. The type defines which class/processor should be used. For example, we will use `PyStanSamplingProcessor` from the `morpho` package. It is possible to import classes/processors from other packages (for example mermithid_) by setting using `type: mermithid:ProcessorX` instead of `type: morpho:ProcessorY`. If no package is given (for example: `type: TimeSeries`), it will look for the default `morpho` package.
 - `connections` defines the order in which the processors are run. In the example, it will be `generator -> writer -> reader -> analyzer -> posterioriDistrib -> timeSeries`. It also defines how processors are connected together: for example the internal variable `results` of  `generator` (called *signal*) containing the MC samples as a dictionary will be given to `writer` as `data` (called *slot*). It is important that the signal and slot types match.
+
+.. _mermithid:  https://github.com/project8/mermithid
 
 Processors configurations
 '''''''''''''''''''''''''
@@ -113,7 +117,7 @@ Python script
 -------------
 
 Similarly it is possible to create, configure and run processors using the morpho python API.
-An example can be found in `linear_fit/scripts/pystan_test.py`.
+An example can be found in ``linear_fit/scripts/pystan_test.py``.
 This example should do the exact same thing as the script above.
 
 The python API is an alternative way of using morpho.

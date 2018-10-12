@@ -18,11 +18,8 @@ Morpho interfaces with Stan using PyStan_, but it is designed to be employed by 
 .. _PyStan: https://pystan.readthedocs.io/en/latest/
 
 For more information, also see:
-
 Stan:   http://mc-stan.org
-
 PyStan: https://pystan.readthedocs.io/en/latest/index.html
-
 RooFit: https://root.cern.ch/guides/roofit-manual
 
 Why morpho?

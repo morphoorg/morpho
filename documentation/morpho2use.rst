@@ -9,8 +9,9 @@ Morpho primarly reads a **configuration file** (.json or .yaml) written by the u
 The file defines the actions ("processors") the user wants to perform and the order in which these should be done.
 The file also specifies input parameters that the user may wish to change on a run-to-run basis, such as the desired number of Stan iterations, or Stan initialization and data-block values. 
 
-See morpho's documentation_ for more information.
+See this example_ and morpho's documentation_ for more information.
 
+.. _example: https://morpho.readthedocs.io/en/latest/morpho2example.html#configuration-file
 .. _documentation: https://morpho.readthedocs.io/en/latest/better_apidoc_out/modules.html
 
 We recommend modeling the organization of your configuration files, Stan models and data files after the **examples** folder in morpho. Your directory structure should be of the form:
@@ -29,7 +30,7 @@ We recommend modeling the organization of your configuration files, Stan models 
   |   |
   |   +---data_dir
   |   |   |
-  |   |	+---fileA.data
+  |   |	  +---fileA.data
   |   |   +---fileB.data
   |   |
   |   +---model_dir

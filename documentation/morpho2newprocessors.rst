@@ -66,6 +66,7 @@ Let's have a look at a basic example: the `GaussianSamplingProcessor`_. ::
                         return True
 
 Processors all inherite from the BaseProcessor class that defines very basic behaviors.
+BaseProcessor defines two methods ``InternalConfigure`` and ``InternalRun``.
 
 
 .. _GaussianSamplingProcessor: https://github.com/morphoorg/morpho/blob/master/morpho/processors/sampling/GaussianSamplingProcessor.py

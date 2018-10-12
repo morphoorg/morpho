@@ -2,13 +2,20 @@
 Introduction
 ========================================
 
-Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and [RooFit](https://root.cern.ch/guides/roofit-manual), a toolkit for modeling probability distributions.
+Morpho is an analysis tool that organizes data inflow to and outflow from Stan_, a platform for Bayesian statistical modeling and computation,
+and RooFit_, a toolkit for modeling probability distributions.
+
+.. _Stan: http://mc-stan.org/
+.. _RooFit: https://root.cern.ch/guides/roofit-manual
+
 It is especially useful for
   1) Generating **pseudo data**, and
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
   3) Performing **chi2 fits of data**.
 
-Morpho interfaces with Stan using [Pystan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
+Morpho interfaces with Stan using Pystan_, but it is designed to be employed by general Stan users (not only PyStan users).
+
+.. _Pystan: https://pystan.readthedocs.io/en/latest/
 
 For more information, also see:
 

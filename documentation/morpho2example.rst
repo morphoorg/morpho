@@ -1,7 +1,7 @@
 .. _morpho2-example-label:
 
 -----------------
-Morpho 2: Example
+Examples
 -----------------
 
 The ```linear_fit``` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run.

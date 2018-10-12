@@ -13,9 +13,9 @@ It is especially useful for
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
   3) Performing **chi2 fits of data**.
 
-Morpho interfaces with Stan using Pystan_, but it is designed to be employed by general Stan users (not only PyStan users).
+Morpho interfaces with Stan using PyStan_, but it is designed to be employed by general Stan users (not only PyStan users).
 
-.. _Pystan: https://pystan.readthedocs.io/en/latest/
+.. _PyStan: https://pystan.readthedocs.io/en/latest/
 
 For more information, also see:
 

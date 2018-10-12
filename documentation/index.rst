@@ -8,8 +8,9 @@ Contents:
 
     updates
     introduction
-    install
     morpho2framework
+    install
+    morpho2use
     morpho2example
     morpho2newprocessors
     morpho1

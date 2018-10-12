@@ -23,7 +23,7 @@ Install
 ### Dependencies ###
 
 The following dependencies should be installed (via a package manager) before installing morpho:
-  - python (2.7.x; 3.x not yet supported)
+  - python (2.7.x; 3.x not supported)
   * python-pip
   * git
   * python-matplotlib

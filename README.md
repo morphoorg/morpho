@@ -1,4 +1,4 @@
-# Morpho
+# morpho
 
 [![DOI](https://zenodo.org/badge/22215458.svg)](https://zenodo.org/badge/latestdoi/22215458)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7b4a6e74b5cd405ea91b6ddb5cb504d1)](https://app.codacy.com/app/guiguem/morpho?utm_source=github.com&utm_medium=referral&utm_content=project8/morpho&utm_campaign=badger)
@@ -17,7 +17,7 @@ It is especially useful for
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
   3) Performing **chi2 fits of data**.
 
-Morpho interfaces with Stan using [Pystan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
+Morpho interfaces with Stan using [PyStan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
 
 _Why morpho?_
   - Morpho **streamlines Stan analyses**. It enables users to load data, run Stan or RooFit, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho2example.html).
@@ -30,8 +30,8 @@ _Why morpho?_
 
 ### Dependencies
 
-The following dependencies should be installed (via a package manager) before installing morpho:
-  - python (2.7.x; 3.x not yet supported)
+The following dependencies should be installed (via a package manager) before installing morpho 2:
+  - python 3.x (python 2 not supported)
   - python-pip
   - git
   - root (ensure that the same version of python is enabled for morpho and ROOT)
@@ -42,12 +42,14 @@ The following dependencies should be installed (via a package manager) before in
 
   If necessary, install [virtualenv](https://virtualenv.pypa.io/en/stable/), then execute:
   ```bash
+	# Use a flag for virtualenv to specify python3 if necessary: --python /path/to/python3
 	virtualenv ~/path/to/the/virtualenvironment
 	source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment
-	#Use "bash deactivate" to exit the environment
 	pip install -U pip #Update pip to >= 7.0.0
 	cd ~/path/to/morpho
 	pip install .
+	# When done with morpho, use "bash deactivate" to exit the virtual environment
+
   ```
 
 ### Docker installation
@@ -134,8 +136,3 @@ The morpho python API allows you to run custom and more modulable scripts.
 In a python script, the processors should be created, configured and run.
 Connections between processors are made by setting a internal varible of a processor (like "results" for PyStanSamplingProcessor) as the internal variable of another variable.
 Examples of such python scripts can be found in the examples folder.
-
-
-## Documentation
-
-Hosted at https://morpho.readthedocs.io/en/latest/.

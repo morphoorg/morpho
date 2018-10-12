@@ -11,7 +11,7 @@ https://morpho.readthedocs.io/en/latest/
 
 ## Introduction
 
-Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and RooFit, a toolkit for modeling probability distributions.
+Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and [RooFit](https://root.cern.ch/guides/roofit-manual), a toolkit for modeling probability distributions.
 It is especially useful for
   1) Generating **pseudo data**, and
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.

@@ -2,7 +2,7 @@
 Introduction
 ========================================
 
-Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and RooFit, a toolkit for modeling probability distributions.
+Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and [RooFit](https://root.cern.ch/guides/roofit-manual), a toolkit for modeling probability distributions.
 It is especially useful for
   1) Generating **pseudo data**, and
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
@@ -21,7 +21,7 @@ RooFit: https://root.cern.ch/guides/roofit-manual
 Why morpho?
 ------------------
 
-- Morpho **streamlines analyses**. It enables users to load data, run Stan or RooFit, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho2example.html).
+  - Morpho **streamlines analyses**. It enables users to load data, run Stan or RooFit, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho2example.html).
   - Morpho helps users organize and run multiple related Stan models (for example, models that share input data and Stan functions).
   - Morpho **minimizes the need to recompile** Stan models by using cache files.
   - Morpho automatically **performs convergence checks** after running Stan, and it provides additional options for convergence analysis and plotting.

@@ -45,4 +45,4 @@ To do so:
 
 If you develop new features or identify bugs, please open a GitHub issue.
 
-.. `Docker Container`_: https://docs.docker.com/get-started/
+.. _Docker Container: https://docs.docker.com/get-started/

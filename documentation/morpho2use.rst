@@ -34,9 +34,9 @@ We recommend modeling the organization of your configuration files, Stan models 
   |   |   +---fileB.data
   |   |
   |   +---model_dir
-  |   |	|
-  |   |	+---modelA.stan
-  |   |	+---modelB.stan
+  |   |   |
+  |   |	  +---modelA.stan
+  |   |	  +---modelB.stan
   |   |
   |   +---scripts_dir
   |       |

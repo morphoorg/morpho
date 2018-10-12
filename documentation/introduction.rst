@@ -18,18 +18,23 @@ Morpho interfaces with Stan using PyStan_, but it is designed to be employed by 
 .. _PyStan: https://pystan.readthedocs.io/en/latest/
 
 For more information, also see:
+
 Stan:   http://mc-stan.org
+
 PyStan: https://pystan.readthedocs.io/en/latest/index.html
+
 RooFit: https://root.cern.ch/guides/roofit-manual
 
 Why morpho?
 ------------------
 
-  - Morpho **streamlines analyses**. It enables users to load data, run Stan or RooFit, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho2example.html).
+  - Morpho **streamlines analyses**. It enables users to load data, run Stan or RooFit, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single `configuration file`_.
   - Morpho helps users organize and run multiple related Stan models (for example, models that share input data and Stan functions).
   - Morpho **minimizes the need to recompile** Stan models by using cache files.
   - Morpho automatically **performs convergence checks** after running Stan, and it provides additional options for convergence analysis and plotting.
   - Morpho reads and saves files in either **R**, **JSON/YAML**, **CVS**, or **ROOT**.
+
+.. _configuration file: https://morpho.readthedocs.io/en/latest/morpho2example.html
 
 Stan vs Roofit
 ------------------

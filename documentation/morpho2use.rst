@@ -3,7 +3,7 @@ Use
 ---------------
 
 Configuration Files
-############
+###################
 
 Morpho primarly reads a **configuration file** (.json or .yaml) written by the user (it can also be used via the python interface).
 The file defines the actions ("processors") the user wants to perform and the order in which these should be done.
@@ -20,30 +20,30 @@ We recommend modeling the organization of your configuration files, Stan models 
   examples
   |
   +---functions_dir
-  |	  |
-  |	  +---Stan_funcs1.functions
-  |	  +---Stan_funcs2.functions
-  |	  +---Stan_funcs3.functions
+  |   |
+  |   +---Stan_funcs1.functions
+  |   +---Stan_funcs2.functions
+  |   +---Stan_funcs3.functions
   |
   +---analysis_dir1
   |   |
   |   +---data_dir
   |   |   |
-  |   |	  +---fileA.data
-  |	  |   +---fileB.data
-  |	  |
-  |	  +---model_dir
-  |	  |	  |
-  |	  |	  +---modelA.stan
-  |	  |	  +---modelB.stan
-  |	  |
-  |	  +---scripts_dir
-  |	  	  |
-  |	  	  +---configA.yaml
-  |	  	  +---configB.yaml
+  |   |	+---fileA.data
+  |   |   +---fileB.data
+  |   |
+  |   +---model_dir
+  |   |	|
+  |   |	+---modelA.stan
+  |   |	+---modelB.stan
+  |   |
+  |   +---scripts_dir
+  |       |
+  |       +---configA.yaml
+  |       +---configB.yaml
   |
   +---analysis_dir2
-  |	  |
+  |   |
 
 The files in the optional ``functions_dir`` directory contain Stan functions (written in the Stan language) that are used in multiple Stan models.
 

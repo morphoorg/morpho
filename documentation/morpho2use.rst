@@ -16,6 +16,7 @@ See morpho's documentation_ for more information.
 We recommend modeling the organization of your configuration files, Stan models and data files after the **examples** folder in morpho. Your directory structure should be of the form:
 
 ::
+
   examples
   |
   +---functions_dir

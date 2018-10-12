@@ -15,6 +15,7 @@ Contents:
     morpho1examples
     morpho2framework
     morpho2example
+    morpho2newprocessors
     contribute
     validation_log
     better_apidoc_out/modules

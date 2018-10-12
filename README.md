@@ -1,21 +1,26 @@
-# morpho
+# Morpho
 
 [![DOI](https://zenodo.org/badge/22215458.svg)](https://zenodo.org/badge/latestdoi/22215458)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7b4a6e74b5cd405ea91b6ddb5cb504d1)](https://app.codacy.com/app/guiguem/morpho?utm_source=github.com&utm_medium=referral&utm_content=project8/morpho&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/morphoorg/morpho.svg?branch=master)](https://travis-ci.org/morphoorg/morpho)
 [![Documentation Status](https://readthedocs.org/projects/morpho/badge/?version=latest)](https://morpho.readthedocs.io/en/latest/?badge=latest)
 
+## Detailed Documentation
 
-Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation.
+https://morpho.readthedocs.io/en/latest/
+
+## Introduction
+
+Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and RooFit, a toolkit for modeling probability distributions.
 It is especially useful for
   1) Generating **pseudo data**, and
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
-It also can be connected to other MCMC defined by the user, such as RooFit (from [ROOT](https://root.cern)).
+  3) Performing **chi2 fits of data**.
 
 Morpho interfaces with Stan using [Pystan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
 
 _Why morpho?_
-  - Morpho **streamlines Stan analyses**. It enables users to load data, run Stan, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho1.html#an-example-file).
+  - Morpho **streamlines Stan analyses**. It enables users to load data, run Stan or RooFit, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho2example.html).
   - Morpho helps users organize and run multiple related Stan models (for example, models that share input data and Stan functions).
   - Morpho **minimizes the need to recompile** Stan models by using cache files.
   - Morpho automatically **performs convergence checks** after running Stan, and it provides additional options for convergence analysis and plotting.

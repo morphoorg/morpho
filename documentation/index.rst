@@ -7,6 +7,7 @@ Contents:
     :maxdepth: 2
 
     updates
+    introduction
     install
     morpho2framework
     morpho2example

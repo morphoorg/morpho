@@ -8,13 +8,14 @@ Configuration Files
 Morpho primarly reads a **configuration file** (.json or .yaml) written by the user (it can also be used via the python interface).
 The file defines the actions ("processors") the user wants to perform and the order in which these should be done.
 The file also specifies input parameters that the user may wish to change on a run-to-run basis, such as the desired number of Stan iterations, or Stan initialization and data-block values. 
+
 See morpho's documentation_ for more information.
 
-_documentation: http://morpho.readthedocs.io/en/latest/morpho.html#an-example-file
+.. _documentation: https://morpho.readthedocs.io/en/latest/better_apidoc_out/modules.html
 
 We recommend modeling the organization of your configuration files, Stan models and data files after the **examples** folder in morpho. Your directory structure should be of the form:
 
-```bash
+
 examples
 |
 +---functions_dir
@@ -42,8 +43,7 @@ examples
 |
 +---analysis_dir2
 |	  |
-...	  ...
-```
+
 The files in the optional ```functions_dir``` directory contain Stan functions (written in the Stan language) that are used in multiple Stan models.
 
 Running Morpho

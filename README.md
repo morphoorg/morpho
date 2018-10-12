@@ -61,7 +61,7 @@ The following dependencies should be installed (via a package manager) before in
   3. Inside the morpho folder, execute ```docker-compose run morpho```. A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
   You may make changes to morpho either inside or outside of the Docker container. 
   If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under the ```/host``` folder created by docker-compose.
-  Once inside the container, run `source /setup.sh` to be able to access morpho and mermithid libraries.
+  Once inside the container, run `source /setup.sh` to be able to access morpho and libraries.
   4. You can remove the container image using ```docker rmi morpho_morpho```.
   5. If the morpho Docker image gets updated, you can update the morpho image using ```docker pull morpho```.
 
@@ -74,7 +74,7 @@ The following dependencies should be installed (via a package manager) before in
 Morpho primarly reads a **configuration file** (.json or .yaml) written by the user (it can also be used via the python interface).
 The file defines the actions ("processors") the user wants to perform and the order in which these should be done.
 The file also specifies input parameters that the user may wish to change on a run-to-run basis, such as the desired number of Stan iterations, or Stan initialization and data-block values. 
-See morpho's [documentation](http://morpho.readthedocs.io/en/latest/morpho.html#an-example-file) for more information.
+See morpho's [documentation](https://morpho.readthedocs.io/en/latest/better_apidoc_out/modules.html) for more information.
 
 We recommend modeling the organization of your configuration files, Stan models and data files after the **examples** folder in morpho. Your directory structure should be of the form:
 
@@ -120,9 +120,9 @@ Once the relevant data, model and configuration files are at your disposal, run 
    morpho --config  /path/to/json_or_yaml_config_file --other_options
 ```
 
-You can find and run an example in the examples/linear_fit directory:
+You can find and run an example in the examples directory:
 ```bash
-   morpho --config scripts/morpho_linear_fit.yaml
+   morpho --config linear_fit/scripts/morpho_linear_fit.yaml
 ```
 
 "Help will always be given to those who ask for it":
@@ -135,4 +135,8 @@ You can find and run an example in the examples/linear_fit directory:
 The morpho python API allows you to run custom and more modulable scripts.
 In a python script, the processors should be created, configured and run.
 Connections between processors are made by setting a internal varible of a processor (like "results" for PyStanSamplingProcessor) as the internal variable of another variable.
-Examples of such python scripts can be found in the examples folder.
+Examples of such python scripts can be found in the examples folder:
+
+```bash
+   python linear_fit/scripts/pystan_test.py
+```

@@ -1,5 +1,5 @@
 ========================================
-Morpho 1: introduction
+Morpho 1: Introduction
 ========================================
 
 Morpho is a python interface to the Stan/PyStan Markov Chain Monte

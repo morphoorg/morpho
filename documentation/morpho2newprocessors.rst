@@ -64,9 +64,15 @@ Let's have a look at a basic example: the `GaussianSamplingProcessor`_. ::
                                 data.append(ran.Gaus(self.mean, self.width))
                         self.results = {'x': data}
                         return True
-
+                        
+This processor aims at generating random values following a normal distribution using ``TRandom3`` from ROOT.
 Processors all inherite from the BaseProcessor class that defines very basic behaviors.
 BaseProcessor defines two methods ``InternalConfigure`` and ``InternalRun``.
+``InternalConfigure`` is used to configure the processor: here the number of values to generate (``iter``), the mean (``mean``) and the width (``width``) are given to the processor from the configuration dictionary (this dictionary is extracted from the configuration file). This method makes sure that all the given parameters are okay so the execution will work fine: for example we make sure the width is positive.
+``InternalRun`` is used for the actual execution: it produces the samples from the normal distribution.
+The result of this sampling is saved inside a membre variable of the class (``results`` in this case) in the shape of a dictionary.
+Contrary to Katydid, there are no defined data class defined in this framework for containing the intermediate results. 
+We use python defined objects such as float, string, list or dictionary: we try to avoid using objects defined by external packages (such as ROOT or PyStan). 
 
 
 .. _GaussianSamplingProcessor: https://github.com/morphoorg/morpho/blob/master/morpho/processors/sampling/GaussianSamplingProcessor.py

@@ -71,3 +71,6 @@ class RootHistogram(object):
 
     def Draw(self, arg='hist'):
         self.histo.Draw(arg)
+
+    def Write(self):
+        self.histo.Write()

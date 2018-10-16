@@ -42,7 +42,7 @@ class RootHistogram(object):
 
     def Fill(self, input_data):
         if not isinstance(input_data, list):
-            logger.error("Data given <{}> not a list")
+            logger.error("Data given <{}> not a list".format(input_data))
             raise
         if self.x_min > self.x_max:
             logger.warning("Inappropriate x range: {}>{}".format(
@@ -68,6 +68,14 @@ class RootHistogram(object):
             raise
         for i, value in enumerate(a_list):
             self.histo.SetBinContent(i, value)
+
+    def _RainbowColor(self, value, n=1):
+        if n == 1:
+            return 4
+        return int(50 + 50*(value)/(n-1))
+
+    def SetLineColor(self, value, n=1):
+        self.histo.SetLineColor(self._RainbowColor(value, n))
 
     def Draw(self, arg='hist'):
         self.histo.Draw(arg)

@@ -51,6 +51,7 @@ class Histogram(BaseProcessor):
 
         # Read other parameters
         self.namedata = reader.read_param(params, 'variables', "required")
+        logger.debug(self.namedata)
         self.multipleHistos = False
         if isinstance(self.namedata, list):
             self.multipleHistos = True
@@ -67,7 +68,7 @@ class Histogram(BaseProcessor):
     def InternalRun(self):
         self.rootcanvas.cd()
         if self.multipleHistos:
-            for i, (var, histo) in enumerate(zip(self.data.keys(), self.histos)):
+            for i, (var, histo) in enumerate(zip(self.namedata, self.histos)):
                 histo.Fill(self.data.get(var))
                 if i ==0:
                     histo.Draw("hist")

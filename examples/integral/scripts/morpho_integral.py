@@ -8,7 +8,8 @@ fitter_config = {
             "count": 1000
             },
         "include_dirs": ["integral/models"],
-        "includes": ["integral.hpp"],
+        #"includes": ["integral_auto.hpp"], # Calculate first derivative automatically.
+        "includes": ["integral.hpp"], # First derivative calculated by user.
         "allow_undefined": True,
         "iter": 22000,
         "warmup": 2000,

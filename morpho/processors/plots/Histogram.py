@@ -51,7 +51,6 @@ class Histogram(BaseProcessor):
 
         # Read other parameters
         self.namedata = reader.read_param(params, 'variables', "required")
-        logger.debug(self.namedata)
         self.multipleHistos = False
         if isinstance(self.namedata, list):
             self.multipleHistos = True

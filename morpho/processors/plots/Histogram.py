@@ -47,16 +47,36 @@ class Histogram(BaseProcessor):
         Configure
         '''
         # Initialize Canvas
-        self.rootcanvas = RootCanvas.RootCanvas(params, optStat=0)
-        self.histo = RootHistogram.RootHistogram(params, optStat=0)
+        self.rootcanvas = RootCanvas(params, optStat=0)
 
         # Read other parameters
         self.namedata = reader.read_param(params, 'variables', "required")
+        self.multipleHistos = False
+        if isinstance(self.namedata, list):
+            self.multipleHistos = True
+        if self.multipleHistos:
+            self.histos = []
+            for var in self.namedata:
+                aParamsDict = params
+                aParamsDict.update({"variables": str(var)})
+                self.histos.append(RootHistogram(params, optStat=0))
+        else:
+            self.histo = RootHistogram(params, optStat=0)
         return True
 
     def InternalRun(self):
-        self.histo.Fill(self.data.get(self.namedata))
         self.rootcanvas.cd()
-        self.histo.Draw("hist")
+        if self.multipleHistos:
+            for i, (var, histo) in enumerate(zip(self.namedata, self.histos)):
+                histo.Fill(self.data.get(var))
+                if i ==0:
+                    histo.Draw("hist")
+                    histo.SetLineColor(i, len(self.histos))
+                else:
+                    histo.Draw("sameHist")
+                    histo.SetLineColor(i, len(self.histos))
+        else:
+            self.histo.Fill(self.data.get(self.namedata))
+            self.histo.Draw("hist")
         self.rootcanvas.Save()
         return True

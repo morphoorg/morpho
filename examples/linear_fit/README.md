@@ -1,7 +1,7 @@
 # Linear fit example
 
 The ```linear_fit``` analysis serves as an example of how to use morpho, and specifically, how to prepare a configuration file, Stan model and data file for a morpho run.
-See [Instructions for Use: Before You Run Morpho](https://github.com/project8/morpho/tree/doc_README#instructions-for-use) for more details regarding analysis file organization.
+See [Morpho Use](https://morpho.readthedocs.io/en/latest/morpho2use.html) for more details regarding analysis file organization.
 
 Run ```linear_fit``` from the ```examples``` folder by executing:
 

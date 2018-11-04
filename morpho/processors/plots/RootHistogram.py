@@ -27,7 +27,7 @@ class RootHistogram(object):
         from ROOT import TH1F
         self.histo = TH1F(self.title, self.title,
                           self.n_bins_x, self.x_min, self.x_max)
-        self.histo.SetTitle("{};{};".format(self.title, self.xtitle))
+        self.histo.SetTitle("{};{};{}".format(self.title, self.xtitle, self.ytitle))
 
     def __init__(self, input_dict, optStat='emr'):
         self.n_bins_x = reader.read_param(input_dict, "n_bins_x", 100)
@@ -35,6 +35,7 @@ class RootHistogram(object):
         self.dataName = reader.read_param(input_dict, "variables", "required")
         self.title = str(reader.read_param(input_dict, "title", 'hist_{}'.format(self.dataName)))
         self.xtitle = reader.read_param(input_dict, "x_title", self.dataName)
+        self.ytitle = reader.read_param(input_dict, "y_title", "")
         self._createHisto()
 
     def GetNbinsX(self):
@@ -42,7 +43,7 @@ class RootHistogram(object):
 
     def Fill(self, input_data):
         if not isinstance(input_data, list):
-            logger.error("Data given <{}> not a list")
+            logger.error("Data given <{}> not a list".format(input_data))
             raise
         if self.x_min > self.x_max:
             logger.warning("Inappropriate x range: {}>{}".format(
@@ -69,5 +70,18 @@ class RootHistogram(object):
         for i, value in enumerate(a_list):
             self.histo.SetBinContent(i, value)
 
+    def _RainbowColor(self, value, n=1):
+        if n == 1:
+            return 4
+        if value >= 2:
+            return value+2
+        return value+1
+
+    def SetLineColor(self, value, n=1):
+        self.histo.SetLineColor(self._RainbowColor(value, n))
+
     def Draw(self, arg='hist'):
         self.histo.Draw(arg)
+
+    def Write(self):
+        self.histo.Write()

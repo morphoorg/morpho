@@ -4,22 +4,17 @@ Validation Log
 Log
 ---
 
-Version: 
+Version: v2.2.0
 ~~~~~~~~~~~~~~~
 
-Release Date: 
-''''''''''''''''''''''''''''''''''''''''
+Release Date: Sunday November 4th 2018
+''''''''''''''''''''''''''''''''''''''
 
 New Features:
 '''''''''''''
 
 * Possibility to generate several histograms on the same RootCanvas
-* A huge effort in documenting the code and the RTD!
-
-Fixes:
-''''''
-
-
+* A huge effort in documenting the code and on RTD!
 
 Version: v2.1.5
 ~~~~~~~~~~~~~~~

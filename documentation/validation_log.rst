@@ -4,6 +4,17 @@ Validation Log
 Log
 ---
 
+Version: v2.2.1
+~~~~~~~~~~~~~~~
+
+Release Date: Thursday November 8th 2018
+''''''''''''''''''''''''''''''''''''''
+
+Fixes:
+'''''''''''''
+
+* Fixing the import of RootCanvas and RootHistogram in Histogram
+
 Version: v2.2.0
 ~~~~~~~~~~~~~~~
 

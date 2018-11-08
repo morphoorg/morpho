@@ -123,6 +123,48 @@ class SamplingTests(unittest.TestCase):
         myhisto.data = sampler.results
         myhisto.Run()
 
+    def test_linearModelGenerator(self):
+        logger.info("LinearFitRooFitGenerator test")
+        from morpho.processors.sampling import LinearFitRooFitProcessor
+        from morpho.processors.plots import TimeSeries, APosterioriDistribution
+
+        linearFit_config = {
+            "iter": 10000,
+            "warmup": 2000,
+            "interestParams": ['x', 'y'],
+            "fixedParams": {'a': 1.,
+                            'b': 2.,
+                            'width': 1.},
+            "varName": "XY",
+            "nuisanceParams": [],
+            "paramRange": {
+                "x": [-10, 10],
+                "y": [-10, 50],
+                "a": [-10, 10],
+                "b": [-10, 10],
+                "width": [0., 5.]
+            },
+            "n_jobs": 3
+        }
+        aposteriori_config = {
+            "n_bins_x": 100,
+            "n_bins_y": 100,
+            "variables": ['a', 'b', 'width', "lp_prob"],
+            "title": "aposteriori_distribution",
+            "output_path": "plots"
+        }
+        timeSeries_config = {
+            "variables": ['a', 'b', 'width'],
+            "height": 1200,
+            "title": "timeseries",
+            "output_path": "plots"
+        }
+        sampler = LinearFitRooFitProcessor("sampler")
+        sampler.Configure(linearFit_config)
+        sampler.Run()
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

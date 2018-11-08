@@ -8,7 +8,8 @@ from __future__ import absolute_import
 
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
-from . import RootCanvas, RootHistogram
+from .RootCanvas import RootCanvas
+from .RootHistogram import RootHistogram
 logger = morphologging.getLogger(__name__)
 
 __all__ = []
@@ -47,7 +48,11 @@ class Histogram(BaseProcessor):
         Configure
         '''
         # Initialize Canvas
+        # try:
+        #     self.rootcanvas = RootCanvas.RootCanvas(params, optStat=0)
+        # except:
         self.rootcanvas = RootCanvas(params, optStat=0)
+
 
         # Read other parameters
         self.namedata = reader.read_param(params, 'variables', "required")

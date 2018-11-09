@@ -77,11 +77,12 @@ class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
 
         x = ROOT.RooRealVar("x", "x", self.x_min, self.x_max)
         y = ROOT.RooRealVar("y", "y", self.y_min, self.y_max)
-        res = ROOT.RooFormulaVar("res", "(y-a*x-b)/width", ROOT.RooArgList(x, y, a, b, width))
+        res = ROOT.RooFormulaVar("res", "(y-a*x-b)", ROOT.RooArgList(x, y, a, b))
+        # res = ROOT.RooFormulaVar("res", "(y)/width", ROOT.RooArgList(x, y, a, b, width))
         null = ROOT.RooRealVar("null", "null", 0.)
         one = ROOT.RooRealVar("one", "one", 1.)
 
-        pdf = ROOT.RooGaussian("pdf", "pdf", res, null, one)
+        pdf = ROOT.RooGaussian("pdf", "pdf", res, null, width)
         # Save pdf: this will save all required variables and functions
         getattr(wspace, 'import')(pdf)
 

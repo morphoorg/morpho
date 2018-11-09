@@ -122,13 +122,26 @@ class RooFitInterfaceProcessor(BaseProcessor):
     def _FixParams(self, wspace):
         # argSet = ROOT.RooArgSet()
         for varName, value in self.fixedParameters.items():
-            print('here',varName,value)
+            print('here', varName, value)
             # var = self.wspace
             wspace.var(str(varName)).setVal(float(value))
+            wspace.var(str(varName)).setConstant()
             logger.debug("Value of {} set to {}".format(
                 varName, wspace.var(str(varName)).getVal()))
             #  = ROOT.RooRealVar(varName, varName, value)
             # argSet.add(var)
+        return wspace    
+    def _FixParamsArgset(self):
+        argSet = ROOT.RooArgSet()
+        for varName, value in self.fixedParameters.items():
+            print('here', varName, value)
+            # var = self.wspace
+            var = ROOT.RooRealVar(str(varName),str(varName),float(value))
+            # wspace.var(str(varName)).setConstant()
+            logger.debug("Value of {} set to {}".format(
+                varName, var.getVal()))
+            #  = ROOT.RooRealVar(varName, varName, value)
+            argSet.add(var)
         return wspace
 
     def _Generator(self):
@@ -139,16 +152,32 @@ class RooFitInterfaceProcessor(BaseProcessor):
         wspace.Print()
         # paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
         wspace = self._FixParams(wspace)
+        logger.debug("Value of {} set to {}".format(
+            'a', wspace.var(str('a')).getVal()))
         pdf = wspace.pdf("pdf")
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
         data = pdf.generate(paramOfInterest, self.iter)
         data.Print()
+
+        self.data = {}
+        for name in self.paramOfInterestNames:
+            self.data.update({name: []})
+
+        for i in range(0, data.numEntries()):
+            for item in self.data:
+                self.data[item].append(
+                    data.get(i).getRealValue(item))
+        print(self.data)
+
+        self.data.update(
+            {"is_sample": [1]*(self.iter)})
 
         return True
 
     def _LikelihoodSampling(self):
         wspace = ROOT.RooWorkspace()
         wspace = self._defineDataset(wspace)
+        wspace = self._FixParams(wspace)
         wspace = self.definePdf(wspace)
         logger.debug("Workspace content:")
         wspace.Print()
@@ -213,7 +242,6 @@ class RooFitInterfaceProcessor(BaseProcessor):
                 else:
                     self.results[item].append(
                         chainData.get(i).getRealValue(item))
-
         self.results.update(
             {"is_sample": [0]*self.warmup + [1]*(int(chainData.numEntries())-self.warmup)})
 

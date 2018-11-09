@@ -129,12 +129,12 @@ class SamplingTests(unittest.TestCase):
         from morpho.processors.plots import TimeSeries, APosterioriDistribution
 
         linearFit_config = {
-            "iter": 10000,
-            "warmup": 2000,
+            "iter": 2000,
+            "warmup": 10,
             "interestParams": ['x', 'y'],
             "fixedParams": {'a': 1.,
-                            'b': 2.,
-                            'width': 1.},
+                            'b': 1.,
+                            'width': 0.2},
             "varName": "XY",
             "nuisanceParams": [],
             "paramRange": {
@@ -144,24 +144,23 @@ class SamplingTests(unittest.TestCase):
                 "b": [-10, 10],
                 "width": [0., 5.]
             },
-            "n_jobs": 3
+            "n_jobs": 3,
+            "mode": "generator"
         }
         aposteriori_config = {
             "n_bins_x": 100,
             "n_bins_y": 100,
-            "variables": ['a', 'b', 'width', "lp_prob"],
+            "variables": ['x', 'y'],
             "title": "aposteriori_distribution",
             "output_path": "plots"
         }
-        timeSeries_config = {
-            "variables": ['a', 'b', 'width'],
-            "height": 1200,
-            "title": "timeseries",
-            "output_path": "plots"
-        }
         sampler = LinearFitRooFitProcessor("sampler")
+        aposterioriPlotter = APosterioriDistribution("posterioriDistrib")
         sampler.Configure(linearFit_config)
+        aposterioriPlotter.Configure(aposteriori_config)
         sampler.Run()
+        aposterioriPlotter.data = sampler.data
+        aposterioriPlotter.Run()
 
 
 

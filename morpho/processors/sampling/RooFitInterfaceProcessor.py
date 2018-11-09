@@ -89,27 +89,23 @@ class RooFitInterfaceProcessor(BaseProcessor):
 
     def InternalConfigure(self, config_dict):
         self.varName = reader.read_param(config_dict, "varName", "required")
-        self.datasetName = "data_"+self.varName
-        self.nuisanceParametersNames = reader.read_param(
-            config_dict, "nuisanceParams", "required")
-        self.paramOfInterestNames = reader.read_param(
-            config_dict, "interestParams", "required")
-        self.fixedParameters = reader.read_param(
-            config_dict, "fixedParams", "required")
-        if not isinstance(self.fixedParameters, dict):
-            logger.error(
-                "fixedParams should be a dictionary like {'varName': value}")
-            return False
+        self.mode = reader.read_param(config_dict, "mode", "generator")
         self.iter = int(reader.read_param(config_dict, "iter", "required"))
-        self.warmup = int(reader.read_param(
-            config_dict, "warmup", self.iter/2.))
+        self.warmup = int(reader.read_param(config_dict, "warmup", self.iter/2.))
         self.numCPU = int(reader.read_param(config_dict, "n_jobs", 1))
         self.binned = int(reader.read_param(config_dict, "binned", False))
         self.options = reader.read_param(config_dict, "options", dict())
-        self.mode = reader.read_param(config_dict, "mode", "generator")
         if self.mode not in ['generator', 'lsampling']:
-            logger.error(
-                "Mode '{}' is not valid; choose between 'mode' and 'lsampling'".format(self.mode))
+            logger.error("Mode '{}' is not valid; choose between 'mode' and 'lsampling'".format(self.mode))
+            return False
+        logger.debug("Mode {}".format(self.mode))
+        self.datasetName = "data_"+self.varName
+        self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")
+        self.paramOfInterestNames = reader.read_param(config_dict, "interestParams", "required")
+        self.fixedParameters = reader.read_param(
+            config_dict, "fixedParams", "required")
+        if not isinstance(self.fixedParameters, dict):
+            logger.error("fixedParams should be a dictionary like {'varName': value}")
             return False
         return True
 
@@ -120,37 +116,20 @@ class RooFitInterfaceProcessor(BaseProcessor):
             return self._LikelihoodSampling()
 
     def _FixParams(self, wspace):
-        # argSet = ROOT.RooArgSet()
+        if len(self.fixedParameters) == 0:
+            logger.debug("No fixed parameters given")
+            return wspace
         for varName, value in self.fixedParameters.items():
-            print('here', varName, value)
-            # var = self.wspace
             wspace.var(str(varName)).setVal(float(value))
             wspace.var(str(varName)).setConstant()
-            logger.debug("Value of {} set to {}".format(
-                varName, wspace.var(str(varName)).getVal()))
-            #  = ROOT.RooRealVar(varName, varName, value)
-            # argSet.add(var)
-        return wspace    
-    def _FixParamsArgset(self):
-        argSet = ROOT.RooArgSet()
-        for varName, value in self.fixedParameters.items():
-            print('here', varName, value)
-            # var = self.wspace
-            var = ROOT.RooRealVar(str(varName),str(varName),float(value))
-            # wspace.var(str(varName)).setConstant()
-            logger.debug("Value of {} set to {}".format(
-                varName, var.getVal()))
-            #  = ROOT.RooRealVar(varName, varName, value)
-            argSet.add(var)
+            logger.debug("Value of {} set to {}".format(varName, wspace.var(str(varName)).getVal()))
         return wspace
 
     def _Generator(self):
         wspace = ROOT.RooWorkspace()
-        # wspace = self._defineDataset(wspace)
         wspace = self.definePdf(wspace)
         logger.debug("Workspace content:")
         wspace.Print()
-        # paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
         wspace = self._FixParams(wspace)
         logger.debug("Value of {} set to {}".format(
             'a', wspace.var(str('a')).getVal()))
@@ -167,10 +146,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
             for item in self.data:
                 self.data[item].append(
                     data.get(i).getRealValue(item))
-        print(self.data)
-
-        self.data.update(
-            {"is_sample": [1]*(self.iter)})
+        self.data.update({"is_sample": [1]*(self.iter)})
 
         return True
 

@@ -42,14 +42,16 @@ class SamplingTests(unittest.TestCase):
 
     def test_LinearFitRooFitSampler(self):
         logger.info("LinearFitRooFitSampler test")
-        from morpho.processors.sampling import LinearFitRooFitLikelihoodProcessor
+        from morpho.processors.sampling import LinearFitRooFitProcessor
         from morpho.processors.plots import TimeSeries, APosterioriDistribution
 
         linearFit_config = {
             "iter": 10000,
             "warmup": 2000,
+            "mode": "lsampling",
             "interestParams": ['a', 'b', 'width'],
             "varName": "XY",
+            "fixedParams": [],
             "nuisanceParams": [],
             "paramRange": {
                 "x": [-10, 10],
@@ -76,7 +78,7 @@ class SamplingTests(unittest.TestCase):
         # Definition of the processors
         aposterioriPlotter = APosterioriDistribution("posterioriDistrib")
         timeSeriesPlotter = TimeSeries("timeSeries")
-        fitterProcessor = LinearFitRooFitLikelihoodProcessor("linearFit")
+        fitterProcessor = LinearFitRooFitProcessor("linearFit")
 
         # Configuration step
         aposterioriPlotter.Configure(aposteriori_config)

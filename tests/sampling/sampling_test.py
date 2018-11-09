@@ -238,9 +238,9 @@ class SamplingTests(unittest.TestCase):
         fitter.data = sampler.data
         self.assertTrue(timeSeriesPlotter.Run())
         # Run lsampler generator and plot timeseries
-        # self.assertTrue(lsampler.Run())
-        # aPostPlotter.data = lsampler.results
-        # self.assertTrue(aPostPlotter.Run())
+        self.assertTrue(lsampler.Run())
+        aPostPlotter.data = lsampler.results
+        self.assertTrue(aPostPlotter.Run())
 
         # Run fitter
         fitter.data = sampler.data

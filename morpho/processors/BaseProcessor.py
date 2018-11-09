@@ -71,7 +71,7 @@ class BaseProcessor():
         '''
         logger.info("Run <{}>...".format(self.name))
         if not self.InternalRun():
-            logger.error("Error while running <{}>".format(name))
+            logger.error("Error while running <{}>".format(self.name))
             return False
         logger.info("Done with <{}>".format(self.name))
         return True

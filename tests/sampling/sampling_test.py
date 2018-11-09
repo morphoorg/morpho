@@ -30,19 +30,15 @@ class SamplingTests(unittest.TestCase):
         }
 
         pystanProcessor = PyStanSamplingProcessor("pystanProcessor")
-        if not pystanProcessor.Configure(pystan_config):
-            logger.error("Error while configuring <pystanProcessor>")
-            return False
-        if not pystanProcessor.Run():
-            logger.error("Error while running <pystanProcessor>")
-            return False
+        self.assertTrue(pystanProcessor.Configure(pystan_config))
+        self.assertTrue(pystanProcessor.Run())
         self.assertEqual(len(pystanProcessor.results["y"]), 100)
         # Because we need this generator for the LinearFit analysis, we return the data, and not a bool
         return pystanProcessor.results
 
     def test_LinearFitRooFitSampler(self):
         logger.info("LinearFitRooFitSampler test")
-        from morpho.processors.sampling import LinearFitRooFitProcessor
+        from morpho.processors.sampling.LinearFitRooFitProcessor import LinearFitRooFitProcessor
         from morpho.processors.plots import TimeSeries, APosterioriDistribution
 
         linearFit_config = {
@@ -51,7 +47,7 @@ class SamplingTests(unittest.TestCase):
             "mode": "lsampling",
             "interestParams": ['a', 'b', 'width'],
             "varName": "XY",
-            "fixedParams": [],
+            "fixedParams": {},
             "nuisanceParams": [],
             "paramRange": {
                 "x": [-10, 10],
@@ -81,21 +77,17 @@ class SamplingTests(unittest.TestCase):
         fitterProcessor = LinearFitRooFitProcessor("linearFit")
 
         # Configuration step
-        aposterioriPlotter.Configure(aposteriori_config)
-        timeSeriesPlotter.Configure(timeSeries_config)
-        if not fitterProcessor.Configure(linearFit_config):
-            logger.error("Error while configuring <linearFit>")
-            return False
+        self.assertTrue(aposterioriPlotter.Configure(aposteriori_config))
+        self.assertTrue(timeSeriesPlotter.Configure(timeSeries_config))
+        self.assertTrue(fitterProcessor.Configure(linearFit_config))
 
         # Doing things step
         fitterProcessor.data = self.test_PyStan()
-        if not fitterProcessor.Run():
-            logger.error("Error while running <linearFit>")
-            return False
+        self.assertTrue(fitterProcessor.Run())
         aposterioriPlotter.data = fitterProcessor.results
         timeSeriesPlotter.data = fitterProcessor.results
-        aposterioriPlotter.Run()
-        timeSeriesPlotter.Run()
+        self.assertTrue(aposterioriPlotter.Run())
+        self.assertTrue(timeSeriesPlotter.Run())
 
         def mean(numbers):
             return float(sum(numbers)) / max(len(numbers), 1)
@@ -103,7 +95,7 @@ class SamplingTests(unittest.TestCase):
 
     def test_GaussianSampler(self):
         logger.info("GaussianSampler test")
-        from morpho.processors.sampling import GaussianSamplingProcessor
+        from morpho.processors.sampling.GaussianSamplingProcessor import GaussianSamplingProcessor
         from morpho.processors.plots import Histogram
 
         gauss_config = {
@@ -117,17 +109,17 @@ class SamplingTests(unittest.TestCase):
 
         sampler = GaussianSamplingProcessor("sampler")
         myhisto = Histogram("histo")
-        sampler.Configure(gauss_config)
-        myhisto.Configure(histo_config)
+        self.assertTrue(sampler.Configure(gauss_config))
+        self.assertTrue(myhisto.Configure(histo_config))
         if not sampler.Run():
             logger.error("Error while running <sampler>")
             return False
         myhisto.data = sampler.results
-        myhisto.Run()
+        self.assertTrue(myhisto.Run())
 
     def test_linearModelGenerator(self):
         logger.info("LinearFitRooFitGenerator test")
-        from morpho.processors.sampling import LinearFitRooFitProcessor
+        from morpho.processors.sampling.LinearFitRooFitProcessor import LinearFitRooFitProcessor
         from morpho.processors.plots import TimeSeries, APosterioriDistribution
 
         linearFit_config = {
@@ -147,7 +139,7 @@ class SamplingTests(unittest.TestCase):
                 "width": [0., 5.]
             },
             "n_jobs": 3,
-            "mode": "generator"
+            "mode": "generate"
         }
         aposteriori_config = {
             "n_bins_x": 100,
@@ -158,12 +150,102 @@ class SamplingTests(unittest.TestCase):
         }
         sampler = LinearFitRooFitProcessor("sampler")
         aposterioriPlotter = APosterioriDistribution("posterioriDistrib")
-        sampler.Configure(linearFit_config)
-        aposterioriPlotter.Configure(aposteriori_config)
-        sampler.Run()
+        self.assertTrue(sampler.Configure(linearFit_config))
+        self.assertTrue(aposterioriPlotter.Configure(aposteriori_config))
+        self.assertTrue(sampler.Run())
         aposterioriPlotter.data = sampler.data
-        aposterioriPlotter.Run()
+        self.assertTrue(aposterioriPlotter.Run())
 
+    def test_GaussianRooFit(self):
+        logger.info("GaussianRooFit test")
+        from morpho.processors.sampling import GaussianRooFitProcessor
+        from morpho.processors.plots import TimeSeries, TimeSeries
+
+        gaussGen_config = {
+            "iter": 2000,
+            "interestParams": ['x'],
+            "fixedParams": {'mean': 1.,
+                            'width': 0.2},
+            "varName": "XY",
+            "nuisanceParams": [],
+            "paramRange": {
+                "x": [-10, 10],
+                "mean": [-10, 10],
+                "width": [0., 5.]
+            },
+            "n_jobs": 3,
+            "mode": "generate"
+        }
+        timeSeries_config = {
+            "variables": ['x'],
+            "height": 600,
+            "title": "timeseries",
+            "output_path": "plots"
+        }
+        gaussSampler_config = {
+            "iter": 10000,
+            "warmup": 5000, # there is not enough warmup, this is to show the convergence of the chain
+            "interestParams": ['mean', 'width'],
+            "fixedParams": {},
+            "varName": "XY",
+            "nuisanceParams": [],
+            "paramRange": {
+                "x": [-10, 10],
+                "mean": [-10, 10],
+                "width": [0., 5.]
+            },
+            "n_jobs": 3,
+            "mode": "lsampling"
+        }
+        aposteriori_config = {
+            "n_bins_x": 100,
+            "n_bins_y": 100,
+            "variables": ['mean', 'width'],
+            "title": "aposteriori_distribution_gaussSampling",
+            "output_path": "plots"
+        }
+        fitter_config = {
+            "iter": 10000,
+            "warmup": 5000, # there is not enough warmup, this is to show the convergence of the chain
+            "interestParams": ['mean', 'width'],
+            "fixedParams": {},
+            "varName": "XY",
+            "nuisanceParams": [],
+            "paramRange": {
+                "x": [-10, 10],
+                "mean": [-10, 10],
+                "width": [0., 5.]
+            },
+            "n_jobs": 3,
+            "mode": "fit"
+        }
+        sampler = GaussianRooFitProcessor("sampler")
+        lsampler = GaussianRooFitProcessor("lsampler")
+        fitter = GaussianRooFitProcessor("fitter")
+        timeSeriesPlotter = TimeSeries("timeSeries")
+        aPostPlotter = TimeSeries("aPostPlotter")
+
+        self.assertTrue(sampler.Configure(gaussGen_config))
+        self.assertTrue(lsampler.Configure(gaussSampler_config))
+        self.assertTrue(fitter.Configure(fitter_config))
+        self.assertTrue(timeSeriesPlotter.Configure(timeSeries_config))
+        self.assertTrue(aPostPlotter.Configure(aposteriori_config))
+
+        # Run fake data generator and plot data timeseries
+        self.assertTrue(sampler.Run())
+        timeSeriesPlotter.data = sampler.data
+        lsampler.data = sampler.data
+        fitter.data = sampler.data
+        self.assertTrue(timeSeriesPlotter.Run())
+        # Run lsampler generator and plot timeseries
+        # self.assertTrue(lsampler.Run())
+        # aPostPlotter.data = lsampler.results
+        # self.assertTrue(aPostPlotter.Run())
+
+        # Run fitter
+        fitter.data = sampler.data
+        self.assertTrue(fitter.Run())
+        logger.info("Fit Results: {}".format(fitter.result))
 
 
 

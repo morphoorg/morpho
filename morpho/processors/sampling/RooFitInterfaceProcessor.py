@@ -89,33 +89,61 @@ class RooFitInterfaceProcessor(BaseProcessor):
 
     def InternalConfigure(self, config_dict):
         self.varName = reader.read_param(config_dict, "varName", "required")
-        self.mode = reader.read_param(config_dict, "mode", "generator")
+        self.mode = reader.read_param(config_dict, "mode", "generate")
+        logger.debug("Mode {}".format(self.mode))
         self.iter = int(reader.read_param(config_dict, "iter", "required"))
-        self.warmup = int(reader.read_param(config_dict, "warmup", self.iter/2.))
+        if self.mode == "lsampling":
+            self.binned = int(reader.read_param(config_dict, "binned", False))
+            self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")
+            self.warmup = int(reader.read_param(config_dict, "warmup", self.iter/2.))
         self.numCPU = int(reader.read_param(config_dict, "n_jobs", 1))
-        self.binned = int(reader.read_param(config_dict, "binned", False))
         self.options = reader.read_param(config_dict, "options", dict())
-        if self.mode not in ['generator', 'lsampling']:
+        if self.mode not in ['generate', 'lsampling', 'fit']:
             logger.error("Mode '{}' is not valid; choose between 'mode' and 'lsampling'".format(self.mode))
             return False
-        logger.debug("Mode {}".format(self.mode))
         self.datasetName = "data_"+self.varName
-        self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")
         self.paramOfInterestNames = reader.read_param(config_dict, "interestParams", "required")
-        self.fixedParameters = reader.read_param(
-            config_dict, "fixedParams", "required")
+        self.fixedParameters = reader.read_param(config_dict, "fixedParams", dict)
         if not isinstance(self.fixedParameters, dict):
             logger.error("fixedParams should be a dictionary like {'varName': value}")
             return False
         return True
 
     def InternalRun(self):
-        if self.mode == "generator":
+        if self.mode == "generate":
             return self._Generator()
         elif self.mode == 'lsampling':
             return self._LikelihoodSampling()
+        elif self.mode == 'fit':
+            return self._Fit()
+        else:
+            logger.error("Unknown mode <{}>".format(self.mode))
+            return False
+    
+    def _Fit(self):
+        '''
+        Fit the data using the pdf defined in the workspace
+        '''
+        wspace = ROOT.RooWorkspace()
+        wspace = self._defineDataset(wspace)
+        wspace = self.definePdf(wspace)
+        logger.debug("Workspace content:")
+        wspace.Print()
+        wspace = self._FixParams(wspace)
+        pdf = wspace.pdf("pdf")
+        dataset = wspace.data(self.datasetName)
+
+        paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
+        result = pdf.fitTo(dataset, ROOT.RooFit.Save())
+        result.Print()
+        self.result = {}
+        for varName in self.paramOfInterestNames:
+            self.result.update({str(varName): wspace.var(str(varName)).getVal()}) 
+            self.result.update({"error_"+str(varName): wspace.var(str(varName)).getErrorHi()})
+        return True
 
     def _FixParams(self, wspace):
+        '''Fix the variables inside a workspace'''
         if len(self.fixedParameters) == 0:
             logger.debug("No fixed parameters given")
             return wspace
@@ -126,13 +154,14 @@ class RooFitInterfaceProcessor(BaseProcessor):
         return wspace
 
     def _Generator(self):
+        '''
+        Generate the data by sampling the pdf defined in the workspace
+        '''
         wspace = ROOT.RooWorkspace()
         wspace = self.definePdf(wspace)
         logger.debug("Workspace content:")
         wspace.Print()
         wspace = self._FixParams(wspace)
-        logger.debug("Value of {} set to {}".format(
-            'a', wspace.var(str('a')).getVal()))
         pdf = wspace.pdf("pdf")
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
         data = pdf.generate(paramOfInterest, self.iter)
@@ -147,10 +176,12 @@ class RooFitInterfaceProcessor(BaseProcessor):
                 self.data[item].append(
                     data.get(i).getRealValue(item))
         self.data.update({"is_sample": [1]*(self.iter)})
-
         return True
 
     def _LikelihoodSampling(self):
+        '''
+        Sample the pdf defined in the workspace
+        '''
         wspace = ROOT.RooWorkspace()
         wspace = self._defineDataset(wspace)
         wspace = self._FixParams(wspace)

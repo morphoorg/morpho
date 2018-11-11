@@ -10,14 +10,15 @@ except ImportError:
     pass
 
 from morpho.utilities import morphologging, reader
-from morpho.processors.sampling import RooFitLikelihoodSampler
+from morpho.processors.sampling.RooFitInterfaceProcessor import RooFitInterfaceProcessor
+from morpho.processors.BaseProcessor import BaseProcessor
 logger = morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)
 
 
-class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
+class GaussianRooFitProcessor(RooFitInterfaceProcessor):
     '''
     Linear fit of data using RootFit Likelihood sampler.
     We redefine the _defineDataset method as this analysis requires datapoints in a 2D space.
@@ -48,21 +49,17 @@ class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
 
     def InternalConfigure(self, config_dict):
         super().InternalConfigure(config_dict)
-        self.a_min, self.a_max = reader.read_param(config_dict, "paramRange", "required")["a"]
-        self.b_min, self.b_max = reader.read_param(config_dict, "paramRange", "required")["b"]
         self.x_min, self.x_max = reader.read_param(config_dict, "paramRange", "required")["x"]
-        self.y_min, self.y_max = reader.read_param(config_dict, "paramRange", "required")["y"]
+        self.mean_min, self.mean_max = reader.read_param(config_dict, "paramRange", "required")["mean"]
         self.width_min, self.width_max = reader.read_param(config_dict, "paramRange", "required")["width"]
         return True
 
     def _defineDataset(self, wspace):
         varX = ROOT.RooRealVar("x", "x", min(self._data["x"]), max(self._data["x"]))
-        varY = ROOT.RooRealVar("y", "y", min(self._data["y"]), max(self._data["y"]))
-        data = ROOT.RooDataSet(self.datasetName, self.datasetName, ROOT.RooArgSet(varX, varY))
-        for x, y in zip(self._data["x"], self._data["y"]):
+        data = ROOT.RooDataSet(self.datasetName, self.datasetName, ROOT.RooArgSet(varX))
+        for x in self._data["x"]:
             varX.setVal(x)
-            varY.setVal(y)
-            data.add(ROOT.RooArgSet(varX, varY))
+            data.add(ROOT.RooArgSet(varX))
         getattr(wspace, 'import')(data)
         return wspace
 
@@ -71,17 +68,11 @@ class LinearFitRooFitLikelihoodProcessor(RooFitLikelihoodSampler):
         Define the model which is that the residual of the linear fit should be normally distributed.
         '''
         logger.debug("Defining pdf")
-        a = ROOT.RooRealVar("a", "a", 0, self.a_min, self.a_max)
-        b = ROOT.RooRealVar("b", "b", 0, self.b_min, self.b_max)
+        mean = ROOT.RooRealVar("mean", "mean", 0, self.mean_min, self.mean_max)
         width = ROOT.RooRealVar("width", "width", 1., self.width_min, self.width_max)
+        x = ROOT.RooRealVar("x", "x", 0, self.x_min, self.x_max)
 
-        x = ROOT.RooRealVar("x", "x", self.x_min, self.x_max)
-        y = ROOT.RooRealVar("y", "y", self.y_min, self.y_max)
-        res = ROOT.RooFormulaVar("res", "(y-a*x-b)/width", ROOT.RooArgList(x, y, a, b, width))
-        null = ROOT.RooRealVar("null", "null", 0.)
-        one = ROOT.RooRealVar("one", "one", 1.)
-
-        pdf = ROOT.RooGaussian("pdf", "pdf", res, null, one)
+        pdf = ROOT.RooGaussian("pdf", "pdf", x, mean, width)
         # Save pdf: this will save all required variables and functions
         getattr(wspace, 'import')(pdf)
 

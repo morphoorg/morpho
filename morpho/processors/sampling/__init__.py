@@ -4,6 +4,8 @@
 from __future__ import absolute_import
 
 from .GaussianSamplingProcessor import GaussianSamplingProcessor
+from .GaussianRooFitProcessor import GaussianRooFitProcessor
+
 from .PyStanSamplingProcessor import PyStanSamplingProcessor
-from .RooFitLikelihoodSampler import RooFitLikelihoodSampler
-from .LinearFitRooFitLikelihoodProcessor import LinearFitRooFitLikelihoodProcessor
+from .RooFitInterfaceProcessor import RooFitInterfaceProcessor
+from .LinearFitRooFitProcessor import LinearFitRooFitProcessor

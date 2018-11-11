@@ -4,6 +4,24 @@ Validation Log
 Log
 ---
 
+Version: 
+~~~~~~~~~~~~~~~
+
+Release Date: 
+''''''''''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* RooFit base interface processor:
+    * All RooFit processors now inherit from RooFitInterfaceProcessor
+    * Allow to do sampling, likelihood sampling and fitting by defining the model only once
+
+Fixes:
+'''''''''''''
+
+
+
 Version: v2.2.1
 ~~~~~~~~~~~~~~~
 

@@ -1,5 +1,6 @@
-# Basic gaussian data generator (solution)
-# This script will generate fake data following a gaussian distribution.
+# Basic gaussian data generator (exercise).
+# This script will generate fake data following a gaussian distribution, after you complete it
+# Good luck! :D
 # Author: M. Guigue
 # Date: 11/11/2018
 
@@ -24,18 +25,18 @@ histo_config = {
 }
 
 logger.info("Defining processors")
-sampler = GaussianSamplingProcessor("sampler")
-myhisto = Histogram("histo")
+sampler = ...
+myhisto = ...
 
 logger.info("Configuring processors")
-sampler.Configure(gauss_config)
-myhisto.Configure(histo_config)
+...
+...
 
 logger.info("Running sampler first")
-sampler.Run()
+...
 logger.info("Connecting sampler output (results) to histo input (data)")
-myhisto.data = sampler.results
+...
 logger.info("Running myhisto")
-myhisto.Run()
+...
 
 logger.info("Done!")

@@ -17,9 +17,9 @@ __all__ = []
 __all__.append(__name__)
 
 
-class RooFitLikelihoodSampler(BaseProcessor):
+class RooFitInterfaceProcessor(BaseProcessor):
     '''
-    Base class for RooFit-based Likelihood sampling.
+    Base class for RooFit-based sampling.
     A new class should inheritate from this one and have its
     own version of "definePdf".
     The input data are given via the attribute "data".
@@ -50,11 +50,14 @@ class RooFitLikelihoodSampler(BaseProcessor):
          - Implement the import of several variables in the RooWorkspace
            -> might need to redefine this method when necessary
         '''
-        var = ROOT.RooRealVar(self.varName, self.varName, min(self._data[self.varName]), max(self._data[self.varName]))
+        var = ROOT.RooRealVar(self.varName, self.varName, min(
+            self._data[self.varName]), max(self._data[self.varName]))
         if self.binned:
-            data = ROOT.RooDataHist(self.datasetName, self.datasetName, ROOT.RooArgSet(var))
+            data = ROOT.RooDataHist(
+                self.datasetName, self.datasetName, ROOT.RooArgSet(var))
         else:
-            data = ROOT.RooDataSet(self.datasetName, self.datasetName, ROOT.RooArgSet(var))
+            data = ROOT.RooDataSet(
+                self.datasetName, self.datasetName, ROOT.RooArgSet(var))
         for value in self._data[self.varName]:
             var.setVal(value)
             data.add(ROOT.RooArgSet(var))
@@ -86,23 +89,105 @@ class RooFitLikelihoodSampler(BaseProcessor):
 
     def InternalConfigure(self, config_dict):
         self.varName = reader.read_param(config_dict, "varName", "required")
-        self.datasetName = "data_"+self.varName
-        self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")
-        self.paramOfInterestNames = reader.read_param(config_dict, "interestParams", "required")
+        self.mode = reader.read_param(config_dict, "mode", "generate")
+        logger.debug("Mode {}".format(self.mode))
         self.iter = int(reader.read_param(config_dict, "iter", "required"))
-        self.warmup = int(reader.read_param(config_dict, "warmup", self.iter/2.))
+        if self.mode == "lsampling":
+            self.binned = int(reader.read_param(config_dict, "binned", False))
+            self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")
+            self.warmup = int(reader.read_param(config_dict, "warmup", self.iter/2.))
         self.numCPU = int(reader.read_param(config_dict, "n_jobs", 1))
-        self.binned = int(reader.read_param(config_dict, "binned", False))
         self.options = reader.read_param(config_dict, "options", dict())
+        if self.mode not in ['generate', 'lsampling', 'fit']:
+            logger.error("Mode '{}' is not valid; choose between 'mode' and 'lsampling'".format(self.mode))
+            return False
+        self.datasetName = "data_"+self.varName
+        self.paramOfInterestNames = reader.read_param(config_dict, "interestParams", "required")
+        self.fixedParameters = reader.read_param(config_dict, "fixedParams", dict)
+        if not isinstance(self.fixedParameters, dict):
+            logger.error("fixedParams should be a dictionary like {'varName': value}")
+            return False
         return True
 
     def InternalRun(self):
+        if self.mode == "generate":
+            return self._Generator()
+        elif self.mode == 'lsampling':
+            return self._LikelihoodSampling()
+        elif self.mode == 'fit':
+            return self._Fit()
+        else:
+            logger.error("Unknown mode <{}>".format(self.mode))
+            return False
+    
+    def _Fit(self):
+        '''
+        Fit the data using the pdf defined in the workspace
+        '''
         wspace = ROOT.RooWorkspace()
         wspace = self._defineDataset(wspace)
         wspace = self.definePdf(wspace)
         logger.debug("Workspace content:")
         wspace.Print()
+        wspace = self._FixParams(wspace)
+        pdf = wspace.pdf("pdf")
+        dataset = wspace.data(self.datasetName)
 
+        paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
+        result = pdf.fitTo(dataset, ROOT.RooFit.Save())
+        result.Print()
+        self.result = {}
+        for varName in self.paramOfInterestNames:
+            self.result.update({str(varName): wspace.var(str(varName)).getVal()}) 
+            self.result.update({"error_"+str(varName): wspace.var(str(varName)).getErrorHi()})
+        return True
+
+    def _FixParams(self, wspace):
+        '''Fix the variables inside a workspace'''
+        if len(self.fixedParameters) == 0:
+            logger.debug("No fixed parameters given")
+            return wspace
+        for varName, value in self.fixedParameters.items():
+            wspace.var(str(varName)).setVal(float(value))
+            wspace.var(str(varName)).setConstant()
+            logger.debug("Value of {} set to {}".format(varName, wspace.var(str(varName)).getVal()))
+        return wspace
+
+    def _Generator(self):
+        '''
+        Generate the data by sampling the pdf defined in the workspace
+        '''
+        wspace = ROOT.RooWorkspace()
+        wspace = self.definePdf(wspace)
+        logger.debug("Workspace content:")
+        wspace.Print()
+        wspace = self._FixParams(wspace)
+        pdf = wspace.pdf("pdf")
+        paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
+        data = pdf.generate(paramOfInterest, self.iter)
+        data.Print()
+
+        self.data = {}
+        for name in self.paramOfInterestNames:
+            self.data.update({name: []})
+
+        for i in range(0, data.numEntries()):
+            for item in self.data:
+                self.data[item].append(
+                    data.get(i).getRealValue(item))
+        self.data.update({"is_sample": [1]*(self.iter)})
+        return True
+
+    def _LikelihoodSampling(self):
+        '''
+        Sample the pdf defined in the workspace
+        '''
+        wspace = ROOT.RooWorkspace()
+        wspace = self._defineDataset(wspace)
+        wspace = self._FixParams(wspace)
+        wspace = self.definePdf(wspace)
+        logger.debug("Workspace content:")
+        wspace.Print()
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
         nuisanceParams = self._getArgSet(wspace, self.nuisanceParametersNames)
         allParams = ROOT.RooArgSet(paramOfInterest, nuisanceParams)
@@ -114,7 +199,8 @@ class RooFitLikelihoodSampler(BaseProcessor):
         nll = pdf.createNLL(dataset, ROOT.RooFit.NumCPU(self.numCPU))
 
         logger.debug("Estimating best fits for proposal function...")
-        result = pdf.fitTo(dataset, ROOT.RooFit.Save(), ROOT.RooFit.NumCPU(self.numCPU))
+        result = pdf.fitTo(dataset, ROOT.RooFit.Save(),
+                           ROOT.RooFit.NumCPU(self.numCPU))
         logger.debug("...done!\nResults:")
         result.Print()
         logger.debug("Covariance matrix:")
@@ -158,10 +244,12 @@ class RooFitLikelihoodSampler(BaseProcessor):
         for i in range(0, chainData.numEntries()):
             for item in self.results:
                 if item == "lp_prob":
-                    self.results[item].append(-chainData.get(i).getRealValue("nll_MarkovChain_local_"))
+                    self.results[item].append(-chainData.get(
+                        i).getRealValue("nll_MarkovChain_local_"))
                 else:
-                    self.results[item].append(chainData.get(i).getRealValue(item))
-
-        self.results.update({"is_sample": [0]*self.warmup + [1]*(int(chainData.numEntries())-self.warmup)})
+                    self.results[item].append(
+                        chainData.get(i).getRealValue(item))
+        self.results.update(
+            {"is_sample": [0]*self.warmup + [1]*(int(chainData.numEntries())-self.warmup)})
 
         return True

@@ -16,6 +16,7 @@ New Features:
 * RooFit base interface processor:
     * All RooFit processors now inherit from RooFitInterfaceProcessor
     * Allow to do sampling, likelihood sampling and fitting by defining the model only once
+* Python API example: gaussian model
 
 Fixes:
 '''''''''''''

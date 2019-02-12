@@ -46,6 +46,9 @@ class PyStanSamplingProcessor(BaseProcessor):
         force_recreate: force the cache regeneration
         init: initial values for the parameters
         control: PyStan sampling settings
+        include_dirs: external including directories
+        includes: headers used in Stan model
+        allow_undefined: must be True to use external functions in Stan model
 
     Input:
         data: dictionary containing model input data
@@ -161,7 +164,8 @@ class PyStanSamplingProcessor(BaseProcessor):
                 logger.debug("Using cached StanModel: {}".format(cache_fn))
 
     def _create_and_save_model(self, theModel, cache_fn):
-        self.stanModel = pystan.StanModel(model_code=theModel)
+        self.stanModel = pystan.StanModel(model_code=theModel, allow_undefined=self.allow_undefined,
+                include_dirs=self.include_dirs, includes=self.includes)
         if not self.no_cache:
             cdir = os.path.dirname(cache_fn)
             if not os.path.exists(cdir):
@@ -205,6 +209,10 @@ class PyStanSamplingProcessor(BaseProcessor):
         self.force_recreate = reader.read_param(
             params, 'force_recreate', False)
         self.seed = random.seed(datetime.now())
+        self.include_dirs = reader.read_param(params, 'include_dirs', None)
+        self.includes = reader.read_param(params, 'includes', None)
+        self.allow_undefined = reader.read_param(params, 'allow_undefined', False)
+
         # logger.debug("Autoseed activated")
         logger.debug("seed = {}".format(self.seed))
 

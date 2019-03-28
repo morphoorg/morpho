@@ -93,6 +93,29 @@ class SamplingTests(unittest.TestCase):
             return float(sum(numbers)) / max(len(numbers), 1)
         self.assertTrue(mean(fitterProcessor.results["a"]) > 0.5)
 
+
+    def test_PyBind(self):
+        logger.info("PyBind tester")
+        from morpho.processors.sampling.PyBindRooFitProcessor import PyBindRooFitProcessor
+        pybind_gene_config = {
+            "varName": "XY",
+            "paramRange": {
+                "x": [-10, 10],
+                "y": [-10, 50],
+                "a": [-10, 10],
+                "b": [-10, 10]
+            },
+            "iter": 10000,
+            "fixedParams": {},
+            "interestParams": ['a', 'b'],
+            "module_name": "myModule",
+            "function_name": "myFunction"
+        }
+        sampler = PyBindRooFitProcessor("sampler")
+        self.assertTrue(sampler.Configure(pybind_gene_config))
+        self.assertTrue(sampler.Run())
+        self.assertTrue(1)
+
     def test_GaussianSampler(self):
         logger.info("GaussianSampler test")
         from morpho.processors.sampling.GaussianSamplingProcessor import GaussianSamplingProcessor

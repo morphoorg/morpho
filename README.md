@@ -140,3 +140,12 @@ Examples of such python scripts can be found in the examples folder:
 ```bash
    python linear_fit/scripts/pystan_test.py
 ```
+
+## Quick debug
+
+### Model compilation takes forever, a lot of CPU resources and eventually crashes
+
+When compiling a model inside the docker container, it can happen that the model takes a long time (larger than 2-3 minutes) before crashing with a `gcc error 4` message.
+During this compilation, all the CPU available to docker will be used too.
+This is due to a lack of memory available to the container (basically when running with 1 GB RAM).
+To solve this, increase the RAM to ~4 GB.

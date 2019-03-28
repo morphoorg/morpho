@@ -14,6 +14,7 @@ New Features:
 '''''''''''''
 
 * Debug section in README.md
+* Upgrade pystan to v2.18.1
 
 Fixes:
 '''''''''''''

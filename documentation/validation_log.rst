@@ -4,10 +4,10 @@ Validation Log
 Log
 ---
 
-Version: 
+Version: v2.3.1
 ~~~~~~~~~~~~~~~
 
-Release Date: 
+Release Date: March 28th 2018
 ''''''''''''''''''''''''''''''
 
 New Features:
@@ -15,10 +15,6 @@ New Features:
 
 * Debug section in README.md
 * Upgrade pystan to v2.18.1
-
-Fixes:
-'''''''''''''
-
 
 Version: v2.3.0
 ~~~~~~~~~~~~~~~

@@ -8,7 +8,22 @@ Version:
 ~~~~~~~~~~~~~~~
 
 Release Date: 
-''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* Debug section in README.md
+
+Fixes:
+'''''''''''''
+
+
+Version: v2.3.0
+~~~~~~~~~~~~~~~
+
+Release Date: November 13 2018
+''''''''''''''''''''''''''''''
 
 New Features:
 '''''''''''''
@@ -17,9 +32,6 @@ New Features:
     * All RooFit processors now inherit from RooFitInterfaceProcessor
     * Allow to do sampling, likelihood sampling and fitting by defining the model only once
 * Python API example: gaussian model
-
-Fixes:
-'''''''''''''
 
 
 

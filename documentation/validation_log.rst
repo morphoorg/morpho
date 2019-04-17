@@ -7,6 +7,17 @@ Log
 Version: v2.3.1
 ~~~~~~~~~~~~~~~
 
+Release Date: April 17th 2018
+''''''''''''''''''''''''''''''
+
+New Hotfixes:
+'''''''''''''
+
+* Downgrade pystan to v2.17.1
+
+Version: v2.3.1
+~~~~~~~~~~~~~~~
+
 Release Date: March 28th 2018
 ''''''''''''''''''''''''''''''
 

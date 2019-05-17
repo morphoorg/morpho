@@ -1,9 +1,6 @@
 FROM project8/p8compute_dependencies:v0.4.0 as morpho_common
 
-ARG build_type=Release
-ENV MERMITHOD_BUILD_TYPE=$build_type
-
-ENV MORPHO_TAG=v2.3.2
+ENV MORPHO_TAG=v2.3.3
 ENV MORPHO_BUILD_PREFIX=/usr/local/p8/morpho/$MORPHO_TAG
 
 RUN mkdir -p $MORPHO_BUILD_PREFIX &&\
@@ -22,17 +19,17 @@ RUN mkdir -p $MORPHO_BUILD_PREFIX &&\
 FROM morpho_common as morpho_done
 
 COPY bin /tmp_source/bin
+COPY examples /tmp_source/examples
 COPY morpho /tmp_source/morpho
-COPY .git /tmp_source/.git
 COPY setup.py /tmp_source/setup.py
+COPY .git /tmp_source/.git
 
-COPY examples $MORPHO_BUILD_PREFIX/examples
 COPY tests $MORPHO_BUILD_PREFIX/tests
 
 # repeat the cmake command to get the change of install prefix to set correctly (a package_builder known issue)
 RUN source $MORPHO_BUILD_PREFIX/setup.sh &&\
     cd /tmp_source &&\
-    pip3 install . --prefix $MORPHO_BUILD_PREFIX &&\
+    pip3 install . --process-dependency-links --prefix $MORPHO_BUILD_PREFIX &&\
     /bin/true
 
 ########################

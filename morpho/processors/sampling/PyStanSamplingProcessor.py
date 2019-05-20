@@ -18,7 +18,7 @@ try:
 except ImportError:
     pass
 
-from morpho.utilities import morphologging, reader, pystanLoader
+from morpho.utilities import morphologging, reader, pystanLoader, stanConvergenceChecker
 from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)
 logger_stan = morphologging.getLogger('pystan')
@@ -226,4 +226,10 @@ class PyStanSamplingProcessor(BaseProcessor):
         # Put the data into a nice dictionary
         self.results = pystanLoader.extract_data_from_outputdata(
             self.__dict__, stan_results)
+        # Print Convergence Checks
+        convergence_diagnostics = stanConvergenceChecker.check_all_diagnostics(stan_results)
+        if convergence_diagnostics[0]:
+            logger.warn("\n"+convergence_diagnostics[1])
+        else:
+            logger.info("\n"+convergence_diagnostics[1])
         return True

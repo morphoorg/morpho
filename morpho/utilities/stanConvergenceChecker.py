@@ -27,29 +27,30 @@ except ImportError:
 
 
 def check_div(fit):
-    """Check how many transitions ended with a divergence
+    '''Check how many transitions ended with a divergence
 
     Args:
         fit: stanfit object containing sampler output
 
     Returns:
-        str: States the number of transitions that ended with a
-        divergence
-    """
+        (bool, str): Boolean specifying whether any iteration are
+        divergent, and string stating the number of transitions
+        that ended with a divergence
+    '''
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     divergent = [x for y in sampler_params for x in y['divergent__']]
     n = sum(divergent)
     N = len(divergent)
     if n > 0:
-        return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
-            100 * n / N)+' Try running with larger adapt_delta to remove the divergences.')
+        return((True, '{} of {} iterations ended with a divergence ({}%).'.format(n, N,
+            100 * n / N)+' Try running with larger adapt_delta to remove the divergences.'))
     else:
-        return('{} of {} iterations ended with a divergence ({}%).'.format(n, N,
-            100 * n / N))
+        return((False, '{} of {} iterations ended with a divergence ({}%).'.format(n, N,
+            100 * n / N)))
 
 
 def check_treedepth(fit, max_depth = 10):
-    """Check how many transitions ended prematurely due to tree depth
+    '''Check how many transitions ended prematurely due to tree depth
 
     A transition may end prematurely if the maximum tree depth limit is
     exceeded.
@@ -59,31 +60,33 @@ def check_treedepth(fit, max_depth = 10):
         max_depth: Maximum depth used to check tree depth
 
     Returns:
-        str: States the number of transitions that passed the
-        given max_depth.
-    """
+        (bool, str): Boolean specifying whether any iterations
+        passed the given max dpeth, and string stating the number
+        of transitions that passed the given max_depth.
+    '''
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     depths = [x for y in sampler_params for x in y['treedepth__']]
     n = sum(1 for x in depths if x == max_depth)
     N = len(depths)
     if n > 0:
-        return(('{} of {} iterations saturated the maximum tree depth of {}.'
-               + ' ({}%)').format(n, N, max_depth, 100 * n / N)+' Run again with max_depth set to a larger value to avoid saturation.')
+        return((True, ('{} of {} iterations saturated the maximum tree depth of {}.'
+               + ' ({}%)').format(n, N, max_depth, 100 * n / N)+' Run again with max_depth set to a larger value to avoid saturation.'))
     else:
-        return(('{} of {} iterations saturated the maximum tree depth of {}.'
-            + ' ({}%)').format(n, N, max_depth, 100 * n / N))
+        return((False, ('{} of {} iterations saturated the maximum tree depth of {}.'
+            + ' ({}%)').format(n, N, max_depth, 100 * n / N)))
 
 
 def check_energy(fit):
-    """Checks the energy Bayesian fraction of missing information (E-BFMI)
+    '''Checks the energy Bayesian fraction of missing information (E-BFMI)
 
     Args:
         fit: stanfit object containing sampler output
 
     Returns:
-       str: Warns that the model may need to be reparametrized if
+       (bool, str): Boolean specifying whether E-BFMI is less than 0.2,
+       and string warning that the model may need to be reparametrized if
        E-BFMI is less than 0.2
-    """
+    '''
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     no_warning = True
     for chain_num, s in enumerate(sampler_params):
@@ -94,21 +97,21 @@ def check_energy(fit):
             print('Chain {}: E-BFMI = {}'.format(chain_num, numer / denom))
             no_warning = False
     if no_warning:
-        return('E-BFMI indicated no pathological behavior.')
+        return((False, 'E-BFMI indicated no pathological behavior.'))
     else:
-        return('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
+        return((True, 'E-BFMI below 0.2 indicates you may need to reparameterize your model.'))
 
 
 def check_n_eff(fit):
-    """Checks the effective sample size per iteration
+    '''Checks the effective sample size per iteration
     
     Args:
         fit: stanfit object containing sampler output
 
     Returns:
-        str: States whether the effective sample size indicates
-        an issue
-    """
+        (bool, str): Boolean and string stating whether the
+        effective sample size indicates an issue
+    '''
     fit_summary = fit.summary(probs=[0.5])
     n_effs = [x[4] for x in fit_summary['summary']]
     names = fit_summary['summary_rownames']
@@ -122,19 +125,20 @@ def check_n_eff(fit):
             print('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
             no_warning = False
     if no_warning:
-        return('n_eff / iter looks reasonable for all parameters.')
+        return((False, 'n_eff / iter looks reasonable for all parameters.'))
     else:
-        return('  n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated.')
+        return((True, '  n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated.'))
 
 def check_rhat(fit):
-    """Checks the potential scale reduction factors
+    '''Checks the potential scale reduction factors
 
     Args:
         fit: stan fit object containing sampler output
 
     Returns:
-        str: States whether the Rhat values indicate an error
-    """
+        (bool, str): Boolean and string stating whether
+        the Rhat values indicate an error
+    '''
     from math import isnan
     from math import isinf
 
@@ -148,22 +152,32 @@ def check_rhat(fit):
             print('Rhat for parameter {} is {}!'.format(name, rhat))
             no_warning = False
     if no_warning:
-        return('Rhat looks reasonable for all parameters.')
+        return((False, 'Rhat looks reasonable for all parameters.'))
     else:
-        return('Rhat above 1.1 indicates that the chains very likely have not mixed.')
+        return((True, 'Rhat above 1.1 indicates that the chains very likely have not mixed.'))
 
 def check_all_diagnostics(fit):
-    """Checks all MCMC diagnostics
+    '''Checks all MCMC diagnostics
 
     Args:
         fit: stanfit object containing sampler output
 
     Returns:
-        list of str: Returns the strings indicating the results of the
+        (bool, list of str): Boolean specifying whether any checks indicate
+        possible isssues, and list of strings indicating the results of the
         checks for divergence, treee depth, energy Bayesian fraction
         of missing energy, effective sample size, and Rhat
-    """
-    return(check_n_eff(fit) + '\n' + check_rhat(fit) + '\n' + check_div(fit)+ '\n' + check_treedepth(fit) + '\n' + check_energy(fit))
+    '''
+    n_eff_warn, n_eff_str = check_n_eff(fit)
+    rhat_warn, rhat_str = check_rhat(fit)
+    div_warn, div_str = check_div(fit)
+    treedepth_warn, treedepth_str = check_treedepth(fit)
+    energy_warn, energy_str = check_energy(fit)
+    warn = n_eff_warn or rhat_warn or div_warn or \
+           treedepth_warn or energy_warn
+    check_str = n_eff_str + '\n' + rhat_str + '\n' + div_str + \
+                '\n' + treedepth_str + '\n' + energy_str
+    return((warn, check_str))
 
 def _by_chain(unpermuted_extraction):
     num_chains = len(unpermuted_extraction[0])
@@ -171,7 +185,7 @@ def _by_chain(unpermuted_extraction):
     for c in range(num_chains):
         for i in range(len(unpermuted_extraction)):
             result[c].append(unpermuted_extraction[i][c])
-    return numpy.array(result)
+    return (warn, numpy.array(result))
 
 def _shaped_ordered_params(fit):
     ef = fit.extract(permuted=False, inc_warmup=False) # flattened, unpermuted, by (iteration, chain)
@@ -188,7 +202,7 @@ def _shaped_ordered_params(fit):
     return shaped
 
 def partition_div(fit):
-    """ Returns parameter arrays for divergent and non-divergent transitions
+    ''' Returns parameter arrays for divergent and non-divergent transitions
 
     Args:
         fit: stanfit object containing sampler output
@@ -196,12 +210,10 @@ def partition_div(fit):
     Returns:
         (dict, dict): The first dictionary contains all nondivergent
         transitions, the second contains all divergent transitions
-    """
+    '''
     sampler_params = fit.get_sampler_params(inc_warmup=False)
     div = numpy.concatenate([x['divergent__'] for x in sampler_params]).astype('int')
     params = _shaped_ordered_params(fit)
     nondiv_params = dict((key, params[key][div == 0]) for key in params)
     div_params = dict((key, params[key][div == 1]) for key in params)
     return nondiv_params, div_params
-
-

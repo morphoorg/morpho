@@ -54,18 +54,33 @@ The following dependencies should be installed (via a package manager) before in
 
 ### Docker installation
 
+#### Developper environment
+
    If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a [Docker container](https://docs.docker.com/get-started/) instead of a python virtual environment. To do so:
 
   1. Install Docker: https://docs.docker.com/engine/installation/.
   2. Clone and pull the latest master version of morpho.
-  3. Inside the morpho folder, execute ```docker-compose run morpho```. A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
-  You may make changes to morpho either inside or outside of the Docker container. 
-  If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under the ```/host``` folder created by docker-compose.
-  Once inside the container, run `source /setup.sh` to be able to access morpho and libraries.
-  4. You can remove the container image using ```docker rmi morpho_morpho```.
-  5. If the morpho Docker image gets updated, you can update the morpho image using ```docker pull morpho```.
+  3. Inside the morpho folder, execute
+  ```docker run -v $(pwd):/my_morpho -v ~/morpho_share:/host -it project8/p8compute_dependencies```
+  A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
+     Source the setup file, and install morpho inside the container with the following commands:
+  ```bash
+  . $COMMON_BUILD_PREFIX/setup.sh
+  cd /my_morpho
+  pip3 install -e .
+  ```
+  Local modifications to the morpho installation will then appear in the docker container. Files in ~/morpho_share will be available in the docker container in the /host folder.
 
    If you develop new features or identify bugs, please open a GitHub issue.
+
+#### Stable version
+
+   If you prefer to install the latest version of morpho via docker, use the following commands. However, this does not allow morpho to be edited locally, so it cannot be used for development.
+  1. Install Docker: https://docs.docker.com/engine/installation/.
+  2. Clone and pull the latest master version of morpho.
+  3. Inside the morpho folder, execute docker-compose run morpho. A new terminal prompter (for example, root@413ab10d7a8f:) should appear. Once inside the container, run ```source $MORPHO_BUILD_PREFIX/setup.sh``` to be able to access morpho and libraries.
+  4. You can remove the container image using docker rmi morpho_morpho.
+  5. If the morpho Docker image gets updated, you can update the morpho image using ```docker pull project8/morpho```.
 
 ## Instructions for Use
 

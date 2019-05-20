@@ -205,7 +205,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         # Plot 2D grid of divergence plots
         divConfig = {"n_bins_x": 100,
                      "n_bins_y": 100,
-                     "variables": self.interestParams,
+                     "variables": self.interestParams + ["lp_prob"],
                      "title": "divergence_2d_histo",
                      "output_path": self.diagnostics_folder}
         divProcessor = Histo2dDivergence("2dDivergence")

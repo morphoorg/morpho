@@ -4,7 +4,7 @@ Authors: J. Johnston, M. Guigue, T. Weiss
 Date: 06/26/18
 '''
 
-from morpho.utilities import morphologging
+from morpho.utilities import morphologging, stanConvergenceChecker
 logger = morphologging.getLogger(__name__)
 
 try:
@@ -162,7 +162,6 @@ def _fill_variable_grid(variable_names, draw_opt_2d):
                 draw_opts_grid[i][j] = draw_opt_2d
     return (name_grid, draw_opts_grid, colors_grid)
 
-
 def _fill_variable_grid_corr_plot(variable_names):
     """
     pre: variable_name: variables to plot
@@ -177,6 +176,7 @@ def _fill_variable_grid_corr_plot(variable_names):
             name_grid[i][j] = [variable_names[i],
                                variable_names[j]]
     return name_grid
+
 
 
 def _fill_hist_grid(input_dict, name_grid,
@@ -213,6 +213,59 @@ def _fill_hist_grid(input_dict, name_grid,
                 # for i in range(0,n):
                 # tree.GetEntry(i)
                 # list_data.append(getattr(tree, names[0]))
+                list_data = input_dict[names[0]][warmup:]
+                x_range = _autoRangeList(list_data)
+                histo = ROOT.TH1F("%s_%i_%i" % (names[0], r, c), names[0],
+                                  nbins_x, x_range[0], x_range[1])
+                for value in list_data:
+                    histo.Fill(value)
+                histo.SetTitle("")
+                histo.GetXaxis().SetTitle(names[0])
+                hist_grid[r][c] = histo
+            else:
+                hist_grid[r][c] = None
+    return hist_grid
+
+def _fill_hist_grid_divergence(input_dict, name_grid,
+                               nbins_x, nbins_y):
+    '''
+    Creates a grid of histograms from a dictionary of data.
+    Note that it removes the warmup part of the chain.
+    A two-tuple of histograms is created for each 2D grid,
+    with the first for convergent points and the second for
+    divergent points.
+    '''
+    rows, cols = len(name_grid), len(name_grid[0])
+    hist_grid = [[None]*cols for i in range(rows)]
+    warmup = input_dict["is_sample"].count(0)
+    for r, row in enumerate(name_grid):
+        for c, names in enumerate(row):
+            if (names is not None and len(names) == 2):
+                list_dataX = []
+                list_dataY = []
+                list_dataY = input_dict[names[0]][warmup:]
+                list_dataX = input_dict[names[1]][warmup:]
+                y_div0, y_div1 = stanConvergenceChecker.partition_div(input_dict, names[0])
+                x_div0, x_div1 = stanConvergenceChecker.partition_div(input_dict, names[1])
+                if(len(x_div0)>0):
+                    histo_div0 = _get2Dhisto(x_div0, y_div0, [nbins_x, nbins_y],
+                                             [0, 0], '{}_{}'.format(names[0], names[1]))
+                    histo_div0.SetTitle("")
+                    histo_div0.GetYaxis().SetTitle(names[0])
+                    histo_div0.GetXaxis().SetTitle(names[1])
+                else:
+                    histo_div0 = None
+                if(len(x_div1)>0):
+                    histo_div1 = _get2Dhisto(x_div1, y_div1, [nbins_x, nbins_y],
+                                             [0, 0], '{}_{}'.format(names[0], names[1]))
+                    histo_div1.SetTitle("")
+                    histo_div1.GetYaxis().SetTitle(names[0])
+                    histo_div1.GetXaxis().SetTitle(names[1])
+                else:
+                    histo_div1 = None
+                hist_grid[r][c] = (histo_div0, histo_div1)
+            elif (names is not None and len(names) == 1):
+                list_data = []
                 list_data = input_dict[names[0]][warmup:]
                 x_range = _autoRangeList(list_data)
                 histo = ROOT.TH1F("%s_%i_%i" % (names[0], r, c), names[0],

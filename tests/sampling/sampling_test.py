@@ -101,13 +101,14 @@ class SamplingTests(unittest.TestCase):
         pybind_gene_config = {
             "varName": "XY",
             "paramRange": {
-                "x": [-5, 5],
+                "x": [17000, 20000],
                 # "y": [-10, 50],
-                "a": [1, 10],
-                "b": [1, 10]
+                "a": [18000, 19000],
+                "b": [-1, 10],
+                "c": [1, 10]
             },
             "iter": 10000,
-            "fixedParams": {'a':1, 'b':2},
+            "fixedParams": {'a':18600, 'b':0,'c':2},
             "interestParams": ['x'],
             "module_name": "myModule",
             "function_name": "myFunction"

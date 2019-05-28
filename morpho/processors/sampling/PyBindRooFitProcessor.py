@@ -121,7 +121,6 @@ class PyFunctionObject(ROOT.TPyMultiGenFunction):
         self.dimension = dimension
 
     def NDim(self):
-        logger.info('PYTHON NDim called: {}'.format(self.dimension))
         return self.dimension
 
     # def __call__(self, args):
@@ -219,7 +218,6 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         for aVarName in self.ranges.keys():
             rooVarSet.add(ROOT.RooRealVar(str(aVarName), str(aVarName), min(
                 self._data[aVarName]), max(self._data[aVarName])))
-        print(rooVarSet)
         # data = ROOT.RooDataSet(self.datasetName, self.datasetName, ROOT.RooArgSet(*rooVarSet))
         # for x in self._data["x"]:
         #     varX.setVal(x)
@@ -239,8 +237,6 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         rooVarSet = list()
         aVarSampling = 0
         for aVarName in self.ranges.keys():
-            print(aVarName)
-
             if aVarName in self.fixedParameters.keys():
                 logger.debug("{} is fixed".format(aVarName))
                 rooVarSet.append(ROOT.RooRealVar(str(aVarName), str(aVarName), self.fixedParameters[aVarName]))
@@ -248,49 +244,11 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
                 aVarSampling = ROOT.RooRealVar(str(aVarName), str(aVarName), self.ranges[aVarName][0], self.ranges[aVarName][1])
                 rooVarSet.append(aVarSampling)
 
-        # pdf = ROOT.RooGaussian("pdf", "pdf", x, mean, width)
-        # try:
         self.func = getattr(self.module, self.function_name)
-        # print(self.func)
-        # self.f = PyFunctionObject(self.func,len(self.ranges))
-        self.f = PyFunctionObject(self.func, 3)
-        # print(self.pyFuncObj)
-        # self.f = ROOT.TPyMultiGenFunction(self.func)
-        # print(self.f)
+        self.f = PyFunctionObject(self.func, len(rooVarSet))
         self.bindFunc = ROOT.RooFit.bindFunction("test", self.f, ROOT.RooArgList(*rooVarSet))
-        # print(self.f.DoEval([1,1,1]))
 
 
-        # // Construct parameter mean2 and sigma
-        # mean = ROOT.RooRealVar("mean","mean",10,0,200) ;
-        # sigma = ROOT.RooRealVar("sigma","sigma",3,0.1,10) ;
-
-        # # // Construct interpreted function mean = sqrt(mean^2)
-        # def testfunc(x, mean, sigma):
-        #     return mean*sin(x*sigma) #1/sqrt(2*3.14159)*exp(-0.5*(x-mean)*(x-mean))
-        # g2 = ROOT.RooFormulaVar("mean","mean","testfunc(x,mean,sigma)",ROOT.RooArgList(x,mean,sigma)) ;
-        # gen = ROOT.RooGenericPdf("gen","@0",ROOT.RooArgList(g2))
-
-        # // Construct a gaussian g2(x,sqrt(mean2),sigma) ;
-        # g2 = ROOT.RooGaussian("g2","h2",x,mean,sigma) ;
-
-
-        # // G e n e r a t e   t o y   d a t a
-        # // ---------------------------------
-
-        # // Construct a separate gaussian g1(x,10,3) to generate a toy Gaussian dataset with mean 10 and width 3
-        # g1 = ROOT.RooGaussian("g1","g1",x,ROOT.RooFit.RooConst(10),ROOT.RooFit.RooConst(3)) ;
-        # data2 = gen.generate(ROOT.RooArgSet(x),1000) ;
-        # data2.Print()
-        # xframe2 = x.frame(ROOT.RooFit.Title("Tailored Gaussian pdf")) ;
-        # data2.plotOn(xframe2)
-        # can = ROOT.TCanvas("can", "can", 600, 400)
-        # xframe2.Draw() 
-        # can.SaveAs("test.pdf")
-
-        # except:
-        #     logger.critical("I failed")
-        x = ROOT.RooRealVar("x", "x", 0, -5, 5)
         a0 = ROOT.RooRealVar("a0","a0",0); 
         a0.setConstant(); 
         # RooChebychev will make a first order polynomial, set to a constant 
@@ -301,46 +259,6 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         print("pdf:", self.pdf)
         getattr(wspace, 'import')(self.pdf)
 
-        # pdf = wspace.pdf("pdf")
-        # x = wspace.var("x")
-        # a = wspace.var("a")
-        # b = wspace.var("b")
-
-        # wspace.Print()
-        # x.Print()
-        # a.Print()
-        # # mean = ROOT.RooRealVar("mean", "mean", 0, -1, 1)
-        # # width = ROOT.RooRealVar("width", "width", 1., 0, 2)
-
-        # print(ROOT.RooArgSet(*rooVarSet))
-        # # pdf = ROOT.RooGaussian("pdf", "pdf", x, mean, width)
-        # data2 = pdf.generate(ROOT.RooArgSet(*rooVarSet),10000)
-        # data2.Print()
-        # xframe2 = x.frame(ROOT.RooFit.Title("Tailored Gaussian pdf")) ;
-        # data2.plotOn(xframe2)
-        # can = ROOT.TCanvas("can", "can", 600, 400)
-        # xframe2.Draw() 
-        # can.SaveAs("test.pdf")
-        # self.pdf.generate(100)
-        # try:
-        #     self.results = getattr(self.module, self.function_name)(self.config_dict)
-        #     return True
-        # except Exception as err:
-        #     logger.critical(err)
-        #     return False
-
-        # Save pdf: this will save all required variables and functions
-        # getattr(wspace, 'import')(self.pdf)
-        # print(wspace)
-        # TF1 SH = new TF1("SH",signal_shape,x1,x2,nPar); // Define TF1 SH->SetParameters(a,b,c...); // set parameters - my function has 2
-        # 3.) Bind the TF1 to a RooFit RooAbsReal, create a constant term, then use RooRealSumPdf (root.cern.ch/root/html/RooRealSumPdf.html 17) to create a PDF out of the function and the constant:
-        # RooRealVar a0("a0","a0",0); 
-        # a0.setConstant(kTRUE); 
-        # //RooChebychev will make a first order polynomial, set to a constant 
-        # RooChebychev bkg("bkg","bkg",m, RooArgList(a0)); //this is now a constant 
-        # RooAbsReal *LSfcn = bindFunction(SH,m, RooArgList(deltaM,cw));//deltaM and cw are parameters 
-        # RooAbsPdf *LSPdf = new RooRealSumPdf("LSPdf","LSPdf",*LSfcn,bkg,c1); //combine the constant term (bkg) and the term RooAbsReal (which is a function) into a PDF.
-        # exit()
         return wspace
 
 

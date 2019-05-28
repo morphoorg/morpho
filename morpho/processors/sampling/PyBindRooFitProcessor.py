@@ -159,6 +159,8 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         varName (required): name(s) of the variable in the data
         nuisanceParams (required): parameters to be discarded at end of sampling
         interestParams (required): parameters to be saved in the results variable
+        paramRange (required): range of parameters (defined as <{'a': [a_min, a_max]}>)
+        initValues: initial value (defined as <{'a': a_init}>)
         iter (required): total number of iterations (warmup and sampling)
         warmup: number of warmup iterations (default=iter/2)
         chain: number of chains (default=1)
@@ -181,6 +183,7 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
     def InternalConfigure(self, config_dict):
         super().InternalConfigure(config_dict)
         self.ranges = reader.read_param(config_dict, "paramRange", "required")
+        self.initParamValues = reader.read_param(config_dict, "initValues", dict())
         self.module_name = reader.read_param(
             config_dict, "module_name", "required")
         self.function_name = reader.read_param(
@@ -212,18 +215,18 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
 
         # return True
 
-    def _defineDataset(self, wspace):
-        rooVarSet = set()
+    # def _defineDataset(self, wspace):
+    #     rooVarSet = set()
 
-        for aVarName in self.ranges.keys():
-            rooVarSet.add(ROOT.RooRealVar(str(aVarName), str(aVarName), min(
-                self._data[aVarName]), max(self._data[aVarName])))
+    #     for aVarName in self.ranges.keys():
+    #         rooVarSet.add(ROOT.RooRealVar(str(aVarName), str(aVarName), min(
+    #             self._data[aVarName]), max(self._data[aVarName])))
         # data = ROOT.RooDataSet(self.datasetName, self.datasetName, ROOT.RooArgSet(*rooVarSet))
         # for x in self._data["x"]:
         #     varX.setVal(x)
         #     data.add(ROOT.RooArgSet(varX))
         # getattr(wspace, 'import')(data)
-        return wspace
+        # return wspace
 
     def definePdf(self, wspace):
         '''
@@ -237,12 +240,19 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         rooVarSet = list()
         aVarSampling = 0
         for aVarName in self.ranges.keys():
+            logger.info(aVarName)
             if aVarName in self.fixedParameters.keys():
                 logger.debug("{} is fixed".format(aVarName))
                 rooVarSet.append(ROOT.RooRealVar(str(aVarName), str(aVarName), self.fixedParameters[aVarName]))
+                logger.info(aVarName)
+            elif aVarName in self.initParamValues.keys():
+                aVarSampling = ROOT.RooRealVar(str(aVarName), str(aVarName), self.initParamValues[aVarName], self.ranges[aVarName][0], self.ranges[aVarName][1])
+                rooVarSet.append(aVarSampling)
+                logger.info(aVarName)
             else:
                 aVarSampling = ROOT.RooRealVar(str(aVarName), str(aVarName), self.ranges[aVarName][0], self.ranges[aVarName][1])
                 rooVarSet.append(aVarSampling)
+                logger.info(aVarName)
 
         self.func = getattr(self.module, self.function_name)
         self.f = PyFunctionObject(self.func, len(rooVarSet))
@@ -256,7 +266,8 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         # RooAbsReal *LSfcn = bindFunction(SH,m, RooArgList(deltaM,cw));//deltaM and cw are parameters 
         self.pdf = ROOT.RooRealSumPdf("pdf","pdf",self.bindFunc,bkg,ROOT.RooFit.RooConst(1.)) #; //combine the constant term (bkg)
 
-        print("pdf:", self.pdf)
+        logger.debug("pdf: {}".format(self.pdf))
+        wspace.Print()
         getattr(wspace, 'import')(self.pdf)
 
         return wspace

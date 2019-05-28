@@ -124,11 +124,11 @@ class PyFunctionObject(ROOT.TPyMultiGenFunction):
         logger.info('PYTHON NDim called: {}'.format(self.dimension))
         return self.dimension
 
-    def __call__(self, args):
-        E = args[0]
-        theta = args[1]
-        L0 = args[2]
-        return self.pythonFunction(E, theta, L0)
+    # def __call__(self, args):
+    #     E = args[0]
+    #     theta = args[1]
+    #     L0 = args[2]
+    #     return self.pythonFunction(E, theta, L0)
 
     def DoEval(self, args):
         # print(args)
@@ -137,10 +137,17 @@ class PyFunctionObject(ROOT.TPyMultiGenFunction):
         # tmp1 = y-x*x;
         # # tmp2 = 1-x;
         # return self.pythonFunction(args)
-        E = args[0]
-        theta = args[1]
-        L0 = args[2]
-        return self.pythonFunction(E, theta, L0)
+        # E = args[0]
+        # theta = args[1]
+        # L0 = args[2]
+        test_argv = list()
+        for i in range(self.dimension):
+            value = args[i]
+            test_argv.append(value)
+        # print("argv",*argv)
+        # print("normal",E,theta,L0)
+        return self.pythonFunction(*test_argv)
+        # return self.pythonFunction(E, theta, L0)
 
 
 class PyBindRooFitProcessor(RooFitInterfaceProcessor):
@@ -204,7 +211,7 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         # self.mean_min, self.mean_max = reader.read_param(config_dict, "paramRange", "required")["mean"]
         # self.width_min, self.width_max = reader.read_param(config_dict, "paramRange", "required")["width"]
 
-        return True
+        # return True
 
     def _defineDataset(self, wspace):
         rooVarSet = set()
@@ -229,24 +236,27 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         # width = ROOT.RooRealVar("width", "width", 1., self.width_min, self.width_max)
         # x = ROOT.RooRealVar("x", "x", 0, self.x_min, self.x_max)
 
-        rooVarSet = set()
-
+        rooVarSet = list()
+        aVarSampling = 0
         for aVarName in self.ranges.keys():
-            if str(aVarName) == "x":
-                rooVarSet.add(ROOT.RooRealVar(str(aVarName), str(aVarName), self.ranges[aVarName][0], self.ranges[aVarName][1]))
-            else:
-                rooVarSet.add(ROOT.RooRealVar(str(aVarName), str(aVarName), 1, self.ranges[aVarName][0], self.ranges[aVarName][1]))
+            print(aVarName)
 
-        print(rooVarSet)
+            if aVarName in self.fixedParameters.keys():
+                logger.debug("{} is fixed".format(aVarName))
+                rooVarSet.append(ROOT.RooRealVar(str(aVarName), str(aVarName), self.fixedParameters[aVarName]))
+            else:
+                aVarSampling = ROOT.RooRealVar(str(aVarName), str(aVarName), self.ranges[aVarName][0], self.ranges[aVarName][1])
+                rooVarSet.append(aVarSampling)
+
         # pdf = ROOT.RooGaussian("pdf", "pdf", x, mean, width)
         # try:
         self.func = getattr(self.module, self.function_name)
-        print(self.func)
+        # print(self.func)
         # self.f = PyFunctionObject(self.func,len(self.ranges))
         self.f = PyFunctionObject(self.func, 3)
         # print(self.pyFuncObj)
         # self.f = ROOT.TPyMultiGenFunction(self.func)
-        print(self.f)
+        # print(self.f)
         self.bindFunc = ROOT.RooFit.bindFunction("test", self.f, ROOT.RooArgList(*rooVarSet))
         # print(self.f.DoEval([1,1,1]))
 
@@ -284,33 +294,33 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         a0 = ROOT.RooRealVar("a0","a0",0); 
         a0.setConstant(); 
         # RooChebychev will make a first order polynomial, set to a constant 
-        bkg = ROOT.RooChebychev("a0_bkg","a0_bkg",x, ROOT.RooArgList(a0))
+        bkg = ROOT.RooChebychev("a0_bkg","a0_bkg",aVarSampling, ROOT.RooArgList(a0))
         # RooAbsReal *LSfcn = bindFunction(SH,m, RooArgList(deltaM,cw));//deltaM and cw are parameters 
         self.pdf = ROOT.RooRealSumPdf("pdf","pdf",self.bindFunc,bkg,ROOT.RooFit.RooConst(1.)) #; //combine the constant term (bkg)
 
         print("pdf:", self.pdf)
         getattr(wspace, 'import')(self.pdf)
 
-        pdf = wspace.pdf("pdf")
-        x = wspace.var("x")
-        a = wspace.var("a")
-        b = wspace.var("b")
+        # pdf = wspace.pdf("pdf")
+        # x = wspace.var("x")
+        # a = wspace.var("a")
+        # b = wspace.var("b")
 
-        wspace.Print()
-        x.Print()
-        a.Print()
-        # mean = ROOT.RooRealVar("mean", "mean", 0, -1, 1)
-        # width = ROOT.RooRealVar("width", "width", 1., 0, 2)
+        # wspace.Print()
+        # x.Print()
+        # a.Print()
+        # # mean = ROOT.RooRealVar("mean", "mean", 0, -1, 1)
+        # # width = ROOT.RooRealVar("width", "width", 1., 0, 2)
 
-        print(ROOT.RooArgSet(*rooVarSet))
-        # pdf = ROOT.RooGaussian("pdf", "pdf", x, mean, width)
-        data2 = pdf.generate(ROOT.RooArgSet(*rooVarSet),10000)
-        data2.Print()
-        xframe2 = x.frame(ROOT.RooFit.Title("Tailored Gaussian pdf")) ;
-        data2.plotOn(xframe2)
-        can = ROOT.TCanvas("can", "can", 600, 400)
-        xframe2.Draw() 
-        can.SaveAs("test.pdf")
+        # print(ROOT.RooArgSet(*rooVarSet))
+        # # pdf = ROOT.RooGaussian("pdf", "pdf", x, mean, width)
+        # data2 = pdf.generate(ROOT.RooArgSet(*rooVarSet),10000)
+        # data2.Print()
+        # xframe2 = x.frame(ROOT.RooFit.Title("Tailored Gaussian pdf")) ;
+        # data2.plotOn(xframe2)
+        # can = ROOT.TCanvas("can", "can", 600, 400)
+        # xframe2.Draw() 
+        # can.SaveAs("test.pdf")
         # self.pdf.generate(100)
         # try:
         #     self.results = getattr(self.module, self.function_name)(self.config_dict)

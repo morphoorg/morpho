@@ -20,6 +20,7 @@ generator_config = {
     "iter": 530,
     "warmup": 500,
     "interestParams": ['x', 'y', 'residual'],
+    "diagnostics_folder": "linear_fit/plots/generator_diagnostics"
 }
 writer_config = {
     "action": "write",
@@ -36,6 +37,7 @@ analyzer_config = {
     "iter": 2500,
     "warmup": 500,
     "interestParams": ['slope', 'intercept', 'sigma'],
+    "diagnostics_folder": "linear_fit/plots/analyzer_diagnostics"
 }
 aposteriori_config = {
     "n_bins_x": 100,

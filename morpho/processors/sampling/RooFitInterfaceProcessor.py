@@ -164,6 +164,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         wspace = self._FixParams(wspace)
         pdf = wspace.pdf("pdf")
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
+        paramOfInterest.Print()
         data = pdf.generate(paramOfInterest, self.iter)
         data.Print()
 
@@ -176,6 +177,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
                 self.data[item].append(
                     data.get(i).getRealValue(item))
         self.data.update({"is_sample": [1]*(self.iter)})
+        
         return True
 
     def _LikelihoodSampling(self):

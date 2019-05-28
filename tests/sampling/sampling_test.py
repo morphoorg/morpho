@@ -97,24 +97,33 @@ class SamplingTests(unittest.TestCase):
     def test_PyBind(self):
         logger.info("PyBind tester")
         from morpho.processors.sampling.PyBindRooFitProcessor import PyBindRooFitProcessor
+        from morpho.processors.plots import Histogram
         pybind_gene_config = {
             "varName": "XY",
             "paramRange": {
-                "x": [-10, 10],
-                "y": [-10, 50],
-                "a": [-10, 10],
-                "b": [-10, 10]
+                "x": [-5, 5],
+                # "y": [-10, 50],
+                "a": [1, 10],
+                "b": [1, 10]
             },
             "iter": 10000,
-            "fixedParams": {},
-            "interestParams": ['a', 'b'],
+            "fixedParams": {'a':1, 'b':2},
+            "interestParams": ['x'],
             "module_name": "myModule",
             "function_name": "myFunction"
         }
+        histo_config = {
+            "variables": "x",
+            "n_bins_x": 300,
+            "output_path": "plots"
+        }
         sampler = PyBindRooFitProcessor("sampler")
+        myhisto = Histogram("histo")
         self.assertTrue(sampler.Configure(pybind_gene_config))
+        self.assertTrue(myhisto.Configure(histo_config))
         self.assertTrue(sampler.Run())
-        self.assertTrue(1)
+        myhisto.data = sampler.data
+        self.assertTrue(myhisto.Run())
 
     def test_GaussianSampler(self):
         logger.info("GaussianSampler test")

@@ -4,11 +4,34 @@ Validation Log
 Log
 ---
 
-Version: 
+Version: v2.3.1
 ~~~~~~~~~~~~~~~
 
-Release Date: 
-''''''''''''''''''''''''''''''''''''''
+Release Date: April 17th 2018
+''''''''''''''''''''''''''''''
+
+New Hotfixes:
+'''''''''''''
+
+* Downgrade pystan to v2.17.1
+
+Version: v2.3.1
+~~~~~~~~~~~~~~~
+
+Release Date: March 28th 2018
+''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* Debug section in README.md
+* Upgrade pystan to v2.18.1
+
+Version: v2.3.0
+~~~~~~~~~~~~~~~
+
+Release Date: November 13 2018
+''''''''''''''''''''''''''''''
 
 New Features:
 '''''''''''''
@@ -17,9 +40,6 @@ New Features:
     * All RooFit processors now inherit from RooFitInterfaceProcessor
     * Allow to do sampling, likelihood sampling and fitting by defining the model only once
 * Python API example: gaussian model
-
-Fixes:
-'''''''''''''
 
 
 

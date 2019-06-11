@@ -162,7 +162,6 @@ class RooFitInterfaceProcessor(BaseProcessor):
             logger.debug("No fixed parameters given")
             return wspace
         for varName, value in self.fixedParameters.items():
-            logger.debug(varName, value)
             wspace.var(str(varName)).setVal(float(value))
             wspace.var(str(varName)).setConstant()
             logger.debug("Value of {} set to {}".format(varName, wspace.var(str(varName)).getVal()))

@@ -9,110 +9,6 @@ Authors: M. Guigue
 Date: 06/26/18
 '''
 
-try:
-    import ROOT
-except ImportError:
-    pass
-value = ROOT.gSystem.Load("libRooFit")
-if value < 0:
-    print("Failed loading", value)
-    exit()
-
-logger = morphologging.getLogger(__name__)
-
-__all__ = []
-__all__.append(__name__)
-
-
-c = 299792458
-m_kg = 9.10938291*1e-31
-me_keV = 510.998
-q_C = 1.60217657*1e-19
-Z0 = 119.917 * np.pi
-Rc = 0.06e-2
-a = 1.006e-2/2
-B0 = 1
-
-
-def sinc(x):
-    if x == 0:
-        return 1
-    return np.sin(x)/x
-
-
-def cot(x):
-    return np.cos(x)/np.sin(x)
-
-
-def beta_function(n, L0, E, H, theta):
-
-    fc11 = 1.841 * c / (2 * np.pi * a)
-    gamma = 1 + E / me_keV
-    wc = q_C * H / (gamma * m_kg)
-    v0 = c * (1 - 1 / gamma ** 2)**0.5
-    vz0 = v0 * np.cos(theta)
-    wa = v0 / L0 * np.sin(theta)
-    f = wc / (2 * np.pi)
-    Dw = 0.5 * wc * cot(theta)**2
-    vp = c/(1-(2*np.pi*fc11/(wc+Dw))**2)**0.5
-    k = (wc + Dw) / vp
-    zmax = L0 * cot(theta)
-
-    return scs.jv(n, k * zmax)
-
-
-class start_freq_func(ROOT.TPyMultiGenFunction):
-    def __init__(self):
-        print("f CREATED")
-        ROOT.TPyMultiGenFunction.__init__(self, self)
-
-    def NDim(self):
-        print('PYTHON NDim Freq. called')
-        return 2
-
-    def DoEval(self, args):
-        #(E, theta)
-        E = args[0]
-        theta = args[1]
-        gamma = 1 + E / me_keV
-        wc = q_C * B0 / (gamma * m_kg)
-        #Dw = 0.5 * wc * cot(theta)**2
-        return (wc) / (2e6 * np.pi)
-
-
-class power_function(ROOT.TPyMultiGenFunction):
-    def __init__(self):
-        print("p CREATED")
-        ROOT.TPyMultiGenFunction.__init__(self, self)
-
-    def NDim(self):
-        print('PYTHON NDim power called')
-        return 3
-
-    def DoEval(self, args):
-        #(E, theta, L0)
-        E = args[0]
-        theta = args[1]
-        L0 = args[2]
-        return beta_function(n=0, L0=L0, E=E, H=B0, theta=theta)
-
-
-c1 = ROOT.TCanvas("c", "c", 800, 600)
-L0 = ROOT.RooRealVar('L0', 'L0', 0.3, 0, 1)
-
-E = ROOT.RooRealVar('E', 'E', 17, 18)
-theta = ROOT.RooRealVar('theta', 'theta', 89*np.pi/180, np.pi/2)
-
-
-startfreq_obj = start_freq_func()
-ff01 = ROOT.TPyMultiGenFunction(startfreq_obj)
-# ff0 = ROOT.RooFit.bindFunction("ff0",ff01, ROOT.RooArgList(E, theta))
-
-power_obj = power_function()
-fp1 = ROOT.TPyMultiGenFunction(power_obj)
-# fp = ROOT.RooFit.bindFunction("fp",fp1, ROOT.RooArgList(E, theta, L0))
-
-
 class PyFunctionObject(ROOT.TPyMultiGenFunction):
     def __init__(self, pythonFunction, dimension=2):
         logger.info("Created PyFunctionObject")
@@ -123,30 +19,12 @@ class PyFunctionObject(ROOT.TPyMultiGenFunction):
     def NDim(self):
         return self.dimension
 
-    # def __call__(self, args):
-    #     E = args[0]
-    #     theta = args[1]
-    #     L0 = args[2]
-    #     return self.pythonFunction(E, theta, L0)
-
     def DoEval(self, args):
-        # print(args)
-        # x = args[0]
-        # y = args[1];
-        # tmp1 = y-x*x;
-        # # tmp2 = 1-x;
-        # return self.pythonFunction(args)
-        # E = args[0]
-        # theta = args[1]
-        # L0 = args[2]
         test_argv = list()
         for i in range(self.dimension):
             value = args[i]
             test_argv.append(value)
-        # print("argv",*argv)
-        # print("normal",E,theta,L0)
         return self.pythonFunction(*test_argv)
-        # return self.pythonFunction(E, theta, L0)
 
 
 class PyBindRooFitProcessor(RooFitInterfaceProcessor):

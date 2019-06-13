@@ -48,6 +48,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         force_recreate: force the cache regeneration
         init: initial values for the parameters
         control: PyStan sampling settings
+        no_diagnostics: Prevent diagnostics plots from being generated (default=False)
         diagnostics_folder: Path to folder to store diagnostics (default=".")
 
     Input:
@@ -112,10 +113,10 @@ class PyStanSamplingProcessor(BaseProcessor):
         additional_dict = {}
         for key, value in self.data.items():
             if isinstance(value, list):
-                list_size_name = "_N_{}".format(key)
+                list_size_name = "dim__{}".format(key)
                 additional_dict.update({list_size_name: len(value)})
             if type(value) is numpy.ndarray:
-                list_size_name = "_N_{}".format(key)
+                list_size_name = "dim__{}".format(key)
                 additional_dict.update({list_size_name: int(value.size)})
         self.data.update(additional_dict)
 
@@ -261,6 +262,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         else:
             if reader.read_param(params, 'control', None) is not None:
                 logger.debug("stan.run.control should be a dict: {}", str(reader.read_param(yd, 'control', None)))
+        self.no_diagnostics = reader.read_param(params, 'no_diagnostics', False)
         self.diagnostics_folder = reader.read_param(params, 'diagnostics_folder', "./stan_diagnostics")
         return True
 
@@ -273,5 +275,8 @@ class PyStanSamplingProcessor(BaseProcessor):
         self.results = pystanLoader.extract_data_from_outputdata(
             self.__dict__, stan_results)
         # Store convergence checks
-        self._store_diagnostics(stan_results)
+        if not self.no_diagnostics:
+            self._store_diagnostics(stan_results)
+        else:
+            logger.info("No diagnostics plots produced")
         return True

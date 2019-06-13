@@ -39,6 +39,11 @@ writer_config = {
             "variable": "x[1]",
             "root_alias": "value1",
             "type": "float"
+        },
+        {
+            "variable": "x[2]",
+            "root_alias": "value2",
+            "type": "float"
         }
     ]
 }
@@ -54,5 +59,6 @@ writerProcessor.Configure(writer_config)
 # Generate datapoints
 generationProcessor.Run()
 writerProcessor.data = generationProcessor.results
+print(generationProcessor.results.keys())
 # Save data points
 writerProcessor.Run()

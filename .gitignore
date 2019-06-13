@@ -11,3 +11,7 @@ build/*
 *.out
 *.txt
 .vscode
+myFile.r
+myTest.json
+myTest.yaml
+data.r

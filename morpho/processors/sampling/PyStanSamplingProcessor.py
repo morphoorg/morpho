@@ -19,8 +19,9 @@ try:
 except ImportError:
     pass
 
-from morpho.utilities import morphologging, reader, pystanLoader
+from morpho.utilities import morphologging, reader, pystanLoader, stanConvergenceChecker
 from morpho.processors import BaseProcessor
+from morpho.processors.plots import Histo2dDivergence
 logger = morphologging.getLogger(__name__)
 logger_stan = morphologging.getLogger('pystan')
 
@@ -47,6 +48,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         force_recreate: force the cache regeneration
         init: initial values for the parameters
         control: PyStan sampling settings
+        diagnostics_folder: Path to folder to store diagnostics (default=".")
 
     Input:
         data: dictionary containing model input data
@@ -204,6 +206,31 @@ class PyStanSamplingProcessor(BaseProcessor):
         return self.stanModel.sampling(**(kwargs))
         # return self.stanModel.sampling(**(self.gen_arg_dict()))
 
+    def _store_diagnostics(self, stan_results):
+        # Print diagnostics
+        convergence_diagnostics = stanConvergenceChecker.check_all_diagnostics(stan_results)
+        if convergence_diagnostics[0]:
+            logger.warn("\n"+convergence_diagnostics[1])
+        else:
+            logger.info("\n"+convergence_diagnostics[1])
+        if not os.path.exists(self.diagnostics_folder):
+            os.makedirs(self.diagnostics_folder)
+        f = open(self.diagnostics_folder+"/divergence_checks.txt", 'w')
+        f.write(convergence_diagnostics[1])
+        f.close()
+
+        # Plot 2D grid of divergence plots
+        divConfig = {"n_bins_x": 100,
+                     "n_bins_y": 100,
+                     "variables": self.interestParams + ["lp_prob"],
+                     "title": "divergence_2d_histo",
+                     "output_path": self.diagnostics_folder}
+        divProcessor = Histo2dDivergence("2dDivergence")
+        divProcessor.Configure(divConfig)
+        divProcessor.data = self.results
+        divProcessor.Run()
+        return
+
     def InternalConfigure(self, params):
         self.params = params
         self.model_code = reader.read_param(params, 'model_code', 'required')
@@ -234,6 +261,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         else:
             if reader.read_param(params, 'control', None) is not None:
                 logger.debug("stan.run.control should be a dict: {}", str(reader.read_param(yd, 'control', None)))
+        self.diagnostics_folder = reader.read_param(params, 'diagnostics_folder', "./stan_diagnostics")
         return True
 
     def InternalRun(self):
@@ -244,4 +272,6 @@ class PyStanSamplingProcessor(BaseProcessor):
         # Put the data into a nice dictionary
         self.results = pystanLoader.extract_data_from_outputdata(
             self.__dict__, stan_results)
+        # Store convergence checks
+        self._store_diagnostics(stan_results)
         return True

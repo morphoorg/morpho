@@ -4,11 +4,73 @@ Validation Log
 Log
 ---
 
-Version: 
-~~~~~~~~
+Version: v2.3.1
+~~~~~~~~~~~~~~~
 
-Release Date: 
+Release Date: April 17th 2018
+''''''''''''''''''''''''''''''
+
+New Hotfixes:
 '''''''''''''
+
+* Downgrade pystan to v2.17.1
+
+Version: v2.3.1
+~~~~~~~~~~~~~~~
+
+Release Date: March 28th 2018
+''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* Debug section in README.md
+* Upgrade pystan to v2.18.1
+
+Version: v2.3.0
+~~~~~~~~~~~~~~~
+
+Release Date: November 13 2018
+''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* RooFit base interface processor:
+    * All RooFit processors now inherit from RooFitInterfaceProcessor
+    * Allow to do sampling, likelihood sampling and fitting by defining the model only once
+* Python API example: gaussian model
+
+
+
+Version: v2.2.1
+~~~~~~~~~~~~~~~
+
+Release Date: Thursday November 8th 2018
+''''''''''''''''''''''''''''''''''''''
+
+Fixes:
+'''''''''''''
+
+* Fixing the import of RootCanvas and RootHistogram in Histogram
+
+Version: v2.2.0
+~~~~~~~~~~~~~~~
+
+Release Date: Sunday November 4th 2018
+''''''''''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* Possibility to generate several histograms on the same RootCanvas
+* A huge effort in documenting the code and on RTD!
+
+Version: v2.1.5
+~~~~~~~~~~~~~~~
+
+Release Date: Friday September 28th 2018 
+''''''''''''''''''''''''''''''''''''''''
 
 New Features:
 '''''''''''''
@@ -24,6 +86,7 @@ Fixes:
     * Update example
     * Adding descriptions about morpho 2, reworking the morpho 1's
 * Issue tracker: adding template issues
+* Plotting: better RootCanvas class, more RootHistogram methods
 
 Version: v2.1.4
 ~~~~~~~~~~~~~~~

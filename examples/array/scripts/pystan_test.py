@@ -6,7 +6,7 @@
 
 from morpho.processors.sampling import PyStanSamplingProcessor
 from morpho.processors.plots import TimeSeries, APosterioriDistribution
-from morpho.processors.IO import IORProcessor
+from morpho.processors.IO import IOROOTProcessor
 
 generator_config = {
     "model_code": "models/gaussian_gen.stan",
@@ -16,19 +16,36 @@ generator_config = {
     },
     "iter": 3000,
     "warmup": 500,
-    "interestParams": ['x'],
+    "interestParams": ['x', 'y'],
     "no_diagnostics": True,
     "diagnostics_folder": "plots/generator_diagnostics"
 }
 writer_config = {
     "action": "write",
-    "filename": "data/data.r",
-    "variables": ["x[0]", "x[1]"] # here we are saving only the first 2 variables of x
+    "tree_name": "test",
+    "filename": "myTest.root",
+    "variables": [
+        {
+            "variable": "y",
+            "root_alias": "y",
+            "type": "float"
+        },
+        {
+            "variable": "x[0]",
+            "root_alias": "value0",
+            "type": "float"
+        },
+        {
+            "variable": "x[1]",
+            "root_alias": "value1",
+            "type": "float"
+        }
+    ]
 }
 
 # Definition of the processors
 generationProcessor = PyStanSamplingProcessor("generator")
-writerProcessor = IORProcessor("writer")
+writerProcessor = IOROOTProcessor("writer")
 # Configuration step
 generationProcessor.Configure(generator_config)
 writerProcessor.Configure(writer_config)

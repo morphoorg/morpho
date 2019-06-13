@@ -1,11 +1,8 @@
 version: "3"
-
 services:
   morpho:
     image: morpho/morpho
-    entrypoint: [ "/bin/bash", "-c", "/morpho_entrypoint.sh"]
-    # entrypoint: /morpho_entrypoint.sh
+    command: "/bin/bash"
     volumes:
-      - ./docker-entrypoint.sh:/morpho_entrypoint.sh
       # share a subdirectory from the host to /host in the docker (can be edited)
       - ~/morpho_share:/host

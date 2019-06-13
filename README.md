@@ -13,6 +13,7 @@ https://morpho.readthedocs.io/en/latest/
 
 Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and [RooFit](https://root.cern.ch/guides/roofit-manual), a toolkit for modeling probability distributions.
 It is especially useful for
+
   1) Generating **pseudo data**, and
   2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
   3) Performing **chi2 fits of data**.
@@ -20,62 +21,69 @@ It is especially useful for
 Morpho interfaces with Stan using [PyStan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
 
 _Why morpho?_
-  - Morpho **streamlines Stan analyses**. It enables users to load data, run Stan or RooFit, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho2example.html).
-  - Morpho helps users organize and run multiple related Stan models (for example, models that share input data and Stan functions).
-  - Morpho **minimizes the need to recompile** Stan models by using cache files.
-  - Morpho automatically **performs convergence checks** after running Stan, and it provides additional options for convergence analysis and plotting.
-  - Morpho reads and saves files in either **R**, **JSON/YAML**, **CVS**, or **ROOT**.
+
+- Morpho **streamlines Stan analyses**. It enables users to load data, run Stan or RooFit, save results, perform convergence diagnostic tests, and create plots of posteriors and their correlations—all as part of one individual analysis. Users can control some or all of these processes using a single [configuration file](https://morpho.readthedocs.io/en/latest/morpho2example.html).
+- Morpho helps users organize and run multiple related Stan models (for example, models that share input data and Stan functions).
+- Morpho **minimizes the need to recompile** Stan models by using cache files.
+- Morpho automatically **performs convergence checks** after running Stan, and it provides additional options for convergence analysis and plotting.
+- Morpho reads and saves files in either **R**, **JSON/YAML**, **CVS**, or **ROOT**.
 
 ## Install
 
 ### Dependencies
 
 The following dependencies should be installed (via a package manager) before installing morpho 2:
-  - python 3.x (python 2 not supported)
-  - python-pip
-  - git
-  - root (ensure that the same version of python is enabled for morpho and ROOT)
+
+- python 3.x (python 2 not supported)
+- python-pip
+- git
+- root (ensure that the same version of python is enabled for morpho and ROOT)
 
 ### Virtual environment-based installation
 
-  We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.15.
+We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.15.
 
-  If necessary, install [virtualenv](https://virtualenv.pypa.io/en/stable/), then execute:
-  ```bash
-	# Use a flag for virtualenv to specify python3 if necessary: --python /path/to/python3
-	virtualenv ~/path/to/the/virtualenvironment
-	source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment
-	pip install -U pip #Update pip to >= 7.0.0
-	cd ~/path/to/morpho
-	pip install .
-	# When done with morpho, use "bash deactivate" to exit the virtual environment
+If necessary, install [virtualenv](https://virtualenv.pypa.io/en/stable/), then execute:
 
-  ```
+```bash
+# Use a flag for virtualenv to specify python3 if necessary: --python /path/to/python3
+virtualenv ~/path/to/the/virtualenvironment
+source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment
+pip install -U pip #Update pip to >= 7.0.0
+cd ~/path/to/morpho
+pip install .
+# When done with morpho, use "bash deactivate" to exit the virtual environment
+
+```
 
 ### Docker installation
 
 #### Developper environment
 
-   If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a [Docker container](https://docs.docker.com/get-started/) instead of a python virtual environment. To do so:
+If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a [Docker container](https://docs.docker.com/get-started/) instead of a python virtual environment. To do so:
 
   1. Install Docker: https://docs.docker.com/engine/installation/.
   2. Clone and pull the latest master version of morpho.
   3. Inside the morpho folder, execute
   ```docker run -v $(pwd):/my_morpho -v ~/morpho_share:/host -it project8/p8compute_dependencies```
   A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
-     Source the setup file, and install morpho inside the container with the following commands:
+  Source the setup file, and install morpho inside the container with the following commands:
+
   ```bash
   . $COMMON_BUILD_PREFIX/setup.sh
   cd /my_morpho
   pip3 install -e .
   ```
+
   Local modifications to the morpho installation will then appear in the docker container. Files in ~/morpho_share will be available in the docker container in the /host folder.
 
-   If you develop new features or identify bugs, please open a GitHub issue.
+If you develop new features or identify bugs, please open a GitHub issue.
+
 
 #### Stable version
 
-   If you prefer to install the latest version of morpho via docker, use the following commands. However, this does not allow morpho to be edited locally, so it cannot be used for development.
+If you prefer to install the latest version of morpho via docker, use the following commands. However, this does not allow morpho to be edited locally, so it cannot be used for development.
+
   1. Install Docker: https://docs.docker.com/engine/installation/.
   2. Clone and pull the latest master version of morpho.
   3. Inside the morpho folder, execute docker-compose run morpho. A new terminal prompter (for example, root@413ab10d7a8f:) should appear. Once inside the container, run ```source $MORPHO_BUILD_PREFIX/setup.sh``` to be able to access morpho and libraries.
@@ -121,8 +129,9 @@ examples
 |
 +---analysis_dir2
 |   |
-...	  ...
+...  ...
 ```
+
 The files in the optional ```functions_dir``` directory contain Stan functions (written in the Stan language) that are used in multiple Stan models.
 
 
@@ -131,16 +140,19 @@ The files in the optional ```functions_dir``` directory contain Stan functions (
 #### Using config files
 
 Once the relevant data, model and configuration files are at your disposal, run morpho by executing:
+
 ```bash
    morpho --config  /path/to/json_or_yaml_config_file --other_options
 ```
 
 You can find and run an example in the examples directory:
+
 ```bash
    morpho --config linear_fit/scripts/morpho_linear_fit.yaml
 ```
 
 "Help will always be given to those who ask for it":
+
 ```bash
    morpho --help
 ```

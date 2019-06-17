@@ -11,10 +11,10 @@ logger = morphologging.getLogger(__name__)
 def extract_data_from_outputdata(conf, theOutput):
     # Extract the data into a dictionary
     logger.debug("Extracting samples from pyStan output")
-    theOutputDiagnostics = theOutput.get_sampler_params(inc_warmup=conf.warmup_inc)
+    theOutputDiagnostics = theOutput.get_sampler_params(inc_warmup=conf.inc_warmup)
     diagnosticVariableName = ['accept_stat__', 'stepsize__',
                               'n_leapfrog__', 'treedepth__', 'divergent__', 'energy__']
-    theOutputData = theOutput.extract(permuted=False, inc_warmup=conf.warmup_inc)
+    theOutputData = theOutput.extract(permuted=False, inc_warmup=conf.inc_warmup)
 
     logger.debug("Transformation into a dict")
     nEventsPerChain = len(theOutputData)

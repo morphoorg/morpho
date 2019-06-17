@@ -41,6 +41,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         input_data: dictionary containing model input data
         iter (required): total number of iterations (warmup and sampling)
         warmup: number of warmup iterations (default=iter/2)
+        warmup_inc: include warmup part of the chains (default=True)
         chain: number of chains (default=1)
         n_jobs: number of parallel cores running (default=1)
         interestParams: parameters to be saved in the results variable
@@ -56,10 +57,23 @@ class PyStanSamplingProcessor(BaseProcessor):
 
     Results:
         results: dictionary containing the result of the sampling of the parameters of interest
+        results_c: dictionary containing the result of the sampling of the parameters of interest (without the warmup chain)
     '''
     @property
     def data(self):
         return self._data
+    
+    @property
+    def results_c(self):
+        n_warmup=-1
+        for i_sample, value in results["is_sample"].items():
+            if value == 0:
+                n_warmup = i_sample
+                
+        results_c = dict()
+        for a_key, a_value in results.items():
+            result_c.update({a_key: a_value[n_warmup+1:]})
+        return result_c
 
     @data.setter
     def data(self, input_dict):
@@ -242,6 +256,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         self.data = reader.read_param(params, 'input_data', {})
         self.iter = reader.read_param(params, 'iter', 'required')
         self.warmup = int(reader.read_param(params, 'warmup', self.iter/2))
+        self.inc_warmup = int(reader.read_param(params, 'inc_warmup', True))
         self.chains = int(reader.read_param(params, 'chain', 1))
         # number of jobs to run (-1: all, 1: good for debugging)
         self.n_jobs = int(reader.read_param(params, 'n_jobs', -1))

@@ -21,7 +21,7 @@ on_rtd = os.environ.get("READTHEDOCS", None) == 'True'
 requirements = []
 extras_require = {
     'core': ['uproot>=2.8.13', 'colorlog', 'PyYAML>=3.13', 'pyparsing>=2.1.5',
-             'pystan==2.17.1.0', 'dnspython==1.12.0',
+             'pystan==2.19.0.0', 'dnspython==1.12.0',
              'pbr==0.10.8', 'cycler==0.10.0', 'lz4', 'six', 'asteval'],
     'doc': ['sphinx', 'sphinx_rtd_theme', 'sphinxcontrib-programoutput', 'six', 'colorlog']
 }

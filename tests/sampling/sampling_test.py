@@ -52,8 +52,7 @@ class SamplingTests(unittest.TestCase):
             "iter": 1000,
             "warmup": 900,
             "interestParams": ['x', 'y', 'residual'],
-            "inc_warmup": False,
-            "no_diagnostics": True
+            "inc_warmup": False
         }
         pystanProcessor = PyStanSamplingProcessor("pystanProcessor")
         self.assertTrue(pystanProcessor.Configure(pystan_config))

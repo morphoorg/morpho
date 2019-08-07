@@ -1,4 +1,4 @@
-FROM project8/p8compute_dependencies:v0.4.0 as morpho_common
+FROM project8/p8compute_dependencies:v0.7.0 as morpho_common
 
 ENV MORPHO_TAG=v2.3.3
 ENV MORPHO_BUILD_PREFIX=/usr/local/p8/morpho/$MORPHO_TAG
@@ -35,3 +35,5 @@ RUN source $MORPHO_BUILD_PREFIX/setup.sh &&\
 FROM morpho_common
 
 COPY --from=morpho_done $MORPHO_BUILD_PREFIX $MORPHO_BUILD_PREFIX
+
+RUN yum groupinstall -y 'Development Tools'

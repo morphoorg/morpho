@@ -135,20 +135,21 @@ class IOROOTProcessor(IOProcessor):
         from array import array
         for key in info_data:
             if info_data[key]["len"] == 0:
-                setattr(tempObject, str(key), array(info_data[key]['type'].lower(), [
+                setattr(tempObject, str(info_data[key]["root_alias"]), array(info_data[key]['type'].lower(), [
                         _get_zero_with_type(info_data[key]['type'])]))
                 t.Branch(str(str(info_data[key]['root_alias'])), getattr(
-                    tempObject, str(key)), '{}/{}'.format(str(key), info_data[key]['type']))
+                    tempObject, str(info_data[key]["root_alias"])), '{}/{}'.format(str(info_data[key]['root_alias']), info_data[key]['type']))
             else:
-                setattr(tempObject, str(key), array(info_data[key]['type'].lower(), int(
+                setattr(tempObject, str(info_data[key]["root_alias"]), array(info_data[key]['type'].lower(), int(
                     info_data[key]['len']) * [_get_zero_with_type(info_data[key]['type'])]))
-                t.Branch(str(str(info_data[key]['root_alias'])), getattr(tempObject, str(
-                    key)), '{}[{}]/{}'.format(str(key), info_data[key]['len'], info_data[key]['type']))
+                t.Branch(str(str(info_data[key]['root_alias'])),
+                         getattr(tempObject, str(info_data[key]['root_alias'])),
+                         '{}[{}]/{}'.format(str(info_data[key]['root_alias']), info_data[key]['len'], info_data[key]['type']))
 
         logger.debug("Adding data")
         for i in range(numberData):
             for key in info_data:
-                temp_var = getattr(tempObject, str(key))
+                temp_var = getattr(tempObject, str(info_data[key]['root_alias']))
                 if info_data[key]["len"] == 0:
                     temp_var[0] = self.data[str(key)][i]
                 else:

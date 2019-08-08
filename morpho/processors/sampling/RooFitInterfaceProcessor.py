@@ -72,6 +72,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         logger.error("User should define this method in a child class!")
         raise
+        return wspace
 
     @property
     def data(self):
@@ -142,6 +143,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
 
         if self.make_fit_plot:
             can = ROOT.TCanvas("can","can",600,400)
+            var = wspace.var(self.varName)
             frame = var.frame()
             dataset.plotOn(frame)
             pdf.plotOn(frame)

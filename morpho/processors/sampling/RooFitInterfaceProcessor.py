@@ -133,8 +133,8 @@ class RooFitInterfaceProcessor(BaseProcessor):
         Fit the data using the pdf defined in the workspace
         '''
         wspace = ROOT.RooWorkspace()
-        wspace = self._defineDataset(wspace)
         wspace = self.definePdf(wspace)
+        wspace = self._defineDataset(wspace)
         logger.debug("Workspace content:")
         wspace.Print()
         wspace = self._FixParams(wspace)

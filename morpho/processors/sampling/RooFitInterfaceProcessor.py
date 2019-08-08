@@ -177,6 +177,9 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         Generate the data by sampling the pdf defined in the workspace
         '''
+        # Setting a random seed
+        ROOT.RooRandom.randomGenerator().SetSeed(random.randint(0, 121212111121212))
+
         wspace = ROOT.RooWorkspace()
         wspace = self.definePdf(wspace)
         logger.debug("Workspace content:")

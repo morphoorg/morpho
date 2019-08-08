@@ -22,6 +22,7 @@ Hotfixes:
 '''''''''
 
 * Docker-compose repair and documentation
+* Fixing not random data generation with RooFit
 
 Version: v2.3.3
 ~~~~~~~~~~~~~~~

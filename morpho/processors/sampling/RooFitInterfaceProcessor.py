@@ -53,9 +53,11 @@ class RooFitInterfaceProcessor(BaseProcessor):
         var = ROOT.RooRealVar(self.varName, self.varName, min(
             self._data[self.varName]), max(self._data[self.varName]))
         if self.binned:
+            looger.debug("Binned dataset {}".format(self.varName]))
             data = ROOT.RooDataHist(
                 self.datasetName, self.datasetName, ROOT.RooArgSet(var))
         else:
+            looger.debug("Unbinned dataset {}".format(self.varName]))
             data = ROOT.RooDataSet(
                 self.datasetName, self.datasetName, ROOT.RooArgSet(var))
         for value in self._data[self.varName]:

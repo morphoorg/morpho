@@ -23,8 +23,12 @@ class RootHistogram(object):
         x_title: title of the x axis
     '''
 
-    def _createHisto(self):
+    def _createHisto(self, data = []):
         from ROOT import TH1F
+        if len(data) > 0:
+            # data given -> rebinning
+            self.x_min = min(data)
+            self.x_max = max(data)
         self.histo = TH1F(self.title, self.title,
                           self.n_bins_x, self.x_min, self.x_max)
         self.histo.SetTitle("{};{};{}".format(self.title, self.xtitle, self.ytitle))

@@ -64,6 +64,8 @@ class RooFitInterfaceProcessor(BaseProcessor):
             var.setVal(value)
             data.add(ROOT.RooArgSet(var))
         getattr(wspace, 'import')(data)
+        logger.info("Workspace after dataset:")
+        wspace.Print()
         return wspace
 
     def definePdf(self, wspace):

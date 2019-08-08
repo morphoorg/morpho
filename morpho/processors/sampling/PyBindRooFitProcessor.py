@@ -9,6 +9,18 @@ Authors: M. Guigue
 Date: 06/26/18
 '''
 
+try:
+    import ROOT
+except ImportError:
+    pass
+value = ROOT.gSystem.Load("libRooFit")
+if value < 0:
+    print("Failed loading", value)
+    exit()
+
+logger = morphologging.getLogger(__name__)
+
+
 class PyFunctionObject(ROOT.TPyMultiGenFunction):
     def __init__(self, pythonFunction, dimension=2):
         logger.info("Created PyFunctionObject")

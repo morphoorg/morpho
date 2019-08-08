@@ -92,6 +92,8 @@ class RooFitInterfaceProcessor(BaseProcessor):
         self.mode = reader.read_param(config_dict, "mode", "generate")
         logger.debug("Mode {}".format(self.mode))
         self.iter = int(reader.read_param(config_dict, "iter", "required"))
+        if self.mode == "fit":
+            self.binned = int(reader.read_param(config_dict, "binned", False))
         if self.mode == "lsampling":
             self.binned = int(reader.read_param(config_dict, "binned", False))
             self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")

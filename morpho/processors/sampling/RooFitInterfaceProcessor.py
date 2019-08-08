@@ -52,6 +52,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         var = ROOT.RooRealVar(self.varName, self.varName, min(
             self._data[self.varName]), max(self._data[self.varName]))
+        ## Needed for being able to do convolution products on this variable (don't touch!)
         var.setBins(10000, "cache")
         if self.binned:
             logger.debug("Binned dataset {}".format(self.varName))

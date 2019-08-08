@@ -9,6 +9,8 @@ try:
 except ImportError:
     pass
 
+import random
+
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)

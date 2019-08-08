@@ -106,6 +106,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         self.datasetName = "data_"+self.varName
         self.paramOfInterestNames = reader.read_param(config_dict, "interestParams", "required")
         self.fixedParameters = reader.read_param(config_dict, "fixedParams", dict)
+        self.make_fit_plot = reader.read_param(config_dict, "make_fit_plot", False)
         if not isinstance(self.fixedParameters, dict):
             logger.error("fixedParams should be a dictionary like {'varName': value}")
             return False
@@ -138,6 +139,15 @@ class RooFitInterfaceProcessor(BaseProcessor):
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
         result = pdf.fitTo(dataset, ROOT.RooFit.Save())
         result.Print()
+
+        if self.make_fit_plot:
+            can = ROOT.TCanvas("can","can",600,400)
+            frame = var.frame()
+            dataset.plotOn(frame)
+            pdf.plotOn(frame)
+            frame.Draw()
+            can.SaveAs("results_fit.pdf")
+
         self.result = {}
         for varName in self.paramOfInterestNames:
             self.result.update({str(varName): wspace.var(str(varName)).getVal()}) 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip3 install pystan==2.19.0
+pip install pystan==2.19.0
 
 cd IO && python IO_test.py && cd ..
 cd misc && python misc_test.py && cd ..

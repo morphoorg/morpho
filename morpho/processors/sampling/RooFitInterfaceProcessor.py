@@ -52,6 +52,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         var = ROOT.RooRealVar(self.varName, self.varName, min(
             self._data[self.varName]), max(self._data[self.varName]))
+        var.setBins(10000, "cache")
         if self.binned:
             logger.debug("Binned dataset {}".format(self.varName))
             data = ROOT.RooDataHist(
@@ -133,8 +134,8 @@ class RooFitInterfaceProcessor(BaseProcessor):
         Fit the data using the pdf defined in the workspace
         '''
         wspace = ROOT.RooWorkspace()
-        wspace = self.definePdf(wspace)
         wspace = self._defineDataset(wspace)
+        wspace = self.definePdf(wspace)
         logger.debug("Workspace content:")
         wspace.Print()
         wspace = self._FixParams(wspace)

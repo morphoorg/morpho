@@ -9,6 +9,8 @@ try:
 except ImportError:
     pass
 
+import random
+
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)
@@ -52,16 +54,22 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         var = ROOT.RooRealVar(self.varName, self.varName, min(
             self._data[self.varName]), max(self._data[self.varName]))
+        ## Needed for being able to do convolution products on this variable (don't touch!)
+        var.setBins(10000, "cache")
         if self.binned:
+            logger.debug("Binned dataset {}".format(self.varName))
             data = ROOT.RooDataHist(
                 self.datasetName, self.datasetName, ROOT.RooArgSet(var))
         else:
+            logger.debug("Unbinned dataset {}".format(self.varName))
             data = ROOT.RooDataSet(
                 self.datasetName, self.datasetName, ROOT.RooArgSet(var))
         for value in self._data[self.varName]:
             var.setVal(value)
             data.add(ROOT.RooArgSet(var))
         getattr(wspace, 'import')(data)
+        logger.info("Workspace after dataset:")
+        wspace.Print()
         return wspace
 
     def definePdf(self, wspace):
@@ -72,6 +80,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         logger.error("User should define this method in a child class!")
         raise
+        return wspace
 
     @property
     def data(self):
@@ -91,9 +100,11 @@ class RooFitInterfaceProcessor(BaseProcessor):
         self.varName = reader.read_param(config_dict, "varName", "required")
         self.mode = reader.read_param(config_dict, "mode", "generate")
         logger.debug("Mode {}".format(self.mode))
-        self.iter = int(reader.read_param(config_dict, "iter", "required"))
-        if self.mode == "lsampling":
+        if self.mode == "lsampling" or self.mode == "generate":
+            self.iter = int(reader.read_param(config_dict, "iter", "required"))
+        if self.mode == "fit" or self.mode == "lsampling":
             self.binned = int(reader.read_param(config_dict, "binned", False))
+        if self.mode == "lsampling":
             self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")
             self.warmup = int(reader.read_param(config_dict, "warmup", self.iter/2.))
         self.numCPU = int(reader.read_param(config_dict, "n_jobs", 1))
@@ -104,6 +115,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         self.datasetName = "data_"+self.varName
         self.paramOfInterestNames = reader.read_param(config_dict, "interestParams", "required")
         self.fixedParameters = reader.read_param(config_dict, "fixedParams", dict)
+        self.make_fit_plot = reader.read_param(config_dict, "make_fit_plot", False)
         if not isinstance(self.fixedParameters, dict):
             logger.error("fixedParams should be a dictionary like {'varName': value}")
             return False
@@ -136,6 +148,16 @@ class RooFitInterfaceProcessor(BaseProcessor):
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
         result = pdf.fitTo(dataset, ROOT.RooFit.Save())
         result.Print()
+
+        if self.make_fit_plot:
+            can = ROOT.TCanvas("can","can",600,400)
+            var = wspace.var(self.varName)
+            frame = var.frame()
+            dataset.plotOn(frame)
+            pdf.plotOn(frame)
+            frame.Draw()
+            can.SaveAs("results_fit.pdf")
+
         self.result = {}
         for varName in self.paramOfInterestNames:
             self.result.update({str(varName): wspace.var(str(varName)).getVal()}) 
@@ -157,6 +179,9 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         Generate the data by sampling the pdf defined in the workspace
         '''
+        # Setting a random seed
+        ROOT.RooRandom.randomGenerator().SetSeed(random.randint(0, 121212111121212))
+
         wspace = ROOT.RooWorkspace()
         wspace = self.definePdf(wspace)
         logger.debug("Workspace content:")

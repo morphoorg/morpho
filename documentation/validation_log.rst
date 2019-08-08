@@ -16,11 +16,13 @@ New Features:
 * Divergence checks plot generator for PyStan #126
 * Data vector length automatic  computation
 * Possibility to set histo range from data in _create_histo
+* RooFitInterfaceProcessor: plot fit and data on demand
 
 Hotfixes:
 '''''''''
 
 * Docker-compose repair and documentation
+* Fixing not random data generation with RooFit
 
 Version: v2.3.3
 ~~~~~~~~~~~~~~~

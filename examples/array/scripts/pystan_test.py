@@ -5,7 +5,6 @@
 # Author: M. Guigue
 
 from morpho.processors.sampling import PyStanSamplingProcessor
-from morpho.processors.plots import TimeSeries, APosterioriDistribution
 from morpho.processors.IO import IOROOTProcessor
 
 generator_config = {

@@ -1,5 +1,6 @@
 # morpho
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/87c218758392450aab1490ede4586fde)](https://app.codacy.com/app/guiguem_2/morpho?utm_source=github.com&utm_medium=referral&utm_content=morphoorg/morpho&utm_campaign=Badge_Grade_Dashboard)
 [![DOI](https://zenodo.org/badge/22215458.svg)](https://zenodo.org/badge/latestdoi/22215458)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7b4a6e74b5cd405ea91b6ddb5cb504d1)](https://app.codacy.com/app/guiguem/morpho?utm_source=github.com&utm_medium=referral&utm_content=project8/morpho&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/morphoorg/morpho.svg?branch=master)](https://travis-ci.org/morphoorg/morpho)

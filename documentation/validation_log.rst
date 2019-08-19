@@ -4,21 +4,54 @@ Validation Log
 Log
 ---
 
-Version: v2.3.1
+Version: v2.4.0
 ~~~~~~~~~~~~~~~
 
-Release Date: April 17th 2018
+Release Date: August 19th 2019
 ''''''''''''''''''''''''''''''
 
-New Hotfixes:
+New Features:
 '''''''''''''
+
+* Divergence checks plot generator for PyStan #126
+* Data vector length automatic  computation
+* Possibility to set histo range from data in _create_histo
+* RooFitInterfaceProcessor: plot fit and data on demand
+
+Hotfixes:
+'''''''''
+
+* Docker-compose repair and documentation
+* Fixing not random data generation with RooFit
+
+Version: v2.3.3
+~~~~~~~~~~~~~~~
+
+Release Date: May 17th 2018
+''''''''''''''''''''''''''''''
+
+Hotfixes:
+'''''''''
+
+* Travis repair: 
+   * docker-based installation
+   * single test bash script
+
+Version: v2.3.2
+~~~~~~~~~~~~~~~
+
+Release Date: April 17th 2019
+''''''''''''''''''''''''''''''
+
+Hotfixes:
+'''''''''
 
 * Downgrade pystan to v2.17.1
 
 Version: v2.3.1
 ~~~~~~~~~~~~~~~
 
-Release Date: March 28th 2018
+Release Date: March 28th 2019
 ''''''''''''''''''''''''''''''
 
 New Features:

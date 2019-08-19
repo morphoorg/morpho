@@ -1,6 +1,6 @@
 FROM project8/p8compute_dependencies:v0.4.0 as morpho_common
 
-ENV MORPHO_TAG=v2.3.3
+ENV MORPHO_TAG=v2.4.0
 ENV MORPHO_BUILD_PREFIX=/usr/local/p8/morpho/$MORPHO_TAG
 
 RUN mkdir -p $MORPHO_BUILD_PREFIX &&\
@@ -26,7 +26,6 @@ COPY .git /tmp_source/.git
 
 COPY tests $MORPHO_BUILD_PREFIX/tests
 
-# repeat the cmake command to get the change of install prefix to set correctly (a package_builder known issue)
 RUN source $MORPHO_BUILD_PREFIX/setup.sh &&\
     cd /tmp_source &&\
     pip3 install . --process-dependency-links --prefix $MORPHO_BUILD_PREFIX &&\

@@ -42,6 +42,7 @@ generator:
     warmup: 500
     interestParams: ['x','y','residual']
     delete: False
+    diagnostics_folder: "linear_fit/plots/generator_diagnostics"
 writer:
     action: write
     filename: linear_fit/data/data.r
@@ -60,6 +61,7 @@ analyzer:
     interestParams: ['slope','intercept','sigma']
     input_data: 
       N: 530
+    diagnostics_folder: "linear_fit/plots/analyzer_diagnostics"
 posterioriDistrib:
     n_bins_x: 100
     n_bins_y: 100

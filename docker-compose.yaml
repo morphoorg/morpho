@@ -1,10 +1,8 @@
 version: "3"
-
 services:
   morpho:
-    image: project8/morpho
-    command: >
-      bash -c "source /setup.sh && bash"
+    image: morpho/morpho
+    command: "/bin/bash"
     volumes:
       # share a subdirectory from the host to /host in the docker (can be edited)
       - ~/morpho_share:/host

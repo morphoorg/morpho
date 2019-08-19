@@ -54,7 +54,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         var = ROOT.RooRealVar(self.varName, self.varName, min(
             self._data[self.varName]), max(self._data[self.varName]))
-        ## Needed for being able to do convolution products on this variable (don't touch!)
+        # Needed for being able to do convolution products on this variable (don't touch!)
         var.setBins(10000, "cache")
         if self.binned:
             logger.debug("Binned dataset {}".format(self.varName))
@@ -80,7 +80,6 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         logger.error("User should define this method in a child class!")
         raise
-        return wspace
 
     @property
     def data(self):
@@ -105,19 +104,26 @@ class RooFitInterfaceProcessor(BaseProcessor):
         if self.mode == "fit" or self.mode == "lsampling":
             self.binned = int(reader.read_param(config_dict, "binned", False))
         if self.mode == "lsampling":
-            self.nuisanceParametersNames = reader.read_param(config_dict, "nuisanceParams", "required")
-            self.warmup = int(reader.read_param(config_dict, "warmup", self.iter/2.))
+            self.nuisanceParametersNames = reader.read_param(
+                config_dict, "nuisanceParams", "required")
+            self.warmup = int(reader.read_param(
+                config_dict, "warmup", self.iter/2.))
         self.numCPU = int(reader.read_param(config_dict, "n_jobs", 1))
         self.options = reader.read_param(config_dict, "options", dict())
         if self.mode not in ['generate', 'lsampling', 'fit']:
-            logger.error("Mode '{}' is not valid; choose between 'mode' and 'lsampling'".format(self.mode))
+            logger.error(
+                "Mode '{}' is not valid; choose between 'mode' and 'lsampling'".format(self.mode))
             return False
         self.datasetName = "data_"+self.varName
-        self.paramOfInterestNames = reader.read_param(config_dict, "interestParams", "required")
-        self.fixedParameters = reader.read_param(config_dict, "fixedParams", dict)
-        self.make_fit_plot = reader.read_param(config_dict, "make_fit_plot", False)
+        self.paramOfInterestNames = reader.read_param(
+            config_dict, "interestParams", "required")
+        self.fixedParameters = reader.read_param(
+            config_dict, "fixedParams", dict)
+        self.make_fit_plot = reader.read_param(
+            config_dict, "make_fit_plot", False)
         if not isinstance(self.fixedParameters, dict):
-            logger.error("fixedParams should be a dictionary like {'varName': value}")
+            logger.error(
+                "fixedParams should be a dictionary like {'varName': value}")
             return False
         return True
 
@@ -131,7 +137,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         else:
             logger.error("Unknown mode <{}>".format(self.mode))
             return False
-    
+
     def _Fit(self):
         '''
         Fit the data using the pdf defined in the workspace
@@ -150,7 +156,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         result.Print()
 
         if self.make_fit_plot:
-            can = ROOT.TCanvas("can","can",600,400)
+            can = ROOT.TCanvas("can", "can", 600, 400)
             var = wspace.var(self.varName)
             frame = var.frame()
             dataset.plotOn(frame)
@@ -160,8 +166,10 @@ class RooFitInterfaceProcessor(BaseProcessor):
 
         self.result = {}
         for varName in self.paramOfInterestNames:
-            self.result.update({str(varName): wspace.var(str(varName)).getVal()}) 
-            self.result.update({"error_"+str(varName): wspace.var(str(varName)).getErrorHi()})
+            self.result.update(
+                {str(varName): wspace.var(str(varName)).getVal()})
+            self.result.update(
+                {"error_"+str(varName): wspace.var(str(varName)).getErrorHi()})
         return True
 
     def _FixParams(self, wspace):
@@ -172,7 +180,8 @@ class RooFitInterfaceProcessor(BaseProcessor):
         for varName, value in self.fixedParameters.items():
             wspace.var(str(varName)).setVal(float(value))
             wspace.var(str(varName)).setConstant()
-            logger.debug("Value of {} set to {}".format(varName, wspace.var(str(varName)).getVal()))
+            logger.debug("Value of {} set to {}".format(
+                varName, wspace.var(str(varName)).getVal()))
         return wspace
 
     def _Generator(self):

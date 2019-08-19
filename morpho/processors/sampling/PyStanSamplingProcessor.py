@@ -62,16 +62,16 @@ class PyStanSamplingProcessor(BaseProcessor):
     @property
     def data(self):
         return self._data
-    
+
     @property
     def results_c(self):
-        n_warmup=-1
-        for i_sample, value in results["is_sample"].items():
+        n_warmup = -1
+        for i_sample, value in self.results["is_sample"].items():
             if value == 0:
                 n_warmup = i_sample
-                
+
         results_c = dict()
-        for a_key, a_value in results.items():
+        for a_key, a_value in self.results.items():
             result_c.update({a_key: a_value[n_warmup+1:]})
         return result_c
 
@@ -129,7 +129,7 @@ class PyStanSamplingProcessor(BaseProcessor):
             if isinstance(value, list):
                 list_size_name = "dim__{}".format(key)
                 additional_dict.update({list_size_name: len(value)})
-            if type(value) is numpy.ndarray:
+            if isinstance(value, numpy.ndarray):
                 list_size_name = "dim__{}".format(key)
                 additional_dict.update({list_size_name: int(value.size)})
         self.data.update(additional_dict)
@@ -223,7 +223,8 @@ class PyStanSamplingProcessor(BaseProcessor):
 
     def _store_diagnostics(self, stan_results):
         # Print diagnostics
-        convergence_diagnostics = stanConvergenceChecker.check_all_diagnostics(stan_results)
+        convergence_diagnostics = stanConvergenceChecker.check_all_diagnostics(
+            stan_results)
         if convergence_diagnostics[0]:
             logger.warn("\n"+convergence_diagnostics[1])
         else:
@@ -261,8 +262,10 @@ class PyStanSamplingProcessor(BaseProcessor):
             # since diagnostics uses warmup part, cannot run
             self.no_diagnostics = True
         else:
-            self.no_diagnostics = reader.read_param(params, 'no_diagnostics', False)
-        self.diagnostics_folder = reader.read_param(params, 'diagnostics_folder', "./stan_diagnostics")
+            self.no_diagnostics = reader.read_param(
+                params, 'no_diagnostics', False)
+        self.diagnostics_folder = reader.read_param(
+            params, 'diagnostics_folder', "./stan_diagnostics")
         self.chains = int(reader.read_param(params, 'chain', 1))
         # number of jobs to run (-1: all, 1: good for debugging)
         self.n_jobs = int(reader.read_param(params, 'n_jobs', -1))
@@ -282,7 +285,8 @@ class PyStanSamplingProcessor(BaseProcessor):
             self.control = reader.read_param(params, 'control', None)
         else:
             if reader.read_param(params, 'control', None) is not None:
-                logger.debug("stan.run.control should be a dict: {}", str(reader.read_param(yd, 'control', None)))
+                logger.debug("stan.run.control should be a dict: {}", str(
+                    reader.read_param(yd, 'control', None)))
 
         return True
 

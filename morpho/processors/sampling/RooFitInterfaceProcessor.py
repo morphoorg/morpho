@@ -157,15 +157,6 @@ class RooFitInterfaceProcessor(BaseProcessor):
         result = pdf.fitTo(dataset, ROOT.RooFit.Save())
         result.Print()
 
-<<<<<<< HEAD
-        can = ROOT.TCanvas("can","can",600,400)
-        var = wspace.var(self.varName)
-        frame = var.frame()
-        dataset.plotOn(frame)
-        pdf.plotOn(frame)
-        frame.Draw()
-        can.SaveAs("plots/results_fit.pdf")
-=======
         if self.make_fit_plot:
             can = ROOT.TCanvas("can", "can", 600, 400)
             var = wspace.var(self.varName)
@@ -174,7 +165,6 @@ class RooFitInterfaceProcessor(BaseProcessor):
             pdf.plotOn(frame)
             frame.Draw()
             can.SaveAs("results_fit.pdf")
->>>>>>> develop
 
         self.result = {}
         for varName in self.paramOfInterestNames:

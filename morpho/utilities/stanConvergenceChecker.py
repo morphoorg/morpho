@@ -2,7 +2,7 @@
 Perform Stan diagnostic tests
 
 Source: Michael Betancourt,
-https://github.com/betanalpha/jupyter_case_studies/blob/master/pystan_workflow/stan_utility.py 
+https://github.com/betanalpha/jupyter_case_studies/blob/master/pystan_workflow/stan_utility.py
 Modified by Talia Weiss, 1-23-18
 Ported to morpho 2 by Joe Johnston, 5-20-19
 
@@ -20,7 +20,7 @@ Functions:
 '''
 
 try:
-    import pystan
+    # import pystan
     import numpy
 except ImportError:
     pass
@@ -43,13 +43,13 @@ def check_div(fit):
     N = len(divergent)
     if n > 0:
         return((True, '{} of {} iterations ended with a divergence ({}%).'.format(n, N,
-            100 * n / N)+' Try running with larger adapt_delta to remove the divergences.'))
+                                                                                  100 * n / N)+' Try running with larger adapt_delta to remove the divergences.'))
     else:
         return((False, '{} of {} iterations ended with a divergence ({}%).'.format(n, N,
-            100 * n / N)))
+                                                                                   100 * n / N)))
 
 
-def check_treedepth(fit, max_depth = 10):
+def check_treedepth(fit, max_depth=10):
     '''Check how many transitions ended prematurely due to tree depth
 
     A transition may end prematurely if the maximum tree depth limit is
@@ -70,10 +70,10 @@ def check_treedepth(fit, max_depth = 10):
     N = len(depths)
     if n > 0:
         return((True, ('{} of {} iterations saturated the maximum tree depth of {}.'
-               + ' ({}%)').format(n, N, max_depth, 100 * n / N)+' Run again with max_depth set to a larger value to avoid saturation.'))
+                       + ' ({}%)').format(n, N, max_depth, 100 * n / N)+' Run again with max_depth set to a larger value to avoid saturation.'))
     else:
         return((False, ('{} of {} iterations saturated the maximum tree depth of {}.'
-            + ' ({}%)').format(n, N, max_depth, 100 * n / N)))
+                        + ' ({}%)').format(n, N, max_depth, 100 * n / N)))
 
 
 def check_energy(fit):
@@ -91,7 +91,8 @@ def check_energy(fit):
     no_warning = True
     for chain_num, s in enumerate(sampler_params):
         energies = s['energy__']
-        numer = sum((energies[i] - energies[i - 1])**2 for i in range(1, len(energies))) / len(energies)
+        numer = sum((energies[i] - energies[i - 1]) **
+                    2 for i in range(1, len(energies))) / len(energies)
         denom = numpy.var(energies)
         if numer / denom < 0.2:
             print('Chain {}: E-BFMI = {}'.format(chain_num, numer / denom))
@@ -104,7 +105,7 @@ def check_energy(fit):
 
 def check_n_eff(fit):
     '''Checks the effective sample size per iteration
-    
+
     Args:
         fit: stanfit object containing sampler output
 
@@ -128,6 +129,7 @@ def check_n_eff(fit):
         return((False, 'n_eff / iter looks reasonable for all parameters.'))
     else:
         return((True, '  n_eff / iter below 0.001 indicates that the effective sample size has likely been overestimated.'))
+
 
 def check_rhat(fit):
     '''Checks the potential scale reduction factors
@@ -156,6 +158,7 @@ def check_rhat(fit):
     else:
         return((True, 'Rhat above 1.1 indicates that the chains very likely have not mixed.'))
 
+
 def check_all_diagnostics(fit):
     '''Checks all MCMC diagnostics
 
@@ -174,10 +177,11 @@ def check_all_diagnostics(fit):
     treedepth_warn, treedepth_str = check_treedepth(fit)
     energy_warn, energy_str = check_energy(fit)
     warn = n_eff_warn or rhat_warn or div_warn or \
-           treedepth_warn or energy_warn
+        treedepth_warn or energy_warn
     check_str = n_eff_str + '\n' + rhat_str + '\n' + div_str + \
-                '\n' + treedepth_str + '\n' + energy_str
+        '\n' + treedepth_str + '\n' + energy_str
     return((warn, check_str))
+
 
 def partition_div(fit_results, parameter_name):
     ''' Returns parameter arrays for divergent and non-divergent transitions
@@ -195,6 +199,6 @@ def partition_div(fit_results, parameter_name):
     warmup = fit_results["is_sample"].count(0)
     div = numpy.array(fit_results['divergent__'][warmup:]).astype('int')
     data = numpy.array(fit_results[parameter_name][warmup:])
-    nondiv_params = data[div==0]
-    div_params = data[div==1]
+    nondiv_params = data[div == 0]
+    div_params = data[div == 1]
     return nondiv_params, div_params

@@ -36,6 +36,29 @@ class SamplingTests(unittest.TestCase):
         # Because we need this generator for the LinearFit analysis, we return the data, and not a bool
         return pystanProcessor.results
 
+    def test_PyStanWarmup(self):
+        logger.info("PyStanSampling warmup chain test")
+        from morpho.processors.sampling import PyStanSamplingProcessor
+
+        pystan_config = {
+            "model_code": "model.stan",
+            "input_data": {
+                "slope": 1,
+                "intercept": -2,
+                "xmin": 1,
+                "xmax": 10,
+                "sigma": 1.6
+            },
+            "iter": 1000,
+            "warmup": 900,
+            "interestParams": ['x', 'y', 'residual'],
+            "inc_warmup": False
+        }
+        pystanProcessor = PyStanSamplingProcessor("pystanProcessor")
+        self.assertTrue(pystanProcessor.Configure(pystan_config))
+        self.assertTrue(pystanProcessor.Run())
+        self.assertEqual(len(pystanProcessor.results["y"]), 100) # iter-warmup = 1000-900 = 100
+
     def test_LinearFitRooFitSampler(self):
         logger.info("LinearFitRooFitSampler test")
         from morpho.processors.sampling.LinearFitRooFitProcessor import LinearFitRooFitProcessor
@@ -302,7 +325,7 @@ class SamplingTests(unittest.TestCase):
         }
         gaussSampler_config = {
             "iter": 10000,
-            "warmup": 5000, # there is not enough warmup, this is to show the convergence of the chain
+            "warmup": 5000,  # there is not enough warmup, this is to show the convergence of the chain
             "interestParams": ['mean', 'width'],
             "fixedParams": {},
             "varName": "XY",
@@ -323,8 +346,8 @@ class SamplingTests(unittest.TestCase):
             "output_path": "plots"
         }
         fitter_config = {
-            "iter": 50000,
-            "warmup": 5000, # there is not enough warmup, this is to show the convergence of the chain
+            "iter": 10000,
+            "warmup": 5000,  # there is not enough warmup, this is to show the convergence of the chain
             "interestParams": ['mean', 'width'],
             "fixedParams": {},
             "varName": "XY",
@@ -364,7 +387,6 @@ class SamplingTests(unittest.TestCase):
         fitter.data = sampler.data
         self.assertTrue(fitter.Run())
         logger.info("Fit Results: {}".format(fitter.result))
-
 
 
 if __name__ == '__main__':

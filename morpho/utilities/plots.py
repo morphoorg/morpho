@@ -241,8 +241,6 @@ def _fill_hist_grid_divergence(input_dict, name_grid,
     for r, row in enumerate(name_grid):
         for c, names in enumerate(row):
             if (names is not None and len(names) == 2):
-                list_dataX = []
-                list_dataY = []
                 list_dataY = input_dict[names[0]][warmup:]
                 list_dataX = input_dict[names[1]][warmup:]
                 y_div0, y_div1 = stanConvergenceChecker.partition_div(input_dict, names[0])

@@ -4,6 +4,20 @@ Validation Log
 Log
 ---
 
+Version: v
+~~~~~~~~~~~~~~~
+
+Release Date: August 19th 2019
+''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* P8 Compute Dependencies image update to v0.9.0
+* PyBindRooFitProcessor:
+  * Load external python functions to create pdfs
+  * Generate fake data and fit them using user-defined pdfs
+
 Version: v2.4.0
 ~~~~~~~~~~~~~~~
 
@@ -17,7 +31,6 @@ New Features:
 * Data vector length automatic  computation
 * Possibility to set histo range from data in _create_histo
 * RooFitInterfaceProcessor: plot fit and data on demand
-* P8 Compute Dependencies image update to v0.9.0 
 
 Hotfixes:
 '''''''''

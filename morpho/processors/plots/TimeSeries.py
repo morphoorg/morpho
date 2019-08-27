@@ -75,6 +75,9 @@ class TimeSeries(BaseProcessor):
             pass
         # Histograms must still be in memory when the pdf is saved
         for iName, name in enumerate(self.namedata):
+            if len(self.data[name])==0:
+                logger.warning("No data for variable {}".format(name))
+                continue
             self.rootcanvas.cd(iName+1)
             listGraph.append(ROOT.TGraph())
             listGraphWarmup.append(ROOT.TGraph())
@@ -91,7 +94,10 @@ class TimeSeries(BaseProcessor):
                     iWarmup += 1
             listGraph[iName].Draw("AP")
             listGraph[iName].SetMarkerStyle(7)
-            listGraphWarmup[iName].Draw("sameP")
+            if iSample==0:
+                listGraphWarmup[iName].Draw("AP")
+            else:
+                listGraphWarmup[iName].Draw("sameP")
             listGraphWarmup[iName].SetMarkerStyle(7)
             listGraphWarmup[iName].SetMarkerColor(2)
             listGraph[iName].SetTitle(";Iteration;{}".format(name))

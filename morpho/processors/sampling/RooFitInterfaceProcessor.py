@@ -66,7 +66,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
                 self.datasetName, self.datasetName, ROOT.RooArgSet(var))
         for value in self._data[self.varName]:
             var.setVal(value)
-            data.add(ROOT.RooArgSet(var))        
+            data.add(ROOT.RooArgSet(var))
         getattr(wspace, 'import')(data)
         logger.info("Workspace after dataset:")
         wspace.Print()

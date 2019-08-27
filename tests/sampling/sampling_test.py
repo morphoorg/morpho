@@ -57,7 +57,8 @@ class SamplingTests(unittest.TestCase):
         pystanProcessor = PyStanSamplingProcessor("pystanProcessor")
         self.assertTrue(pystanProcessor.Configure(pystan_config))
         self.assertTrue(pystanProcessor.Run())
-        self.assertEqual(len(pystanProcessor.results["y"]), 100) # iter-warmup = 1000-900 = 100
+        # iter-warmup = 1000-900 = 100
+        self.assertEqual(len(pystanProcessor.results["y"]), 100)
 
     def test_LinearFitRooFitSampler(self):
         logger.info("LinearFitRooFitSampler test")
@@ -116,28 +117,27 @@ class SamplingTests(unittest.TestCase):
             return float(sum(numbers)) / max(len(numbers), 1)
         self.assertTrue(mean(fitterProcessor.results["a"]) > 0.5)
 
-
     def test_PyBind(self):
         logger.info("PyBind tester")
         from morpho.processors.sampling.PyBindRooFitProcessor import PyBindRooFitProcessor
-        from morpho.processors.plots import Histogram, APosterioriDistribution, TimeSeries
+        from morpho.processors.plots import Histogram, APosterioriDistribution
         pybind_gene_config = {
             "varName": "XY",
             "paramRange": {
                 # "x": [17000, 20000],
                 "x": [-10, 10],
                 # "y": [-10, 50],
-                "a": [0,10],
+                "a": [0, 10],
                 "b": [0, 10],
                 "c": [1, 10000]
             },
             "iter": 10000,
-            "fixedParams": {'a':1, 'b':1,'c':2},
+            "fixedParams": {'a': 1, 'b': 1, 'c': 2},
             "interestParams": ['x'],
             "module_name": "myModule",
             "function_name": "myFunction",
             "mode": "generate"
-        }        
+        }
         pybind_fit_config = {
             "varName": "x",
             "paramRange": {
@@ -157,12 +157,12 @@ class SamplingTests(unittest.TestCase):
             },
             # "iter": 10000,
             "fixedParams": {},
-            "interestParams": ['a','b','c'],
+            "interestParams": ['a', 'b', 'c'],
             "module_name": "myModule",
             "function_name": "myFunction",
             "binned": True,
             "mode": "fit"
-        }      
+        }
         # pybind_lsampling_config = {
         #     "varName": "x",
         #     "paramRange": {
@@ -221,7 +221,7 @@ class SamplingTests(unittest.TestCase):
         # self.assertTrue(timeSeriesPlotter.Configure(timeSeries_config))
         self.assertTrue(myhisto.Configure(histo_config))
         # self.assertTrue(aposterioriPlotter.Configure(aposteriori_config))
-        
+
         self.assertTrue(sampler.Run())
         myhisto.data = sampler.data
         fitter.data = sampler.data

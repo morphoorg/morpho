@@ -4,10 +4,10 @@ Validation Log
 Log
 ---
 
-Version: v
+Version: v2.5.0
 ~~~~~~~~~~~~~~~
 
-Release Date: August 19th 2019
+Release Date: August 27th 2019
 ''''''''''''''''''''''''''''''
 
 New Features:

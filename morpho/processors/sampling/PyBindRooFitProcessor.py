@@ -1,5 +1,3 @@
-import scipy.special as scs
-import numpy as np
 from morpho.processors.BaseProcessor import BaseProcessor
 from morpho.processors.sampling.RooFitInterfaceProcessor import RooFitInterfaceProcessor
 from morpho.utilities import morphologging, reader
@@ -73,7 +71,8 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
     def InternalConfigure(self, config_dict):
         super().InternalConfigure(config_dict)
         self.ranges = reader.read_param(config_dict, "paramRange", "required")
-        self.initParamValues = reader.read_param(config_dict, "initValues", dict())
+        self.initParamValues = reader.read_param(
+            config_dict, "initValues", dict())
         self.module_name = reader.read_param(
             config_dict, "module_name", "required")
         self.function_name = reader.read_param(
@@ -133,28 +132,33 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
             logger.info(aVarName)
             if aVarName in self.fixedParameters.keys():
                 logger.debug("{} is fixed".format(aVarName))
-                rooVarSet.append(ROOT.RooRealVar(str(aVarName), str(aVarName), self.fixedParameters[aVarName]))
+                rooVarSet.append(ROOT.RooRealVar(str(aVarName), str(
+                    aVarName), self.fixedParameters[aVarName]))
                 logger.info(aVarName)
             elif aVarName in self.initParamValues.keys():
-                aVarSampling = ROOT.RooRealVar(str(aVarName), str(aVarName), self.initParamValues[aVarName], self.ranges[aVarName][0], self.ranges[aVarName][1])
+                aVarSampling = ROOT.RooRealVar(str(aVarName), str(
+                    aVarName), self.initParamValues[aVarName], self.ranges[aVarName][0], self.ranges[aVarName][1])
                 rooVarSet.append(aVarSampling)
                 logger.info(aVarName)
             else:
-                aVarSampling = ROOT.RooRealVar(str(aVarName), str(aVarName), self.ranges[aVarName][0], self.ranges[aVarName][1])
+                aVarSampling = ROOT.RooRealVar(str(aVarName), str(
+                    aVarName), self.ranges[aVarName][0], self.ranges[aVarName][1])
                 rooVarSet.append(aVarSampling)
                 logger.info(aVarName)
 
         self.func = getattr(self.module, self.function_name)
         self.f = PyFunctionObject(self.func, len(rooVarSet))
-        self.bindFunc = ROOT.RooFit.bindFunction("test", self.f, ROOT.RooArgList(*rooVarSet))
+        self.bindFunc = ROOT.RooFit.bindFunction(
+            "test", self.f, ROOT.RooArgList(*rooVarSet))
 
-
-        a0 = ROOT.RooRealVar("a0","a0",0); 
-        a0.setConstant(); 
-        # RooChebychev will make a first order polynomial, set to a constant 
-        bkg = ROOT.RooChebychev("a0_bkg","a0_bkg",aVarSampling, ROOT.RooArgList(a0))
-        # RooAbsReal *LSfcn = bindFunction(SH,m, RooArgList(deltaM,cw));//deltaM and cw are parameters 
-        self.pdf = ROOT.RooRealSumPdf("pdf","pdf",self.bindFunc,bkg,ROOT.RooFit.RooConst(1.)) #; //combine the constant term (bkg)
+        a0 = ROOT.RooRealVar("a0", "a0", 0)
+        a0.setConstant()
+        # RooChebychev will make a first order polynomial, set to a constant
+        bkg = ROOT.RooChebychev(
+            "a0_bkg", "a0_bkg", aVarSampling, ROOT.RooArgList(a0))
+        # RooAbsReal *LSfcn = bindFunction(SH,m, RooArgList(deltaM,cw));//deltaM and cw are parameters
+        self.pdf = ROOT.RooRealSumPdf("pdf", "pdf", self.bindFunc, bkg, ROOT.RooFit.RooConst(
+            1.))  # ; //combine the constant term (bkg)
 
         logger.debug("pdf: {}".format(self.pdf))
         wspace.Print()

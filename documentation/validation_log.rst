@@ -4,6 +4,20 @@ Validation Log
 Log
 ---
 
+Version: v2.5.0
+~~~~~~~~~~~~~~~
+
+Release Date: August 27th 2019
+''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* P8 Compute Dependencies image update to v0.9.0
+* PyBindRooFitProcessor:
+  * Load external python functions to create pdfs
+  * Generate fake data and fit them using user-defined pdfs
+
 Version: v2.4.0
 ~~~~~~~~~~~~~~~
 

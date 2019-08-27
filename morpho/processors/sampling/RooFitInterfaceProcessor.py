@@ -92,6 +92,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
     def _getArgSet(self, wspace, listNames):
         argSet = ROOT.RooArgSet()
         for name in listNames:
+            logger.debug("{} -> {}".format(name, wspace.var(name)))
             argSet.add(wspace.var(name))
         return argSet
 
@@ -150,6 +151,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         wspace = self._FixParams(wspace)
         pdf = wspace.pdf("pdf")
         dataset = wspace.data(self.datasetName)
+        dataset.Print()
 
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
         result = pdf.fitTo(dataset, ROOT.RooFit.Save())
@@ -198,6 +200,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
         wspace = self._FixParams(wspace)
         pdf = wspace.pdf("pdf")
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)
+        paramOfInterest.Print()
         data = pdf.generate(paramOfInterest, self.iter)
         data.Print()
 
@@ -210,6 +213,7 @@ class RooFitInterfaceProcessor(BaseProcessor):
                 self.data[item].append(
                     data.get(i).getRealValue(item))
         self.data.update({"is_sample": [1]*(self.iter)})
+
         return True
 
     def _LikelihoodSampling(self):
@@ -218,8 +222,8 @@ class RooFitInterfaceProcessor(BaseProcessor):
         '''
         wspace = ROOT.RooWorkspace()
         wspace = self._defineDataset(wspace)
-        wspace = self._FixParams(wspace)
         wspace = self.definePdf(wspace)
+        wspace = self._FixParams(wspace)
         logger.debug("Workspace content:")
         wspace.Print()
         paramOfInterest = self._getArgSet(wspace, self.paramOfInterestNames)

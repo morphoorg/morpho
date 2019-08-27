@@ -2,7 +2,7 @@
 A super simple module for unittest
 '''
 
-from math import sin, cos, sqrt, pow
+from math import cos
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 

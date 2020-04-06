@@ -63,6 +63,7 @@ from hashlib import md5
 import importlib
 
 import logging
+import subprocess
 
 
 def get_logger_stderr(name, formatter, stderr_lb=logging.ERROR,
@@ -153,7 +154,7 @@ class morpho(object):
       - model_code: Location of Stan model file
       - function_files_location: Location of stan functions files
       - model_name: Name of Stan model
-      - cashe_dir: Name of directory that the Stan model code is written
+      - cache_dir: Name of directory that the Stan model code is written
         to or read from
       - datafiles: Names of input data files
       - iter: Number of iterations for each stan chain
@@ -311,17 +312,24 @@ class morpho(object):
 
             # STAN model stuff
             self.model_code = self.read_param(yd, 'stan.model.file', 'required')
+            self.model_hpp = self.read_param(yd, 'stan.model.hppfile', None)
             self.function_files_location = self.read_param(yd, 'stan.model.function_files_location', None)
             self.model_name = self.read_param(yd, 'stan.model.model_name', None)
-            self.cashe_dir = self.read_param(yd, 'stan.model.cache', './cache')
-
+            self.cache_dir = self.read_param(yd, 'stan.model.cache', './cache')
+            self.use_cmdstan = self.read_param(yd, 'stan.model.cmdstan', False)
+            
             # STAN data
             self.datafiles = self.read_param(yd, 'stan.data', None)
+            self.rdata = self.read_param(yd, 'stan.run.rdata', None) #for cmdstan
 
             # STAN run conditions
             self.algorithm = self.read_param(yd, 'stan.run.algorithm', 'NUTS')
+            #self.algorithm.hmc.nuts.max_depth = self.read_param(yd, 'stan.run.algorithm.hmc.nuts.max_depth', 12)
+            self.init_instructions = self.read_param(yd, 'stan.run.init_instructions', None)
             self.iter = int(self.read_param(yd, 'stan.run.iter', 2000))
+            #self.num_samples = int(self.read_param(yd, 'stan.run.iter',2000))-self.num_warmup
             self.warmup = int(self.read_param(yd, 'stan.run.warmup', self.iter/2))
+            #self.num_warmup = int(self.read_param(yd, 'stan.run.warmup', 1000))
             self.chains = int(self.read_param(yd, 'stan.run.chain', 4))
             # number of jobs to run (-1: all CPUS, 1: 1 CPU, good for debugging)
             self.n_jobs = int(self.read_param(yd, 'stan.run.n_jobs',-1))
@@ -338,12 +346,15 @@ class morpho(object):
 
             self.thin = self.read_param(yd, 'stan.run.thin', 1)
             self.init_per_chain = self.read_param(yd, 'stan.run.init', '')
+            self.rinit = self.read_param(yd, 'stan.run.rinit', None) #for cmdstan
             self.init = self.init_Stan_function()
             if isinstance(self.read_param(yd, 'stan.run.control', None),dict):
                 self.control = self.read_param(yd, 'stan.run.control', None)
             else:
                 if self.read_param(yd, 'stan.run.control', None) is not None:
                     logger.debug("stan.run.control should be a dict: {}",str(self.read_param(yd, 'stan.run.control', None)))
+            #self.adapt.delta = self.control['adapt_delta']
+
 
             # plot and print information
             self.plot_vars = self.read_param(yd, 'stan.plot', None)
@@ -351,6 +362,7 @@ class morpho(object):
             # output information
             self.out_format = self.read_param(yd, 'stan.output.format', 'root')
             self.out_fname = self.read_param(yd, 'stan.output.name','stan_out.root')
+            self.out_csv = self.read_param(yd, 'stan.output.csvname', None)
             self.out_option = self.read_param(yd, 'stan.output.option','RECREATE')
 
             self.out_tree = self.read_param(yd, 'stan.output.tree', None)
@@ -380,13 +392,15 @@ class morpho(object):
         except Exception as err:
             raise err
 
-def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='.',**kwargs):
+
+def stan_cache(model_code, function_files_location, model_name="temp_model", cache_dir='.',**kwargs):
     '''Cache a Stan model then run Stan
     Args:
         model_code: Path to the stan model
         function_files_location: Path to the function files
+        use_cmdstan: If True, CmdStan used to run model. If False, PyStan used.
         model_name: Name of the stan model
-        cashe_dir: Path to directory to store or access the stan model
+        cache_dir: Path to directory to store or access the stan model
         kwargs: Arguments that should be passed to the StanModel object
     Returns:
         (dict, stanfit): Returns the arguments for sampling (kwargs)
@@ -413,55 +427,68 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
                 continue
             if (key==matches):
                 StanFunctions = open(function_files_location+'/'+filename,'r+').read()
-                theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, theModel, flags=re.IGNORECASE)
+                theModel = re.sub(r'\s*include\s*=\s*'+matches+'\s*;*\n',StanFunctions, " \n"+theModel, flags=re.IGNORECASE)
                 found = True
                 logger.debug('Function file <{}> to import was found'.format(matches))
                 continue
         if found == False:
             logger.critical('A function <{}> to import is missing'.format(matches))
     logger.debug('Import function files: complete')
-
+    
     code_hash = md5(theModel.encode('ascii')).hexdigest()
     if model_name is None:
-        cache_fn = '{}/cached-model-{}.pkl'.format(cashe_dir, code_hash)
+        cache_fn = '{}/cached-model-{}.pkl'.format(cache_dir, code_hash)
     else:
-        cache_fn = '{}/cached-{}-{}.pkl'.format(cashe_dir, model_name, code_hash)
+        cache_fn = '{}/cached-{}-{}.pkl'.format(cache_dir, model_name, code_hash)
 
     cdir = os.path.dirname(cache_fn)
     if not os.path.exists(cdir):
         os.makedirs(cdir)
         logger.info("Creating 'cache' folder: {}".format(cdir))
 
-    if (args.force_restart):
-        logger.debug("Forced to create Stan cache!")
-        sm = pystan.StanModel(model_code=theModel)
-        if not args.no_cache:
-            logger.debug("Saving Stan cache in {}".format(cache_fn))
-            with open(cache_fn, 'wb') as f:
-                pickle.dump(sm, f)
+    if sa.use_cmdstan:
+        logger.info("Using CmdStan")
+        temp_name = model_name+".stan"
+        if not os.path.isfile(model_name+".hpp"):
+            temp_model = open(temp_name,"w")
+            temp_model.writelines(theModel)
+            temp_model.close()
+            #subprocess.call(["bin/stanc", temp_name, "--o=temp_model.hpp"])
+            subprocess.call(["make", model_name])
+            #os.remove(temp_name)
     else:
-        try:
-            logger.debug("Trying to load cached StanModel")
-            sm = pickle.load(open(cache_fn, 'rb'))
-        except:
-            logger.debug("None exists -> creating Stan cache")
+        if (args.force_restart):
+            logger.debug("Forced to create Stan cache!")
             sm = pystan.StanModel(model_code=theModel)
             if not args.no_cache:
                 logger.debug("Saving Stan cache in {}".format(cache_fn))
                 with open(cache_fn, 'wb') as f:
                     pickle.dump(sm, f)
         else:
-            logger.debug("Using cached StanModel: {}".format(cache_fn))
+            try:
+                logger.debug("Trying to load cached StanModel")
+                sm = pickle.load(open(cache_fn, 'rb'))
+            except:
+                logger.debug("None exists -> creating Stan cache")
+                sm = pystan.StanModel(model_code=theModel)
+                if not args.no_cache:
+                    logger.debug("Saving Stan cache in {}".format(cache_fn))
+                    with open(cache_fn, 'wb') as f:
+                        pickle.dump(sm, f)
+            else:
+                logger.debug("Using cached StanModel: {}".format(cache_fn))
 
-    if sa.out_cache_fn is not None:
-        logger.debug("Saving cache file to {}".format(sa.out_cache_fn))
-        cache_name_file = open(sa.out_cache_fn,'w+')
-        cache_name_file.write(cache_fn)
-
+        if sa.out_cache_fn is not None:
+            logger.debug("Saving cache file to {}".format(sa.out_cache_fn))
+            cache_name_file = open(sa.out_cache_fn,'w+')
+            cache_name_file.write(cache_fn)
+    
     logger.info("Starting the sampling")
     text = "Parameters: \n"
+    py_args = kwargs
     for key, value in kwargs.items():
-        if key != "data" and key != "init" :
+#        if key != "data" and key != "init" :
+        if key != "data":
             text = text + "{}\t{}\n".format(key,value)
         elif key == "data":
             text = text + "data\t[...]\n"
@@ -469,7 +496,30 @@ def stan_cache(model_code, function_files_location, model_name=None, cashe_dir='
             text = text + "init\t[...]\n"
     logger.info(text)
     # returns the arguments for sampling and the result of the sampling
-    return kwargs, sm.sampling(**kwargs)
+    if sa.use_cmdstan:
+        sampling_res=None
+        #Create appropriate flags
+        cmdstan_args = [model_name, "data", "file="+sa.rdata, "init="+sa.rinit, "random", "seed="+str(py_args["seed"]), "output", "file="+sa.out_csv, "sample", "num_samples="+str(py_args["iter"]-py_args["warmup"]), "num_warmup="+str(py_args["warmup"]), "algorithm=hmc", "engine="+py_args["algorithm"]]
+        if sa.chains > 1:
+            cmdstan_args.insert(6,'id=$i')
+            cmdstan_args[8] = "file="+sa.out_csv.replace(".csv", "$i.csv")
+        if "control" in py_args.keys():
+            if "max_depth" in py_args["control"]:
+                cmdstan_args.append("max_depth="+str(py_args["control"]["max_depth"]))
+            if "adapt_delta" in py_args["control"]:
+                #cmdstan_args.append("adapt delta = "+str(py_args["control"]["adapt_delta"]))
+                loc=10
+                cmdstan_args.insert(loc, "adapt delta="+str(py_args["control"]["adapt_delta"]))
+        print("ARGS STRING:", " ".join(cmdstan_args))
+        if sa.chains > 0:
+            args_string = " ".join(cmdstan_args)
+            chn = str(sa.chains)
+            subprocess.call("for i in {1.."+chn+"}; do "+args_string+"; done", shell=True)
+        #elif sa.chains == 1:
+        #    subprocess.call(" ".join(cmdstan_args))
+    else:
+        sampling_res = sm.sampling(**kwargs)
+    return kwargs, sampling_res
 
 def parse_args():
     '''Parse the command line arguments provided to morpho
@@ -831,23 +881,38 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
                     except ImportError:
                         pass
                     sa.data = pyL.stan_data_files(sa.datafiles)
-                    #Some hacks
-                    if 'Ndata' in sa.data:
-                        sa.iter = sa.data['Ndata']/sa.chains+sa.warmup
-                    if 'Q_init' in sa.data:
-                        sa.init[0]['Q'] = sa.data['Q_init']
-                    if 'sigma_init' in sa.data:
-                        sa.init[0]['sigma'] = sa.data['sigma_init']
-                    if 'A_b_init' in sa.data:
-                        sa.init[0]['A_b'] = sa.data['A_b_init']
+                    if sa.init_instructions != None:
+                        import importlib
+                        instr = importlib.import_module("morpho.preprocessing."+sa.init_instructions[0])        
+                        getattr(instr, sa.init_instructions[1])(sa) 
+                if sa.use_cmdstan:
+                    pystan.stan_rdump(sa.data, sa.rdata)
+                    pystan.stan_rdump(sa.init[0], sa.rinit)
+
                 input_param, result = stan_cache(**(sa.gen_arg_dict()))
-                try:
-                    from morpho.postprocessing import stan_utility as util
-                except ImportError:
-                    pass
-                checks = util.check_all_diagnostics(result)
-                logger.info('Result of the sampling: \n{}'.format(result))
-                logger.info('Diagnostic info: \n' + checks)
+
+                if sa.use_cmdstan:
+                    logger.info('Result of the sampling:')
+                    if sa.chains > 1:
+                        subprocess.call("bin/stansummary "+sa.out_csv.replace(".csv", "*.csv"), shell=True)
+                    else:
+                        subprocess.call(["bin/stansummary", sa.out_csv])
+                    logger.info('Diagnostic info:')
+                    if sa.chains > 1:
+                        subprocess.call("bin/diagnose "+sa.out_csv.replace(".csv", "*.csv"), shell=True)
+                    else:
+                        subprocess.call(["bin/diagnose", sa.out_csv])
+                else:
+                    try:
+                        from morpho.postprocessing import stan_utility as util
+                    except ImportError:
+                        logger.debug("stan_utility module for performing diagnostic checks not found.")
+                    if sa.algorithm=='Fixed_param':
+                        checks = util.check_minimal_diagnostics(result)
+                    else:
+                        checks = util.check_all_diagnostics(result)
+                    logger.info('Result of the sampling: \n{}'.format(result))
+                    logger.info('Diagnostic info: \n' + checks)
             except Exception as err:
                 logger.critical("Caught exception")
                 raise

@@ -155,10 +155,24 @@ def check_all_diagnostics(fit):
 
     Returns:
         list of str: Returns the strings indicating the results of the
-        checks for divergence, treee depth, energy Bayesian fraction
+        checks for divergence, tree depth, energy Bayesian fraction
         of missing energy, effective sample size, and Rhat
     """
     return(check_n_eff(fit) + '\n' + check_rhat(fit) + '\n' + check_div(fit)+ '\n' + check_treedepth(fit) + '\n' + check_energy(fit))
+
+
+def check_minimal_diagnostics(fit):
+    """Checks diagnostics for a Fixed_params algorithm run
+
+    Args:
+        fit: stanfit object containing sampler output
+
+    Returns:
+        list of str: Returns the strings indicating the results of the
+        checks for effective sample size and Rhat
+    """
+    return(check_n_eff(fit) + '\n' + check_rhat(fit) + '\n')
+
 
 def _by_chain(unpermuted_extraction):
     num_chains = len(unpermuted_extraction[0])

@@ -172,6 +172,8 @@ def stan_data_files(theData):
 
                     areal = array.array('d',[0.])
                     aint  = array.array('i',[0])
+                    #aarray = array.array('d', [0.]*nEvents)
+                    #aarrayi = array.array('i', [0]*nEvents)
 
                     for lbr in key['branches']:
                         branch = atree.GetBranch(lbr['name']) or atree.GetBranch(lbr['name']+".")
@@ -204,6 +206,28 @@ def stan_data_files(theData):
                                 if (adataformat=='float'):
                                     areal[0] = getattr(atree, lbr['name'])
                                     insertIntoDataStruct(aname,areal[0], alist)
+                                elif (adataformat=='list'):
+                                    entry = getattr(atree, lbr['name'])[iEntry]
+                                    if type(entry)==int:
+                                        if aname=='N':
+                                            res = np.ndarray((lbr['len']), 'i', atree.N)
+                                    else:
+                                        if aname=='KE':
+                                            try:
+                                                res = np.ndarray((lbr['len']), 'd', atree.KE)
+                                            except:
+                                                #For when the length of the array is not known: input some value that is > the array length
+                                                for i in range(lbr['len'], 0, -1):
+                                                    try:
+                                                        res = np.ndarray(i, 'd', atree.KE)
+                                                        insertIntoDataStruct('N_data', i, alist)
+                                                        break
+                                                    except:
+                                                        pass
+                                        elif aname=='KEwidth':
+                                            res = np.ndarray((lbr['len']), 'd', atree.KEwidth)
+                                    insertIntoDataStruct(aname, res.tolist(), alist)
+
 
                                 else:
                                     aint[0] = int(getattr(atree, lbr['name']))
@@ -314,7 +338,7 @@ def extract_data_from_outputdata(conf,theOutput):
 
     diagnosticVariableName = ['accept_stat__','stepsize__','n_leapfrog__','treedepth__','divergent__','energy__']
 
-    # if include warmupm we have to extract the entire data and parse it to get the
+    # if include warmup we have to extract the entire data and parse it to get the
     if conf.out_inc_warmup:
         theOutputData = theOutput.extract(permuted=False,inc_warmup=conf.out_inc_warmup)
         logger.debug("Transformation into a dict")
@@ -363,7 +387,7 @@ def extract_data_from_outputdata(conf,theOutput):
         if "lp__" not in desired_data:
             desired_data.append("lp__")
         theOutputData = theOutput.extract(pars=desired_data,permuted=True)
-        logger.debug('Adding missing field')
+        logger.debug('Adding missing fields')
         desired_data.append("is_sample")
         desired_data.append("delta_energy__")
 
@@ -632,7 +656,11 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
 
     # Extract the data into a dictionary
     # when permuted is False, the entire thing is returned (key['variable'] is ignored)
-    theOutputDataDict = extract_data_from_outputdata(conf,theOutput)
+    if conf.use_cmdstan:
+        from morpho.loader import cmdstanLoad as cmL
+        theOutputDataDict = cmL._extract_data_from_csv(conf, theOutput)
+    else:
+        theOutputDataDict = extract_data_from_outputdata(conf,theOutput)
 
     logger.debug("Filling tree")
     # Create branches for any variable of interest
@@ -656,7 +684,13 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
     atree.Branch("is_sample", thevariable_is_sample, "thevariable_is_sample/I")
 
     # add the data to the tree
-    nEvents = len(theOutputDataDict['lp_prob'])
+    try:
+        nEvents = len(theOutputDataDict['lp_prob'])
+    except:
+        try:
+            nEvents = len(theOutputDataDict['lp__'])
+        except:
+            logger.debug("No log probability parameter found in output.")
     nSample = 0
     nWarmup = 0
     for iEvent in range(0,nEvents):
@@ -672,7 +706,10 @@ def stan_write_root(conf, theFileName, theOutput, input_param):
                     stanVariable = "{}[{}]".format(key['variable'],iNum)
                     theValue = theOutputDataDict[stanVariable][iEvent]
                     exec(theHack("theVariable_{}[{}] = theValue",str(key['root_alias']),iNum))
-        thevariable_is_sample[0] = int(theOutputDataDict['is_sample'][iEvent])
+        try:
+            thevariable_is_sample[0] = int(theOutputDataDict['is_sample'][iEvent])
+        except:
+            pass
 
         atree.Fill()
 

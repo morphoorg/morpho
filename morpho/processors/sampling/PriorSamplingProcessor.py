@@ -30,15 +30,15 @@ class PriorSamplingProcessor(BaseProcessor):
     Results:
         sampled_inputs: dictionary containing values sampled from priors as designated in the priors dict, as well as the keys/values in the fixed_inputs dict
     '''
-    def InternalConfigure(self,priors):
-        self.priors = reader.read_param(priors,'priors',{})
-        self.fixed_inputs = reader.read_param(fixed_inputs,'fixed_inputs',{})
+    def InternalConfigure(self,params):
+        self.priors = reader.read_param(params,'priors',{})
+        self.fixed_inputs = reader.read_param(params,'fixed_inputs',{})
         return True
     
-    def _sample_inputs():
-        logger.info("Sampling values from priors")
+    def _sample_inputs(self):
         sampled_inputs = self.fixed_inputs
         
+        logger.info("Sampling values from priors")
         for sample_dict in self.priors:
             name = sample_dict['name']
             dist_error = 'Sampling for {} distribution is not yet implemented'.format(sample_dict['prior_dist'])
@@ -56,7 +56,7 @@ class PriorSamplingProcessor(BaseProcessor):
             
         return sampled_inputs
 
-    def _draw_random_sample(sample_dict, dist_error):
+    def _draw_random_sample(self, sample_dict, dist_error):
         np.random.seed()
         p, vals = sample_dict['prior_dist'], sample_dict['prior_params']
         if p == 'normal':
@@ -79,7 +79,6 @@ class PriorSamplingProcessor(BaseProcessor):
 
     def InternalRun(self):
         sampled_inputs = self._sample_inputs()
-        if sampled_inputs == self.fixed_inputs:
-            logger.debug("No inputs were sampled from priors")
-        return sampled_inputs
+        self.results = sampled_inputs
+        return True
 

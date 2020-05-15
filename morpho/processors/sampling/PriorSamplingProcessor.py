@@ -33,15 +33,22 @@ class PriorSamplingProcessor(BaseProcessor):
     def InternalConfigure(self,params):
         self.priors = reader.read_param(params,'priors',{})
         self.fixed_inputs = reader.read_param(params,'fixed_inputs',{})
+        self.verbose = reader.read_param(params,'verbose',True)
+        np.random.seed()
         return True
     
     def _sample_inputs(self):
         sampled_inputs = self.fixed_inputs
-        
         logger.info("Sampling values from priors")
+        
         for sample_dict in self.priors:
+            dist_error = 'Sampling for {} distribution is not implemented'.format(sample_dict['prior_dist'])
+            
+            #Checking that the parameter value is still un-determined
             name = sample_dict['name']
-            dist_error = 'Sampling for {} distribution is not yet implemented'.format(sample_dict['prior_dist'])
+            if name in sampled_inputs.keys():
+                logger.debug('{} is already in sampled_inputs, so a new value will not be sampled'.format(name))
+                continue
             
             #One can use the name of a fixed input to define a prior parameter
             for i in range(len(sample_dict['prior_params'])):
@@ -52,33 +59,25 @@ class PriorSamplingProcessor(BaseProcessor):
             #Performing the sampling
             rand = self._draw_random_sample(sample_dict, dist_error)
             sampled_inputs[name] = rand
-            logger.info('Sampled value of {}: {}'.format(name, rand))
+            if self.verbose:
+                logger.info('Sampled value of {}: {}'.format(name, rand))
             
         return sampled_inputs
 
     def _draw_random_sample(self, sample_dict, dist_error):
-        np.random.seed()
         p, vals = sample_dict['prior_dist'], sample_dict['prior_params']
-        if p == 'normal':
-            randarray = np.random.normal(vals[0], vals[1], 1)
-            rand = randarray[0]
-        elif p == 'lognormal':
-            rand = np.random.lognormal(vals[0], vals[1], 1)[0]
-        elif p == 'beta':
-            rand = np.random.beta(vals[0], vals[1], 1)[0]
-        elif p == 'gamma':
-            rand = np.random.gamma(vals[0], vals[1], 1)[0]
-        elif p == 'randint':
-            rand = np.random.randint(vals[0], high=vals[1]+1)
-        elif p == 'loguniform':
-            rand = np.power(10, np.random.uniform(vals[0], vals[1], 1))[0]
-        else:
+        try:
+            if p == 'loguniform':
+                rand = np.power(10, np.random.uniform(vals[0], vals[1], 1))[0]
+            else:
+                func = getattr(np.random, p)
+                rand = func(*vals, 1)[0]
+        except AttributeError:
+            rand = None
             logger.debug(dist_error)
-            return None
         return rand
 
     def InternalRun(self):
-        sampled_inputs = self._sample_inputs()
-        self.results = sampled_inputs
+        self.results = self._sample_inputs()
         return True
 

@@ -4,6 +4,19 @@ Validation Log
 Log
 ---
 
+Version: v2.6.0
+~~~~~~~~~~~~~~~
+
+Release Date: May 26th 2020
+''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* PriorSamplingProcessor:
+   * Processor for sampling inputs to a data generator from priors
+   
+
 Version: v2.5.0
 ~~~~~~~~~~~~~~~
 

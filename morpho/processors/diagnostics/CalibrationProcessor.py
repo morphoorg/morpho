@@ -142,7 +142,7 @@ class CalibrationProcessor(BaseProcessor):
             "filename": filename,
             "variables": self.post_param_names
         }
-        rin, rpost = IOROOTProcessor("ReaderROOT"), IOROOTProcessor("ReaderROOT")
+        rin, rpost = IOROOTProcessor("reader"), IOROOTProcessor("reader2")
         rin.Configure(in_reader_config)
         rpost.Configure(post_reader_config)
         try:

@@ -57,8 +57,7 @@ class IOROOTProcessor(IOProcessor):
             for data in tree.iterate(self.variables):
                 for key, value in data.items():
                     varName = key.decode("utf-8")
-                    self.data.update(
-                        {str(varName): self.data[str(varName)] + value.tolist()})
+                    self.data.update({str(varName): self.data[str(varName)] + value.tolist()})
         except:
             try:
                 import ROOT
@@ -73,6 +72,7 @@ class IOROOTProcessor(IOProcessor):
                     value = [value]
                 self.data.update(
                     {str(varName): self.data[str(varName)] + value})
+        
         return True
 
     def Writer(self):

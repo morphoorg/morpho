@@ -10,3 +10,4 @@ from .PyStanSamplingProcessor import PyStanSamplingProcessor
 from .RooFitInterfaceProcessor import RooFitInterfaceProcessor
 from .PyBindRooFitProcessor import PyBindRooFitProcessor
 from .LinearFitRooFitProcessor import LinearFitRooFitProcessor
+from .PriorSamplingProcessor import PriorSamplingProcessor

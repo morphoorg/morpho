@@ -59,6 +59,7 @@ class IOROOTProcessor(IOProcessor):
                     varName = key.decode("utf-8")
                     self.data.update({str(varName): self.data[str(varName)] + value.tolist()})
         except:
+            logger.info("An uproot related error was encountered. Switching to ROOT.")
             try:
                 import ROOT
             except ImportError:

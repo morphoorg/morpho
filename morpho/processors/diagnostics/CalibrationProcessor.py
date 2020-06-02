@@ -80,7 +80,12 @@ class CalibrationProcessor(BaseProcessor):
         
         for i in range(len(self.files)):
             #Reading input values and posteriors from root files
-            input_vals, posterior_arrays = self._load_inputs_and_posteriors(self.files[i])
+            try:
+                input_vals, posterior_arrays = self._load_inputs_and_posteriors(self.files[i])
+            except AttributeError as error:
+                logger.warning(error)
+                self.failed_runs.append(filename)
+                pass
             
             #Constructing credible intervals
             if self.verbose:
@@ -145,14 +150,10 @@ class CalibrationProcessor(BaseProcessor):
         rin, rpost = IOROOTProcessor("reader"), IOROOTProcessor("reader2")
         rin.Configure(in_reader_config)
         rpost.Configure(post_reader_config)
-        try:
-            rin.Run()
-            rpost.Run()
-            input_vals = {key:val[0] for key, val in rin.data.items()}
-            posterior_arrays = rpost.data
-        except:
-            self.failed_runs.append(filename)
-            pass
+        rin.Run()
+        rpost.Run()
+        input_vals = {key:val[0] for key, val in rin.data.items()}
+        posterior_arrays = rpost.data
         return input_vals, posterior_arrays
 
 

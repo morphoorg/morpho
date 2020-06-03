@@ -61,6 +61,11 @@ class CalibrationProcessor(BaseProcessor):
             if not exists(file):
                 logger.warning("File {} doesn't exist".format(file))
         return True
+
+        #Checking if the credible interval list defines limit or interval
+        if len(self.cred_interval) not in [1, 2]:
+            logger.error("Please input a credible interval list of either one or two bounds.")
+            return False
     
     
     def perform_calibration(self):
@@ -71,9 +76,6 @@ class CalibrationProcessor(BaseProcessor):
             alpha = self.cred_interval[0]
         elif len(self.cred_interval)==2:
             alpha = self.cred_interval[1]-self.cred_interval[0]
-        else:
-            logger.error("Input a credible interval list with one or two elements.")
-            return
         
         #Setting up variables before loop
         calib_bounds = {name:[] for name in self.in_param_names}
@@ -255,8 +257,7 @@ class CalibrationProcessor(BaseProcessor):
                 sums[param_name]['lower'] += b[0]
                 sums[param_name]['upper'] += b[1]
                 logger.debug("{} < {} < {}, Median={}, Mean={}. Input value: {}. Window: {}".format(b[0], param_name, b[1], median, mean, input_vals[param_name], b[1]-b[0]))
-            else:
-                logger.info("Please input a list of either one or two bounds.")
+
 
     def _report_calibration_results(self, calib_bounds, consistent_with_zero, coverages, sums):
         """

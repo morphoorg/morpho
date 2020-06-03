@@ -89,10 +89,10 @@ class CalibrationProcessor(BaseProcessor):
             except AttributeError as error:
                 logger.warning(error)
                 self.failed_runs.append(filename)
-                pass
+                continue
             except RuntimeError as error:
                 logger.warning("Caught processor error; passing...")
-                pass
+                continue
             
             #Constructing credible intervals
             logger.debug("Constructing credible intervals")

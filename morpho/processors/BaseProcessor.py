@@ -34,7 +34,6 @@ class BaseProcessor():
     '''
 
     def __init__(self, name, *args, **kwargs):
-        logger.setLevel(logging.getLogger("morpho").level)
         self._procName = name
         logger.debug("Creating processor <{}>".format(self._procName))
 

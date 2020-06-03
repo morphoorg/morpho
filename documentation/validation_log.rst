@@ -4,6 +4,19 @@ Validation Log
 Log
 ---
 
+Version: v2.7.0
+~~~~~~~~~~~~~~~
+
+Release Date: June 3rd 2020
+''''''''''''''''''''''''''''''
+
+New Features:
+'''''''''''''
+
+* CalibrationProcessor:
+   * Processor performing Bayesian sensitivity calibration for continuous parameters
+   
+
 Version: v2.6.0
 ~~~~~~~~~~~~~~~
 

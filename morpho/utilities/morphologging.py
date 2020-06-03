@@ -21,12 +21,11 @@ import logging
 import colorlog
 
 loglevels = {
-    0: logging.WARNING,
-    1: logging.INFO,
-    2: logging.DEBUG
+    0: logging.INFO,
+    1: logging.DEBUG
     }
 loglevels.update({
-    i: logging.DEBUG for i in range(3, 30)
+    i: logging.DEBUG for i in range(2, 30)
 })
 
 errloglevels = {

@@ -11,3 +11,6 @@ cd sampling && python sampling_test.py -vv && cd ..
 
 echo "Prior sampling testing"
 cd sampling && python prior_sampling_test.py -vv && cd ..
+
+echo "Diagnostics testing"
+cd diagnostics && python diagnostics_test.py -vv && cd ..

@@ -10,6 +10,7 @@ from __future__ import absolute_import
 
 import numpy as np
 import math
+from os.path import exists
 
 from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
@@ -33,7 +34,6 @@ class CalibrationProcessor(BaseProcessor):
         root_in_tree: Tree containing data generation input values in each file. Defaults to "input".
         root_post_tree: Tree containing analysis posteriors. Defaults to "analysis".
         post_param_names: List of strings naming posteriors produced by Stan analysis for a parameters of interest. Defaults to self.in_param_names.
-        verbose: If True, print information for each pseudo-experiment and a summary at the end. If False, only print the summary.
         quantile: If True, compute quantile credible intervals. Otherwise, compute highest density intervals.
         check_if_nonzero: If True, check whether posteriors allow the parameters to be distinguished from zero (given some credible interval).
         
@@ -50,12 +50,16 @@ class CalibrationProcessor(BaseProcessor):
         self.root_in_tree = reader.read_param(params,'root_in_tree','input')
         self.root_post_tree = reader.read_param(params,'root_post_tree','analysis')
         self.post_param_names = reader.read_param(params,'post_param_names',self.in_param_names)
-        self.verbose = reader.read_param(params,'verbose',True)
         self.quantile = reader.read_param(params,'quantile',False)
         self.check_if_nonzero = reader.read_param(params,'check_if_nonzero',False)
         
         #Other
         self.failed_runs = []
+
+        # Checking the existence of files (non blocking if missing file)
+        for file in self.files:
+            if not exists(file):
+                logger.warning("File {} doesn't exist".format(file))
         return True
     
     
@@ -78,18 +82,20 @@ class CalibrationProcessor(BaseProcessor):
         #Dictionary to keep track of sums of quantities, so that averages can be taken after the loop
         sums = {name:dict.fromkeys(['median', 'mean', 'lower', 'upper'],0) for name in self.in_param_names}
         
-        for i in range(len(self.files)):
+        for i, filename in enumerate(self.files): 
             #Reading input values and posteriors from root files
             try:
-                input_vals, posterior_arrays = self._load_inputs_and_posteriors(self.files[i])
+                input_vals, posterior_arrays = self._load_inputs_and_posteriors(filename)
             except AttributeError as error:
                 logger.warning(error)
                 self.failed_runs.append(filename)
                 pass
+            except RuntimeError as error:
+                logger.warning("Caught processor error; passing...")
+                pass
             
             #Constructing credible intervals
-            if self.verbose:
-                logger.info("Constructing credible intervals")
+            logger.debug("Constructing credible intervals")
             if self.quantile == True:
                 for param_name in calib_bounds:
                     calib_bounds[param_name].append(self._get_quantile_bounds(posterior_arrays[param_name]))
@@ -103,11 +109,9 @@ class CalibrationProcessor(BaseProcessor):
             
             #Tracking and optionally printing information about the intervals
             bs={key:val[i] for key, val in calib_bounds.items()}
-            if self.verbose==True:
-                logger.info('\n---------------------EXPERIMENT #{}:---------------------'.format(i))
+            logger.debug('\n---------------------EXPERIMENT #{}:---------------------'.format(i))
             self._report_post_param_info(input_vals, posterior_arrays, bs, sums)
-            if self.verbose==True:
-                logger.info('\n--------------------------------------------------------')
+            logger.debug('\n--------------------------------------------------------')
                 
             #Determining whether intervals contain inputted values
             for param_name in calib_bounds:
@@ -133,8 +137,7 @@ class CalibrationProcessor(BaseProcessor):
         """
         For a given root file, returns two dictionaries, one containing inputted values and the other containing posterior arrays.
         """
-        if self.verbose:
-            logger.info("Reading input values and posterior arrays")
+        logger.debug("Reading input values and posterior arrays")
         in_reader_config = {
             "action": "read",
             "tree_name": self.root_in_tree,
@@ -148,10 +151,18 @@ class CalibrationProcessor(BaseProcessor):
             "variables": self.post_param_names
         }
         rin, rpost = IOROOTProcessor("reader"), IOROOTProcessor("reader2")
-        rin.Configure(in_reader_config)
-        rpost.Configure(post_reader_config)
-        rin.Run()
-        rpost.Run()
+        if not rin.Configure(in_reader_config):
+            logger.warning("Failed to Configure <{}> processor".format(rin.name))
+            raise RuntimeError
+        if not rpost.Configure(post_reader_config):
+            logger.warning("Failed to Configure <{}> processor".format(rpost.name))
+            raise RuntimeError
+        if not rin.Run():
+            logger.warning("Failed to Run <{}> processor".format(rin.name))
+            raise RuntimeError
+        if not rpost.Run():
+            logger.warning("Failed to run <{}> processor".format(rpost.name))
+            raise RuntimeError
         input_vals = {key:val[0] for key, val in rin.data.items()}
         posterior_arrays = rpost.data
         return input_vals, posterior_arrays
@@ -239,13 +250,11 @@ class CalibrationProcessor(BaseProcessor):
             sums[param_name]['mean'] += mean
 
             if len(self.cred_interval) == 1:
-                if self.verbose==True:
-                    logger.info("{} < {}. Input: {}".format(param_name, b[0], input_vals[param_name]))
+                logger.debug("{} < {}. Input: {}".format(param_name, b[0], input_vals[param_name]))
             elif len(self.cred_interval) == 2:
                 sums[param_name]['lower'] += b[0]
                 sums[param_name]['upper'] += b[1]
-                if self.verbose==True:
-                    logger.info("{} < {} < {}, Median={}, Mean={}. Input value: {}. Window: {}".format(b[0], param_name, b[1], median, mean, input_vals[param_name], b[1]-b[0]))
+                logger.debug("{} < {} < {}, Median={}, Mean={}. Input value: {}. Window: {}".format(b[0], param_name, b[1], median, mean, input_vals[param_name], b[1]-b[0]))
             else:
                 logger.info("Please input a list of either one or two bounds.")
 

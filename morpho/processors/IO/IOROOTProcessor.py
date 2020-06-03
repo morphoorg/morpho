@@ -59,10 +59,11 @@ class IOROOTProcessor(IOProcessor):
                     varName = key.decode("utf-8")
                     self.data.update({str(varName): self.data[str(varName)] + value.tolist()})
         except:
-            logger.info("An uproot related error was encountered. Switching to ROOT.")
+            logger.warning("An uproot related error was encountered. Switching to ROOT.")
             try:
                 import ROOT
             except ImportError:
+                logger.warning("Failed importing ROOT")
                 pass
             infile = ROOT.TFile(self.file_name,"READ")
             tree = infile.Get(self.tree_name)

@@ -4,6 +4,18 @@ Validation Log
 Log
 ---
 
+Version: v2.7.1
+~~~~~~~~~~~~~~~
+
+Release Date: June 3rd 2020
+''''''''''''''''''''''''''''''
+
+Hotfixes:
+'''''''''
+
+* Minor fixes on CalibrationProcessor
+* Default logging level changed from warning to info
+
 Version: v2.7.0
 ~~~~~~~~~~~~~~~
 
@@ -15,7 +27,7 @@ New Features:
 
 * CalibrationProcessor:
    * Processor performing Bayesian sensitivity calibration for continuous parameters
-   
+* Improved logger system: verbosity level can be read from analysis scripts   
 
 Version: v2.6.0
 ~~~~~~~~~~~~~~~

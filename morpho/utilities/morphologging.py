@@ -58,7 +58,7 @@ def getLogger(name, stderr_lb=1,
     loglevel=loglevels.get(level, logging.WARNING)
     errlevel=errloglevels.get(stderr_lb, logging.ERROR)
 
-    logger=logging.getLogger(name)
+    logger=logging.getLogger("morpho")
     logger.setLevel(loglevel)
     logger.propagate=propagate
 
@@ -74,7 +74,7 @@ def getLogger(name, stderr_lb=1,
             # non-zero return means we log this message
             return 1 if record.levelno < self.max_level else 0
 
-    base_format='%(asctime)s{}[%(levelname)-8s] %(name)s(%(lineno)d) -> {}%(message)s'
+    base_format='%(asctime)s{}[%(levelname)-8s] %(module)s(%(lineno)d) -> {}%(message)s'
     morpho_formatter=colorlog.ColoredFormatter(
         base_format.format('%(log_color)s', '%(purple)s'),
         datefmt='%Y-%m-%dT%H:%M:%SZ'[:-1],

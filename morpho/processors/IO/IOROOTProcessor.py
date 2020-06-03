@@ -52,12 +52,29 @@ class IOROOTProcessor(IOProcessor):
         import uproot
         for key in self.variables:
             self.data.update({str(key): []})
-        tree = uproot.open(self.file_name)[self.tree_name]
-        for data in tree.iterate(self.variables):
-            for key, value in data.items():
-                varName = key.decode("utf-8")
+        try:
+            tree = uproot.open(self.file_name)[self.tree_name]
+            for data in tree.iterate(self.variables):
+                for key, value in data.items():
+                    varName = key.decode("utf-8")
+                    self.data.update({str(varName): self.data[str(varName)] + value.tolist()})
+        except:
+            logger.warning("An uproot related error was encountered. Switching to ROOT.")
+            try:
+                import ROOT
+            except ImportError:
+                logger.warning("Failed importing ROOT")
+                pass
+            infile = ROOT.TFile(self.file_name,"READ")
+            tree = infile.Get(self.tree_name)
+            tree.GetEntry(0)
+            for varName in self.variables:
+                value = getattr(tree, varName)
+                if type(value)==int or type(value)==float:
+                    value = [value]
                 self.data.update(
-                    {str(varName): self.data[str(varName)] + value.tolist()})
+                    {str(varName): self.data[str(varName)] + value})
+        
         return True
 
     def Writer(self):

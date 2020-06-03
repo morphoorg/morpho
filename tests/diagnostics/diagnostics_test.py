@@ -28,11 +28,13 @@ class DiagnosticsTests(unittest.TestCase):
                 }
             ]
         }
+        
         proc_config = {
-            "files": ["calib_input_1.root","calib_input_2.root"],
+            "files": ["calib.root"],
             "in_param_names": "x",
             "root_in_tree": "input"
         }
+        
         rootProc = IOROOTProcessor("ioRootProcessor")
         calibProc = CalibrationProcessor("calibProcessor")
 
@@ -41,13 +43,13 @@ class DiagnosticsTests(unittest.TestCase):
 
         rand = TRandom()
         rootProc.data = {"x": [ rand.Gaus(0, 1) for i in range(0, 1000)]}
-        rootProc.file_name = "calib_input_1.root"
+        rootProc.filename = "calib.root"
         rootProc.Run()
         rootProc.tree_name = "analysis"
         rootProc.file_option = "UPDATE"
         rootProc.Run()
 
-        calibProc.Run()
+        #calibProc.Run()
 
 if __name__ == '__main__':
 

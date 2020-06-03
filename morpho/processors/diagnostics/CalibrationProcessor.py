@@ -219,6 +219,7 @@ class CalibrationProcessor(BaseProcessor):
         #Width of every proposed interval
         best_width = max(posterior_array)
         
+        best_index = 0
         for i in range(nCI):
             if i == 0:
                 width = posterior_array[i+nSampleCred-1] - posterior_array[i]

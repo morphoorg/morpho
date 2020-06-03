@@ -11,10 +11,10 @@ from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 
 
-def parse_args():
+def parse_args(req_config_file=True):
     '''Parse the command line arguments provided to morpho
     Args:
-        None
+        req_config_file: requires a configuration file used for morpho exe (default: True)
     Returns:
         namespace: Namespace containing the arguments
     '''
@@ -24,7 +24,7 @@ def parse_args():
     p.add_argument('-c', '--config',
                    metavar='<configuration file>',
                    help='Full path to the configuration file used by morpho',
-                   required=True)
+                   required=req_config_file)
     # p.add_argument('--job_id',
     #                metavar='<job_id>',
     #                help='Job id number or string for batching',
@@ -41,16 +41,22 @@ def parse_args():
     p.add_argument('param', nargs='*',
                    default=False,
                    help='Manualy change of a parameter and its value')
-    p.add_argument('-v', '--verbosity', default='DEBUG',
-                   metavar='<verbosity>',
-                   help="Specify verbosity of the logger, with options DEBUG, INFO, WARNING, ERROR, or CRITICAL (Default: DEBUG)",
-                   choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                   required=False)
-    p.add_argument('-sev', '--stderr-verbosity', default='WARNING',
-                   metavar='<stderr_verbosity>',
-                   help="Messages with level greater than or equal to the given verbosity will be redirected to stderr (Default: WARNING)",
-                   choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                   required=False)
+    p.add_argument('-v', '--verbosity',
+                   action='count',
+                   help="Increase logger verbosity (Default: 2 -> WARNING )")
+    p.add_argument('-e', '--stderr-verbosity',
+                   action='count',
+                   help="Increase desired level of messages redirected to stderr (Default: 2 -> WARNING )")
+    # p.add_argument('--verbosity', default='DEBUG',
+    #                metavar='<verbosity>',
+    #                help="Specify verbosity of the logger, with options DEBUG, INFO, WARNING, ERROR, or CRITICAL (Default: DEBUG)",
+    #                choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+    #                required=False)
+    # p.add_argument('-sev', '--stderr-verbosity', default='WARNING',
+    #                metavar='<stderr_verbosity>',
+    #                help="Messages with level greater than or equal to the given verbosity will be redirected to stderr (Default: WARNING)",
+    #                choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+    #                required=False)
     return p.parse_args()
 
 

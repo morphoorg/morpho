@@ -20,9 +20,28 @@ except NameError:
 import logging
 import colorlog
 
+loglevels = {
+    0: logging.WARNING,
+    1: logging.INFO,
+    2: logging.DEBUG
+    }
+loglevels.update({
+    i: logging.DEBUG for i in range(3, 30)
+})
 
-def getLogger(name, stderr_lb=logging.ERROR,
-              level=logging.DEBUG, propagate=False):
+errloglevels = {
+        0: logging.ERROR,
+        1: logging.WARNING,
+        2: logging.INFO,
+        3: logging.DEBUG
+    }
+loglevels.update({
+    i: logging.DEBUG for i in range(4, 30)
+})
+
+
+def getLogger(name, stderr_lb=1,
+              level=2, propagate=False):
     """Return a logger object with the given settings that prints
     messages greater than or equal to a given level to stderr instead of stdout
     name: Name of the logger. Loggers are conceptually arranged
@@ -36,9 +55,12 @@ def getLogger(name, stderr_lb=logging.ERROR,
     propagate: Whether messages to this logger should be passed to
                the handlers of its ancestor"""
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.propagate = propagate
+    loglevel=loglevels.get(level, logging.WARNING)
+    errlevel=errloglevels.get(stderr_lb, logging.ERROR)
+
+    logger=logging.getLogger("morpho")
+    logger.setLevel(loglevel)
+    logger.propagate=propagate
 
     class LessThanFilter(logging.Filter):
         """Filter to get messages less than a given level
@@ -46,28 +68,28 @@ def getLogger(name, stderr_lb=logging.ERROR,
 
         def __init__(self, exclusive_maximum, name=""):
             super(LessThanFilter, self).__init__(name)
-            self.max_level = exclusive_maximum
+            self.max_level=exclusive_maximum
 
         def filter(self, record):
             # non-zero return means we log this message
             return 1 if record.levelno < self.max_level else 0
 
-    base_format = '%(asctime)s{}[%(levelname)-8s] %(name)s(%(lineno)d) -> {}%(message)s'
-    morpho_formatter = colorlog.ColoredFormatter(
+    base_format='%(asctime)s{}[%(levelname)-8s] %(module)s(%(lineno)d) -> {}%(message)s'
+    morpho_formatter=colorlog.ColoredFormatter(
         base_format.format('%(log_color)s', '%(purple)s'),
         datefmt='%Y-%m-%dT%H:%M:%SZ'[:-1],
         reset=True,
     )
 
-    logger.handlers = []
-    handler_stdout = logging.StreamHandler(sys.stdout)
+    logger.handlers=[]
+    handler_stdout=logging.StreamHandler(sys.stdout)
     handler_stdout.setFormatter(morpho_formatter)
     handler_stdout.setLevel(logging.DEBUG)
-    handler_stdout.addFilter(LessThanFilter(stderr_lb))
+    handler_stdout.addFilter(LessThanFilter(errlevel))
     logger.addHandler(handler_stdout)
-    handler_stderr = logging.StreamHandler(sys.stderr)
+    handler_stderr=logging.StreamHandler(sys.stderr)
     handler_stderr.setFormatter(morpho_formatter)
-    handler_stderr.setLevel(stderr_lb)
+    handler_stderr.setLevel(errlevel)
     logger.addHandler(handler_stderr)
     # Create morpho and pystan loggers
     # Will be reinstantiated after parsing command line args if __main__ is run

@@ -6,7 +6,7 @@ Date: Feb 27 2018
 
 import unittest
 
-from morpho.utilities import morphologging
+from morpho.utilities import morphologging, parser
 logger = morphologging.getLogger(__name__)
 
 
@@ -173,4 +173,13 @@ class IOTests(unittest.TestCase):
             self.assertEqual(len(data[key]), 6)
 
 if __name__ == '__main__':
+    args = parser.parse_args(False)
+    logger = morphologging.getLogger('morpho',
+                                     level=args.verbosity,
+                                     stderr_lb=args.stderr_verbosity,
+                                     propagate=False)
+    logger = morphologging.getLogger(__name__,
+                                     level=args.verbosity,
+                                     stderr_lb=args.stderr_verbosity,
+                                     propagate=False)
     unittest.main()

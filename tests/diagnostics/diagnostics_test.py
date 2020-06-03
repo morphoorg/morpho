@@ -49,7 +49,7 @@ class DiagnosticsTests(unittest.TestCase):
         rootProc.file_option = "UPDATE"
         rootProc.Run()
 
-        #calibProc.Run()
+        calibProc.Run()
 
 if __name__ == '__main__':
 

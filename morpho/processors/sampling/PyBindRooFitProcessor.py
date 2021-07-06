@@ -7,10 +7,8 @@ Authors: M. Guigue
 Date: 06/26/18
 '''
 
-try:
-    import ROOT
-except ImportError:
-    pass
+import ROOT
+
 value = ROOT.gSystem.Load("libRooFit")
 if value < 0:
     print("Failed loading", value)
@@ -18,8 +16,17 @@ if value < 0:
 
 logger = morphologging.getLogger(__name__)
 
+# Dynamic inheritance of PyFunctionObject
+# Prior to ROOT v6.22, TPyMultiGenFunction was used to wrap ROOT::Math::IMultiGenFunction.
+# As of ROOT v6.22, TPyMultiGenFunction no longer exists, and cppyy is used to automatically create a wrapper around IMultiGenFunction.
+try:
+    from ROOT import TPyMultiGenFunction
+except:
+    parent = ROOT.TPyMultiGenFunction
+else:
+    parent = ROOT.Math.IMultiGenFunction
 
-class PyFunctionObject(ROOT.TPyMultiGenFunction):
+class PyFunctionObject(parent):
     def __init__(self, pythonFunction, dimension=2):
         logger.info("Created PyFunctionObject")
         ROOT.TPyMultiGenFunction.__init__(self, self)

@@ -22,14 +22,14 @@ logger = morphologging.getLogger(__name__)
 try:
     from ROOT import TPyMultiGenFunction
 except:
-    parent = ROOT.TPyMultiGenFunction
-else:
     parent = ROOT.Math.IMultiGenFunction
+else:
+    parent = ROOT.TPyMultiGenFunction
 
 class PyFunctionObject(parent):
     def __init__(self, pythonFunction, dimension=2):
         logger.info("Created PyFunctionObject")
-        ROOT.TPyMultiGenFunction.__init__(self, self)
+        parent.__init__(self, self)
         self.pythonFunction = pythonFunction
         self.dimension = dimension
 

@@ -46,7 +46,7 @@ setup(
     install_requires=requirements,
     extras_require=extras_require,
     url='http://www.github.com/project8/morpho',
-    author="J. Formaggio, J. Johnston, T. Weiss (MIT), M. Guigue, B. LaRoque, N. Oblath (PNNL)",
-    maintainer="M. Guigue (PNNL)",
-    maintainer_email="mathieu.guigue@pnnl.gov"
+    author="J. Formaggio, J. Johnston (MIT), T. Weiss (Yale), M. Guigue (Sorbonne), B. LaRoque, N. Oblath (PNNL)",
+    maintainer="M. Guigue",
+    maintainer_email="mguigue@lpnhe.in2p3.fr"
 )

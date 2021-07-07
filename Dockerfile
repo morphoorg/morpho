@@ -1,4 +1,4 @@
-FROM project8/p8compute_dependencies:v0.9.0 as morpho_common
+FROM project8/p8compute_dependencies:v1.0.0 as morpho_common
 
 ENV MORPHO_TAG=v2.7.1
 ENV MORPHO_BUILD_PREFIX=/usr/local/p8/morpho/$MORPHO_TAG
@@ -12,7 +12,7 @@ RUN mkdir -p $MORPHO_BUILD_PREFIX &&\
     echo 'ln -sfT $MORPHO_BUILD_PREFIX $MORPHO_BUILD_PREFIX/../current' >> setup.sh &&\
     echo 'export PATH=$MORPHO_BUILD_PREFIX/bin:$PATH' >> setup.sh &&\
     echo 'export LD_LIBRARY_PATH=$MORPHO_BUILD_PREFIX/lib:$LD_LIBRARY_PATH' >> setup.sh &&\
-    echo 'export PYTHONPATH=$MORPHO_BUILD_PREFIX/$(python -m site --user-site | sed "s%$(python -m site --user-base)%%"):$PYTHONPATH' >> setup.sh &&\
+    echo 'export PYTHONPATH=$MORPHO_BUILD_PREFIX/$(python3 -m site --user-site | sed "s%$(python3 -m site --user-base)%%"):$PYTHONPATH' >> setup.sh &&\
     /bin/true
 
 ########################
@@ -28,7 +28,8 @@ COPY tests $MORPHO_BUILD_PREFIX/tests
 
 RUN source $MORPHO_BUILD_PREFIX/setup.sh &&\
     cd /tmp_source &&\
-    pip3 install . --process-dependency-links --prefix $MORPHO_BUILD_PREFIX &&\
+    pip3 install setuptools-scm &&\
+    pip3 install . --prefix $MORPHO_BUILD_PREFIX &&\
     /bin/true
 
 ########################

@@ -1,16 +1,26 @@
 #!/bin/bash
 
 echo "IO testing"
-cd IO && python IO_test.py -vv && cd ..
+cd IO
+python3 IO_test.py -vv || true
+cd ..
 
 echo "Misc testing"
-cd misc && python misc_test.py -vv && cd ..
+cd misc
+python3 misc_test.py -vv || true
+cd ..
 
 echo "Sampling testing"
-cd sampling && python sampling_test.py -vv && cd ..
+cd sampling
+python3 sampling_test.py -vv || true
+cd ..
 
 echo "Prior sampling testing"
-cd sampling && python prior_sampling_test.py -vv && cd ..
+cd sampling
+python3 prior_sampling_test.py -vv || true
+cd ..
 
 echo "Diagnostics testing"
-cd diagnostics && python diagnostics_test.py -vv && cd ..
+cd diagnostics
+python3 diagnostics_test.py -vv || true
+cd ..

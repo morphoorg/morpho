@@ -23,13 +23,16 @@ try:
     from ROOT import TPyMultiGenFunction
 except:
     parent = ROOT.Math.IMultiGenFunction
+    using_tpy = False
 else:
     parent = ROOT.TPyMultiGenFunction
+    using_tpy = True
 
 class PyFunctionObject(parent):
     def __init__(self, pythonFunction, dimension=2):
         logger.info("Created PyFunctionObject")
-        parent.__init__(self, self)
+        if using_tpy:
+            super().__init__(self)
         self.pythonFunction = pythonFunction
         self.dimension = dimension
 

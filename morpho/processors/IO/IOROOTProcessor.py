@@ -64,16 +64,16 @@ class IOROOTProcessor(IOProcessor):
                 import ROOT
             except ImportError:
                 logger.warning("Failed importing ROOT")
-                pass
-            infile = ROOT.TFile(self.file_name,"READ")
-            tree = infile.Get(self.tree_name)
-            tree.GetEntry(0)
-            for varName in self.variables:
-                value = getattr(tree, varName)
-                if type(value)==int or type(value)==float:
-                    value = [value]
-                self.data.update(
-                    {str(varName): self.data[str(varName)] + value})
+            else:
+                infile = ROOT.TFile(self.file_name,"READ")
+                tree = infile.Get(self.tree_name)
+                tree.GetEntry(0)
+                for varName in self.variables:
+                    value = getattr(tree, varName)
+                    if type(value)==int or type(value)==float:
+                        value = [value]
+                    self.data.update(
+                        {str(varName): self.data[str(varName)] + value})
         
         return True
 

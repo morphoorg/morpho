@@ -315,6 +315,7 @@ general\_data\_reducer
 
 Tranform a function defining a spectrum into a histogram of binned data points.
 ::
+
   - method_name: "general_data_reducer"
     module_name: "general_data_reducer"
     input_file_name: "input.root" # Path to the root file that contains the raw data

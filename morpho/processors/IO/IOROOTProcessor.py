@@ -67,11 +67,12 @@ class IOROOTProcessor(IOProcessor):
             else:
                 infile = ROOT.TFile(self.file_name,"READ")
                 tree = infile.Get(self.tree_name)
-                tree.GetEntry(0)
+                for i in range(0, tree.GetEntries()):
+                    tree.GetEntry(i)
+                value = []
                 for varName in self.variables:
-                    value = getattr(tree, varName)
-                    if type(value)==int or type(value)==float:
-                        value = [value]
+                    for j in range(0, tree.GetEntries()):
+                        value.append(getattr(tree, varName))
                     self.data.update(
                         {str(varName): self.data[str(varName)] + value})
         

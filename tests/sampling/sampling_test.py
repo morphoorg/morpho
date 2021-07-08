@@ -221,7 +221,6 @@ class SamplingTests(unittest.TestCase):
         # self.assertTrue(timeSeriesPlotter.Configure(timeSeries_config))
         self.assertTrue(myhisto.Configure(histo_config))
         # self.assertTrue(aposterioriPlotter.Configure(aposteriori_config))
-
         self.assertTrue(sampler.Run())
         myhisto.data = sampler.data
         fitter.data = sampler.data

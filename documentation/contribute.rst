@@ -34,7 +34,8 @@ Other Conventions
 
 In morpho 1, __init__.py files are set up such that
 ::
-     from package import *
+
+   from package import *
 
 will import all functions from all subpackages and modules into the namespace. If a package contains the subpackages "subpackage1" and "subpackage2", and the modules "module1" and "module2", then the __init__.py file should include imports of the form:
 ::

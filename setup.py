@@ -46,7 +46,7 @@ setup(
     install_requires=requirements,
     extras_require=extras_require,
     url='http://www.github.com/project8/morpho',
-    author="J. Formaggio, J. Johnston (MIT), T. Weiss (Yale), M. Guigue (Sorbonne), B. LaRoque, N. Oblath (PNNL)",
+    author="J. Formaggio, J. Johnston (MIT), T. Weiss (Yale), M. Guigue (Sorbonne Université), B. LaRoque, N. Oblath (PNNL)",
     maintainer="T. Weiss",
     maintainer_email="talia.weiss@yale.edu"
 )

@@ -75,10 +75,11 @@ class IOROOTProcessor(IOProcessor):
                             logger.debug("Adding {} to data".format(varName))
                             self.data.update({str(varName): list()})
                         val = getattr(tree, varName)
-                        try:
-                            self.data[varName].append(list(val))
-                        except TypeError:
+                        if isinstance(val, int) or isinstance(val, float) or isinstance(val, list):
                             self.data[varName].append(val)
+                        else:
+                            self.data[varName].append(list(val))
+                            
         print(self.data)
         return True
 

@@ -9,7 +9,10 @@ formats:
 python:
   version: 3
   install:
+    - requirements: documentation/requirements.txt
+    - requirements: requirements.txt
     - method: pip
+      path: .
 
 sphinx:
   builder: html

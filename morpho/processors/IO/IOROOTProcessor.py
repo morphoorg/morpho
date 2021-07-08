@@ -74,8 +74,12 @@ class IOROOTProcessor(IOProcessor):
                         if str(varName) not in self.data.keys():
                             logger.debug("Adding {} to data".format(varName))
                             self.data.update({str(varName): list()})
-                        self.data[varName].append(getattr(tree, varName))
-
+                        val = getattr(tree, varName)
+                        try:
+                            self.data[varName].append(list(val))
+                        except TypeError:
+                            self.data[varName].append(val)
+        print(self.data)
         return True
 
     def Writer(self):

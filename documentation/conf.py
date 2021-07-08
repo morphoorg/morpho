@@ -39,6 +39,8 @@ extensions = [
     # 'sphinxarg.ext',
 ]
 
+autodoc_mock_imports = ["numpy"]
+
 # better_apidoc.main([
 #     'better_apidoc',
 #     '-t', '_templates',  # path to jinja templates for generated package and module rst files

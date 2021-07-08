@@ -179,7 +179,10 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
 
 if __name__ == "__main__":
     rose = RosenBrock()
-    f = ROOT.TPyMultiGenFunction(rose)
+    if using_tpy:
+        f = ROOT.TPyMultiGenFunction(rose)
+    else:
+        f = ROOT.Math.IMultiGenFunction(rose)
     x = ROOT.RooRealVar("x", "x", 0, 10)
     a = ROOT.RooRealVar("a", "a", 1, 2)
     fx = ROOT.RooFit.bindFunction("test", f, ROOT.RooArgList(x, a))

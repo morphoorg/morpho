@@ -20,56 +20,57 @@ PyStan: https://pystan.readthedocs.io/en/latest/index.html
 Install
 ------------------
 
-### Dependencies ###
+Dependencies
+'''''''''''''
 
 The following dependencies should be installed (via a package manager) before installing morpho:
-  - python (2.7.x; 3.x not supported)
+
+  * python (2.7.x; 3.x not supported)
   * python-pip
   * git
   * python-matplotlib
 
   Morpho reads and saves files in either **R** or **ROOT.** If you would like to use root, install root-system or see https://root.cern (and ensure that the same version of python is enabled for morpho and ROOT).
 
-### Virtual environment-based installation ###
+Virtual environment-based installation
+'''''''''''''''''''''''''''''''''''''''
 
-  We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.15.
+We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.15.
 
-  If necessary, install [virtualenv](https://virtualenv.pypa.io/en/stable/), then execute:
-  ```bash
-	virtualenv ~/path/to/the/virtualenvironment
-	source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment
-	#Use "bash deactivate" to exit the environment
-	pip install -U pip #Update pip to >= 7.0.0
-	cd ~/path/to/morpho
-	pip install .
-	pip install .[all]
-  ```
+If necessary, install [virtualenv](https://virtualenv.pypa.io/en/stable/), then execute::
 
-### Docker installation ###
+  virtualenv ~/path/to/the/virtualenvironment
+  source ~/path/to/the/virtualenvironment/bin/activate #Activate the environment
+  #Use "bash deactivate" to exit the environment
+  pip install -U pip #Update pip to >= 7.0.0
+  cd ~/path/to/morpho
+  pip install .
+  pip install .[all]
 
-   If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a [Docker container](https://docs.docker.com/get-started/) instead of a python virtual environment. To do so:
+Docker installation
+''''''''''''''''''''
+
+If you would like to modify your local installation of morpho (to add features or resolve any bugs), we recommend you use a [Docker container](https://docs.docker.com/get-started/) instead of a python virtual environment. To do so:
 
   1. Install Docker: https://docs.docker.com/engine/installation/.
   2. Clone and pull the latest master version of morpho.
-  3. Inside the morpho folder, execute ```docker-compose run morpho```. A new terminal prompter (for example, ```root@413ab10d7a8f:```) should appear.
-  You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the ```morpho_share``` directory that is mounted under the ```/host``` folder created by docker-compose.
-  4. You can remove the container image using ```docker rmi morpho_morpho```.
+  3. Inside the morpho folder, execute ``docker-compose run morpho``. A new terminal prompter (for example, ``root@413ab10d7a8f:``) should appear.
+     You may make changes to morpho either inside or outside of the Docker container. If you wish to work outside of the container, move morpho to the ``morpho_share`` directory that is mounted under the ``/host`` folder created by docker-compose.
+  4. You can remove the container image using ``docker rmi morpho_morpho``.
 
-   If you develop new features or identify bugs, please open a GitHub issue.
+If you develop new features or identify bugs, please open a GitHub issue.
 
 Running Morpho
 ------------------
 
-Once the relevant data, model and configuration files are at your disposal, run morpho by executing:
-```bash
-   morpho --config  /path/to/json_or_yaml_config_file --other_options
-```
+Once the relevant data, model and configuration files are at your disposal, run morpho by executing::
 
-You can test morpho using the example in the morpho_test directory:
-```bash
+ morpho --config  /path/to/json_or_yaml_config_file --other_options
+
+
+You can test morpho using the example in the morpho_test directory::
+
    morpho --config morpho_test/scripts/morpho_linear_fit.yaml
-```
-
 
 
 An Example File
@@ -281,12 +282,13 @@ Example Script
 The following are example yaml scripts for important Preprocessing, Postprocessing, and Plot routines in Morpho 1. The format of the yaml script for other methods can be obtained from the documentation for that method.
 
 Preprocessing
--------------
+'''''''''''''
 
 "do\_preprocessing : true" must be in the morpho dictionary. The dictionaries below should be placed in a "which\_pp" dictionary inside the "preprocessing" dictionary.
 
+
 bootstrapping
-~~~~~~~~~~~~~
+'''''''''''''
 
 Resamples the contents of a tree. Instead of regenerating a fake data set on every sampler, one can generate a larger data set, then extract subsets.
 ::
@@ -304,15 +306,16 @@ Resamples the contents of a tree. Instead of regenerating a fake data set on eve
      option: "RECREATE" # Option for saving root file (default = RECREATE)
 
 Postprocessing
---------------
+'''''''''''''''
 
 "do\_postprocessing : true" must be in the morpho dictionary. The dictionaries below should be placed in a "which\_pp" dictionary inside the "postprocessing" dictionary.
 
 general\_data\_reducer
-~~~~~~~~~~~~~~~~~~~~~~
+'''''''''''''''''''''''
 
 Tranform a function defining a spectrum into a histogram of binned data points.
 ::
+
   - method_name: "general_data_reducer"
     module_name: "general_data_reducer"
     input_file_name: "input.root" # Path to the root file that contains the raw data
@@ -329,12 +332,12 @@ Tranform a function defining a spectrum into a histogram of binned data points.
                                  # UPDATE will open a file (after creating it, if it does not exist) and update the file.
 
 Plot
-----
+''''
 
 "do\_plots : true" must be in the morpho dictionary. The dictionaries below should be placed in a "which_plot" dictionary inside the "plot" dictionary.
 
 contours
-~~~~~~~~~~~~~~~~
+''''''''''
 
 contours creates a matrix of contour plots using a stanfit object
 ::
@@ -348,7 +351,7 @@ contours creates a matrix of contour plots using a stanfit object
     output_format: "pdf"
 
 histo
-~~~~~~~~~~~~~~~~
+'''''''
 
 Plot a 1D histogram using a list of data
 ::
@@ -357,7 +360,7 @@ Plot a 1D histogram using a list of data
     module_name: "histo"
 
 spectra
-~~~~~~~~~~~~~~~~
+''''''''
 
 Plot a 1D histogram using 2 lists of data giving an x point and the corresponding bin contents
 ::
@@ -372,7 +375,7 @@ Plot a 1D histogram using 2 lists of data giving an x point and the correspondin
         - param_name
 
 histo2D
-~~~~~~~~~~~~~~~~
+''''''''''
 
 Plot a 2D histogram using 2 lists of data
 ::
@@ -387,7 +390,7 @@ Plot a 2D histogram using 2 lists of data
       - list_y_branch
 
 histo2D_divergence
-~~~~~~~~~~~~~~~~~~
+'''''''''''''''''''
 
 Plot a 2D histogram with divergence indicated by point color
 ::
@@ -402,7 +405,7 @@ Plot a 2D histogram with divergence indicated by point color
       - list_y_branch
 
 aposteriori_distribution
-~~~~~~~~~~~~~~~~~~~~~~~~
+'''''''''''''''''''''''''''
 
 Plot a grid of 2D histograms
 ::
@@ -423,7 +426,7 @@ Plot a grid of 2D histograms
       - param3
 
 correlation_factors
-~~~~~~~~~~~~~~~~~~~
+'''''''''''''''''''''
 
 Plot a grid of correlation factors
 ::

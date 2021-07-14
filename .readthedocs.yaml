@@ -1,0 +1,21 @@
+# readthedocs.org configuration
+
+version: 2
+
+formats:
+  - epub
+  - pdf
+
+python:
+  version: 3
+  install:
+    - requirements: documentation/requirements.txt
+    - requirements: requirements.txt
+    - method: pip
+      path: .
+
+sphinx:
+  builder: html
+  configuration: documentation/conf.py
+  fail_on_warning: false
+  

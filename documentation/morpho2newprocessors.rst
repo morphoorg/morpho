@@ -21,7 +21,7 @@ If there is not such class but one could with some modifications, you should con
 If really none of the existing classes is of any help for you, creating a new processor from scratch is the way to go.
 
 Structure and requirements for a new processor
----------------------------------------
+----------------------------------------------
 
 Let's have a look at a basic example: the `GaussianSamplingProcessor`_. ::
 

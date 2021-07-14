@@ -80,7 +80,6 @@ class IOROOTProcessor(IOProcessor):
                         else:
                             self.data[varName].append(list(val))
                             
-        print(self.data)
         return True
 
     def Writer(self):

@@ -45,6 +45,11 @@ class PyFunctionObject(parent):
             value = args[i]
             test_argv.append(value)
         return self.pythonFunction(*test_argv)
+        
+    def Clone(self):
+        x = PyFunctionObject(self.pythonFunction, dimension=self.dimension)
+        ROOT.SetOwnership(x, False)
+        return x
 
 
 class PyBindRooFitProcessor(RooFitInterfaceProcessor):
@@ -77,7 +82,6 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
     Results:
         results: dictionary containing the result of the sampling of the parameters of interest
     '''
-
     def InternalConfigure(self, config_dict):
         super().InternalConfigure(config_dict)
         self.ranges = reader.read_param(config_dict, "paramRange", "required")
@@ -157,9 +161,11 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
                 logger.info(aVarName)
 
         self.func = getattr(self.module, self.function_name)
-        self.f = PyFunctionObject(self.func, len(rooVarSet))
-        self.bindFunc = ROOT.RooFit.bindFunction(
-            "test", self.f, ROOT.RooArgList(*rooVarSet))
+        print("Function", self.func)
+        print("Should be a little less than 2:", self.func(1, 1, 3.1415, -1))
+        self.f = PyFunctionObject(self.func, dimension=len(rooVarSet))
+        print("PyFunctionObject", self.f)
+        self.bindFunc = ROOT.RooFit.bindFunction("test", self.f, ROOT.RooArgList(*rooVarSet))
 
         a0 = ROOT.RooRealVar("a0", "a0", 0)
         a0.setConstant()

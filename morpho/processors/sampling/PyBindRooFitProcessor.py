@@ -46,10 +46,6 @@ class PyFunctionObject(parent):
             test_argv.append(value)
         return self.pythonFunction(*test_argv)
         
-    def Clone(self):
-        x = PyFunctionObject(self.pythonFunction, dimension=self.dimension)
-        ROOT.SetOwnership(x, False)
-        return x
 
 
 class PyBindRooFitProcessor(RooFitInterfaceProcessor):

@@ -28,11 +28,15 @@ else:
     parent = ROOT.TPyMultiGenFunction
     using_tpy = True
 
-class PyFunctionObject(parent):
+class PyFunctionObject(ROOT.Math.IMultiGenFunction):
     def __init__(self, pythonFunction, dimension=2):
+        super().__init__()
         logger.info("Created PyFunctionObject")
-        if using_tpy:
-            super().__init__(self)
+        #import traceback
+        #traceback.print_stack()
+        #if using_tpy:
+        #    super().__init__(self)
+        #else:
         self.pythonFunction = pythonFunction
         self.dimension = dimension
 
@@ -131,6 +135,7 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         '''
         Define the model which is that the residual of the linear fit should be normally distributed.
         '''
+
         logger.debug("Defining pdf")
         # mean = ROOT.RooRealVar("mean", "mean", 0, self.mean_min, self.mean_max)
         # width = ROOT.RooRealVar("width", "width", 1., self.width_min, self.width_max)

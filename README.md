@@ -37,11 +37,11 @@ The following dependencies should be installed (via a package manager) before in
 - python 3.x (python 2 not supported)
 - python-pip
 - git
-- root (ensure that the same version of python is enabled for morpho and ROOT)
+- root 6.22 or newer (ensure that the same version of python is enabled for morpho and ROOT)
 
 ### Virtual environment-based installation
 
-We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.15.
+We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.17.
 
 If necessary, install [virtualenv](https://virtualenv.pypa.io/en/stable/), then execute:
 

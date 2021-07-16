@@ -35,7 +35,7 @@ class PyFunctionObject(ROOT.Math.IMultiGenFunction):
         return self.pythonFunction(*test_argv)
         
     def Clone( self ):
-        x = PyFunctionObject()
+        x = PyFunctionObject(self.pythonFunction, dimension=self.dimension)
         ROOT.SetOwnership(x, False)
         return x
 

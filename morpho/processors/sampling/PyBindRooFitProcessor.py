@@ -50,7 +50,10 @@ class PyFunctionObject(ROOT.Math.IMultiGenFunction):
             test_argv.append(value)
         return self.pythonFunction(*test_argv)
         
-
+    def Clone( self ):
+        x = PyFunctionObject()
+        ROOT.SetOwnership(x, False)
+        return x
 
 class PyBindRooFitProcessor(RooFitInterfaceProcessor):
     '''

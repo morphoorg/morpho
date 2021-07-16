@@ -16,27 +16,11 @@ if value < 0:
 
 logger = morphologging.getLogger(__name__)
 
-# Dynamic inheritance of PyFunctionObject
-# Prior to ROOT v6.22, TPyMultiGenFunction was used to wrap ROOT::Math::IMultiGenFunction.
-# As of ROOT v6.22, TPyMultiGenFunction no longer exists, and cppyy is used to automatically create a wrapper around IMultiGenFunction.
-try:
-    from ROOT import TPyMultiGenFunction
-except:
-    parent = ROOT.Math.IMultiGenFunction
-    using_tpy = False
-else:
-    parent = ROOT.TPyMultiGenFunction
-    using_tpy = True
 
 class PyFunctionObject(ROOT.Math.IMultiGenFunction):
     def __init__(self, pythonFunction, dimension=2):
         super().__init__()
         logger.info("Created PyFunctionObject")
-        #import traceback
-        #traceback.print_stack()
-        #if using_tpy:
-        #    super().__init__(self)
-        #else:
         self.pythonFunction = pythonFunction
         self.dimension = dimension
 
@@ -190,10 +174,7 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
 
 if __name__ == "__main__":
     rose = RosenBrock()
-    if using_tpy:
-        f = ROOT.TPyMultiGenFunction(rose)
-    else:
-        f = ROOT.Math.IMultiGenFunction(rose)
+    f = ROOT.Math.IMultiGenFunction(rose)
     x = ROOT.RooRealVar("x", "x", 0, 10)
     a = ROOT.RooRealVar("a", "a", 1, 2)
     fx = ROOT.RooFit.bindFunction("test", f, ROOT.RooArgList(x, a))

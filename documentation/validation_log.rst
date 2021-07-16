@@ -4,6 +4,18 @@ Validation Log
 Log
 ---
 
+Version: v2.7.2
+~~~~~~~~~~~~~~~
+
+Release Date: July 16, 2021
+''''''''''''''''''''''''''''''
+
+Hotfixes:
+'''''''''
+
+* Updated PyBindRooFitProcessor to deal with PyROOT updates
+* ROOT 6.22 or newer is now required
+
 Version: v2.7.1
 ~~~~~~~~~~~~~~~
 

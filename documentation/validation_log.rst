@@ -7,7 +7,7 @@ Log
 Version: v2.7.2
 ~~~~~~~~~~~~~~~
 
-Release Date: July 16, 2021
+Release Date: July 20, 2021
 ''''''''''''''''''''''''''''''
 
 Hotfixes:

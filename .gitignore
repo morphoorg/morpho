@@ -9,7 +9,6 @@ build/*
 *.pdf
 *.pkl
 *.out
-*.txt
 .vscode
 myFile.r
 myTest.json

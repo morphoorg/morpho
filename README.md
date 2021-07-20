@@ -14,8 +14,8 @@ https://morpho.readthedocs.io/en/latest/
 Morpho is an analysis tool that organizes data inflow to and outflow from [Stan](http://mc-stan.org/), a platform for Bayesian statistical modeling and computation, and [RooFit](https://root.cern.ch/guides/roofit-manual), a toolkit for modeling probability distributions.
 It is especially useful for
 
-  1) Generating **pseudo data**, and
-  2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model.
+  1) Generating **pseudo data**,
+  2) Performing **Bayesian statistical analyses** of real or fake data—that is, extracting posterior distributions for parameters of interest using data and a model, and
   3) Performing **chi2 fits of data**.
 
 Morpho interfaces with Stan using [PyStan](https://pystan.readthedocs.io/en/latest/), but it is designed to be employed by general Stan users (not only PyStan users).
@@ -37,11 +37,11 @@ The following dependencies should be installed (via a package manager) before in
 - python 3.x (python 2 not supported)
 - python-pip
 - git
-- root (ensure that the same version of python is enabled for morpho and ROOT)
+- root 6.22 or newer (ensure that the same version of python is enabled for morpho and ROOT)
 
 ### Virtual environment-based installation
 
-We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.15.
+We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.17.
 
 If necessary, install [virtualenv](https://virtualenv.pypa.io/en/stable/), then execute:
 
@@ -167,7 +167,7 @@ Examples of such python scripts can be found in the examples folder:
 
 ## Quick debug
 
-### Model compilation takes forever, a lot of CPU resources and eventually crashes
+### Model compilation takes forever, uses a lot of CPU resources and eventually crashes
 
 When compiling a model inside the docker container, it can happen that the model takes a long time (larger than 2-3 minutes) before crashing with a `gcc error 4` message.
 During this compilation, all the CPU available to docker will be used too.

@@ -9,6 +9,7 @@ from __future__ import absolute_import
 import os
 
 from morpho.utilities import morphologging, reader
+
 logger = morphologging.getLogger(__name__)
 
 from morpho.processors.IO import IOProcessor
@@ -64,17 +65,21 @@ class IOROOTProcessor(IOProcessor):
                 import ROOT
             except ImportError:
                 logger.warning("Failed importing ROOT")
-                pass
-            infile = ROOT.TFile(self.file_name,"READ")
-            tree = infile.Get(self.tree_name)
-            tree.GetEntry(0)
-            for varName in self.variables:
-                value = getattr(tree, varName)
-                if type(value)==int or type(value)==float:
-                    value = [value]
-                self.data.update(
-                    {str(varName): self.data[str(varName)] + value})
-        
+            else:
+                infile = ROOT.TFile(self.file_name, "READ")
+                tree = infile.Get(self.tree_name)
+                for i in range(0, tree.GetEntries()):
+                    tree.GetEntry(i)
+                    for varName in self.variables:
+                        if str(varName) not in self.data.keys():
+                            logger.debug("Adding {} to data".format(varName))
+                            self.data.update({str(varName): list()})
+                        val = getattr(tree, varName)
+                        if isinstance(val, int) or isinstance(val, float) or isinstance(val, list):
+                            self.data[varName].append(val)
+                        else:
+                            self.data[varName].append(list(val))
+                            
         return True
 
     def Writer(self):
@@ -146,6 +151,7 @@ class IOROOTProcessor(IOProcessor):
         # Create an empty class where the attributes will be used to write the tree
         class AClass(object):
             pass
+
         tempObject = AClass()
 
         logger.debug("Creating branches")
@@ -153,15 +159,17 @@ class IOROOTProcessor(IOProcessor):
         for key in info_data:
             if info_data[key]["len"] == 0:
                 setattr(tempObject, str(info_data[key]["root_alias"]), array(info_data[key]['type'].lower(), [
-                        _get_zero_with_type(info_data[key]['type'])]))
+                    _get_zero_with_type(info_data[key]['type'])]))
                 t.Branch(str(str(info_data[key]['root_alias'])), getattr(
-                    tempObject, str(info_data[key]["root_alias"])), '{}/{}'.format(str(info_data[key]['root_alias']), info_data[key]['type']))
+                    tempObject, str(info_data[key]["root_alias"])),
+                         '{}/{}'.format(str(info_data[key]['root_alias']), info_data[key]['type']))
             else:
                 setattr(tempObject, str(info_data[key]["root_alias"]), array(info_data[key]['type'].lower(), int(
                     info_data[key]['len']) * [_get_zero_with_type(info_data[key]['type'])]))
                 t.Branch(str(str(info_data[key]['root_alias'])),
                          getattr(tempObject, str(info_data[key]['root_alias'])),
-                         '{}[{}]/{}'.format(str(info_data[key]['root_alias']), info_data[key]['len'], info_data[key]['type']))
+                         '{}[{}]/{}'.format(str(info_data[key]['root_alias']), info_data[key]['len'],
+                                            info_data[key]['type']))
 
         logger.debug("Adding data")
         for i in range(numberData):

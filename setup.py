@@ -18,24 +18,14 @@ except Exception as err:
 
 on_rtd = os.environ.get("READTHEDOCS", None) == 'True'
 
-requirements = []
-extras_require = {
-    'core': ['uproot>=2.8.13', 'colorlog', 'PyYAML>=3.13', 'pyparsing>=2.1.5',
+requirements = ['uproot>=2.8.13', 'colorlog', 'PyYAML>=3.13', 'pyparsing>=2.1.5',
              'pystan==2.17.1.0', 'dnspython==1.12.0',
-             'pbr==0.10.8', 'cycler==0.10.0', 'lz4', 'six', 'asteval'],
-    'doc': ['sphinx', 'sphinx_rtd_theme', 'sphinxcontrib-programoutput', 'six', 'colorlog']
-}
+             'pbr==0.10.8', 'cycler==0.10.0', 'lz4', 'six', 'asteval', 'awkward']
 
-if on_rtd:
-    requirements.append('better-apidoc')
-    requirements += extras_require['doc']
-else:
-    requirements = extras_require['core']
-
-everything = set()
-for deps in extras_require.values():
-    everything.update(deps)
-extras_require['all'] = everything
+#everything = set()
+#for deps in extras_require.values():
+#    everything.update(deps)
+#extras_require['all'] = everything
 
 setup(
     name='morpho',
@@ -44,9 +34,9 @@ setup(
     packages=find_packages(),
     scripts=["bin/morpho"],
     install_requires=requirements,
-    extras_require=extras_require,
+#    extras_require=extras_require,
     url='http://www.github.com/project8/morpho',
-    author="J. Formaggio, J. Johnston, T. Weiss (MIT), M. Guigue, B. LaRoque, N. Oblath (PNNL)",
-    maintainer="M. Guigue (PNNL)",
-    maintainer_email="mathieu.guigue@pnnl.gov"
+    author="J. Formaggio, J. Johnston (MIT), T. Weiss (Yale), M. Guigue (Sorbonne Université), B. LaRoque, N. Oblath (PNNL)",
+    maintainer="T. Weiss",
+    maintainer_email="talia.weiss@yale.edu"
 )

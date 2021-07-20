@@ -9,7 +9,7 @@ The following dependencies should be installed (via a package manager) before in
   - python 3.x (python 2 not supported)
   - python-pip
   - git
-  - root (ensure that the same version of python is enabled for morpho and ROOT)
+  - root 6.22 or newer (ensure that the same version of python is enabled for morpho and ROOT)
 
 Virtual environment-based installation
 ######################################

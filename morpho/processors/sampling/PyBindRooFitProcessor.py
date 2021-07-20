@@ -7,10 +7,8 @@ Authors: M. Guigue
 Date: 06/26/18
 '''
 
-try:
-    import ROOT
-except ImportError:
-    pass
+import ROOT
+
 value = ROOT.gSystem.Load("libRooFit")
 if value < 0:
     print("Failed loading", value)
@@ -19,10 +17,10 @@ if value < 0:
 logger = morphologging.getLogger(__name__)
 
 
-class PyFunctionObject(ROOT.TPyMultiGenFunction):
+class PyFunctionObject(ROOT.Math.IMultiGenFunction):
     def __init__(self, pythonFunction, dimension=2):
+        super().__init__()
         logger.info("Created PyFunctionObject")
-        ROOT.TPyMultiGenFunction.__init__(self, self)
         self.pythonFunction = pythonFunction
         self.dimension = dimension
 
@@ -35,7 +33,11 @@ class PyFunctionObject(ROOT.TPyMultiGenFunction):
             value = args[i]
             test_argv.append(value)
         return self.pythonFunction(*test_argv)
-
+        
+    def Clone( self ):
+        x = PyFunctionObject(self.pythonFunction, dimension=self.dimension)
+        ROOT.SetOwnership(x, False)
+        return x
 
 class PyBindRooFitProcessor(RooFitInterfaceProcessor):
     '''
@@ -67,7 +69,6 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
     Results:
         results: dictionary containing the result of the sampling of the parameters of interest
     '''
-
     def InternalConfigure(self, config_dict):
         super().InternalConfigure(config_dict)
         self.ranges = reader.read_param(config_dict, "paramRange", "required")
@@ -121,6 +122,7 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         '''
         Define the model which is that the residual of the linear fit should be normally distributed.
         '''
+
         logger.debug("Defining pdf")
         # mean = ROOT.RooRealVar("mean", "mean", 0, self.mean_min, self.mean_max)
         # width = ROOT.RooRealVar("width", "width", 1., self.width_min, self.width_max)
@@ -147,9 +149,11 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
                 logger.info(aVarName)
 
         self.func = getattr(self.module, self.function_name)
-        self.f = PyFunctionObject(self.func, len(rooVarSet))
-        self.bindFunc = ROOT.RooFit.bindFunction(
-            "test", self.f, ROOT.RooArgList(*rooVarSet))
+        print("Function", self.func)
+        print("Should be a little less than 2:", self.func(1, 1, 3.1415, -1))
+        self.f = PyFunctionObject(self.func, dimension=len(rooVarSet))
+        print("PyFunctionObject", self.f)
+        self.bindFunc = ROOT.RooFit.bindFunction("test", self.f, ROOT.RooArgList(*rooVarSet))
 
         a0 = ROOT.RooRealVar("a0", "a0", 0)
         a0.setConstant()
@@ -169,7 +173,7 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
 
 if __name__ == "__main__":
     rose = RosenBrock()
-    f = ROOT.TPyMultiGenFunction(rose)
+    f = ROOT.Math.IMultiGenFunction(rose)
     x = ROOT.RooRealVar("x", "x", 0, 10)
     a = ROOT.RooRealVar("a", "a", 1, 2)
     fx = ROOT.RooFit.bindFunction("test", f, ROOT.RooArgList(x, a))

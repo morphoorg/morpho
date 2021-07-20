@@ -25,7 +25,8 @@ import os
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-# needs_sphinx = '1.0'
+# v1.3 needed for autodoc_mock_imports
+needs_sphinx = '1.3'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -50,20 +51,22 @@ extensions = [
 # ])
 
 
-def run_apidoc(_):
+def run_apidoc(app):
     """Generage API documentation"""
     import better_apidoc
+    better_apidoc.APP = app
     better_apidoc.main(
         ['better-apidoc', '-t', './_templates', '--force',
          '--separate', '-o', 'better_apidoc_out', '../morpho'])
 
 
-def setup(app):
-    app.connect('builder-inited', run_apidoc)
-
 todo_include_todos = True
 
 autoclass_content = "both"
+
+autodoc_mock_imports = ["numpy", "ROOT"]
+
+templates_path = ["_templates"]
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = ['_templates']
@@ -309,3 +312,8 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 # texinfo_no_detailmenu = False
+
+# According to the better_apidoc docs this goes at the end of conf.py (https://github.com/goerz/better-apidoc)
+def setup(app):
+    app.connect('builder-inited', run_apidoc)
+

@@ -34,7 +34,8 @@ Other Conventions
 
 In morpho 1, __init__.py files are set up such that
 ::
-     from package import *
+
+   from package import *
 
 will import all functions from all subpackages and modules into the namespace. If a package contains the subpackages "subpackage1" and "subpackage2", and the modules "module1" and "module2", then the __init__.py file should include imports of the form:
 ::
@@ -54,5 +55,5 @@ will import all  modules into the namespace, but it will not directly import the
 
    __all__ = ["module1", "module2"]
 
-In this case, functions would be called via module1.function_name(). If one wants all of the functions from module1 in the namespace, then they can include "from package.module1 import *" at the top of their code. This change to more explicit imports should prevent any issues with function names clashing as Morpho grows.
+In this case, functions would be called via module1.function_name(). If one wants all of the functions from module1 in the namespace, then they can include "from package.module1 import \*" at the top of their code. This change to more explicit imports should prevent any issues with function names clashing as Morpho grows.
 

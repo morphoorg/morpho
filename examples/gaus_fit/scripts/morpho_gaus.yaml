@@ -1,0 +1,28 @@
+processors-toolbox:
+  #
+    processors:
+        - type:
+          name:
+        - type:
+          name:
+        - type:
+          name:
+        - type:
+          name:
+        - type:
+          name:
+        - type:
+          name:
+
+    connections:
+        - signal: "generator:results"
+          slot: "writer:data"
+        - signal:
+          slot:
+        - signal:
+          slot:
+        - signal:
+          slot:
+
+generator:
+    model_code: #Model Gaussian Generator File

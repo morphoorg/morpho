@@ -3,8 +3,8 @@ functions{}
 data{
 	
 	int<lower=0> N;
-  vector[N] ;
-  vector[N] ;
+  vector[N] x;
+  vector[N] y;
 
 }
 

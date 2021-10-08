@@ -1,28 +1,66 @@
 processors-toolbox:
   #
     processors:
-        - type:
-          name:
-        - type:
-          name:
-        - type:
-          name:
-        - type:
-          name:
-        - type:
-          name:
-        - type:
-          name:
+        - type: morpho:PyStanSamplingProcessor
+          name: generator
+        - type: IORProcessor
+          name: writer
+        - type: IORProcessor
+          name: reader
+        - type: morpho:PyStanSamplingProcessor
+          name: analyzer
+        - type: APosterioriDistribution
+          name: posterioriDistrib
+        - type: TimeSeries
+          name: timeSeries
 
     connections:
         - signal: "generator:results"
           slot: "writer:data"
-        - signal:
-          slot:
-        - signal:
-          slot:
-        - signal:
-          slot:
+        - signal: "reader:data"
+          slot: "analyzer:data"
+        - signal: "analyzer:results"
+          slot: "posterioriDistrib:data"
+        - signal: "analyzer:results"
+          slot: "timeSeries:data"
 
 generator:
-    model_code: #Model Gaussian Generator File
+    model_code: "gaus_fit/models/model_gaus_fit.stan"
+    input_data:
+        mu: 5
+        sigma: 2
+    iter: 500
+    warmup: 500
+    interestParams: ['x', 'y', 'residual']
+    delete: False
+    diagnostics_folder: "gaus_fit/plots/generator_diagnostics"
+writer:
+    action: write
+    filename: gaus_fit/data/data.r
+    variables:
+      - "x"
+      - "y"
+      - 'residual'
+reader:
+    action: read
+    filename: gaus_fit/data/data.r
+    variables: ["x", "y"]
+analyzer:
+    model_code: "gaus_fit/models/model_gaus_fit.stan"
+    iter: 2500
+    warmup: 500
+    interestParams: ['mu', 'sigma']
+    input_data:
+      N: 530
+    diagnostics_folder: "gaus_fit/plots/analyzer_diagnostics"
+posterioriDistrib:
+    n_bins_x: 100
+    n_bins_y: 100
+    variables: ['mu','sigma',"lp_prob"]
+    title: "aposteriori_distribution"
+    output_path: "gaus_fit/plots"
+timeSeries:
+    variables: ['mu','sigma']
+    height: 1200
+    title: "timeseries"
+    output_path: "gaus_fit/plots"

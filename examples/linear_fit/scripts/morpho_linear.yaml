@@ -41,6 +41,7 @@ generator:
     iter: 530
     warmup: 500
     interestParams: ['x','y','residual']
+    model_name: ExampleModel
     delete: False
     diagnostics_folder: "linear_fit/plots/generator_diagnostics"
 writer:

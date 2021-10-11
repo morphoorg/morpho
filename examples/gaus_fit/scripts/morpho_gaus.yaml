@@ -32,6 +32,7 @@ generator:
     iter: 500
     warmup: 500
     interestParams: ['x', 'y', 'residual']
+    plot_name: ExampleGaussian
     delete: False
     diagnostics_folder: "gaus_fit/plots/generator_diagnostics"
 writer:

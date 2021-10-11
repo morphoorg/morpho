@@ -1,10 +1,9 @@
 functions{}
 
 data{
-	
-	int<lower=0> N;
-  vector[N] x;
-  vector[N] y;
+
+	int<lower=1> N;
+	vector[N] y;
 
 }
 
@@ -21,13 +20,14 @@ transformed parameters{}
 
 model{
 	
-	y ~ normal(mu, sigma^2)
+	for(i in 1:N)	
+		target += normal_lpdf(y[i] | mu, sigma);
 
 }
 
 generated quantities{
-	
-	real variance;
-	variance = sigma * sigma; #Is this true still?
+
+	real variance_y;
+	variance_y = sigma * sigma; //Is this true still?
 
 }

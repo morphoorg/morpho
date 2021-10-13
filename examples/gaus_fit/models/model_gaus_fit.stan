@@ -19,9 +19,8 @@ parameters{
 transformed parameters{}
 
 model{
-	
-	for(i in 1:N)	
-		target += normal_lpdf(y[i] | mu, sigma);
+		
+	target += normal_lpdf( 1/(sigma*sqrt(2*pi()) * e()^(-0.5 * ((x - mu)/sigma)) | mu, sigma); // change line also
 
 }
 

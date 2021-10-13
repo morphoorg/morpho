@@ -25,7 +25,7 @@ processors-toolbox:
           slot: "timeSeries:data"
 
 generator:
-    model_code: "gaus_fit/models/model_gaus_fit.stan"
+    model_code: "gaus_fit/models/model_gaus_generator.stan"
     input_data:
         mu: 5
         sigma: 2

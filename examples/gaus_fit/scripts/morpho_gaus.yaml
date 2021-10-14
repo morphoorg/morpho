@@ -29,7 +29,7 @@ generator:
     input_data:
         mu: 5
         sigma: 2
-    iter: 500
+    iter: 530
     warmup: 500
     interestParams: ['x', 'y', 'residual']
     plot_name: ExampleGaussian

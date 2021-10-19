@@ -42,7 +42,7 @@ writer:
     variables:
       - "x"
       - "y"
-      - 'residual'
+      - "residual"
 reader:
     action: read
     filename: gaus_fit/data/data.r
@@ -58,7 +58,7 @@ analyzer:
 posterioriDistrib:
     n_bins_x: 100
     n_bins_y: 100
-    variables: ['mu','sigma', 'sigma_y_smear',"lp_prob"]
+    variables: ['mu','sigma', 'sigma_y_smear','lp_prob']
     title: "aposteriori_distribution"
     output_path: "gaus_fit/plots"
 timeSeries:

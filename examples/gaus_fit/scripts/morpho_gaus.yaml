@@ -27,9 +27,9 @@ processors-toolbox:
 generator:
     model_code: "gaus_fit/models/model_gaus_generator.stan"
     input_data:
-        mu: 10
+        mu: 5
         sigma: 2
-        sigma_y_smear: 0.5
+        sigma_y_smear: 0.01
     iter: 1000
     warmup: 500
     interestParams: ['x', 'y', 'residual']
@@ -58,7 +58,7 @@ analyzer:
 posterioriDistrib:
     n_bins_x: 100
     n_bins_y: 100
-    variables: ['mu','sigma', 'sigma_y_smear','lp_prob']
+    variables: ['mu','sigma', 'sigma_y_smear', 'lp_prob']
     title: "aposteriori_distribution"
     output_path: "gaus_fit/plots"
 timeSeries:

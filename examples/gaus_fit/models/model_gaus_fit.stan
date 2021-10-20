@@ -22,8 +22,7 @@ transformed parameters{}
 
 model{
 
-	for(i in 1:N)
-		y ~ normal((1 / sigma*sqrt(2*pi()) * exp(-0.5*(((x[i] - mu)/sigma)^2))), sigma_y_smear); 
+	y ~ normal((1 / sigma*sqrt(2*pi()) * exp(-0.5*((square((x - mu)/sigma))))), sigma_y_smear); 
 
 }
 

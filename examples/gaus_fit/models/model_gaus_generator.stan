@@ -8,6 +8,7 @@ parameters {
 
 	real x;
 	real y;
+
 }
 
 model {

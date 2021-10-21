@@ -46,7 +46,7 @@ writer:
 reader:
     action: read
     filename: gaus_fit/data/data.r
-    variables: ["x", "y"]
+    variables: ['x', 'y']
 analyzer:
     model_code: "gaus_fit/models/model_gaus_fit.stan"
     iter: 2500

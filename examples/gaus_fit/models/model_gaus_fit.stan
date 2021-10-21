@@ -5,6 +5,8 @@ data{
 	int<lower=1> N;
 	vector[N] x;
 	vector[N] y;
+	vector[N] gaus_x;
+	vector[N] gaus_y;
 
 }
 
@@ -22,13 +24,17 @@ transformed parameters{}
 
 model{
 
-	y ~ normal((1 / sigma*sqrt(2*pi()) * exp(-0.5*((square((x - mu)/sigma))))), sigma_y_smear); 
+	for(i in 1:N) {
+		gaus_y[i] = 1/sigma*sqrt(2*pi()) * exp(-0.5 * ((square(gaus_x[i] - mu)/sigma)));
+	}
+	
+	y ~ normal(gaus_y, sigma_y_smear); 
 
 }
 
 generated quantities{
 
 	real variance_y;
-	variance_y = sigma * sigma; //Is this true still?
+	variance_y = sigma * sigma; 
 
 }

@@ -4,7 +4,7 @@ data{
 
 	int<lower=1> N;
 	vector[N] x;
-	vector<lower=0>[N] y;
+	vector[N] y;
 
 }
 
@@ -26,10 +26,11 @@ model{
 	vector[N] gaus_y;
 
 	for(i in 1:N) {
-		gaus_y[i] = 1/(2*pi()*sigma^2) * exp(-0.5 * ((square((gaus_x[i] - mu)/sigma))));
+		gaus_x[i] = x[i];
+		gaus_y[i] = 1 / (sqrt(2 * pi()) * sigma) * exp(-0.5 * ((gaus_x[i] - mu) / sigma)^2);
 	}
-	
-	y ~ normal(gaus_y, sigma_y_smear); 
+
+	y ~ normal(gaus_y, sigma_y_smear);
 
 }
 

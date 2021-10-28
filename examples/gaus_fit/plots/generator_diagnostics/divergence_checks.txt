@@ -1,5 +1,5 @@
 n_eff / iter looks reasonable for all parameters.
-Rhat above 1.1 indicates that the chains very likely have not mixed.
+Rhat looks reasonable for all parameters.
 0.0 of 500 iterations ended with a divergence (0.0%).
-312 of 500 iterations saturated the maximum tree depth of 10. (62.4%) Run again with max_depth set to a larger value to avoid saturation.
+307 of 500 iterations saturated the maximum tree depth of 10. (61.4%) Run again with max_depth set to a larger value to avoid saturation.
 E-BFMI indicated no pathological behavior.

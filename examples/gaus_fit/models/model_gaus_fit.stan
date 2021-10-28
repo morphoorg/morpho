@@ -26,7 +26,7 @@ model{
 	vector[N] gaus_y;
 
 	for(i in 1:N) {
-		gaus_x[i] = x[i];
+		gaus_x[i] = x[i]; //i THINK this is true
 		gaus_y[i] = 1 / (sqrt(2 * pi()) * sigma) * exp(-0.5 * ((gaus_x[i] - mu) / sigma)^2);
 	}
 

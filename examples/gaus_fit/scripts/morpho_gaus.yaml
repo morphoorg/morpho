@@ -27,8 +27,8 @@ processors-toolbox:
 generator:
     model_code: "gaus_fit/models/model_gaus_generator.stan"
     input_data:
-        mu: 5
-        sigma: 2
+        mu: 10
+        sigma: 3
         sigma_y_smear: 0.01
     iter: 1000
     warmup: 500

@@ -1,0 +1,73 @@
+processors-toolbox:
+  #
+    processors:
+        - type: morpho:PyStanSamplingProcessor
+          name: generator
+        - type: IORProcessor
+          name: writer
+        - type: IORProcessor
+          name: reader
+        - type: morpho:PyStanSamplingProcessor
+          name: analyzer
+        - type: APosterioriDistribution
+          name: posterioriDistrib
+        - type: TimeSeries
+          name: timeSeries
+
+    connections:
+        - signal: "generator:results"
+          slot: "writer:data"
+        - signal: "reader:data"
+          slot: "analyzer:data"
+        - signal: "analyzer:results"
+          slot: "posterioriDistrib:data"
+        - signal: "analyzer:results"
+          slot: "timeSeries:data"
+
+generator:
+    model_code: "gaus_conv/models/model_gaus_conv_generator.stan"
+    input_data:
+        mu1: 10
+        mu2: 4
+        sigma1: 1
+        sigma2: 3
+        sigma_y1_smear: 0.01
+        sigma_y2_smear: 0.02
+    iter: 1000
+    warmup: 500
+    interestParams: ['x1', 'y1', 'x2', 'y2', 'residual']
+    plot_name: ExampleGaussian
+    delete: False
+    diagnostics_folder: "gaus_conv/plots/generator_diagnostics"
+writer:
+    action: write
+    filename: gaus_conv/data/data.r
+    variables:
+      - "x1"
+      - "y1"
+      - "x2"
+      - "y2"
+      - "residual"
+reader:
+    action: read
+    filename: gaus_conv/data/data.r
+    variables: ['x1', 'y1', 'x2', 'y2']
+analyzer:
+    model_code: "gaus_conv/models/model_gaus_conv_fit.stan"
+    iter: 2500
+    warmup: 500
+    interestParams: ['mu', 'sigma', 'sigma_y_smear']
+    input_data:
+      N: 1000
+    diagnostics_folder: "gaus_conv/plots/analyzer_diagnostics"
+posterioriDistrib:
+    n_bins_x: 100
+    n_bins_y: 100
+    variables: ['mu','sigma', 'sigma_y_smear', 'lp_prob']
+    title: "aposteriori_distribution"
+    output_path: "gaus_conv/plots"
+timeSeries:
+    variables: ['mu','sigma','sigma_y_smear']
+    height: 1200
+    title: "timeseries"
+    output_path: "gaus_conv/plots"

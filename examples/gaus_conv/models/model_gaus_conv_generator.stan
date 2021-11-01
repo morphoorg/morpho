@@ -21,7 +21,7 @@ model {
 
 generated quantities {
 	real residual;
-	residual = (y - (1 / (sqrt(2*pi()*(square(sigma1) + square(sigma2))))) * exp(-(square((x-(mu1+mu2)))/(2*(square(sigma1) + square(sigma2)))))/sigma1_y_smear; 
+	residual = (y - (1 / (sqrt(2*pi()*(square(sigma1) + square(sigma2))))) * exp(-(square((x-(mu1+mu2)))/(2*(square(sigma1) + square(sigma2))))))/sigma1_y_smear; 
 }
 
 

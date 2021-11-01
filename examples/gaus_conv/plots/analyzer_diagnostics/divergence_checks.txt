@@ -1,0 +1,5 @@
+n_eff / iter looks reasonable for all parameters.
+Rhat above 1.1 indicates that the chains very likely have not mixed.
+1994.0 of 2000 iterations ended with a divergence (99.7%). Try running with larger adapt_delta to remove the divergences.
+0 of 2000 iterations saturated the maximum tree depth of 10. (0.0%)
+E-BFMI below 0.2 indicates you may need to reparameterize your model.

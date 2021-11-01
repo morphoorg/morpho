@@ -34,6 +34,6 @@ model{
 generated quantities{
 
 	real variance_y;
-	variance_y = sigma * sigma;
+	variance_y = square(sigma1) + square(sigma2);
 }
 

@@ -1,29 +1,27 @@
 data {
 	real mu1;
 	real sigma1;
-	real sigma_y1_smear;
+	real sigma1_y_smear;
 	real mu2;
 	real sigma2;
-	real sigma_y2_smear;
+	real sigma2_y_smear;
 }
 
 parameters {
 
-	real x1;
-	real y1;
-	real x2;
-	real y2;
+	real x;
+	real y;
 
 }
 
 model {
 
-	target += normal_lpdf(y - (1 / sigma*sqrt(2*pi()) * exp(-0.5*(((x - mu)/sigma)^2))) | 0, sigma_y_smear);
+	target += normal_lpdf(y - (1 / (sqrt(2*pi()*(square(sigma1) + square(sigma2)))) * exp(square((x-(mu1+mu2)))/(2*(square(sigma1) + square(sigma2))))) | 0, sigma1_y_smear); // square root of s1^2+s2^2?
 }
 
 generated quantities {
 	real residual;
-	residual = (y - (1 / sigma*sqrt(2*pi()) * exp(-0.5*(((x - mu)/sigma)^2))))/sigma_y_smear; 
+	residual = (y - (1 / (sqrt(2*pi()*(square(sigma1) + square(sigma2))))) * exp(-(square((x-(mu1+mu2)))/(2*(square(sigma1) + square(sigma2)))))/sigma1_y_smear; 
 }
 
 

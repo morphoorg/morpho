@@ -1,20 +1,32 @@
-functions{}
+functions{
+	
+	real normal_density(real x, real theta[], real x_r[], int x_i[]) {
+
+		real mu = theta[1];
+		real sigma = theta[2];
+
+		return 1 / (sqrt(2*pi()) * sigma) * exp(-0.5*((x-mu)/sigma)^2);
+	}
+}
 
 data{
 
-	int<lower=1> N;
-	vector[N] x;
-	vector[N] y;
+	int N;
+	real y[N];
 
 }
 
-transformed data{}
+transformed data{
+	real x_r[0];
+	int x_i[0];
+
+}
 
 parameters{
 	
 	real mu;
-	real<lower=0> sigma;
-	real<lower=0> sigma_y_smear;
+	real<lower=0.0> sigma;
+	real<lower=0.0> sigma_y_smear;
 
 }
 
@@ -22,15 +34,9 @@ transformed parameters{}
 
 model{
 
-	vector[N] gaus_x;
-	vector[N] gaus_y;
-
-	for(i in 1:N) {
-		gaus_x[i] = x[i]; //i THINK this is true
-		gaus_y[i] = 1 / (sqrt(2 * pi()) * sigma) * exp(-0.5 * ((gaus_x[i] - mu) / sigma)^2);
-	}
-
-	y ~ normal(gaus_y, sigma_y_smear);
+	mu ~ normal(0,1);
+	sigma ~ normal(0,1);
+	target += normal_lpdf(y | mu, sigma);
 
 }
 

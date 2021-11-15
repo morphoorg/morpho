@@ -63,6 +63,6 @@ posterioriDistrib:
     output_path: "gaus_fit/plots"
 timeSeries:
     variables: ['mu','sigma','sigma_y_smear']
-    height: 1200
+    height: 1
     title: "timeseries"
     output_path: "gaus_fit/plots"

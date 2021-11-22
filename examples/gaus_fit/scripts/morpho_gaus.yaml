@@ -27,10 +27,11 @@ processors-toolbox:
 generator:
     model_code: "gaus_fit/models/model_gaus_generator.stan"
     input_data:
-        mu: 10
-        sigma: 3
+        N: 2500
+        mu: 20
+        sigma: 4
         sigma_y_smear: 0.01
-    iter: 1000
+    iter: 2500
     warmup: 500
     interestParams: ['x', 'y', 'residual']
     plot_name: ExampleGaussian
@@ -53,7 +54,7 @@ analyzer:
     warmup: 500
     interestParams: ['mu', 'sigma', 'sigma_y_smear']
     input_data:
-      N: 1000 #i think this must equal iter (line 33) or else itll throw an error
+      N: 2500
     diagnostics_folder: "gaus_fit/plots/analyzer_diagnostics"
 posterioriDistrib:
     n_bins_x: 100
@@ -63,6 +64,6 @@ posterioriDistrib:
     output_path: "gaus_fit/plots"
 timeSeries:
     variables: ['mu','sigma','sigma_y_smear']
-    height: 1
+    height: 1200
     title: "timeseries"
     output_path: "gaus_fit/plots"

@@ -1,42 +1,35 @@
 functions{}
 
 data{
-
-	int N;
-	real x[N];
-	real y[N];
-
+	
+	int<lower=0> N;
+	vector[N] x;
+	vector[N] y;
 }
-
-transformed data{}
 
 parameters{
 	
 	real mu;
-	real<lower=0.0> sigma;
-	real<lower=0.0> sigma_y_smear;
-
+	real<lower=0> sigma;
+	real<lower=0> sigma_y_smear;
 }
 
 transformed parameters{}
 
 model{
-
+	
 	vector[N] gaus_y;
 
 	for(i in 1:N) {
-		gaus_y[i] = 1 / (sqrt(2 * pi()) * sigma) * exp(-0.5 * (((x[i] - mu) / sigma)^2));
+		gaus_y[N] = (1 / (sqrt(2*pi())*sigma) * exp(-0.5 * ((x[N] - mu)/sigma)^2));
 	}
 
 	y ~ normal(gaus_y, sigma_y_smear);
-
-
 }
 
 generated quantities{
-
-	real variance_y;
-	variance_y = sigma * sigma;
 	
-}
+	real variance_y;
+	variance_y = sigma_y_smear * sigma_y_smear;
 
+}

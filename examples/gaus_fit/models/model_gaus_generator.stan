@@ -5,6 +5,7 @@ data{
 	real mu;
 	real sigma;
 	real sigma_y_smear;
+
 }
 
 parameters{
@@ -14,8 +15,9 @@ parameters{
 }
 
 model{
-
-	target += normal_lpdf(y - (1 / (sqrt(2*pi())*sigma) * exp(-0.5 * ((x - mu)/sigma))) | 0, sigma_y_smear);
+	
+	target += normal_lpdf(y - (1 / (sqrt(2*pi())*sigma) * exp(-0.5 * ((x - mu)/sigma)^2)) | 0, sigma_y_smear);
+		
 }
 
 generated quantities{

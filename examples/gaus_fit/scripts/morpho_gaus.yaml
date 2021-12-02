@@ -27,10 +27,10 @@ processors-toolbox:
 generator:
     model_code: "gaus_fit/models/model_gaus_generator.stan"
     input_data:
-        N: 2500
-        mu: 20
-        sigma: 4
-        sigma_y_smear: 0.01
+
+      mu: 20
+      sigma: 4
+      sigma_y_smear: 0.01
     iter: 2500
     warmup: 500
     interestParams: ['x', 'y', 'residual']
@@ -50,11 +50,11 @@ reader:
     variables: ['x', 'y']
 analyzer:
     model_code: "gaus_fit/models/model_gaus_fit.stan"
+    input_data:
+      N: 2500
     iter: 2500
     warmup: 500
     interestParams: ['mu', 'sigma', 'sigma_y_smear']
-    input_data:
-      N: 2500
     diagnostics_folder: "gaus_fit/plots/analyzer_diagnostics"
 posterioriDistrib:
     n_bins_x: 100

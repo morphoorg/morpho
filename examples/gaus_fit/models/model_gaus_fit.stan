@@ -2,7 +2,7 @@ functions{}
 
 data{
 	
-	int<lower=0> N;
+	int<lower=1> N;
 	vector[N] x;
 	vector[N] y;
 }
@@ -21,10 +21,10 @@ model{
 	vector[N] gaus_y;
 
 	for(i in 1:N) {
-		gaus_y[N] = (1 / (sqrt(2*pi())*sigma) * exp(-0.5 * ((x[N] - mu)/sigma)^2));
+		gaus_y[i] = (1 / (sqrt(2*pi())*sigma) * exp(-0.5 * square((x[i] - mu)/sigma)));
 	}
 
-	y ~ normal(gaus_y, sigma_y_smear);
+	y ~ normal(gaus_y, sigma_y_smear);			
 }
 
 generated quantities{

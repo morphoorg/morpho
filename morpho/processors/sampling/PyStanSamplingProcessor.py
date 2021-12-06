@@ -10,20 +10,22 @@ import os
 import random
 import re
 from hashlib import md5
-from inspect import getargspec
+from inspect import getargspec, signature
 from datetime import datetime
 import numpy
-
-try:
-    import pystan
-except ImportError:
-    pass
 
 from morpho.utilities import morphologging, reader, pystanLoader, stanConvergenceChecker
 from morpho.processors import BaseProcessor
 from morpho.processors.plots import Histo2dDivergence
 logger = morphologging.getLogger(__name__)
 logger_stan = morphologging.getLogger('pystan')
+
+try:
+    import stan
+except ImportError:
+    logger.error("Cannot find stan")
+    pass
+
 
 __all__ = []
 __all__.append(__name__)
@@ -39,8 +41,8 @@ class PyStanSamplingProcessor(BaseProcessor):
         model_name: name of the cached model
         cache_dir: location of the cache folder (containing cached models)
         input_data: dictionary containing model input data
-        iter (required): total number of iterations (warmup and sampling)
-        warmup: number of warmup iterations (default=iter/2)
+        num_samples (required): total number of iterations (warmup and sampling)
+        num_warmup: number of warmup iterations (default=num_samples/2)
         warmup_inc: include warmup part of the chains (default=True); if false (no warmup), no divergence plot is made
         chain: number of chains (default=1)
         n_jobs: number of parallel cores running (default=1)
@@ -92,10 +94,10 @@ class PyStanSamplingProcessor(BaseProcessor):
         Generate a dictionary as paramter if the pystan.sampling method
         '''
         d = self.__dict__
-        sa = getargspec(pystan.StanModel.sampling)
-        output_dict = {k: d[k] for k in (sa.args) if k in d}
+        sa = signature(stan.fit.Fit)
+        output_dict = {k: d[k] for k in (sa.parameters) if k in d}
         # We need to manually add the data to the dictionary because of the setter...
-        output_dict.update({'data': self.data})
+        # output_dict.update({'params': self.interestParams})
         return output_dict
 
     def _init_Stan_function(self):
@@ -182,22 +184,22 @@ class PyStanSamplingProcessor(BaseProcessor):
             cache_fn = '{}/cached-{}-{}.pkl'.format(
                 self.cache_dir, self.model_name, code_hash)
         # Cache creation and saving?
-        if self.force_recreate:
-            logger.debug("Forced to recreate Stan cache!")
-            self._create_and_save_model(theModel, cache_fn)
-        else:
-            import pickle
-            try:
-                logger.debug("Trying to load cached StanModel")
-                self.stanModel = pickle.load(open(cache_fn, 'rb'))
-            except:
-                logger.debug("None exists -> creating Stan cache")
-                self._create_and_save_model(theModel, cache_fn)
-            else:
-                logger.debug("Using cached StanModel: {}".format(cache_fn))
+        # if self.force_recreate:
+        #     logger.debug("Forced to recreate Stan cache!")
+        #     self._create_and_save_model(theModel, cache_fn)
+        # else:
+        #     import pickle
+        #     try:
+        #         logger.debug("Trying to load cached StanModel")
+        #         self.stanModel = pickle.load(open(cache_fn, 'rb'))
+        #     except:
+        #         logger.debug("None exists -> creating Stan cache")
+        self._create_and_save_model(theModel, cache_fn)
+        #     else:
+        #         logger.debug("Using cached StanModel: {}".format(cache_fn))
 
     def _create_and_save_model(self, theModel, cache_fn):
-        self.stanModel = pystan.StanModel(model_code=theModel)
+        self.stanModel = stan.build(theModel, data=self.data)
         if not self.no_cache:
             cdir = os.path.dirname(cache_fn)
             if not os.path.exists(cdir):
@@ -210,7 +212,7 @@ class PyStanSamplingProcessor(BaseProcessor):
 
     def _run_stan(self, *args, **kwargs):
         logger.info("Starting the sampling")
-        text = "Parameters: \n"
+        text = "Sampling parameters: \n"
         for key, value in kwargs.items():
             if key != "data" and key != "init":
                 text = text + "{}\t{}\n".format(key, value)
@@ -218,7 +220,7 @@ class PyStanSamplingProcessor(BaseProcessor):
                 text = text + "{}\t[...]\n".format(key)
         logger.info(text)
         # returns the arguments for sampling and the result of the sampling
-        return self.stanModel.sampling(**(kwargs))
+        return self.stanModel.sample(**(kwargs))
         # return self.stanModel.sampling(**(self.gen_arg_dict()))
 
     def _store_diagnostics(self, stan_results):
@@ -238,13 +240,15 @@ class PyStanSamplingProcessor(BaseProcessor):
         # Plot 2D grid of divergence plots
         divConfig = {"n_bins_x": 100,
                      "n_bins_y": 100,
-                     "variables": self.interestParams + ["lp_prob"],
+                     "variables": self.interestParams + ["lp__"],
                      "title": "divergence_2d_histo",
                      "output_path": self.diagnostics_folder}
         divProcessor = Histo2dDivergence("2dDivergence")
         divProcessor.Configure(divConfig)
-        divProcessor.data = self.results
-        divProcessor.Run()
+        divProcessor.data = stan_results.to_frame().to_dict("list")
+        divProcessor.data.update({"is_sample":  ([0*self.num_warmup]*self.save_warmup + [1*self.num_samples])*self.num_chains})
+        # logger.warning(divProcessor.data)
+        # divProcessor.Run()
         return
 
     def InternalConfigure(self, params):
@@ -255,18 +259,18 @@ class PyStanSamplingProcessor(BaseProcessor):
         self.model_name = reader.read_param(params, 'model_name', "anon_model")
         self.cache_dir = reader.read_param(params, 'cache_dir', '.')
         self.data = reader.read_param(params, 'input_data', {})
-        self.iter = reader.read_param(params, 'iter', 'required')
-        self.warmup = int(reader.read_param(params, 'warmup', self.iter/2))
-        self.inc_warmup = int(reader.read_param(params, 'inc_warmup', True))
-        if self.inc_warmup == False:
-            # since diagnostics uses warmup part, cannot run
+        self.num_samples = reader.read_param(params, 'iter', 'required')
+        self.num_warmup = int(reader.read_param(params, 'warmup', self.num_samples/2))
+        self.save_warmup = int(reader.read_param(params, 'inc_warmup', True))
+        if self.save_warmup == False:
+            # since diagnostics uses warmup part, cannot run diagnostics
             self.no_diagnostics = True
         else:
             self.no_diagnostics = reader.read_param(
                 params, 'no_diagnostics', False)
         self.diagnostics_folder = reader.read_param(
             params, 'diagnostics_folder', "./stan_diagnostics")
-        self.chains = int(reader.read_param(params, 'chain', 1))
+        self.num_chains = int(reader.read_param(params, 'chain', 1)) # changed with pystan3
         # number of jobs to run (-1: all, 1: good for debugging)
         self.n_jobs = int(reader.read_param(params, 'n_jobs', -1))
         self.interestParams = reader.read_param(params, 'interestParams', [])
@@ -286,21 +290,22 @@ class PyStanSamplingProcessor(BaseProcessor):
         else:
             if reader.read_param(params, 'control', None) is not None:
                 logger.debug("stan.run.control should be a dict: {}", str(
-                    reader.read_param(yd, 'control', None)))
+                    reader.read_param(params, 'control', None)))
 
         return True
 
     def InternalRun(self):
         self._get_data_lists_size()
         self._stan_cache()
+
         stan_results = self._run_stan(**(self.gen_arg_dict()))
         logger.debug("Stan Results:\n"+str(stan_results))
-        # Put the data into a nice dictionary
-        self.results = pystanLoader.extract_data_from_outputdata(
-            self.__dict__, stan_results)
         # Store convergence checks
         if not self.no_diagnostics:
             self._store_diagnostics(stan_results)
         else:
             logger.info("No diagnostics plots produced")
+        # Put the data into a nice dictionary
+        self.results = stan_results.to_frame().to_dict("list")
+        self.results.update({"num_chains": self.num_chains, "is_sample": ([0]*self.num_warmup + [1]*self.num_samples)*self.num_chains})
         return True

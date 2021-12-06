@@ -9,9 +9,9 @@ processors-toolbox:
     processors:
         - type: morpho:PyStanSamplingProcessor
           name: generator
-        - type: IORProcessor
+        - type: IOCSVProcessor
           name: writer
-        - type: IORProcessor
+        - type: IOCSVProcessor
           name: reader
         - type: morpho:PyStanSamplingProcessor
           name: analyzer
@@ -38,21 +38,23 @@ generator:
         xmin: 1
         xmax: 10
         sigma: 1.6
-    iter: 530
+    iter: 30
     warmup: 500
     interestParams: ['x','y','residual']
     delete: False
     diagnostics_folder: "linear_fit/plots/generator_diagnostics"
+    chain: 4
 writer:
     action: write
-    filename: linear_fit/data/data.r
+    filename: linear_fit/data/data.csv
     variables: 
         - "x"
         - "y"
         - 'residual'
+    discard_warmup: True
 reader:
     action: read
-    filename: linear_fit/data/data.r
+    filename: linear_fit/data/data.csv
     variables: ["x","y"]
 analyzer:
     model_code: "linear_fit/models/model_linear_fit.stan"
@@ -60,12 +62,13 @@ analyzer:
     warmup: 500
     interestParams: ['slope','intercept','sigma']
     input_data: 
-      N: 530
+      N: 120
     diagnostics_folder: "linear_fit/plots/analyzer_diagnostics"
+    chain: 4
 posterioriDistrib:
     n_bins_x: 100
     n_bins_y: 100
-    variables: ['slope','intercept','sigma',"lp_prob"]
+    variables: ['slope','intercept','sigma',"lp__"]
     title: "aposteriori_distribution"
     output_path: "linear_fit/plots"
 timeSeries:

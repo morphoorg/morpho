@@ -34,6 +34,12 @@ class Histo2dDivergence(BaseProcessor):
         output_pformat: plot format (default=pdf)
     '''
 
+
+    def __init__(self, name, *args, **kwargs):
+        super().__init__(name, *args, **kwargs)
+        self._data = dict()
+        self.sample_warmup_sequence = list()
+
     @property
     def data(self):
         return self._data
@@ -41,6 +47,14 @@ class Histo2dDivergence(BaseProcessor):
     @data.setter
     def data(self, value):
         self._data = value
+
+    @property
+    def sample_warmup_sequence(self):
+        return self._sample_warmup_sequence
+
+    @sample_warmup_sequence.setter
+    def sample_warmup_sequence(self, value):
+        self._sample_warmup_sequence = value
 
     def InternalConfigure(self, param_dict):
         '''
@@ -64,6 +78,7 @@ class Histo2dDivergence(BaseProcessor):
                                                                            "")
         hist_grid = plots._fill_hist_grid_divergence(self.data, name_grid,
                                                       self.nbins_x, self.nbins_y)
+
 
         rows = len(hist_grid)
         cols = len(hist_grid[0])

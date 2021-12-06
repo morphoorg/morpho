@@ -141,7 +141,7 @@ class IOTests(unittest.TestCase):
 
     def test_CVSIO(self):
         logger.info("IOCVS test")
-        from morpho.processors.IO import IOCVSProcessor
+        from morpho.processors.IO import IOCSVProcessor
         writer_config = {
             "action": "write",
             "filename": "myFile.txt",
@@ -156,8 +156,8 @@ class IOTests(unittest.TestCase):
             "format": "csv"
         }
 
-        a = IOCVSProcessor("writer")
-        b = IOCVSProcessor("reader")
+        a = IOCSVProcessor("writer")
+        b = IOCSVProcessor("reader")
         a.Configure(writer_config)
         b.Configure(reader_config)
         a.data = input_data

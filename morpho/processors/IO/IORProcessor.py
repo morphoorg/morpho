@@ -8,14 +8,15 @@ from __future__ import absolute_import
 
 import os
 
+from morpho.utilities import morphologging
+logger = morphologging.getLogger(__name__)
 try:
-    import pystan
+    import stan
 except ImportError:
+    logger.error("Cannot find stan")
     pass
 
 from morpho.processors.IO import IOProcessor
-from morpho.utilities import morphologging
-logger = morphologging.getLogger(__name__)
 
 __all__ = []
 __all__.append(__name__)

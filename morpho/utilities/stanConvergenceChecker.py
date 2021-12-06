@@ -25,6 +25,10 @@ try:
 except ImportError:
     pass
 
+import arviz as az
+
+from morpho.utilities import morphologging
+logger = morphologging.getLogger(__name__)
 
 def check_div(fit):
     '''Check how many transitions ended with a divergence
@@ -37,8 +41,8 @@ def check_div(fit):
         divergent, and string stating the number of transitions
         that ended with a divergence
     '''
-    sampler_params = fit.get_sampler_params(inc_warmup=False)
-    divergent = [x for y in sampler_params for x in y['divergent__']]
+    sampler_params = fit.to_frame()
+    divergent = sampler_params["divergent__"] #[x for y in sampler_params for x in y['divergent__']]
     n = sum(divergent)
     N = len(divergent)
     if n > 0:
@@ -64,8 +68,8 @@ def check_treedepth(fit, max_depth=10):
         passed the given max dpeth, and string stating the number
         of transitions that passed the given max_depth.
     '''
-    sampler_params = fit.get_sampler_params(inc_warmup=False)
-    depths = [x for y in sampler_params for x in y['treedepth__']]
+    sampler_params = fit.to_frame()
+    depths = sampler_params["treedepth__"] #[x for y in sampler_params for x in y['divergent__']]
     n = sum(1 for x in depths if x == max_depth)
     N = len(depths)
     if n > 0:
@@ -85,17 +89,21 @@ def check_energy(fit):
     Returns:
        (bool, str): Boolean specifying whether E-BFMI is less than 0.2,
        and string warning that the model may need to be reparametrized if
-       E-BFMI is less than 0.2
+       E-BFMI is less than 0.2.
     '''
-    sampler_params = fit.get_sampler_params(inc_warmup=False)
+    sampler_params = fit.to_frame()
     no_warning = True
-    for chain_num, s in enumerate(sampler_params):
-        energies = s['energy__']
+    num_chains = fit.num_chains
+    num_samples = int(sampler_params["treedepth__"].size/num_chains)
+    for nc in range(num_chains):
+        energies = sampler_params['treedepth__'].to_list()[nc*num_samples:(nc+1)*num_samples]
+        if (len(energies) == 0):
+            logger.error("No energies values!")
         numer = sum((energies[i] - energies[i - 1]) **
                     2 for i in range(1, len(energies))) / len(energies)
         denom = numpy.var(energies)
         if numer / denom < 0.2:
-            print('Chain {}: E-BFMI = {}'.format(chain_num, numer / denom))
+            logger.warning('Chain {}: E-BFMI = {}'.format(chain_num, numer / denom))
             no_warning = False
     if no_warning:
         return((False, 'E-BFMI indicated no pathological behavior.'))
@@ -113,17 +121,17 @@ def check_n_eff(fit):
         (bool, str): Boolean and string stating whether the
         effective sample size indicates an issue
     '''
-    fit_summary = fit.summary(probs=[0.5])
-    n_effs = [x[4] for x in fit_summary['summary']]
-    names = fit_summary['summary_rownames']
-    n_iter = len(fit.extract()['lp__'])
+    fit_summary = az.summary(fit)
+    n_effs = fit_summary.ess_bulk #[x[4] for x in fit_summary['summary']]
+    names = fit_summary.keys()
+    n_iter = fit_summary.size
 
     no_warning = True
     for n_eff, name in zip(n_effs, names):
         ratio = n_eff / n_iter
         if (ratio < 0.001):
-            print('n_eff / iter for parameter {} is {}!'.format(name, ratio))
-            print('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
+            logger.warning('n_eff / iter for parameter {} is {}!'.format(name, ratio))
+            logger.warning('E-BFMI below 0.2 indicates you may need to reparameterize your model.')
             no_warning = False
     if no_warning:
         return((False, 'n_eff / iter looks reasonable for all parameters.'))
@@ -144,14 +152,16 @@ def check_rhat(fit):
     from math import isnan
     from math import isinf
 
-    fit_summary = fit.summary(probs=[0.5])
-    rhats = [x[5] for x in fit_summary['summary']]
-    names = fit_summary['summary_rownames']
+    fit_summary = az.summary(fit)
+    rhats = az.rhat(fit)
+    logger.debug(rhats.data_vars)
+    # names = fit_summary.keys()
 
     no_warning = True
-    for rhat, name in zip(rhats, names):
+    for name, rhat in rhats.data_vars.items():
+    # for rhat, in rhats:
         if (rhat > 1.1 or isnan(rhat) or isinf(rhat)):
-            print('Rhat for parameter {} is {}!'.format(name, rhat))
+            logger.warning('Rhat for parameter {} is {}!'.format(name, rhat))
             no_warning = False
     if no_warning:
         return((False, 'Rhat looks reasonable for all parameters.'))
@@ -172,7 +182,10 @@ def check_all_diagnostics(fit):
         of missing energy, effective sample size, and Rhat
     '''
     n_eff_warn, n_eff_str = check_n_eff(fit)
-    rhat_warn, rhat_str = check_rhat(fit)
+    if (n_eff_warn):
+        logger.warn("Failed to pass Effective N check")
+    if fit.num_chains >= 2:
+        rhat_warn, rhat_str = check_rhat(fit)
     div_warn, div_str = check_div(fit)
     treedepth_warn, treedepth_str = check_treedepth(fit)
     energy_warn, energy_str = check_energy(fit)
@@ -196,7 +209,7 @@ def partition_div(fit_results, parameter_name):
         transitions, the second contains all divergent transitions.
         Warmup iterations are excluded from the returned arrays
     '''
-    warmup = fit_results["is_sample"].count(0)
+    warmup = fit_results.num_warmup
     div = numpy.array(fit_results['divergent__'][warmup:]).astype('int')
     data = numpy.array(fit_results[parameter_name][warmup:])
     nondiv_params = data[div == 0]

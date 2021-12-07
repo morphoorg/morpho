@@ -209,9 +209,10 @@ def partition_div(fit_results, parameter_name):
         transitions, the second contains all divergent transitions.
         Warmup iterations are excluded from the returned arrays
     '''
-    warmup = fit_results.num_warmup
-    div = numpy.array(fit_results['divergent__'][warmup:]).astype('int')
-    data = numpy.array(fit_results[parameter_name][warmup:])
+    # warmup = fit_results.num_warmup
+    div = numpy.array([val for i, val in enumerate(fit_results['divergent__']) if fit_results["is_sample"][i] == 1]).astype('int')
+    data = numpy.array([val for i, val in enumerate(fit_results[parameter_name]) if fit_results["is_sample"][i] == 1])
+    # data = numpy.array(fit_results[parameter_name][warmup:])
     nondiv_params = data[div == 0]
     div_params = data[div == 1]
     return nondiv_params, div_params

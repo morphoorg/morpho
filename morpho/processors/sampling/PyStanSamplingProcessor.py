@@ -246,9 +246,8 @@ class PyStanSamplingProcessor(BaseProcessor):
         divProcessor = Histo2dDivergence("2dDivergence")
         divProcessor.Configure(divConfig)
         divProcessor.data = stan_results.to_frame().to_dict("list")
-        divProcessor.data.update({"is_sample":  ([0*self.num_warmup]*self.save_warmup + [1*self.num_samples])*self.num_chains})
-        # logger.warning(divProcessor.data)
-        # divProcessor.Run()
+        divProcessor.data.update({"is_sample":  ([0]*self.num_warmup + [1]*self.num_samples)*self.num_chains})
+        divProcessor.Run()
         return
 
     def InternalConfigure(self, params):

@@ -6,7 +6,7 @@
 
 from morpho.processors.sampling import PyStanSamplingProcessor
 from morpho.processors.plots import TimeSeries, APosterioriDistribution
-from morpho.processors.IO import IORProcessor
+from morpho.processors.IO import IOCSVProcessor
 
 generator_config = {
     "model_code": "linear_fit/models/model_linear_generator.stan",
@@ -17,15 +17,17 @@ generator_config = {
         "xmax": 10,
         "sigma": 1.6
     },
-    "iter": 530,
+    "iter": 30,
     "warmup": 500,
     "interestParams": ['x', 'y', 'residual'],
-    "diagnostics_folder": "linear_fit/plots/generator_diagnostics"
+    "diagnostics_folder": "linear_fit/plots/generator_diagnostics",
+    "chain": 4
 }
 writer_config = {
     "action": "write",
     "filename": "linear_fit/data/data.r",
-    "variables": ["x", "y", 'residual']
+    "variables": ["x", "y", 'residual'],
+    "discard_warmup": False
 }
 reader_config = {
     "action": "read",
@@ -37,12 +39,13 @@ analyzer_config = {
     "iter": 2500,
     "warmup": 500,
     "interestParams": ['slope', 'intercept', 'sigma'],
-    "diagnostics_folder": "linear_fit/plots/analyzer_diagnostics"
+    "diagnostics_folder": "linear_fit/plots/analyzer_diagnostics",
+    "chain": 4
 }
 aposteriori_config = {
     "n_bins_x": 100,
     "n_bins_y": 100,
-    "variables": ['slope', 'intercept', 'sigma', "lp_prob"],
+    "variables": ['slope', 'intercept', 'sigma', "lp__"],
     "title": "aposteriori_distribution",
     "output_path": "linear_fit/plots"
 }
@@ -55,8 +58,8 @@ timeSeries_config = {
 
 # Definition of the processors
 generationProcessor = PyStanSamplingProcessor("generator")
-writerProcessor = IORProcessor("writer")
-readerProcessor = IORProcessor("reader")
+writerProcessor = IOCSVProcessor("writer")
+readerProcessor = IOCSVProcessor("reader")
 analysisProcessor = PyStanSamplingProcessor("analyzer")
 aposterioriPlotter = APosterioriDistribution("posterioriDistrib")
 timeSeriesPlotter = TimeSeries("timeSeries")

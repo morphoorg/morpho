@@ -28,11 +28,7 @@ COPY tests $MORPHO_BUILD_PREFIX/tests
 
 RUN source $MORPHO_BUILD_PREFIX/setup.sh &&\
     cd /tmp_source &&\
+    pip3 install --upgrade pip &&\
     pip3 install setuptools-scm &&\
     pip3 install . --prefix $MORPHO_BUILD_PREFIX &&\
     /bin/true
-
-########################
-FROM morpho_common
-
-COPY --from=morpho_done $MORPHO_BUILD_PREFIX $MORPHO_BUILD_PREFIX

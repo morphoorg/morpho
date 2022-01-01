@@ -1,0 +1,45 @@
+name: Build on push
+
+on: [pull_request]
+
+jobs:
+
+
+  build_all_options:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Repo checkout
+        with:
+          persist-credentials: true
+      - name: Submodule update
+        run: git submodule update --init --recursive
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag morpho
+      - name: Run tests
+        run: docker run --rm -it morpho /bin/bash -c "source \$MORPHO_BUILD_PREFIX/setup.sh; cd \$MORPHO_BUILD_PREFIX; python3 -m unittest discover -s tests -v"
+
+  build_no_option:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Repo checkout
+        with:
+          persist-credentials: true
+      - uses: actions/checkout@v2
+        name: Fetch ModProb3++ checkout
+        with:
+          ssh-key: ${{ secrets.secret_modprob3pp_key }}
+          path: Minimal/library/externals/ModProb3++
+          repository: P-theta/ModProb3pp
+          persist-credentials: true
+      - name: Submodule update
+        run: git submodule update --init --recursive
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag p-theta --build-arg CMAKE_OPTIONS="-D PTheta_ENABLE_TESTING=TRUE"
+      - name: Run tests
+        run: docker run -t p-theta bash -c "source my_build/bin/this_ptheta.sh; run_tests"

@@ -10,16 +10,10 @@ import os
 
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
-try:
-    import stan
-except ImportError:
-    logger.error("Cannot find stan")
-    pass
 
 from morpho.processors.IO import IOProcessor
 
-__all__ = []
-__all__.append(__name__)
+__all__ = [__name__]
 
 
 class IORProcessor(IOProcessor):
@@ -42,7 +36,6 @@ class IORProcessor(IOProcessor):
     def Reader(self):
         logger.debug("Reading {}".format(self.file_name))
         if os.path.exists(self.file_name):
-            # with open(self.file_name, 'r') as csv_file:
             try:
                 theData = pystan.misc.read_rdump(self.file_name)
                 # theData = dict(reader)

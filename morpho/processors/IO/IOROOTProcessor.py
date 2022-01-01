@@ -8,19 +8,20 @@ from __future__ import absolute_import
 
 import os
 
-
 from morpho.utilities import morphologging, reader
 from morpho.processors.IO import IOProcessor
 
 logger = morphologging.getLogger(__name__)
 try:
     import uproot
+
     is_uproot_present = True
 except ImportError:
     logger.warning("Failed importing uproot")
     is_uproot_present = False
 try:
     import ROOT
+
     is_root_present = True
 except ImportError:
     logger.warning("Failed importing ROOT")
@@ -53,11 +54,23 @@ class IOROOTProcessor(IOProcessor):
         self.tree_name = reader.read_param(params, "tree_name", "required")
         self.file_option = reader.read_param(params, "file_option", "Recreate")
         if not is_uproot_present and not is_root_present:
-            logger.error("ROOT and/or uproot not available")
+            logger.error("ROOT and uproot not available")
             return False
         return True
 
     def Reader(self):
+        '''
+        Read the content of a TTree in a ROOT File.
+        Note the use of the uproot package.
+        The variables should be a list of the "variable" to read.
+        '''
+        logger.debug("Reading {}:{}".format(self.file_name, self.tree_name))
+        with uproot.open("{}:{}".format(self.file_name, self.tree_name)) as tree:
+            for key in self.variables:
+                self.data.update({str(key): tree[key].array()})
+        return True
+
+    def Old_Reader(self):
         '''
         Read the content of a TTree in a ROOT File.
         Note the use of the uproot package.
@@ -93,6 +106,36 @@ class IOROOTProcessor(IOProcessor):
         return True
 
     def Writer(self):
+        """
+        Write the data into a TTree in a ROOT File.
+        The variables should be a list of dictionaries where
+            - "variable" is the variable name in the input dictionary,
+            - "root_alias" is the name of the branch in the tree,
+            - "type" is the type of data to be saved.
+        """
+        logger.debug("Saving data in {}".format(self.file_name))
+
+        rdir = os.path.dirname(self.file_name)
+        if not rdir == "" and not os.path.exists(rdir):
+            os.makedirs(rdir)
+            logger.debug("Creating folder: {}".format(rdir))
+
+        if str(self.file_option).upper() == "RECREATE":
+            file = uproot.recreate(self.file_name)
+        else:
+            file = uproot.update(self.file_name)
+        mod_data = dict()
+        # using the root_alias thing
+        for a_item in self.variables:
+            if "root_alias" in a_item.keys():
+                mod_data.update({str(a_item["root_alias"]): self.data[a_item["variable"]]})
+            else:
+                mod_data.update({str(a_item["variable"]): self.data[a_item["variable"]]})
+        file[self.tree_name] = mod_data
+        file.close()
+        return True
+
+    def Old_Writer(self):
         """
         Write the data into a TTree in a ROOT File.
         The variables should be a list of dictionaries where
@@ -145,7 +188,8 @@ class IOROOTProcessor(IOProcessor):
             if isinstance(self.data[var_name][0], list):
                 info_sub_dict = {
                     "len": len(self.data[var_name][0]),
-                    "type": _branch_element_type_from_string(var_type) or _branch_element_type(self.data[var_name][0][0]),
+                    "type": _branch_element_type_from_string(var_type) or _branch_element_type(
+                        self.data[var_name][0][0]),
                     "root_alias": var_root_alias
                 }
             else:

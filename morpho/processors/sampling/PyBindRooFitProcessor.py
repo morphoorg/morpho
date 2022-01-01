@@ -7,14 +7,17 @@ Authors: M. Guigue
 Date: 06/26/18
 '''
 
-import ROOT
-
-value = ROOT.gSystem.Load("libRooFit")
-if value < 0:
-    print("Failed loading", value)
-    exit()
-
 logger = morphologging.getLogger(__name__)
+
+try:
+    import ROOT
+
+    value = ROOT.gSystem.Load("libRooFit")
+    if value < 0:
+        logger.fatal("Failed loading: {}".format(value))
+        exit()
+except ImportError:
+    pass
 
 
 class PyFunctionObject(ROOT.Math.IMultiGenFunction):

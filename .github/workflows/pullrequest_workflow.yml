@@ -11,4 +11,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag morpho:$(date +%s)
+      run: docker build . --file Dockerfile --tag morpho
+    - name: Run tests
+      run: docker run --rm -it morpho /bin/bash -c "source \$MORPHO_BUILD_PREFIX/setup.sh; cd \$MORPHO_BUILD_PREFIX; python3 -m unittest discover -s tests -v"

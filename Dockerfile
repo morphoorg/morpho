@@ -1,5 +1,4 @@
-FROM morpho_docker as morpho_common
-# FROM ghcr.io/morphoorg/morpho-docker:main as morpho_common
+FROM ghcr.io/morphoorg/morpho-docker:main as morpho_common
 
 ENV MORPHO_TAG=v2.7.2
 ENV MORPHO_REPO_PREFIX=$REPO_DIR/morpho/$MORPHO_TAG

@@ -10,6 +10,9 @@ from morpho.utilities import morphologging, reader
 from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)
 
+from importlib import import_module  # Python 3.4+
+import sys
+
 
 class ProcessorAssistant(BaseProcessor):
     '''
@@ -32,15 +35,15 @@ class ProcessorAssistant(BaseProcessor):
     def InternalConfigure(self, config_dict):
         self.module_name = str(reader.read_param(config_dict, 'module_name', "required"))
         self.function_name = str(reader.read_param(config_dict, 'function_name', "required"))
+        self.path_name = str(reader.read_param(config_dict, 'path_name', "."))
         self.config_dict = config_dict
         # Test if the module exists
         try:
-            import imp
-            self.module = imp.load_source(
-                self.module_name, self.module_name+'.py')
-        except Exception as err:
-            logger.critical(err)
-            return 0
+            sys.path.insert(1, self.path_name)
+            self.module = import_module(self.module_name)
+        except FileNotFoundError as err:
+            logger.error(err)
+            return False
         # Test if the function exists in the file
         if hasattr(self.module, self.function_name):
             logger.info("Found {} using {}".format(

@@ -19,6 +19,9 @@ try:
 except ImportError:
     pass
 
+from importlib import import_module  # Python 3.4+
+import sys
+
 
 class PyFunctionObject(ROOT.Math.IMultiGenFunction):
     def __init__(self, pythonFunction, dimension=2):
@@ -26,6 +29,7 @@ class PyFunctionObject(ROOT.Math.IMultiGenFunction):
         logger.info("Created PyFunctionObject")
         self.pythonFunction = pythonFunction
         self.dimension = dimension
+        logger.info("Done PyFunctionObject")
 
     def NDim(self):
         return self.dimension
@@ -79,14 +83,15 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
             config_dict, "initValues", dict())
         self.module_name = reader.read_param(
             config_dict, "module_name", "required")
+        self.path_name = reader.read_param(
+            config_dict, "path_name", ".")
         self.function_name = reader.read_param(
             config_dict, "function_name", "required")
         # Test if the module exists
+        sys.path.insert(1, self.path_name)
         try:
-            import imp
-            self.module = imp.load_source(
-                self.module_name, self.module_name+'.py')
-        except Exception as err:
+            self.module = import_module(self.module_name)
+        except ModuleNotFoundError as err:
             logger.critical(err)
             return 0
         # Test if the function exists in the file
@@ -134,29 +139,25 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         rooVarSet = list()
         aVarSampling = 0
         for aVarName in self.ranges.keys():
-            logger.info(aVarName)
             if aVarName in self.fixedParameters.keys():
                 logger.debug("{} is fixed".format(aVarName))
                 rooVarSet.append(ROOT.RooRealVar(str(aVarName), str(
                     aVarName), self.fixedParameters[aVarName]))
-                logger.info(aVarName)
             elif aVarName in self.initParamValues.keys():
+                logger.debug(f"{aVarName} is an initialized variable")
                 aVarSampling = ROOT.RooRealVar(str(aVarName), str(
                     aVarName), self.initParamValues[aVarName], self.ranges[aVarName][0], self.ranges[aVarName][1])
                 rooVarSet.append(aVarSampling)
                 logger.info(aVarName)
             else:
+                logger.debug(f"{aVarName} is a variable")
                 aVarSampling = ROOT.RooRealVar(str(aVarName), str(
                     aVarName), self.ranges[aVarName][0], self.ranges[aVarName][1])
                 rooVarSet.append(aVarSampling)
-                logger.info(aVarName)
 
         self.func = getattr(self.module, self.function_name)
-        print("Function", self.func)
-        print("Should be a little less than 2:", self.func(1, 1, 3.1415, -1))
         self.f = PyFunctionObject(self.func, dimension=len(rooVarSet))
-        print("PyFunctionObject", self.f)
-        self.bindFunc = ROOT.RooFit.bindFunction("test", self.f, ROOT.RooArgList(*rooVarSet))
+        self.bindFunc = ROOT.RooFit.bindFunction(self.function_name, self.f, ROOT.RooArgList(*rooVarSet))
 
         a0 = ROOT.RooRealVar("a0", "a0", 0)
         a0.setConstant()
@@ -167,16 +168,7 @@ class PyBindRooFitProcessor(RooFitInterfaceProcessor):
         self.pdf = ROOT.RooRealSumPdf("pdf", "pdf", self.bindFunc, bkg, ROOT.RooFit.RooConst(
             1.))  # ; //combine the constant term (bkg)
 
-        logger.debug("pdf: {}".format(self.pdf))
         wspace.Print()
         getattr(wspace, 'import')(self.pdf)
 
         return wspace
-
-
-if __name__ == "__main__":
-    rose = RosenBrock()
-    f = ROOT.Math.IMultiGenFunction(rose)
-    x = ROOT.RooRealVar("x", "x", 0, 10)
-    a = ROOT.RooRealVar("a", "a", 1, 2)
-    fx = ROOT.RooFit.bindFunction("test", f, ROOT.RooArgList(x, a))

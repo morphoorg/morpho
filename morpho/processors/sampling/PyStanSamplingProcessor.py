@@ -98,10 +98,10 @@ class PyStanSamplingProcessor(BaseProcessor):
     def _init_stan_function(self):
         if isinstance(self.init_per_chain, list):
             # init_per_chain is a list of dictionaries
-            if self.chains > 1 and len(self.init_per_chain) == 1:
-                dict_list = [self.init_per_chain[0]] * self.chains
+            if self.num_chains > 1 and len(self.init_per_chain) == 1:
+                dict_list = [self.init_per_chain[0]] * self.num_chains
                 return dict_list
-            elif len(self.init_per_chain) == self.chains:
+            elif len(self.init_per_chain) == self.num_chains:
                 return self.init_per_chain
             else:
                 logger.error(
@@ -109,8 +109,8 @@ class PyStanSamplingProcessor(BaseProcessor):
                 return self.init_per_chain
         elif isinstance(self.init_per_chain, dict):
             # init_per_chain is a dictionary
-            if self.chains > 1:
-                return [self.init_per_chain] * self.chains
+            if self.num_chains > 1:
+                return [self.init_per_chain] * self.num_chains
             else:
                 return [self.init_per_chain]
         else:
@@ -178,6 +178,7 @@ class PyStanSamplingProcessor(BaseProcessor):
         # else:
         #     cache_fn = '{}/cached-{}-{}.pkl'.format(
         #         self.cache_dir, self.model_name, code_hash)
+        self.stanModel = stan.build(the_model, data=self.data)
         # self._create_and_save_model(the_model, cache_fn)
 
     # def _create_and_save_model(self, theModel, cache_fn):

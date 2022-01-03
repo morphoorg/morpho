@@ -9,6 +9,7 @@ Date: May 2020
 
 from __future__ import absolute_import
 
+import awkward
 import numpy as np
 import math
 from os.path import exists
@@ -46,8 +47,8 @@ class CalibrationProcessor(BaseProcessor):
         self.in_param_names
     """
 
-    def __init__(self, name, *args, **kwargs):
-        super().__init__(name, args, kwargs)
+    def __init__(self, name):
+        super().__init__(name)
         self.files = ""
 
     def InternalConfigure(self,params) -> bool:
@@ -220,7 +221,10 @@ class CalibrationProcessor(BaseProcessor):
             HDI: a list [p_a, p_b] containing the lower and upper value of the minimum width Bayesian credible interval
         """
         check_near_zero = 10
-        posterior_array.sort()
+        try:
+            posterior_array = awkward.sort(posterior_array)
+        except ValueError:
+            posterior_array.sort()
         #Number of samples generated
         nSample = len(posterior_array)
         #Number of samples included in the HDI
@@ -228,7 +232,7 @@ class CalibrationProcessor(BaseProcessor):
         #Number of intervals to be compared
         nCI = nSample - nSampleCred
         #Width of every proposed interval
-        best_width = max(posterior_array)
+        best_width = max(posterior_array) - min(posterior_array)
         
         best_index = 0
         for i in range(nCI):
@@ -279,20 +283,25 @@ class CalibrationProcessor(BaseProcessor):
             #Optionally reporting how often each parameter is consistent with zero
             if self.check_if_nonzero:
                 zero_frac = float(consistent_with_zero[param_name])/len(self.files)
-                logger.info('{} CALIBRATION: {}% of inputted values are consistent with zero.'.format(param_name, zero_frac*100))
+                logger.info(
+                    f'{param_name} CALIBRATION: {zero_frac * 100}% of inputted values are consistent with zero.')
                 
             #Printing coverages and summary interval information
             if len(self.cred_interval) == 1:
-                logger.info('{}% of inputted {} values fell below a {}% posterior limit.'.format(coverages[param_name]*100, param_name, self.alpha*100))
+                logger.info(
+                    f'{coverages[param_name] * 100}% of inputted {param_name} values fell below a {self.alpha * 100}% posterior limit.')
                 widths = [i[0] for i in calib_bounds[param_name]]
             elif len(self.cred_interval) == 2:
-                logger.info('{} CALIBRATION: {}% of inputted values fell in a {}-{}% posterior interval.'.format(param_name, coverages[param_name]*100, self.cred_interval[0]*100, self.cred_interval[1]*100))
+                logger.info(
+                    f'{param_name} CALIBRATION: {coverages[param_name] * 100}% of inputted values fell in a {self.cred_interval[0] * 100}-{self.cred_interval[1] * 100}% posterior interval.')
                 avgs = {key:val/float(len(self.files)) for key, val in sums[param_name].items()}
-                logger.info("{} AVERAGES: {} < {} < {}; Median val={}; Mean val={}".format(param_name, avgs['lower'], param_name, avgs['upper'], avgs['median'], avgs['mean']))
+                logger.info(
+                    f"{param_name} AVERAGES: {avgs['lower']} < {param_name} < {avgs['upper']}; Median val={avgs['median']}; Mean val={avgs['mean']}")
                 widths = [i[1]-i[0] for i in calib_bounds[param_name]]
                 
-            logger.info("{} Mean interval width: {}; Median: {}".format(param_name, np.mean(widths), np.median(widths)))
-            logger.info("{} Minumum width: {}; Maximum: {}\n--------------------------------------------------------".format(param_name, np.amin(widths), np.amax(widths)))
+            logger.info(f"{param_name} Mean interval width: {np.mean(widths)}; Median: {np.median(widths)}")
+            logger.info(
+                f"{param_name} Minimum width: {np.amin(widths)}; Maximum: {np.amax(widths)}\n--------------------------------------------------------")
 
     def InternalRun(self):
         self.results = self.perform_calibration()

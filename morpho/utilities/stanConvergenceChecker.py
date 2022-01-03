@@ -186,6 +186,8 @@ def check_all_diagnostics(fit):
     n_eff_warn, n_eff_str = check_n_eff(fit)
     if n_eff_warn:
         logger.warn("Failed to pass Effective N check")
+    rhat_warn = False
+    rhat_str = ""
     if fit.num_chains >= 2:
         rhat_warn, rhat_str = check_rhat(fit)
     div_warn, div_str = check_div(fit)

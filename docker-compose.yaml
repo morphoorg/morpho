@@ -9,4 +9,4 @@ services:
       - ~/Work/HDR:/hdr
   test:
     build: .
-    command: '/bin/bash -c ". /home/linuxbrew/.bash_profile && which root && python3 -m unittest discover -s ./tests -v"'
+    command: '/bin/bash -c ". /home/linuxbrew/.bash_profile && cd tests && python3 -m unittest discover -v"'

@@ -13,8 +13,6 @@ logger = morphologging.getLogger(__name__)
 
 from morpho.processors.IO import IOProcessor
 
-__all__ = [__name__]
-
 
 class IORProcessor(IOProcessor):
     '''

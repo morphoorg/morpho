@@ -17,9 +17,6 @@ from morpho.processors import BaseProcessor
 from morpho.processors.IO import IOROOTProcessor
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
-
 
 class CalibrationProcessor(BaseProcessor):
     '''

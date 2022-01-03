@@ -13,9 +13,6 @@ from morpho.utilities import morphologging, reader
 from morpho.processors.sampling import RooFitInterfaceProcessor
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
-
 
 class LinearFitRooFitProcessor(RooFitInterfaceProcessor):
     '''

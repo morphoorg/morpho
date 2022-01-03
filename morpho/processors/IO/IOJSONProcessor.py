@@ -13,8 +13,6 @@ from morpho.processors.IO import IOProcessor
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 
-__all__ = [__name__]
-
 
 class IOJSONProcessor(IOProcessor):
     """

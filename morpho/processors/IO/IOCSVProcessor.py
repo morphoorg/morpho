@@ -14,10 +14,6 @@ from morpho.utilities import morphologging, reader
 logger = morphologging.getLogger(__name__)
 
 
-__all__ = []
-__all__.append(__name__)
-
-
 class IOCSVProcessor(IOProcessor):
     '''
     Base IO CSV Processor

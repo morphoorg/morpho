@@ -27,8 +27,6 @@ except ImportError:
     logger.warning("Failed importing ROOT")
     is_root_present = False
 
-__all__ = [__name__]
-
 
 class IOROOTProcessor(IOProcessor):
     '''

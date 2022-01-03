@@ -12,8 +12,6 @@ from morpho.processors.plots import RootCanvas
 
 logger = morphologging.getLogger(__name__)
 
-__all__ = [__name__]
-
 
 class Histo2dDivergence(BaseProcessor):
     """

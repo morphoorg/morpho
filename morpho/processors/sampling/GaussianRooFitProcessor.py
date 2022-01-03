@@ -14,9 +14,6 @@ from morpho.processors.sampling.RooFitInterfaceProcessor import RooFitInterfaceP
 from morpho.processors.BaseProcessor import BaseProcessor
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
-
 
 class GaussianRooFitProcessor(RooFitInterfaceProcessor):
     '''

@@ -23,8 +23,6 @@ try:
 except ImportError:
     logger.error("Cannot find stan")
 
-__all__ = [__name__]
-
 
 class PyStanSamplingProcessor(BaseProcessor):
     """

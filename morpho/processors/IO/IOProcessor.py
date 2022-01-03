@@ -10,8 +10,6 @@ from morpho.processors import BaseProcessor
 from morpho.utilities import morphologging, reader
 logger = morphologging.getLogger(__name__)
 
-__all__ = [__name__]
-
 
 class IOProcessor(BaseProcessor):
     """

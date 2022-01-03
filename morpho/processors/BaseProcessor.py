@@ -12,9 +12,6 @@ from morpho.utilities import morphologging
 import logging
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
-
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseProcessor():

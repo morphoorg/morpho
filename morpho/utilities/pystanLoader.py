@@ -50,7 +50,7 @@ def extract_data_from_outputdata(conf, theOutput):
                     if key in desired_var:
                         theOutputDataDict[str(key)].append(
                             theOutputData[iEvents][iChain][iKey])
-            if iEvents is not 0:
+            if iEvents != 0:
                 theOutputDataDict["delta_energy__"].append(
                     theOutputDiagnostics[iChain]['energy__'][iEvents]-theOutputDiagnostics[iChain]['energy__'][iEvents-1])
             else:

@@ -1,21 +1,20 @@
-'''
+"""
 Base processor for sampling-type operations
 Authors: J. Johnston, M. Guigue, T. Weiss
 Date: 06/26/18
-'''
+"""
 
 from __future__ import absolute_import
 import abc
 import six
 
 from morpho.utilities import morphologging
-import logging
 logger = morphologging.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseProcessor():
-    '''
+    """
     Base Processor
     All Processors will be implemented in a child class where the
     specifics are encoded by overwriting Configure and Run.
@@ -28,57 +27,55 @@ class BaseProcessor():
 
     Results:
         None
-    '''
-
-    def __init__(self, name, *args, **kwargs):
-        self._procName = name
-        logger.debug("Creating processor <{}>".format(self._procName))
+    """
+    def __init__(self, name):
+        self._processor_name = name
+        logger.debug(f"Creating processor <{self._processor_name}>")
+        self._delete_processor = True
 
     @property
     def name(self):
-        return self._procName
+        return self._processor_name
 
     @property
     def delete(self):
         return self._delete_processor
 
-    def Configure(self, params):
+    def Configure(self, params) -> bool:
         '''
         This method will be called by nymph to configure the processor
         '''
-        logger.info("Configure <{}>".format(self.name))
+        logger.info(f"Configure <{self.name}>")
         if "delete" in params:
             self._delete_processor = params['delete']
-        else:
-            self._delete_processor = True
         if not self.InternalConfigure(params):
-            logger.error("Error while configuring <{}>".format(self.name))
+            logger.error(f'Error while configuring <{self.name}>')
             return False
         return True
 
     @abc.abstractmethod
-    def InternalConfigure(self, params):
+    def InternalConfigure(self, params) -> bool:
         '''
         Method called by Configure() to set up the object. Must be
         overridden by child class.
         '''
-        return
+        return False
 
-    def Run(self):
+    def Run(self) -> bool:
         '''
         This method will be called by nymph to run the processor
         '''
-        logger.info("Run <{}>...".format(self.name))
+        logger.info(f"Run <{self.name}>...")
         if not self.InternalRun():
-            logger.error("Error while running <{}>".format(self.name))
+            logger.error(f"Error while running <{self.name}>")
             return False
-        logger.info("Done with <{}>".format(self.name))
+        logger.info(f"Done with <{self.name}>")
         return True
 
     @abc.abstractmethod
-    def InternalRun(self):
+    def InternalRun(self) -> bool:
         '''
         Method called by Run() to run the object. Must be
         overridden by child class.
         '''
-        return
+        return False

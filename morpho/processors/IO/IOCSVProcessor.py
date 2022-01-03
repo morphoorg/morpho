@@ -14,6 +14,7 @@ from morpho.utilities import morphologging, reader
 logger = morphologging.getLogger(__name__)
 
 
+
 class IOCSVProcessor(IOProcessor):
     '''
     Base IO CSV Processor
@@ -40,8 +41,7 @@ class IOCSVProcessor(IOProcessor):
         if os.path.exists(self.file_name):
             with open(self.file_name, 'r') as csv_file:
                 try:
-                    reader = csv.reader(csv_file)
-                    theData = dict(reader)
+                    theData = dict(csv.reader(csv_file))
                 except:
                     logger.error(
                         "Error while reading {}".format(self.file_name))

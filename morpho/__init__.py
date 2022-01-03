@@ -22,8 +22,8 @@ import inspect
 
 for loader, name, is_pkg in pkgutil.walk_packages(__path__):
     module = loader.find_module(name).load_module(name)
-    for name, value in inspect.getmembers(module):
-        if name.startswith("__"):
-          continue
-        globals()[name] = value
-        __all__.append(name)
+    for a_name, value in inspect.getmembers(module):
+        if a_name.startswith("__"):
+            continue
+        globals()[a_name] = value
+        __all__.append(a_name)

@@ -11,7 +11,7 @@ from morpho.utilities import morphologging, reader, plots
 logger = morphologging.getLogger(__name__)
 
 
-class RootCanvas(object):
+class RootCanvas:
     '''
     Create default ROOT canvas object.
 

@@ -6,6 +6,8 @@ Date: 06/26/18
 
 from __future__ import absolute_import
 
+import abc
+
 from morpho.processors import BaseProcessor
 from morpho.utilities import morphologging, reader
 logger = morphologging.getLogger(__name__)
@@ -29,19 +31,21 @@ class IOProcessor(BaseProcessor):
         data: dictionary containing the data
     """
 
+    @abc.abstractmethod
     def Reader(self):
         """
         Need to be defined by the child class
         """
         logger.error("Default Reader method: need to implement your own")
-        raise
+        return False
 
+    @abc.abstractmethod
     def Writer(self):
         """
         Need to be defined by the child class
         """
         logger.error("Default Writer method: need to implement your own")
-        raise
+        return False
 
     def InternalConfigure(self, params):
         """
@@ -60,6 +64,4 @@ class IOProcessor(BaseProcessor):
         """
         if self.file_action == 'write':
             return self.Writer()
-        else:
-            return self.Reader()
-        return False
+        return self.Reader()

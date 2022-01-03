@@ -84,7 +84,7 @@ def getLogger(name, stderr_lb=1,
     handler_stdout=logging.StreamHandler(sys.stdout)
     handler_stdout.setFormatter(morpho_formatter)
     handler_stdout.setLevel(logging.DEBUG)
-    handler_stdout.addFilter(LessThanFilter(errlevel))
+    handler_stdout.addFilter(LessThanFilter(errlevel, name))
     logger.addHandler(handler_stdout)
     handler_stderr=logging.StreamHandler(sys.stderr)
     handler_stderr.setFormatter(morpho_formatter)

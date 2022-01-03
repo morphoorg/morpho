@@ -8,7 +8,7 @@ from morpho.utilities import morphologging, reader
 logger = morphologging.getLogger(__name__)
 
 
-class RootHistogram(object):
+class RootHistogram:
     '''
     Create default ROOT histogram object.
 

@@ -5,13 +5,12 @@ Date: 06/26/18
 '''
 
 try:
-    import ROOT
+    from ROOT import RooRealVar, RooDataSet, RooArgSet, RooGaussian
 except ImportError:
     pass
 
 from morpho.utilities import morphologging, reader
 from morpho.processors.sampling.RooFitInterfaceProcessor import RooFitInterfaceProcessor
-from morpho.processors.BaseProcessor import BaseProcessor
 logger = morphologging.getLogger(__name__)
 
 
@@ -52,11 +51,11 @@ class GaussianRooFitProcessor(RooFitInterfaceProcessor):
         return True
 
     def _defineDataset(self, wspace):
-        varX = ROOT.RooRealVar("x", "x", min(self._data["x"]), max(self._data["x"]))
-        data = ROOT.RooDataSet(self.datasetName, self.datasetName, ROOT.RooArgSet(varX))
+        varX = RooRealVar("x", "x", min(self._data["x"]), max(self._data["x"]))
+        data = RooDataSet(self.datasetName, self.datasetName, RooArgSet(varX))
         for x in self._data["x"]:
             varX.setVal(x)
-            data.add(ROOT.RooArgSet(varX))
+            data.add(RooArgSet(varX))
         getattr(wspace, 'import')(data)
         return wspace
 
@@ -65,11 +64,11 @@ class GaussianRooFitProcessor(RooFitInterfaceProcessor):
         Define the model which is that the residual of the linear fit should be normally distributed.
         '''
         logger.debug("Defining pdf")
-        mean = ROOT.RooRealVar("mean", "mean", 0, self.mean_min, self.mean_max)
-        width = ROOT.RooRealVar("width", "width", 1., self.width_min, self.width_max)
-        x = ROOT.RooRealVar("x", "x", 0, self.x_min, self.x_max)
+        mean = RooRealVar("mean", "mean", 0, self.mean_min, self.mean_max)
+        width = RooRealVar("width", "width", 1., self.width_min, self.width_max)
+        x = RooRealVar("x", "x", 0, self.x_min, self.x_max)
 
-        pdf = ROOT.RooGaussian("pdf", "pdf", x, mean, width)
+        pdf = RooGaussian("pdf", "pdf", x, mean, width)
         # Save pdf: this will save all required variables and functions
         getattr(wspace, 'import')(pdf)
 

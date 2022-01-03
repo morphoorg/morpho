@@ -9,6 +9,7 @@ from morpho.utilities import morphologging, stanConvergenceChecker
 logger = morphologging.getLogger(__name__)
 
 try:
+    from ROOT import TStyle, gStyle, TH2F, TH1F
     import ROOT
 except ImportError:
     pass
@@ -18,7 +19,7 @@ def _set_style_options(rightMargin, leftMargin, topMargin, botMargin, optStat='e
     """
     Change ROOT Style of the canvas
     """
-    style = ROOT.TStyle(ROOT.gStyle)
+    style = TStyle(gStyle)
     style.SetOptStat(optStat)
     style.SetLabelOffset(0.01, 'xy')
     style.SetLabelSize(0.05, 'xy')
@@ -85,7 +86,7 @@ def _get2Dhisto(list_dataX, list_dataY, nbins, ranges, histo_title):
     y_range = ranges[1]
     ymin, ymax = _get_range(y_range, list_dataY)
 
-    temphisto = ROOT.TH2F(histo_title, histo_title,
+    temphisto = TH2F(histo_title, histo_title,
                           nbins[0], xmin, xmax, nbins[1], ymin, ymax)
     if len(list_dataX) != len(list_dataX):
         logger.critical("list of data does not have the same size. x: {}; y: {}".format(
@@ -188,7 +189,7 @@ def _fill_hist_grid(input_dict, name_grid,
                 list_dataY = input_dict[names[0]][warmup:]
                 list_dataX = input_dict[names[1]][warmup:]
                 histo = _get2Dhisto(list_dataX, list_dataY, [nbins_x, nbins_y],
-                                    [0, 0], '{}_{}'.format(names[0], names[1]))
+                                    [0, 0], f'{names[0]}_{names[1]}')
                 histo.SetTitle("")
                 histo.GetYaxis().SetTitle(names[0])
                 histo.GetXaxis().SetTitle(names[1])
@@ -196,8 +197,7 @@ def _fill_hist_grid(input_dict, name_grid,
             elif names is not None and len(names) == 1:
                 list_data = input_dict[names[0]][warmup:]
                 x_range = _autoRangeList(list_data)
-                histo = ROOT.TH1F("%s_%i_%i" % (names[0], r, c), names[0],
-                                  nbins_x, x_range[0], x_range[1])
+                histo = TH1F(f"{names[0]}_{r:d}_{c:d}", names[0], nbins_x, x_range[0], x_range[1])
                 for value in list_data:
                     histo.Fill(value)
                 histo.SetTitle("")
@@ -232,7 +232,7 @@ def _fill_hist_grid_divergence(input_dict, name_grid,
                 x_div0, x_div1 = stanConvergenceChecker.partition_div(input_dict, names[1])
                 if len(x_div0) > 0:
                     histo_div0 = _get2Dhisto(x_div0, y_div0, [nbins_x, nbins_y],
-                                             [0, 0], '{}_{}'.format(names[0], names[1]))
+                                             [0, 0], f'{names[0]}_{names[1]}')
                     histo_div0.SetTitle("")
                     histo_div0.GetYaxis().SetTitle(names[0])
                     histo_div0.GetXaxis().SetTitle(names[1])
@@ -240,7 +240,7 @@ def _fill_hist_grid_divergence(input_dict, name_grid,
                     histo_div0 = None
                 if len(x_div1) > 0:
                     histo_div1 = _get2Dhisto(x_div1, y_div1, [nbins_x, nbins_y],
-                                             [0, 0], '{}_{}'.format(names[0], names[1]))
+                                             [0, 0], f'{names[0]}_{names[1]}')
                     histo_div1.SetTitle("")
                     histo_div1.GetYaxis().SetTitle(names[0])
                     histo_div1.GetXaxis().SetTitle(names[1])
@@ -250,8 +250,8 @@ def _fill_hist_grid_divergence(input_dict, name_grid,
             elif names is not None and len(names) == 1:
                 list_data = input_dict[names[0]][warmup:]
                 x_range = _autoRangeList(list_data)
-                histo = ROOT.TH1F("%s_%i_%i" % (names[0], r, c), names[0],
-                                  nbins_x, x_range[0], x_range[1])
+                histo = TH1F(f"{names[0]}_{r:d}_{c:d}", names[0],
+                             nbins_x, x_range[0], x_range[1])
                 for value in list_data:
                     histo.Fill(value)
                 histo.SetTitle("")

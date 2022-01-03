@@ -1,4 +1,5 @@
-FROM ghcr.io/morphoorg/morpho-docker:main as morpho_common
+FROM morpho_docker as morpho_common
+# FROM ghcr.io/morphoorg/morpho-docker:main as morpho_common
 
 ENV MORPHO_TAG=v2.7.2
 ENV MORPHO_REPO_PREFIX=$REPO_DIR/morpho/$MORPHO_TAG
@@ -17,7 +18,10 @@ COPY setup.py $MORPHO_REPO_PREFIX/setup.py
 COPY .git $MORPHO_REPO_PREFIX/.git
 COPY tests $MORPHO_REPO_PREFIX/tests
 
-RUN cd $MORPHO_REPO_PREFIX &&\
-    pip3 install . --prefix $MORPHO_INSTALL_PREFIX &&\
-    /bin/true
+WORKDIR $MORPHO_REPO_PREFIX
+
+RUN . /home/linuxbrew/.bash_profile &&\
+    pip3 install .
+    # --prefix $MORPHO_INSTALL_PREFIX &&\
+    # /bin/true
 

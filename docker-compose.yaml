@@ -9,4 +9,5 @@ services:
       - ~/Work/HDR:/hdr
   test:
     build: .
+    user: linuxbrew
     command: '/bin/bash -c ". /home/linuxbrew/.bash_profile && cd tests && python3 -m unittest discover -v"'

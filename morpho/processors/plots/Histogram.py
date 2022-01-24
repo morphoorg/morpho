@@ -12,9 +12,6 @@ from .RootCanvas import RootCanvas
 from .RootHistogram import RootHistogram
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
-
 
 class Histogram(BaseProcessor):
     '''

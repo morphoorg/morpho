@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Morpho main executable
 Authors: M. Guigue
@@ -52,15 +52,12 @@ DDDN?IIIIIIIIII7$$$$DDZ8    .N  7   8OZZZZZ$$$7III??IDD=\n\
 
     args = parser.parse_args()
     logger = morphologging.getLogger('morpho',
-                                     level=getattr(logging, args.verbosity),
-                                     stderr_lb=getattr(
-                                         logging, args.stderr_verbosity),
+                                     level=args.verbosity,
+                                     stderr_lb = args.stderr_verbosity,
                                      propagate=False)
     logger_stan = morphologging.getLogger('pystan',
-                                          level=getattr(
-                                              logging, args.verbosity),
-                                          stderr_lb=getattr(
-                                              logging, args.stderr_verbosity),
+                                          level=args.verbosity,
+                                          stderr_lb=args.stderr_verbosity,
                                           propagate=False)
 
     myToolBox = toolbox.ToolBox(args)

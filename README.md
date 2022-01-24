@@ -1,7 +1,7 @@
 # morpho
 
 [![DOI](https://zenodo.org/badge/22215458.svg)](https://zenodo.org/badge/latestdoi/22215458)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7b4a6e74b5cd405ea91b6ddb5cb504d1)](https://app.codacy.com/app/guiguem/morpho?utm_source=github.com&utm_medium=referral&utm_content=project8/morpho&utm_campaign=badger)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/447ffa9cccb742fbb323d4c96acb90b7)](https://www.codacy.com/gh/morphoorg/morpho/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=morphoorg/morpho&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.org/morphoorg/morpho.svg?branch=master)](https://travis-ci.org/morphoorg/morpho)
 [![Documentation Status](https://readthedocs.org/projects/morpho/badge/?version=latest)](https://morpho.readthedocs.io/en/latest/?badge=latest)
 
@@ -41,7 +41,7 @@ The following dependencies should be installed (via a package manager) before in
 
 ### Virtual environment-based installation
 
-We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan 2.17.
+We recommend installing morpho using pip inside a python virtual environment. Doing so will automatically install dependencies beyond the four listed above, including PyStan.
 
 If necessary, install [virtualenv](https://virtualenv.pypa.io/en/stable/), then execute:
 

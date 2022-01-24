@@ -5,7 +5,8 @@ Date: 06/26/18
 '''
 
 from argparse import ArgumentParser
-import ast
+from ast import literal_eval
+
 
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
@@ -74,8 +75,8 @@ def update_from_arguments(the_dict, args):
         result = a_arg.split('=')
         xpath = result[0].split('.')
         try:
-            interpreted_val = ast.literal_eval(result[1])
-        except:
+            interpreted_val = literal_eval(result[1])
+        except ValueError:
             interpreted_val = str(result[1])
         to_update_dict = {xpath[-1]: interpreted_val}
         for path in reversed(xpath[:-1]):
@@ -94,16 +95,10 @@ def change_and_format(b):
         converted into a float, the float is returned. Otherwise
         b is returned.
     """
-    if b == 'True':
-        return True
-    elif b == 'False':
-        return False
-    else:
-        try:
-            a = float(b)
-            return a
-        except:
-            return b
+    try:
+        return literal_eval(b)
+    except ValueError:
+        return b
 
 
 def merge(a, b, path=None):

@@ -1,11 +1,10 @@
-#!/bin/python
-
-'''
+"""
 Toolbox class: create, configure and run processors
 Authors: M. Guigue
 Date: 06/26/18
-'''
+"""
 import os
+import json
 import importlib
 
 from morpho.utilities import morphologging, parser
@@ -22,7 +21,7 @@ class ToolBox:
     def __init__(self, args):
         self._ReadConfigFile(args.config)
         self._UpdateConfigFromCLI(args)
-        self._processors_dict = dict()
+        self._processors_dict = {}
         self._chain_processors = []
 
     def _ReadConfigFile(self, filename):
@@ -32,18 +31,16 @@ class ToolBox:
             elif filename.endswith(".yaml"):
                 my_module = importlib.import_module("yaml")
             else:
-                logger.warning(
-                    "Unknown format: {}; trying json".format(filename))
+                logger.warning(f"Unknown format: {filename}; trying json")
                 my_module = importlib.import_module("json")
             with open(filename, 'r') as json_file:
                 try:
                     self.config_dict = my_module.load(json_file)
                 except Exception as err:
-                    logger.error(
-                        "Error while reading {}:\n{}".format(filename, err))
+                    logger.error(f"Error while reading {filename}:\n{err}")
                     raise
         else:
-            logger.error("File {} does not exist".format(filename))
+            logger.error(f"File {filename} does not exist")
             raise FileNotFoundError(filename)
 
     def _UpdateConfigFromCLI(self, args):
@@ -51,11 +48,10 @@ class ToolBox:
             self.config_dict = parser.update_from_arguments(
                 self.config_dict, args.param)
 
-    def _CreateAndConfigureProcessors(self):
+    def _CreateAndConfigureProcessors(self) -> bool:
         for a_dict in self.config_dict["processors-toolbox"]["processors"]:
             if not self._CreateOneProcessor(a_dict["name"], a_dict["type"]):
-                logger.error(
-                    "Could not create processor <{}>; exiting".format(a_dict["name"]))
+                logger.error(f"Could not create processor <{a_dict['name']}>; exiting")
                 return False
         for _, processor in self._processors_dict.items():
             procName = processor["object"].name
@@ -63,15 +59,12 @@ class ToolBox:
                 config_dict = self.config_dict[procName]
             else:
                 config_dict = dict()
-            try:
-                processor["object"].Configure(config_dict)
-            except Exception as err:
-                logger.error(
-                    "Configuration of <{}> failed: \n{}".format(procName, err))
+            if not processor["object"].Configure(config_dict):
+                logger.error(f"Configuration of <{procName}> failed")
                 return False
         return True
 
-    def _CreateOneProcessor(self, procName, procClass):
+    def _CreateOneProcessor(self, procName, procClass) -> bool:
         # Parsing procClass
         if ":" in procClass:
             (module_name, processor_name) = procClass.split(":")
@@ -81,8 +74,8 @@ class ToolBox:
         # importing module (morpho is default)
         try:
             module = importlib.import_module(module_name)
-        except:
-            logger.error("Cannot import module {}".format(module_name))
+        except ImportError:
+            logger.error(f"Cannot import module {module_name}")
             return False
 
         try:
@@ -96,15 +89,13 @@ class ToolBox:
                                               "deleted": False
                                           }
                                           })
-            logger.info("Processor <{}> ({}:{}) created".format(
-                procName, module_name, processor_name))
+            logger.info(f"Processor <{procName}> ({module_name}:{processor_name}) created")
             return True
-        except:
-            logger.error("Cannot import {} from {}".format(
-                processor_name, "morpho"))
+        except ImportError:
+            logger.error(f"Cannot import {processor_name} from {'morpho'}")
             return False
 
-    def _ConnectProcessors(self, nameProc):
+    def _ConnectProcessors(self, nameProc) -> bool:
         proc_object = self._processors_dict[nameProc]['object']
         nConnections = len(self._processors_dict[nameProc]['variableToGive'])
         for i in range(nConnections):
@@ -112,28 +103,25 @@ class ToolBox:
             var_to_give = self._processors_dict[nameProc]['variableToGive'][i]
             var_to_be_connected_to = self._processors_dict[nameProc]['varToBeConnectedTo'][i]
             proc_object_to_update = self._processors_dict[proc_name_to_update]['object']
-            logger.debug("Connection {}:{} -> {}:{}".format(nameProc, var_to_give, proc_name_to_update, var_to_be_connected_to))
+            logger.debug(f"Connection {nameProc}:{var_to_give} -> {proc_name_to_update}:{var_to_be_connected_to}")
 
             try:
                 val = getattr(proc_object, var_to_give)
-                setattr(proc_object_to_update, var_to_be_connected_to, val)
-            except Exception as err:
-                logger.error("Connection {}:{} -> {}:{} failed:\n{}".format(nameProc,
-                                                                            var_to_give, proc_name_to_update, var_to_be_connected_to, err))
+            except AttributeError:
+                logger.error(f"Connection {nameProc}:{var_to_give} -> {proc_name_to_update}:{var_to_be_connected_to} failed")
                 return False
+            setattr(proc_object_to_update, var_to_be_connected_to, val)
         return True
 
-    def _DefineChain(self):
+    def _DefineChain(self) -> bool:
         '''
         Defines the connections between the processors and place the processors into a ordered list.
         '''
         for a_connection in self.config_dict['processors-toolbox']['connections']:
             if a_connection['slot'].split(":")[0] not in self._processors_dict.keys():
-                logger.error("Processor <{}> not defined but used as signal emitter".format(
-                    a_connection['slot'].split(":")[0]))
+                logger.error(f"Processor <{a_connection['slot'].split(':')[0]}> not defined but used as signal emitter")
             if a_connection['signal'].split(":")[0] not in self._processors_dict.keys():
-                logger.error("Processor <{}> not defined but used as connection".format(
-                    a_connection['signal'].split(":")[0]))
+                logger.error(f"Processor <{a_connection['signal'].split(':')[0]}> not defined but used as connection")
             proc_name = a_connection['signal'].split(":")[0]
             new_proc_name = a_connection['slot'].split(":")[0]
             self._processors_dict[proc_name]["variableToGive"].append(
@@ -149,8 +137,7 @@ class ToolBox:
         for a_processor in self._processors_dict.keys():
             if a_processor not in self._chain_processors:
                 self._chain_processors.append(a_processor)
-        logger.debug("Sequence of processors: {}".format(
-            self._sequenceProcessors()))
+        logger.debug(f"Sequence of processors: {self._sequenceProcessors()}")
         return True
 
     def _sequenceProcessors(self):
@@ -159,7 +146,7 @@ class ToolBox:
             seqWithArrows = seqWithArrows + " -> " + item
         return seqWithArrows
 
-    def _RunChain(self):
+    def _RunChain(self) -> bool:
         '''
         Execute the chain of processors
         '''
@@ -179,10 +166,8 @@ class ToolBox:
                 del self._processors_dict[a_processor]['object']
         return True
 
-    def Run(self):
-        import json
-        logger.debug("Configuration:\n{}".format(
-            json.dumps(self.config_dict, indent=4)))
+    def Run(self) -> bool:
+        logger.debug(f"Configuration:\n{json.dumps(self.config_dict, indent=4)}")
         if not self._CreateAndConfigureProcessors():
             logger.error("Error while creating and configuring processors!")
             return False
@@ -192,20 +177,21 @@ class ToolBox:
         if not self._RunChain():
             logger.error("Error while running processors!")
             return False
+        return True
 
-    def GetProcessor(procName):
+    def GetProcessor(self, procName):
         if self._processors_dict[str(procName)]['deleted']:
             logger.warning("Processor {} has been deleted!".format(procName))
             return 0
         return self._processors_dict[str(procName)]['object']
 
-    def GetProcAttr(procName, varName):
+    def GetProcAttr(self, procName, varName):
         if self._processors_dict[str(procName)]['deleted']:
             logger.warning("Processor {} has been deleted!".format(procName))
             return 0
         value = 0
         try:
             value = getattr(self._processors_dict[str(procName)]['object'], str(varName))
-        except:
-            logger.warning("Attribute {} does not exist in {}".format(procValue, procName))
+        except AttributeError:
+            logger.warning(f"Attribute {varName} does not exist in {procName}; returning 0")
         return value

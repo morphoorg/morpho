@@ -6,3 +6,7 @@ services:
     volumes:
       # share a subdirectory from the host to /host in the docker (can be edited)
       - ~/morpho_share:/host
+  test:
+    build: .
+    user: linuxbrew
+    command: '/bin/bash -c ". /home/linuxbrew/.bash_profile && cd tests && python3 -m unittest discover -v"'

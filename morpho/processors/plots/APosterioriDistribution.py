@@ -11,9 +11,6 @@ from morpho.processors import BaseProcessor
 from morpho.processors.plots import RootCanvas
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
-
 
 class APosterioriDistribution(BaseProcessor):
     '''

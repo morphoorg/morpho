@@ -9,6 +9,11 @@ logger = morphologging.getLogger(__name__)
 
 
 def read_param(yaml_data, node, default):
+    """
+    Recursively parse a path (separated by .) and retrive the value from the yaml_data dictionary.
+    If the value is required but not present, raises an exception.
+    If not required and not present, it returns the default value.
+    """
     data = yaml_data
     xpath = node.split('.')
     try:
@@ -16,12 +21,9 @@ def read_param(yaml_data, node, default):
             data = data[path]
     except KeyError as exc:
         if default == 'required':
-            err = "Configuration parameter {} required but not provided in config file!".format(
-                node)
-            logger.error(err)
+            logger.error(f"Configuration parameter {node} required but not provided in config file!")
             raise exc
-        else:
-            data = default
+        data = default
     return data
 
 
@@ -35,10 +37,7 @@ def add_dict_param(dictionary, key, value):
     so multiple parameters may be added at once.
     '''
     if key in dictionary:
-        key_err = "Cannot add key {} to dictionary. That key is taken.".format(
-            key)
-        logger.error(key_err)
-        raise
-    else:
-        dictionary.update({key: value})
+        logger.error(f"Cannot add key {key} to dictionary. That key is taken.")
+        raise ValueError
+    dictionary.update({key: value})
     return dictionary

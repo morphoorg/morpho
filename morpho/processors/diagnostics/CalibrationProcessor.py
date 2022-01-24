@@ -1,13 +1,15 @@
-'''
-Processor for calibrating results; i.e., determining how often posteriors are consistent with "true" values assumed to generate fake data.
+"""
+Processor for calibrating results; i.e., determining how often posteriors are consistent with
+"true" values assumed to generate fake data.
 Useful for sensitivity analyses.
 
 Authors: T. E. Weiss
 Date: May 2020
-'''
+"""
 
 from __future__ import absolute_import
 
+import awkward
 import numpy as np
 import math
 from os.path import exists
@@ -17,30 +19,39 @@ from morpho.processors import BaseProcessor
 from morpho.processors.IO import IOROOTProcessor
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
-
 
 class CalibrationProcessor(BaseProcessor):
-    '''
-    Performs a Bayesian sensitivity calibration for a continuous parameter - i.e., computes the coverage of a credible interval. Uses either an upper limit or upper and lower bounds on a posterior, depending on user input. Prints the coverage as well as (optionally) the median and mean credible windows.
-    
+    """
+    Performs a Bayesian sensitivity calibration for a continuous parameter - i.e., computes the coverage of a credible
+    interval. Uses either an upper limit or upper and lower bounds on a posterior, depending on user input. Prints the
+    coverage as well as (optionally) the median and mean credible windows.
+
     Required input:
         files: List of strings naming ROOT files produced by an ensemble of morpho runs.
         in_param_names: List of strings naming parameters of interest inputted to the generator.
-        
+
     Optional input:
-        cred_interval: List with float elements between 0 and 1 defining a posterior credible window; defaults to [0.05, 0.95]. If len(cred_interval)==1, this procesor finds the coverage of a limit. If len(cred_interval)==2, it finds the coverage of an interval.
+        cred_interval: List with float elements between 0 and 1 defining a posterior credible window; defaults to
+        [0.05, 0.95]. If len(cred_interval)==1, this procesor finds the coverage of a limit. If len(cred_interval)==2,
+        it finds the coverage of an interval.
         root_in_tree: Tree containing data generation input values in each file. Defaults to "input".
         root_post_tree: Tree containing analysis posteriors. Defaults to "analysis".
-        post_param_names: List of strings naming posteriors produced by Stan analysis for a parameters of interest. Defaults to self.in_param_names.
+        post_param_names: List of strings naming posteriors produced by Stan analysis for a parameters of interest.
+        Defaults to self.in_param_names.
         quantile: If True, compute quantile credible intervals. Otherwise, compute highest density intervals.
-        check_if_nonzero: If True, check whether posteriors allow the parameters to be distinguished from zero (given some credible interval).
-        
+        check_if_nonzero: If True, check whether posteriors allow the parameters to be distinguished from zero (given
+        some credible interval).
+
     Results:
-        coverages: dictionary containing coverage of interval given by self.cred_interval, for each parameter in self.in_param_names
-    '''
-    def InternalConfigure(self,params):
+        coverages: dictionary containing coverage of interval given by self.cred_interval, for each parameter in
+        self.in_param_names
+    """
+
+    def __init__(self, name):
+        super().__init__(name)
+        self.files = ""
+
+    def InternalConfigure(self,params) -> bool:
         #Required input
         self.files = reader.read_param(params,'files','required')
         self.in_param_names = reader.read_param(params,'in_param_names','required')
@@ -60,22 +71,23 @@ class CalibrationProcessor(BaseProcessor):
         for file in self.files:
             if not exists(file):
                 logger.warning("File {} doesn't exist".format(file))
-        return True
 
         #Checking if the credible interval list defines limit or interval
         if len(self.cred_interval) not in [1, 2]:
             logger.error("Please input a credible interval list of either one or two bounds.")
             return False
-    
-    
+
+        return True
+
     def perform_calibration(self):
         logger.info("Calibrating credible interval results")
-        
+
+        self.alpha = 0
         #Defining credibility
         if len(self.cred_interval)==1:
-            alpha = self.cred_interval[0]
+            self.alpha = self.cred_interval[0]
         elif len(self.cred_interval)==2:
-            alpha = self.cred_interval[1]-self.cred_interval[0]
+            self.alpha = self.cred_interval[1]-self.cred_interval[0]
         
         #Setting up variables before loop
         calib_bounds = {name:[] for name in self.in_param_names}
@@ -84,7 +96,7 @@ class CalibrationProcessor(BaseProcessor):
         #Dictionary to keep track of sums of quantities, so that averages can be taken after the loop
         sums = {name:dict.fromkeys(['median', 'mean', 'lower', 'upper'],0) for name in self.in_param_names}
         
-        for i, filename in enumerate(self.files): 
+        for i, filename in enumerate(self.files):
             #Reading input values and posteriors from root files
             try:
                 input_vals, posterior_arrays = self._load_inputs_and_posteriors(filename)
@@ -92,25 +104,25 @@ class CalibrationProcessor(BaseProcessor):
                 logger.warning(error)
                 self.failed_runs.append(filename)
                 continue
-            except RuntimeError as error:
-                logger.warning("Caught processor error; passing...")
+            except RuntimeError:
+                logger.warning("Caught Runtime error; passing...")
                 continue
-            
+
             #Constructing credible intervals
             logger.debug("Constructing credible intervals")
-            if self.quantile == True:
+            if self.quantile:
                 for param_name in calib_bounds:
                     calib_bounds[param_name].append(self._get_quantile_bounds(posterior_arrays[param_name]))
             else:
                 for param_name in calib_bounds:
-                    bounds = self._get_highest_density_bounds(posterior_arrays[param_name], alpha)
+                    bounds = self._get_highest_density_bounds(posterior_arrays[param_name], self.alpha)
                     calib_bounds[param_name].append(bounds)
                     #Consistency-with-zero checks are only possible for HDIs
                     if bounds[0] == 0.0:
                         consistent_with_zero[param_name] += 1
             
             #Tracking and optionally printing information about the intervals
-            bs={key:val[i] for key, val in calib_bounds.items()}
+            bs = {key:val[i] for key, val in calib_bounds.items()}
             logger.debug('\n---------------------EXPERIMENT #{}:---------------------'.format(i))
             self._report_post_param_info(input_vals, posterior_arrays, bs, sums)
             logger.debug('\n--------------------------------------------------------')
@@ -209,7 +221,10 @@ class CalibrationProcessor(BaseProcessor):
             HDI: a list [p_a, p_b] containing the lower and upper value of the minimum width Bayesian credible interval
         """
         check_near_zero = 10
-        posterior_array.sort()
+        try:
+            posterior_array = awkward.sort(posterior_array)
+        except ValueError:
+            posterior_array.sort()
         #Number of samples generated
         nSample = len(posterior_array)
         #Number of samples included in the HDI
@@ -217,7 +232,7 @@ class CalibrationProcessor(BaseProcessor):
         #Number of intervals to be compared
         nCI = nSample - nSampleCred
         #Width of every proposed interval
-        best_width = max(posterior_array)
+        best_width = max(posterior_array) - min(posterior_array)
         
         best_index = 0
         for i in range(nCI):
@@ -266,22 +281,27 @@ class CalibrationProcessor(BaseProcessor):
         """
         for param_name in calib_bounds:
             #Optionally reporting how often each parameter is consistent with zero
-            if self.check_if_nonzero == True:
+            if self.check_if_nonzero:
                 zero_frac = float(consistent_with_zero[param_name])/len(self.files)
-                logger.info('{} CALIBRATION: {}% of inputted values are consistent with zero.'.format(param_name, zero_frac*100))
+                logger.info(
+                    f'{param_name} CALIBRATION: {zero_frac * 100}% of inputted values are consistent with zero.')
                 
             #Printing coverages and summary interval information
             if len(self.cred_interval) == 1:
-                logger.info('{}% of inputted {} values fell below a {}% posterior limit.'.format(coverages[param_name]*100, param_name, alpha*100))
+                logger.info(
+                    f'{coverages[param_name] * 100}% of inputted {param_name} values fell below a {self.alpha * 100}% posterior limit.')
                 widths = [i[0] for i in calib_bounds[param_name]]
             elif len(self.cred_interval) == 2:
-                logger.info('{} CALIBRATION: {}% of inputted values fell in a {}-{}% posterior interval.'.format(param_name, coverages[param_name]*100, self.cred_interval[0]*100, self.cred_interval[1]*100))
+                logger.info(
+                    f'{param_name} CALIBRATION: {coverages[param_name] * 100}% of inputted values fell in a {self.cred_interval[0] * 100}-{self.cred_interval[1] * 100}% posterior interval.')
                 avgs = {key:val/float(len(self.files)) for key, val in sums[param_name].items()}
-                logger.info("{} AVERAGES: {} < {} < {}; Median val={}; Mean val={}".format(param_name, avgs['lower'], param_name, avgs['upper'], avgs['median'], avgs['mean']))
+                logger.info(
+                    f"{param_name} AVERAGES: {avgs['lower']} < {param_name} < {avgs['upper']}; Median val={avgs['median']}; Mean val={avgs['mean']}")
                 widths = [i[1]-i[0] for i in calib_bounds[param_name]]
                 
-            logger.info("{} Mean interval width: {}; Median: {}".format(param_name, np.mean(widths), np.median(widths)))
-            logger.info("{} Minumum width: {}; Maximum: {}\n--------------------------------------------------------".format(param_name, np.amin(widths), np.amax(widths)))
+            logger.info(f"{param_name} Mean interval width: {np.mean(widths)}; Median: {np.median(widths)}")
+            logger.info(
+                f"{param_name} Minimum width: {np.amin(widths)}; Maximum: {np.amax(widths)}\n--------------------------------------------------------")
 
     def InternalRun(self):
         self.results = self.perform_calibration()

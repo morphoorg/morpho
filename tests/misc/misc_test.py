@@ -16,12 +16,13 @@ class MiscTests(unittest.TestCase):
         from morpho.processors.misc import ProcessorAssistant
         proc_config = {
             "function_name": "myFunction",
+            "path_name": "./misc",
             "module_name": "myModule",
             "value": 10
         }
         assistantProcessor = ProcessorAssistant("assistantProcessor")
-        assistantProcessor.Configure(proc_config)
-        assistantProcessor.Run()
+        self.assertTrue(assistantProcessor.Configure(proc_config))
+        self.assertTrue(assistantProcessor.Run())
         logger.debug("Assistant processor returned: {}".format(assistantProcessor.results))
         self.assertEqual(assistantProcessor.results,"value=10")
 

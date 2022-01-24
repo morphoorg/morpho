@@ -1,12 +1,11 @@
-'''
+"""
 JSON/Yaml IO processors
 Authors: M. Guigue
 Date: 06/26/18
-'''
+"""
 
 from __future__ import absolute_import
 
-# import json as mymodule
 import importlib
 import os
 
@@ -14,12 +13,9 @@ from morpho.processors.IO import IOProcessor
 from morpho.utilities import morphologging
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
-
 
 class IOJSONProcessor(IOProcessor):
-    '''
+    """
     Base IO JSON Processor
 
     Parameters:
@@ -32,7 +28,7 @@ class IOJSONProcessor(IOProcessor):
 
     Results:
         data: dictionary containing the data
-    '''
+    """
 
     module_name = 'json'
     dump_kwargs = {"indent": 4}
@@ -40,13 +36,14 @@ class IOJSONProcessor(IOProcessor):
     def __init__(self, name):
         super().__init__(name)
         self.my_module = importlib.import_module(self.module_name)
+        self.loader = importlib.import_module(self.module_name).load
 
     def Reader(self):
         logger.debug("Reading {}".format(self.file_name))
         if os.path.exists(self.file_name):
             with open(self.file_name, 'r') as json_file:
                 try:
-                    theData = self.my_module.load(json_file)
+                    theData = self.loader(json_file)
                 except:
                     logger.error(
                         "Error while reading {}".format(self.file_name))
@@ -100,7 +97,7 @@ class IOJSONProcessor(IOProcessor):
 
 
 class IOYAMLProcessor(IOJSONProcessor):
-    '''
+    """
     IO YAML Processor: uses IOJSONProcessor as basis
 
     Parameters:
@@ -113,6 +110,10 @@ class IOYAMLProcessor(IOJSONProcessor):
 
     Results:
         data: dictionary containing the data
-    '''
+    """
 
     module_name = 'yaml'
+    def __init__(self, name):
+        super().__init__(name)
+        self.my_module = importlib.import_module(self.module_name)
+        self.loader = importlib.import_module(self.module_name).safe_load

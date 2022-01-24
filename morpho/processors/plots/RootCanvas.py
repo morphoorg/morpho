@@ -10,11 +10,8 @@ from morpho.utilities import morphologging, reader, plots
 # from morpho.processors import BaseProcessor
 logger = morphologging.getLogger(__name__)
 
-__all__ = []
-__all__.append(__name__)
 
-
-class RootCanvas(object):
+class RootCanvas:
     '''
     Create default ROOT canvas object.
 
@@ -47,9 +44,9 @@ class RootCanvas(object):
         from ROOT import TCanvas
         self.canvas = TCanvas(self.title, self.title, self.width, self.height)
         if "logy" in self.canvasoptions:
-            can.SetLogy()
+            self.canvas.SetLogy()
         if "logx" in self.canvasoptions:
-            can.SetLogx()
+            self.canvas.SetLogx()
 
         # Output path
         self.path = reader.read_param(input_dict, "output_path", "./")

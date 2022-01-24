@@ -23,8 +23,7 @@ class DiagnosticsTests(unittest.TestCase):
             "variables": [
                 {
                     "variable": "x",
-                    "root_alias": "x",
-                    "type": "float"
+                    "root_alias": "x"
                 }
             ]
         }
@@ -42,8 +41,7 @@ class DiagnosticsTests(unittest.TestCase):
         calibProc.Configure(proc_config)
 
         rand = TRandom()
-        rootProc.data = {"x": [ rand.Gaus(0, 1) for i in range(0, 1000)]}
-        rootProc.filename = "calib.root"
+        rootProc.data = {"x": [ rand.Gaus(-10, 1) for i in range(0, 1000)]}
         rootProc.Run()
         rootProc.tree_name = "analysis"
         rootProc.file_option = "UPDATE"

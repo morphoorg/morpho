@@ -6,7 +6,6 @@ services:
     volumes:
       # share a subdirectory from the host to /host in the docker (can be edited)
       - ~/morpho_share:/host
-      - ~/Work/HDR:/hdr
   test:
     build: .
     user: linuxbrew

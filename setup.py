@@ -8,13 +8,15 @@ from setuptools.command.test import test as TestCommand
 verstr = "none"
 try:
     import subprocess
-    verstr = subprocess.check_output(
-        ['git', 'describe', '--long']).decode('utf-8').strip()
+    #Modified this to comply with pip's current PEP requirements (versioning conventions)
+    version_info = subprocess.check_output(['git','describe', '--long']).decode('utf-8').strip() 
+    version_info = version_info.split('-')
+    verstr = version_info[0] + '+' + version_info[1] + '.' + version_info[2]
 except EnvironmentError:
     pass
 except Exception as err:
     print(err)
-    verstr = 'v0.0.0-???'
+    verstr = 'v0.0.0+???'
 
 on_rtd = os.environ.get("READTHEDOCS", None) == 'True'
 

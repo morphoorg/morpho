@@ -159,6 +159,44 @@ def check_rhat(fit):
         return((True, 'Rhat above 1.1 indicates that the chains very likely have not mixed.'))
 
 
+def get_rhat_neff(fit, param_names=None):
+    '''Returns Rhat and effective sample size (n_eff) for each parameter of a fit.
+
+    Unlike check_rhat/check_n_eff, which only report a pass/fail summary, this
+    returns the raw per-parameter numbers so they can be saved (e.g. to an
+    output file) rather than just printed as a warning.
+
+    Args:
+        fit: stanfit object containing sampler output
+        param_names: optional list of parameter names to restrict the output
+            to. Matched the same way as PyStanSamplingProcessor's
+            interestParams: an exact match, or a match to "name[" for
+            vector-valued parameters. If None, every parameter in the fit
+            summary is returned.
+
+    Returns:
+        dict with keys 'names', 'rhat', 'n_eff': parallel lists, one entry
+        per matched parameter.
+    '''
+    fit_summary = fit.summary(probs=[0.5])
+    names = list(fit_summary['summary_rownames'])
+    n_effs = [x[4] for x in fit_summary['summary']]
+    rhats = [x[5] for x in fit_summary['summary']]
+
+    if param_names is None:
+        return {'names': names, 'n_eff': n_effs, 'rhat': rhats}
+
+    keep = [
+        i for i, name in enumerate(names)
+        if name in param_names or any(name.startswith(p + '[') for p in param_names)
+    ]
+    return {
+        'names': [names[i] for i in keep],
+        'n_eff': [n_effs[i] for i in keep],
+        'rhat': [rhats[i] for i in keep],
+    }
+
+
 def check_all_diagnostics(fit):
     '''Checks all MCMC diagnostics
 

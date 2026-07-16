@@ -58,6 +58,8 @@ class PyStanSamplingProcessor(BaseProcessor):
     Results:
         results: dictionary containing the result of the sampling of the parameters of interest
         results_c: dictionary containing the result of the sampling of the parameters of interest (without the warmup chain)
+        diagnostics: dict with keys 'names', 'rhat', 'n_eff' (parallel lists), giving the
+            Rhat and effective sample size for each parameter in interestParams
     '''
     @property
     def data(self):
@@ -298,6 +300,11 @@ class PyStanSamplingProcessor(BaseProcessor):
         # Put the data into a nice dictionary
         self.results = pystanLoader.extract_data_from_outputdata(
             self.__dict__, stan_results)
+        # Save per-parameter Rhat / effective sample size for downstream use
+        # (e.g. writing to an output file). Independent of no_diagnostics,
+        # which only gates the divergence plots/text file below.
+        self.diagnostics = stanConvergenceChecker.get_rhat_neff(
+            stan_results, param_names=self.interestParams)
         # Store convergence checks
         if not self.no_diagnostics:
             self._store_diagnostics(stan_results)
